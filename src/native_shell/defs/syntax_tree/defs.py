@@ -7,10 +7,11 @@ The types are defined in the built-ins or add-ins.  Those contain
 the implementation details related to the types.
 """
 
-from typing import Sequence, Mapping, Literal
+from typing import Sequence, Mapping, Literal, Union
 from abc import ABC
+from ..basic import SimpleParameter, NodeReference
 from ...util.message import I18n
-from ...util.result import Result, Problem, SourcePath
+from ...util.result import Result, SourcePath
 
 
 BasicType = Literal["string", "number", "integer", "boolean"]
@@ -124,7 +125,9 @@ class AbcType(AbcBaseType, ABC):
         raise NotImplementedError
 
     def fields(self) -> Sequence[TypeField]:
-        """Get the additional provided keys for this type."""
+        """Get the additional provided keys for this type.
+        These are read-only from outside the type, and are provided
+        for checking available fields and ."""
         raise NotImplementedError
 
 
@@ -139,68 +142,67 @@ class AbcMetaType(AbcBaseType, ABC):
         raise NotImplementedError
 
 
-class AbcSyntaxBuildingNode:
-    """A node in the syntax tree that can potentially contain a generator.
-
-    This is for the in-between phases of the tree construction.
-    """
-
-    def source(self) -> SourcePath:
-        """Get the source location for the node."""
-        raise NotImplementedError
-
-    def node_id(self) -> Sequence[str]:
-        """The identifier for the node.  This is equivalent to an
-        absolute reference path.  This is used to generate unique names
-        for the node."""
-        raise NotImplementedError
-
-    def build_type(self) -> AbcType | AbcMetaType:
-        """Get the node's type."""
-        raise NotImplementedError
-
-    def problems(self) -> Sequence[Problem]:
-        """Get any problems associated with this node.
-
-        This does not include parameter value problems.
-        """
-        raise NotImplementedError
-
-    def parameter_values(self) -> "Mapping[str, AbcSyntaxBuildingNode]":
-        """Get the values for the parameters."""
-        raise NotImplementedError
+SyntaxParameter = Union["SyntaxNode", SimpleParameter]
 
 
-class AbcSyntaxNode:
-    """A finalized node in the syntax tree.
+class SyntaxNode:
+    """A finalized node in the syntax tree.  It isn't 1-to-1 related to the
+    underlying type system, because a node may be a list of nodes, if the
+    parent parameter type has "is_list" marked.
+
+    If the parent parameter marked this node as a list, then the parameter values
+    returns the list translated into a map.  If order is important, then the caller
+    must perform numeric sorting on the keys.
 
     A node has a type and associated parameter values.  It cannot
     be of a generator meta-type.  At this point in the script construction,
     all problems have been dealt with.
     """
 
+    __slots__ = ("__source", "__node_id", "__type", "__values")
+
+    def __init__(
+        self,
+        *,
+        source: SourcePath,
+        node_id: NodeReference,
+        node_type: AbcType,
+        values: Mapping[str, SyntaxParameter],
+    ) -> None:
+        # As this is the finalized form, we make copies of the compound types.
+        self.__source = tuple(source)
+        self.__node_id = node_id
+        self.__type = node_type
+        self.__values = dict(values)
+
     def source(self) -> SourcePath:
         """Get the source location for the node."""
-        raise NotImplementedError
+        return self.__source
 
-    def node_id(self) -> Sequence[str]:
+    def node_id(self) -> NodeReference:
         """The identifier for the node.  This is equivalent to an
         absolute reference path.  This is used to generate unique names
         for the node."""
-        raise NotImplementedError
+        return self.__node_id
 
-    def type(self) -> AbcType:
+    def node_type(self) -> AbcType:
         """Get the node's type."""
-        raise NotImplementedError
+        return self.__type
 
-    def parameter_values(self) -> "Mapping[str, AbcSyntaxNode]":
-        """Get the values for the parameters."""
-        raise NotImplementedError
+    def values(self) -> Mapping[str, SyntaxParameter]:
+        """Get the values in this node.  These are either parameters or fields or,
+        in the case of a list node, the list turned into a map by translating the
+        index to a string."""
+        return self.__values
 
 
 class TypeValidator:
     """Validates whether a syntax node is compatible with a type."""
 
-    def validate(self, node: AbcSyntaxNode) -> Result[None]:
+    def type_id(self) -> str:
+        """Associated type's unique identifier."""
+        raise NotImplementedError
+
+    def validate(self, node: SyntaxNode) -> Result[None]:
         """Validate the node.  The result will either be valid or invalid."""
         raise NotImplementedError

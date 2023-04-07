@@ -1,14 +1,17 @@
 """Visitor pattern for the syntax builder tree."""
 
 from typing import List, Callable, Optional
-from ..defs.syntax_tree import AbcSyntaxBuildingNode
+from ..defs.parse_tree.defs import ParsedNode
 
 
-def visit_building_node(
-    root: AbcSyntaxBuildingNode,
-    visitor: Callable[[AbcSyntaxBuildingNode], None],
+def visit_parsed_node(
+    root: ParsedNode,
+    visitor: Callable[[ParsedNode], None],
 ) -> None:
-    """Visit the node in the correct ordering (post)."""
+    """Visit the node in the correct ordering (post).
+
+    Not recursive, so stack size isn't a concern.
+    """
     stack: List[VisitState] = [
         VisitState(
             parent=None,
@@ -17,10 +20,8 @@ def visit_building_node(
         )
     ]
 
-    while True:
+    while stack:
         node = stack.pop()
-        if not stack:
-            break
         if node.is_complete():
             visitor(node.current)
             node.mark_visited()
@@ -43,12 +44,12 @@ class VisitState:
         *,
         parent: "Optional[VisitState]",
         key: str,
-        current: AbcSyntaxBuildingNode,
+        current: ParsedNode,
     ) -> None:
         self.parent = parent
         self.key = key
         self.current = current
-        self.remaining = {n for n in current.parameter_values().keys()}
+        self.remaining = set(current.node_parameter_map().keys())
 
     def is_complete(self) -> bool:
         """Is this node finished being used?"""
@@ -61,11 +62,14 @@ class VisitState:
 
     def create_children(self) -> "List[VisitState]":
         """Create visitor children."""
+        # These are sorted for consistent operation.
+        items = list(self.current.node_parameter_map().items())
+        items.sort(key=lambda k: k[0])
         return [
             VisitState(
                 parent=self,
                 key=k,
                 current=v,
             )
-            for k, v in self.current.parameter_values().items()
+            for k, v in items
         ]

@@ -1,10 +1,13 @@
 """The parsed user script."""
 
-from typing import Sequence, Tuple, Callable
+from typing import Sequence, Tuple, Iterable, Dict, Mapping, Callable, Optional
 import datetime
-from .add_ins import AddInTypeHandler
-from .syntax_tree import AbcSyntaxNode, AbcSyntaxBuildingNode
-from ..util.result import SourcePath, Result
+from .add_ins import AddInTypeHandler, AddInMetaTypeHandler, AddIn
+from .syntax_tree import SyntaxNode, AbcType, AbcMetaType
+from .parse_tree import ParsedNode
+from ..util.message import i18n as _
+from ..util.message import UserMessage
+from ..util.result import SourcePath, Result, Problem, ResultGen
 
 
 class ScriptSource:
@@ -43,6 +46,118 @@ class ScriptSource:
         return self.__when
 
 
+class TypeHandlerStore:
+    """Stores add-in type handlers and allows for easy reference."""
+
+    __slots__ = ("__types",)
+
+    def __init__(
+        self,
+        type_map: Mapping[str, AddInTypeHandler],
+    ) -> None:
+        self.__types = type_map
+
+    def all(self) -> Iterable[AddInTypeHandler]:
+        """Get all type handlers known."""
+        return self.__types.values()
+
+    def get(self, type_id: str | AbcType | None) -> Optional[AddInTypeHandler]:
+        """Get the type handler with the given type name or type."""
+        if type_id is None:
+            return None
+        if isinstance(type_id, AbcType):
+            type_id = type_id.type_id()
+        return self.__types.get(type_id)
+
+    def include_only(self, types: Iterable[str]) -> "TypeHandlerStore":
+        """Create a new store containing only the referenced types.
+        Does not cause an error if a requested type is not in the known type handlers."""
+        ret: Dict[str, AddInTypeHandler] = {}
+        for key, val in self.__types.items():
+            if key in types:
+                ret[key] = val
+        return TypeHandlerStore(ret)
+
+
+class HandlerStore:
+    """Stores the add-in type and meta-type handlers and allows for easy reference."""
+
+    __slots__ = ("__types", "__meta")
+
+    def __init__(
+        self,
+        type_map: Mapping[str, AddInTypeHandler],
+        meta_map: Mapping[str, AddInMetaTypeHandler],
+    ) -> None:
+        self.__types = TypeHandlerStore(type_map)
+        self.__meta = meta_map
+
+    @staticmethod
+    def create(source: SourcePath, add_ins: Iterable[AddIn]) -> "Result[HandlerStore]":
+        """Create a type handler store from the add-ins."""
+        res = ResultGen()
+        type_handlers: Dict[str, AddInTypeHandler] = {}
+        meta_handlers: Dict[str, AddInMetaTypeHandler] = {}
+
+        for add_in in add_ins:
+            for ath in add_in.type_handlers():
+                key = ath.type().type_id()
+                if key in type_handlers or key in meta_handlers:
+                    res.add(
+                        Problem.as_validation(
+                            source,
+                            UserMessage(
+                                _("duplicate type registration: '{key}'; found in {addin}"),
+                                key=key,
+                                addin=add_in.include_name(),
+                            ),
+                        )
+                    )
+                else:
+                    type_handlers[key] = ath
+            for amh in add_in.meta_types():
+                key = amh.meta_type().type_id()
+                if key in type_handlers or key in meta_handlers:
+                    res.add(
+                        Problem.as_validation(
+                            source,
+                            UserMessage(
+                                _("duplicate type registration: '{key}'; found in {addin}"),
+                                key=key,
+                                addin=add_in.include_name(),
+                            ),
+                        )
+                    )
+                else:
+                    meta_handlers[key] = amh
+
+        return res.build(HandlerStore(type_handlers, meta_handlers))
+
+    def get_type_handler(self, type_id: str | AbcType | None) -> Optional[AddInTypeHandler]:
+        """Get the type handler with the given type name or type."""
+        return self.__types.get(type_id)
+
+    def get_meta_handler(self, meta_id: str | AbcMetaType | None) -> Optional[AddInMetaTypeHandler]:
+        """Get the type handler with the given type name or type."""
+        if meta_id is None:
+            return None
+        if isinstance(meta_id, AbcMetaType):
+            meta_id = meta_id.type_id()
+        return self.__meta.get(meta_id)
+
+    def has_type_handler(self, type_id: str | AbcType | None) -> bool:
+        """Is this type handler known?"""
+        return self.get_type_handler(type_id) is not None
+
+    def has_meta_handler(self, type_id: str | AbcMetaType | None) -> bool:
+        """Is this meta-type handler known?"""
+        return self.get_meta_handler(type_id) is not None
+
+    def as_type_handler_store(self) -> TypeHandlerStore:
+        """Return the store for just the type handlers."""
+        return self.__types
+
+
 class StagingScript:
     """A pass at constructing the concrete script.  There may still be
     meta-type nodes and problems."""
@@ -61,13 +176,13 @@ class StagingScript:
         source: ScriptSource,
         name: str,
         version: str,
-        add_in_handlers: Sequence[AddInTypeHandler],
-        tree: AbcSyntaxBuildingNode,
+        add_ins: Iterable[AddIn],
+        tree: ParsedNode,
     ) -> None:
         self.__source = source
         self.__name = name
         self.__version = version
-        self.__add_ins = tuple(add_in_handlers)
+        self.__add_ins = tuple(add_ins)
         self.__tree = tree
 
     @property
@@ -87,12 +202,12 @@ class StagingScript:
         return self.__version
 
     @property
-    def add_in_handlers(self) -> Sequence[AddInTypeHandler]:
+    def add_ins(self) -> Sequence[AddIn]:
         """Add-ins used by the script."""
         return self.__add_ins
 
     @property
-    def tree(self) -> AbcSyntaxBuildingNode:
+    def tree(self) -> ParsedNode:
         """The parsed, expanded syntax tree."""
         return self.__tree
 
@@ -105,7 +220,7 @@ class PreparedScript:
         "__source",
         "__name",
         "__version",
-        "__add_ins",
+        "__type_handlers",
         "__tree",
     )
 
@@ -115,13 +230,13 @@ class PreparedScript:
         source: ScriptSource,
         name: str,
         version: str,
-        add_in_handlers: Sequence[AddInTypeHandler],
-        tree: AbcSyntaxNode,
+        type_handlers: TypeHandlerStore,
+        tree: SyntaxNode,
     ) -> None:
         self.__source = source
         self.__name = name
         self.__version = version
-        self.__add_ins = tuple(add_in_handlers)
+        self.__type_handlers = type_handlers
         self.__tree = tree
 
     @property
@@ -141,12 +256,12 @@ class PreparedScript:
         return self.__version
 
     @property
-    def add_in_handlers(self) -> Sequence[AddInTypeHandler]:
-        """Add-ins used by the script."""
-        return self.__add_ins
+    def type_handlers(self) -> TypeHandlerStore:
+        """Add-ins type handlers used by the script."""
+        return self.__type_handlers
 
     @property
-    def tree(self) -> AbcSyntaxNode:
+    def tree(self) -> SyntaxNode:
         """The parsed, expanded syntax tree."""
         return self.__tree
 

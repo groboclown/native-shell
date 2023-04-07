@@ -3,11 +3,11 @@
 The heart of the system.
 """
 
-from . import abc
-from .abc import (
+from . import defs
+from .defs import (
     BasicType,
-    AbcSyntaxBuildingNode,
-    AbcSyntaxNode,
+    SimpleParameter,
+    SyntaxNode,
     AbcBaseType,
     AbcType,
     AbcMetaType,
@@ -15,4 +15,8 @@ from .abc import (
     TypeParameter,
     TypeField,
     TypeValidator,
+)
+from .validations import (
+    validate_source_path,
+    validate_source_path_element,
 )

@@ -1,7 +1,13 @@
 """Add-in API"""
 
-from . import abc
-from .abc import (
-    AbcAddIn,
+from . import defs
+from .defs import (
+    AddIn,
     AddInTypeHandler,
+    AddInMetaTypeHandler,
+    CodeReference,
+    CodeTemplate,
+    GeneratedCode,
+    CodePurpose,
+    CodeReferencePurpose,
 )

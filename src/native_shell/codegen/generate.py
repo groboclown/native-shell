@@ -6,6 +6,16 @@ from ..defs.script import PreparedScript
 from ..util.result import Result, ResultGen
 
 
+# TODO this needs to be rebuilt from the ground up.
+#   It will need to generate all the code pieces for all the syntax nodes,
+#   then get the root "main" parameter and build that code.  This involves
+#   filling in all the references and making sure there's no cycles.
+#   Finally, the files need to be written.  There should just be one main.go
+#   file and then simple templatized versions of standard go support files
+#   Creating the go.mod file will require looking at actually loaded add-in
+#   type handlers and extracting the imports.
+
+
 def generate_source_files(
     script: PreparedScript,
     files: Sequence[FileAssembler],

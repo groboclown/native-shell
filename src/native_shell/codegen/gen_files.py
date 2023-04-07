@@ -2,7 +2,7 @@
 
 from typing import Mapping, Dict, Sequence, List, Callable
 from ..defs.script import PreparedScript
-from ..util.result import Result
+from ..util.result import Result, ResultGen
 
 
 class AssembledFile:
@@ -20,7 +20,7 @@ class AssembledFile:
         /,
         location: str,
         content: str,
-        part_joiners: Mapping[str, Callable[[Sequence[str]], str]],
+        part_joiners: Mapping[str, Callable[[Sequence[str]], Result[str]]],
     ) -> None:
         self.location = location
         self.content = content
@@ -30,6 +30,17 @@ class AssembledFile:
     def add_part(self, key: str, value: str) -> None:
         """Add the part value."""
         self.format_parts[key].append(value)
+
+    def generate(self) -> Result[str]:
+        """Create the assembled file's contents."""
+        res = ResultGen()
+        val = self.content.format(
+            **{
+                k: res.include(j(self.format_parts.get(k, ())), "")
+                for k, j in self.part_joiners.items()
+            }
+        )
+        return res.build(val)
 
 
 FileAssembler = Callable[[PreparedScript], Result[AssembledFile]]

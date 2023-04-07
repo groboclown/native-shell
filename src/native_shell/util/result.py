@@ -52,6 +52,7 @@ class Problem:
         source: SourcePath,
         message: UserMessage,
     ) -> "Problem":
+        """Create a validation problem."""
         return Problem(
             source=source,
             level="error",
@@ -117,6 +118,21 @@ class Result(Generic[_T_co]):
             problems=_flatten_problems(problems),
             invalid=False,
         )
+
+    @staticmethod
+    def as_none(
+        *problems: Union[Problem, Iterable[Problem]],
+    ) -> "Result[None]":
+        """Create a result with a valid value which is None."""
+        if problems:
+            # At least one problem argument.  Can't save memory.
+            return Result(
+                value=None,
+                problems=_flatten_problems(problems),
+                invalid=False,
+            )
+        # Save some memory.
+        return _VALID_NONE_RESULT
 
     @staticmethod
     def as_error(
@@ -220,7 +236,7 @@ class ResultGen:
         """
         for value in values:
             if isinstance(value, collections.abc.Iterable):
-                self.add(value)
+                self.add(*value)
             elif isinstance(value, Problem):
                 self.__problems.append(value)
                 if value.is_error:
@@ -235,6 +251,27 @@ class ResultGen:
     def problems(self) -> Sequence[Problem]:
         """Get the current problem list."""
         return self.__problems
+
+    def include(self, result: Result[_T], default: _T) -> _T:
+        """Include the result in this generator and return its value.
+        If it's invalid, return the default value in its place.
+        """
+        self.__problems.extend(result.problems)
+        if result.is_not_valid:
+            self.__invalid = True
+            return default
+        return result.required()
+
+    def optional(self, result: Result[_T], default: Optional[_T] = None) -> Optional[_T]:
+        """Include the result in this generator and return its value.
+        If it's invalid, return the default value in its place.
+        This can return None regardless of whether the result type is None or not.
+        """
+        self.__problems.extend(result.problems)
+        if result.is_not_valid:
+            self.__invalid = True
+            return default
+        return result.required()
 
     def build(self, value: _T) -> Result[_T]:
         """Build this generator into a result."""
@@ -263,3 +300,6 @@ def _flatten_problems(
         else:
             ret.append(problem)
     return ret
+
+
+_VALID_NONE_RESULT: Result[None] = Result(value=None, problems=(), invalid=False)
