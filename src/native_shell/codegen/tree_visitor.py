@@ -1,13 +1,14 @@
 """Different types of node tree visitors."""
 
-from typing import Sequence, List, Callable, Union
-from ..defs.syntax_tree import SyntaxNode, SimpleParameter
+from typing import Sequence, List, Callable
+
+from ..defs.syntax_tree import SyntaxNode, SyntaxParameter
 
 
 def walk_all(
     root: SyntaxNode,
     visitor: Callable[
-        [Sequence[str], Union[SyntaxNode, SimpleParameter]],
+        [Sequence[str], SyntaxParameter],
         bool,
     ],
 ) -> None:

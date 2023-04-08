@@ -11,10 +11,16 @@ from typing import Sequence, Mapping, Literal, Union
 from abc import ABC
 from ..basic import SimpleParameter, NodeReference
 from ...util.message import I18n
-from ...util.result import Result, SourcePath
+from ...util.result import SourcePath
 
 
-BasicType = Literal["string", "number", "integer", "boolean"]
+BasicType = Literal["string", "number", "integer", "boolean", "reference"]
+BASIC_TYPE_NAMES = ("string", "number", "integer", "boolean", "reference")
+
+# The ListType is an artificial node constructed to be a container for
+#   a parameter that contains a list of items.
+ListType = Literal["list"]
+LIST_TYPE_NAME: ListType = "list"
 
 
 class AbcTypeProperty:
@@ -64,9 +70,9 @@ class TypeParameter(AbcTypeProperty, ABC):
         """Is this parameter required to be specified?"""
         raise NotImplementedError
 
-    def validator(self) -> "TypeValidator":
-        """Get the handler for validating this specific parameter."""
-        raise NotImplementedError
+    # This should include a type validator, but that introduces complex
+    # dependency issues.  Instead, validation is performed by the type when
+    # generating the code.
 
 
 class TypeField(AbcTypeProperty, ABC):
@@ -166,7 +172,7 @@ class SyntaxNode:
         *,
         source: SourcePath,
         node_id: NodeReference,
-        node_type: AbcType,
+        node_type: AbcType | ListType,
         values: Mapping[str, SyntaxParameter],
     ) -> None:
         # As this is the finalized form, we make copies of the compound types.
@@ -185,7 +191,7 @@ class SyntaxNode:
         for the node."""
         return self.__node_id
 
-    def node_type(self) -> AbcType:
+    def node_type(self) -> AbcType | ListType:
         """Get the node's type."""
         return self.__type
 
@@ -194,15 +200,3 @@ class SyntaxNode:
         in the case of a list node, the list turned into a map by translating the
         index to a string."""
         return self.__values
-
-
-class TypeValidator:
-    """Validates whether a syntax node is compatible with a type."""
-
-    def type_id(self) -> str:
-        """Associated type's unique identifier."""
-        raise NotImplementedError
-
-    def validate(self, node: SyntaxNode) -> Result[None]:
-        """Validate the node.  The result will either be valid or invalid."""
-        raise NotImplementedError

@@ -4,7 +4,7 @@ from typing import Sequence, Tuple, Iterable, Dict, Mapping, Callable, Optional
 import datetime
 from .add_ins import AddInTypeHandler, AddInMetaTypeHandler, AddIn
 from .syntax_tree import SyntaxNode, AbcType, AbcMetaType
-from .parse_tree import ParsedNode
+from .parse_tree import AbcParsedNode
 from ..util.message import i18n as _
 from ..util.message import UserMessage
 from ..util.result import SourcePath, Result, Problem, ResultGen
@@ -177,7 +177,7 @@ class StagingScript:
         name: str,
         version: str,
         add_ins: Iterable[AddIn],
-        tree: ParsedNode,
+        tree: AbcParsedNode,
     ) -> None:
         self.__source = source
         self.__name = name
@@ -207,7 +207,7 @@ class StagingScript:
         return self.__add_ins
 
     @property
-    def tree(self) -> ParsedNode:
+    def tree(self) -> AbcParsedNode:
         """The parsed, expanded syntax tree."""
         return self.__tree
 

@@ -6,7 +6,8 @@ The heart of the system.
 from . import defs
 from .defs import (
     BasicType,
-    SimpleParameter,
+    ListType,
+    SyntaxParameter,
     SyntaxNode,
     AbcBaseType,
     AbcType,
@@ -14,7 +15,8 @@ from .defs import (
     AbcTypeProperty,
     TypeParameter,
     TypeField,
-    TypeValidator,
+    BASIC_TYPE_NAMES,
+    LIST_TYPE_NAME,
 )
 from .validations import (
     validate_source_path,

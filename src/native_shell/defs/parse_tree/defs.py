@@ -3,109 +3,261 @@ basic script parsing into the final syntax tree.
 
 """
 
-from typing import Iterable, Sequence, List, Mapping, Dict, Union, Optional, Any
+from typing import Iterable, Sequence, List, Mapping, Dict, Union, Optional, Any, cast
+from typing_extensions import Protocol
 from ..basic import SimpleParameter, NodeReference
-from ..syntax_tree import AbcType, validate_source_path
+from ..syntax_tree import (
+    AbcType,
+    TypeParameter,
+    BasicType,
+    ListType,
+    BASIC_TYPE_NAMES,
+    LIST_TYPE_NAME,
+)
 from ...util.message import i18n as _
 from ...util.message import UserMessage
 from ...util.result import Result, ResultGen, Problem, SourcePath
 
+
 INVALID_NODE_ID = "<invalid>"
 
-ParsedParameter = Union["ParsedNode", SimpleParameter]
 
+class ParsedNodeId:
+    """An identifier for any parsed node."""
 
-class ParsedNode:  # pylint:disable=too-many-instance-attributes,protected-access
-    """A node in the syntax tree that can potentially contain a generator.
-    It's a simplified view of the syntax tree.  The preparer will convert these
-    into the full AbcSyntaxNode types.
-
-    This allows for updating the node after it's been initially created (it's mutable).
-    This should help make construction of the parsed tree easier.
-    """
-
-    __slots__ = (
-        "__source",
-        "__node_ptr",
-        "__node_id",
-        "__type_id",
-        "__problems",
-        "_parameters",
-        "__items",
-        # The next items are protected space, so that one node
-        #   can touch around the parent and children directly.
-        "_assigned_type",
-        "_parent",
-        "_parent_key",
-    )
+    __slots__ = ("__source", "__ref", "__node_ptr")
 
     def __init__(
         self,
         *,
         source: SourcePath,
-        node_id: NodeReference,
-        type_id: str,
-        problems: Iterable[Problem] = (),
+        ref: NodeReference,
     ) -> None:
-        self.__source = tuple(source)
-        self.__node_id = node_id
-        self.__problems = ResultGen()
-        self.__problems.add(problems)
-        source_validation = validate_source_path(source)
-        self.__problems.add(source_validation)
-        if source_validation.is_valid:
-            self.__node_ptr = _mk_node_id(source)
-        else:
-            self.__node_ptr = INVALID_NODE_ID
-        self.__type_id = type_id
-        self._assigned_type: Optional[AbcType] = None
-        self._parameters: Dict[str, ParsedParameter] = {}
-        self._parent: Optional[ParsedNode] = None
-        self._parent_key: Optional[str] = None
+        self.__source = source
+        self.__ref = ref
+        self.__node_ptr = "/".join((str(p) for p in source))
 
+    @property
     def source(self) -> SourcePath:
         """Get the source location for the node."""
         return self.__source
 
-    def node_id(self) -> NodeReference:
+    @property
+    def ref(self) -> NodeReference:
         """Path to this node in the tree.  Very similar to the source,
         but doesn't include information like the source script file position."""
-        return self.__node_id
+        return self.__ref
 
+    @property
     def node_ptr(self) -> str:
         """The string identifier for the node.  This is equivalent to an
         absolute reference path."""
         return self.__node_ptr
 
-    def type_id(self) -> str:
-        """Get the node's type ID."""
-        return self.__type_id
+    def __str__(self) -> str:
+        return self.__node_ptr
 
-    def set_type(self, type_val: AbcType) -> None:
-        """Assign this node's type instance based on the type id.  This can only be called once.
-        If the type has already been assigned, this will raise a runtime error.
+
+class ParentReference:
+    """Information about the parent in the parsed node tree.
+
+    If the node is a list container, then the parameter type is the parameter type
+    of the parent.
+    """
+
+    __slots__ = ("__node", "__key", "__parameter_type")
+
+    def __init__(
+        self,
+        *,
+        node: Union["ParsedParameterNode", "ParsedListNode"],
+        key: Union[str, int],
+        parameter_type: Optional[TypeParameter] = None,
+    ) -> None:
+        # Runtime checks.
+        if isinstance(key, str) and not isinstance(node, ParsedParameterNode):
+            raise ValueError("Only parameter nodes can have string keys")
+        if isinstance(key, int) and not isinstance(node, ParsedListNode):
+            raise ValueError("Only list nodes can have int keys")
+
+        self.__node = node
+        self.__key = key
+        self.__parameter_type = parameter_type
+
+    @property
+    def node(self) -> Union["ParsedParameterNode", "ParsedListNode"]:
+        """The parent node.  Must be one of the container types."""
+        return self.__node
+
+    @property
+    def key(self) -> Union[str, int]:
+        """The key in the ``node``."""
+        return self.__key
+
+    def get_parameter_type(self) -> Optional[TypeParameter]:
+        """The property type for the ``key`` in the ``node``.
+        If the node is a list container, then the returned value is
+        the same as the node's own parameter type.
+
+        If the value returned is None, then it hasn't been discovered yet.
         """
-        if self._assigned_type is not None:
-            raise RuntimeError(f"Already assigned a type to node {self.__source}")
-        self._assigned_type = type_val
+        return self.__parameter_type
 
-    def assigned_type(self) -> Optional[AbcType]:
-        """Get the assigned type, if one has been assigned."""
-        return self._assigned_type
+    def set_parameter_type(self, param_type: TypeParameter) -> None:
+        """Set the parameter type.  May only be called once."""
+        if self.__parameter_type is not None:
+            raise RuntimeError(
+                f"attempted to set parameter type on {self} twice; "
+                f"already assigned to {self.__parameter_type}, tried to set to "
+                f"{param_type}."
+            )
+        self.__parameter_type = param_type
 
-    def parent_node(self) -> "Optional[ParsedNode]":
-        """Get the parent node, if this one has been assigned as a child of another."""
-        return self._parent
+    def __str__(self) -> str:
+        return f"{self.__node!r}@{self.__key}"
 
-    def parent_key(self) -> Optional[str]:
-        """The parameter key this node is a child of."""
-        return self._parent_key
+
+# pylint:disable=missing-function-docstring
+class AbcParsedNode(Protocol):
+    """The generic type conformity for all ParsedNode classes.
+
+    Container nodes provide implementation specific add child methods.
+
+    Even non-container nodes must implement the basic child fetching
+    calls, but they will return nothing, and they will not provide add child
+    methods.
+    """
+
+    @property
+    def node_id(self) -> ParsedNodeId:
+        ...
+
+    @property
+    def type_id(self) -> str:
+        ...
+
+    def get_parent(self) -> Optional[ParentReference]:
+        ...
+
+    def set_parent(self, parent: ParentReference) -> None:
+        ...
 
     def problems(self) -> Sequence[Problem]:
-        """Get any problems associated with this node.
+        ...
 
-        This does not include parameter value problems.
-        """
+    def is_valid(self) -> bool:
+        ...
+
+    def is_not_valid(self) -> bool:
+        ...
+
+    def add_problem(
+        self,
+        *values: Union[
+            Problem,
+            Iterable[Problem],
+            Result[Any],
+            Iterable[Result[Any]],
+        ],
+    ) -> None:
+        ...
+
+    def get_assigned_type(self) -> Union[BasicType, ListType, AbcType, None]:
+        ...
+
+    def mapping(self) -> Mapping[Union[str, int], "AbcParsedNode"]:
+        ...
+
+    def keys(self) -> Iterable[Union[str, int]]:
+        ...
+
+    def values(self) -> Iterable["AbcParsedNode"]:
+        ...
+
+    def replace_value(self, key: Union[str, int], node: "AbcParsedNode") -> "AbcParsedNode":
+        ...
+
+    def cleanup(self) -> None:
+        ...
+
+
+def _ensure_parent_not_set(node_id: ParsedNodeId, parent: Optional[ParentReference]) -> None:
+    if parent is not None:
+        raise RuntimeError(f"Attempted to set parent for {node_id}")
+
+
+def _ensure_type_not_set(node_id: ParsedNodeId, type_val: Optional[AbcType]) -> None:
+    if type_val is not None:
+        raise RuntimeError(f"Attempted to set type for {node_id}")
+
+
+def _ensure_type_property_not_set(node_id: ParsedNodeId, type_val: Optional[TypeParameter]) -> None:
+    if type_val is not None:
+        raise RuntimeError(f"Attempted to set item type for {node_id}")
+
+
+class ParsedSimpleNode:
+    """A simple node from the parsed source file.
+
+    The node is a constant value with a simple type.
+    """
+
+    __slots__ = ("__id", "__parent", "__value", "__type_id", "__problems", "__type")
+
+    def __init__(
+        self,
+        *,
+        node_id: ParsedNodeId,
+        type_id: str,
+        value: SimpleParameter,
+    ) -> None:
+        self.__id = node_id
+        self.__parent: Optional[ParentReference] = None
+        self.__value = value
+        self.__type_id = type_id
+        self.__problems = ResultGen()
+        self.__type: Optional[BasicType] = None
+        if type_id not in BASIC_TYPE_NAMES:
+            self.__problems.add(
+                Problem.as_validation(
+                    node_id.source,
+                    UserMessage(_("Assigned simple node to not basic type {name}"), name=type_id),
+                )
+            )
+        else:
+            self.__type = cast(BasicType, type_id)
+
+    @property
+    def node_id(self) -> ParsedNodeId:
+        """The ID for the node."""
+        return self.__id
+
+    @property
+    def type_id(self) -> str:
+        """The declared value type of this node."""
+        return self.__type_id
+
+    def get_assigned_type(self) -> Union[BasicType, ListType, AbcType, None]:
+        """Get the assigned type."""
+        return self.__type
+
+    @property
+    def value(self) -> SimpleParameter:
+        """The constant value for this node."""
+        return self.__value
+
+    def get_parent(self) -> Optional[ParentReference]:
+        """Get the parent reference, if there is one and it's been
+        discovered."""
+        return self.__parent
+
+    def set_parent(self, parent: ParentReference) -> None:
+        """Set the parent reference.  Can only be called once."""
+        _ensure_parent_not_set(self.__id, self.__parent)
+        self.__parent = parent
+
+    def problems(self) -> Sequence[Problem]:
+        """Get the registered problems for this node."""
         return self.__problems.problems
 
     def is_valid(self) -> bool:
@@ -125,126 +277,290 @@ class ParsedNode:  # pylint:disable=too-many-instance-attributes,protected-acces
             Iterable[Result[Any]],
         ],
     ) -> None:
-        """Add the problem arguments into the built-up list of problems."""
+        """Add problems to this node.  They should all be related just to this
+        one node."""
         self.__problems.add(*values)
 
-    def parameter_size(self) -> int:
-        """Number of items in this node."""
-        return len(self._parameters)
+    def mapping(self) -> Mapping[Union[str, int], AbcParsedNode]:
+        """Returns an empty map."""
+        return {}
 
-    def parameter_map(self) -> Mapping[str, ParsedParameter]:
-        """Get the values for the parameters, as a map.
+    def keys(self) -> Iterable[Union[str, int]]:
+        """Returns an empty sequence."""
+        return ()
 
-        These are the child nodes.
-        """
-        return self._parameters
+    def values(self) -> Iterable[AbcParsedNode]:
+        """Returns an empty sequence."""
+        return ()
 
-    def parameter_list(self) -> Result[Sequence[ParsedParameter]]:
-        """Attempts to generate a list of child nodes.  Only possible if each
-        of the keys are numbers.  The nodes are returned in order based on the
-        original keys sorted by numeric value, but the actual index may not match
-        up to the original key."""
-        i_keys: Dict[int, str] = {}
-        for s_key in self._parameters:
-            try:
-                i_key = int(s_key)
-                i_keys[i_key] = s_key
-            except ValueError:
-                return Result.as_error(
-                    Problem.as_validation(
-                        self.__source,
-                        UserMessage(
-                            _("cannot convert parameters to list; key is not an int: {key}"),
-                            key=s_key,
-                        ),
-                    )
-                )
-        ret: List[ParsedParameter] = []
-        for i_key in sorted(i_keys.keys()):
-            ret.append(self._parameters[i_keys[i_key]])
-        return Result.as_value(ret)
+    def replace_value(self, key: Union[str, int], _node: AbcParsedNode) -> AbcParsedNode:
+        """Raises a runtime error."""
+        raise RuntimeError(f"Attempted to replace '{key}' on non-container node {self!r}")
 
-    def set_parameter(self, key: int | str, child: ParsedParameter) -> None:
-        """Add a parameter to the list.  The child can't have been assigned as a child
-        to another node.  Additionally, the key can't have already been assigned.
-        Violating these rules is a programmer bug, and raises an immediate exception."""
-        s_key = str(key)
-        if s_key in self._parameters:
-            raise RuntimeError(
-                f"attempted to add node {child!r} as parameter {key} of node {self.__source}; "
-                f" but that parameter is already assigned to ({self._parameters[s_key]!r})"
+    def cleanup(self) -> None:
+        """Clean up the memory used by this node.  Does not clean up problems."""
+        self.__parent = None
+
+    def __str__(self) -> str:
+        return str(self.__id)
+
+
+class ParsedListNode:
+    """A node that contains other nodes in an ordered list."""
+
+    __slots__ = ("__id", "__parent", "__items", "__item_type", "__problems")
+
+    def __init__(
+        self,
+        *,
+        node_id: ParsedNodeId,
+    ) -> None:
+        self.__id = node_id
+        self.__parent: Optional[ParentReference] = None
+        self.__problems = ResultGen()
+        self.__items: List[AbcParsedNode] = []
+        self.__item_type: Optional[TypeParameter] = None
+
+    @property
+    def node_id(self) -> ParsedNodeId:
+        """The ID for the node."""
+        return self.__id
+
+    @property
+    def type_id(self) -> str:
+        """The declared value type of this node.  List nodes can only be of type list."""
+        return LIST_TYPE_NAME
+
+    def get_item_type(self) -> Union[TypeParameter, None]:
+        """Get the item type."""
+        return self.__item_type
+
+    def set_item_type(self, type_val: TypeParameter) -> None:
+        """Sets the item type.  May only be called once."""
+        _ensure_type_property_not_set(self.node_id, self.__item_type)
+        self.__item_type = type_val
+
+    def get_assigned_type(self) -> Union[BasicType, ListType, AbcType, None]:
+        """Get the assigned type."""
+        return LIST_TYPE_NAME
+
+    def get_parent(self) -> Optional[ParentReference]:
+        """Get the parent reference, if there is one and it's been
+        discovered."""
+        return self.__parent
+
+    def set_parent(self, parent: ParentReference) -> None:
+        """Set the parent reference.  Can only be called once."""
+        _ensure_parent_not_set(self.__id, self.__parent)
+        self.__parent = parent
+
+    def problems(self) -> Sequence[Problem]:
+        """Get the registered problems for this node."""
+        return self.__problems.problems
+
+    def is_valid(self) -> bool:
+        """Is this node valid?"""
+        return self.__problems.is_valid()
+
+    def is_not_valid(self) -> bool:
+        """Is this node not valid?"""
+        return self.__problems.is_not_valid()
+
+    def add_problem(
+        self,
+        *values: Union[
+            Problem,
+            Iterable[Problem],
+            Result[Any],
+            Iterable[Result[Any]],
+        ],
+    ) -> None:
+        """Add problems to this node.  They should all be related just to this
+        one node."""
+        self.__problems.add(*values)
+
+    def mapping(self) -> Mapping[Union[str, int], AbcParsedNode]:
+        """Get the contained values as a mapping from the key to the node."""
+        return {idx: self.__items[idx] for idx in range(len(self.__items))}
+
+    def keys(self) -> Iterable[Union[str, int]]:
+        """All "keys" in this container."""
+        return range(len(self.__items))
+
+    def values(self) -> Iterable[AbcParsedNode]:
+        """Get the items contained in this list container."""
+        return self.__items
+
+    def add_value(self, node: AbcParsedNode) -> Union[str, int]:
+        """Connects the given node to the end of the contained list.  Returns
+        the index of the connected node."""
+        p_node = assert_is_parsed_node(node)
+        index = len(self.__items)
+        # Set the child node's parent first, as it can fail.
+        node.set_parent(ParentReference(node=self, key=index))
+        self.__items.append(p_node)
+        return index
+
+    def replace_value(self, key: Union[str, int], node: AbcParsedNode) -> AbcParsedNode:
+        """Replace an existing node with another one.  This will return the
+        replaced child node.  It will need to be cleaned up to ensure proper
+        memory handling."""
+        p_node = assert_is_parsed_node(node)
+
+        # This will generate an IndexError or ValueError depending on the
+        #   various problems that can occur.
+        index = int(key)
+        ret = self.__items[index]
+
+        node.set_parent(ParentReference(node=self, key=index))
+        self.__items[index] = p_node
+
+        return ret
+
+    def cleanup(self) -> None:
+        """Clean up the memory used by this node.  Does not clean up problems or
+        children's values, but they are removed."""
+        self.__parent = None
+        self.__items.clear()
+
+    def __str__(self) -> str:
+        return str(self.__id)
+
+
+class ParsedParameterNode:
+    """A node that contains keyed parameters."""
+
+    __slots__ = ("__id", "__parent", "__params", "__type_id", "__type", "__problems")
+
+    def __init__(
+        self,
+        *,
+        node_id: ParsedNodeId,
+        type_id: str,
+    ) -> None:
+        self.__id = node_id
+        self.__parent: Optional[ParentReference] = None
+        self.__type_id = type_id
+        self.__problems = ResultGen()
+        self.__params: Dict[str, AbcParsedNode] = {}
+        self.__type: Optional[AbcType] = None
+
+    @property
+    def node_id(self) -> ParsedNodeId:
+        """The ID for the node."""
+        return self.__id
+
+    @property
+    def type_id(self) -> str:
+        """The declared value type of this node."""
+        return self.__type_id
+
+    def get_parent(self) -> Optional[ParentReference]:
+        """Get the parent reference, if there is one and it's been
+        discovered."""
+        return self.__parent
+
+    def set_parent(self, parent: ParentReference) -> None:
+        """Set the parent reference.  Can only be called once."""
+        _ensure_parent_not_set(self.__id, self.__parent)
+        self.__parent = parent
+
+    def set_type(self, type_val: AbcType) -> None:
+        """Attempt to set the type."""
+        _ensure_type_not_set(self.__id, self.__type)
+        self.__type = type_val
+
+    def get_assigned_type(self) -> Union[BasicType, ListType, AbcType, None]:
+        """Get the assigned type."""
+        return self.__type
+
+    def problems(self) -> Sequence[Problem]:
+        """Get the registered problems for this node."""
+        return self.__problems.problems
+
+    def is_valid(self) -> bool:
+        """Is this node valid?"""
+        return self.__problems.is_valid()
+
+    def is_not_valid(self) -> bool:
+        """Is this node not valid?"""
+        return self.__problems.is_not_valid()
+
+    def add_problem(
+        self,
+        *values: Union[
+            Problem,
+            Iterable[Problem],
+            Result[Any],
+            Iterable[Result[Any]],
+        ],
+    ) -> None:
+        """Add problems to this node.  They should all be related just to this
+        one node."""
+        self.__problems.add(*values)
+
+    def mapping(self) -> Mapping[Union[str, int], AbcParsedNode]:
+        """Get the contained values as a mapping from the key to the node."""
+        return cast(Mapping[Union[str, int], AbcParsedNode], self.__params)
+
+    def keys(self) -> Iterable[Union[str, int]]:
+        """All "keys" in this container."""
+        return self.__params.keys()
+
+    def values(self) -> Iterable[AbcParsedNode]:
+        """Get the items contained in this list container."""
+        return self.__params.values()
+
+    def set_parameter(self, key: str, node: AbcParsedNode) -> None:
+        """Connects the given node to the end of the contained list.  Returns
+        the index of the connected node."""
+        p_node = assert_is_parsed_node(node)
+
+        if key in self.__params:
+            raise ValueError(
+                f"Attempted to replace a parameter at {key} when setting it; "
+                f"container: {self}, existing node: {self.__params[key]}, "
+                f"set node: {node}"
             )
 
-        if isinstance(child, ParsedNode):
-            if child._parent is not None:
-                raise RuntimeError(
-                    f"attempted to add node {child!r} as parameter {key} of node {self.__source}; "
-                    f" but it is already a child to another node ({child._parent.source})"
-                )
-            child._parent = self
-            child._parent_key = s_key
-        self._parameters[s_key] = child
+        # Set the child node's parent first, as it can fail.
+        node.set_parent(ParentReference(node=self, key=key))
+        self.__params[key] = p_node
 
-    def replace_parameter(self, key: int | str, child: ParsedParameter) -> ParsedParameter:
-        """Explicitly replace a child node with another one.  This allows for expanding
-        meta-types into their transformed version.  Returns the replaced value.
-        The parameter must already exist.
-        """
+    def replace_value(self, key: Union[str, int], node: AbcParsedNode) -> AbcParsedNode:
+        """Replace an existing node with another one.  This will return the
+        replaced child node.  It will need to be cleaned up to ensure proper
+        memory handling."""
+        p_node = assert_is_parsed_node(node)
         s_key = str(key)
-        ret = self._parameters.get(s_key)
-        if ret is None:
-            raise RuntimeError(
-                f"attempted to replace parameter {key} in {self.__source} with "
-                f"{child!r}, but the parameter was not previously assigned."
-            )
-        if isinstance(child, ParsedNode):
-            if child._parent is not None:
-                raise RuntimeError(
-                    f"attempted to add node {child!r} as parameter {key} of node {self.__source}; "
-                    f" but it is already a child to another node ({child._parent.source})"
-                )
-            child._parent = self
-            child._parent_key = s_key
-        self._parameters[s_key] = child
-        # Clean out references in the returned node.
-        if isinstance(ret, ParsedNode):
-            ret._parent = None
-            ret._parent_key = None
+
+        # This will generate a KeyError if it's not replacing.
+        ret = self.__params[s_key]
+
+        node.set_parent(ParentReference(node=self, key=key))
+        self.__params[s_key] = p_node
+
         return ret
 
-    def node_parameter_map(self) -> "Mapping[str, ParsedNode]":
-        """Get the parameter values that are themselves ParsedNode instances."""
-        ret: Dict[str, ParsedNode] = {}
-        for key, val in self._parameters.items():
-            if isinstance(val, ParsedNode):
-                ret[key] = val
-        return ret
+    def cleanup(self) -> None:
+        """Clean up the memory used by this node.  Does not clean up problems or
+        children's values, but they are removed."""
+        self.__parent = None
+        self.__params.clear()
 
-    def simple_parameter_map(self) -> Mapping[str, SimpleParameter]:
-        """Get only the simple parameter values."""
-        ret: Dict[str, SimpleParameter] = {}
-        for key, val in self._parameters.items():
-            if not isinstance(val, ParsedNode):
-                ret[key] = val
-        return ret
-
-    def close(self) -> None:
-        """Immediately clean up this node and its children.
-        The problems will still be kept.  Only cleans down the tree, not up."""
-        # Clean up children first.  This is a very very simple stack approach to
-        #   help prevent stack overflow issues.
-        stack: List[ParsedNode] = [self]
-        while stack:
-            node = stack.pop()
-            stack.extend(node.node_parameter_map().values())
-            node._parent = None
-            node._parameters = {}
-            node._assigned_type = None
-
-    def __repr__(self) -> str:
-        return self.__node_ptr
+    def __str__(self) -> str:
+        return str(self.__id)
 
 
-def _mk_node_id(source: SourcePath) -> str:
-    """Create a node ID for the node at the path."""
-    return "/".join((str(p) for p in source))
+def assert_is_parsed_node(node: object) -> AbcParsedNode:
+    """Ensure the given node is of the right type."""
+    # This also ensures that each of the declared types has
+    #   the correct structural subtype
+    # https://mypy.readthedocs.io/en/stable/protocols.html#protocol-types
+    if isinstance(node, ParsedListNode):
+        return node
+    if isinstance(node, ParsedParameterNode):
+        return node
+    if isinstance(node, ParsedSimpleNode):
+        return node
+    raise AssertionError(f"Not a ParsedNode: {node}")

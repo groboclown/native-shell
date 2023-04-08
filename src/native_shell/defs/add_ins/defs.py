@@ -2,7 +2,7 @@
 
 from typing import Iterable, Iterator, Sequence, Literal, Union
 from ..syntax_tree import AbcType, AbcMetaType, SyntaxNode
-from ..parse_tree import ParsedNode
+from ..parse_tree import AbcParsedNode
 from ...util.result import Result
 
 
@@ -112,20 +112,10 @@ class AddInTypeHandler:
         *,
         parent_ref: str,
         key: str,
-    ) -> Result[str]:
+    ) -> Result[CodeTemplate]:
         """Constructs a code reference to the given parameter key, which must
         take the parent's reference into account.  This will be used by the converted
         script source code to access the data in the parameter key."""
-        raise NotImplementedError
-
-    def create_parameter_key_variable(
-        self,
-        *,
-        parent_ref: str,
-        key: str,
-    ) -> Result[str]:
-        """Constructs the source code for the variable where the parameter key's
-        value will be stored."""
         raise NotImplementedError
 
 
@@ -136,7 +126,7 @@ class AddInMetaTypeHandler:
         """The type representation for this handler."""
         raise NotImplementedError
 
-    def translate(self, tree: ParsedNode) -> Result[ParsedNode]:
+    def translate(self, tree: AbcParsedNode) -> Result[AbcParsedNode]:
         """Translates the tree into another tree through the meta-type rules."""
         raise NotImplementedError
 
