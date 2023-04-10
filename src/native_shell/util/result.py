@@ -83,6 +83,9 @@ class Problem:
         """The translated message."""
         return self._message.msg()
 
+    def __repr__(self) -> str:
+        return f"[{self._level.upper()}] {self.msg()}"
+
 
 class Result(Generic[_T_co]):
     """Standard return value that can contain a value, errors, and

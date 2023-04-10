@@ -10,4 +10,5 @@ from .defs import (
     GeneratedCode,
     CodePurpose,
     CodeReferencePurpose,
+    CODE_PURPOSE_NAMES,
 )

@@ -22,6 +22,11 @@ BASIC_TYPE_NAMES = ("string", "number", "integer", "boolean", "reference")
 ListType = Literal["list"]
 LIST_TYPE_NAME: ListType = "list"
 
+# The ErrorType is used by type fields to indicate the error generated
+#   by an execution.  By convention, the final error report is in a field named 'err'.
+ErrorType = Literal["error"]
+ERROR_TYPE_NAME: ErrorType = "error"
+
 
 class AbcTypeProperty:
     """A value contained within a type."""
@@ -33,14 +38,6 @@ class AbcTypeProperty:
     def is_list(self) -> bool:
         """Is this a list of items?  If this is true, then the
         ``type`` is the per-item type."""
-        raise NotImplementedError
-
-    def type(self) -> BasicType | "AbcType":
-        """Get the underlying type for this property.
-
-        Note that property types can't be generator meta-types.
-        They can only reference concrete types whose values the generator will
-        aim to construct."""
         raise NotImplementedError
 
     def title(self) -> I18n:
@@ -66,6 +63,14 @@ class TypeParameter(AbcTypeProperty, ABC):
     required type.
     """
 
+    def type(self) -> Union[BasicType, "AbcType"]:
+        """Get the underlying type for this property.
+
+        Note that property types can't be generator meta-types.
+        They can only reference concrete types whose values the generator will
+        aim to construct."""
+        raise NotImplementedError
+
     def is_required(self) -> bool:
         """Is this parameter required to be specified?"""
         raise NotImplementedError
@@ -81,6 +86,14 @@ class TypeField(AbcTypeProperty, ABC):
     A type may provide information usable by a script, such as a process ID,
     which the script cannot provide.
     """
+
+    def type(self) -> Union[BasicType, ErrorType, "AbcType"]:
+        """Get the underlying type for this property.
+
+        Note that property types can't be generator meta-types.
+        They can only reference concrete types whose values the generator will
+        aim to construct."""
+        raise NotImplementedError
 
     def is_usable_before_invoking(self) -> bool:
         """If True, then the script can reference this information

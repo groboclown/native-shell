@@ -1,6 +1,6 @@
 """Convert the ParsedNode into the AbcSyntaxNode."""
 
-from typing import Set, Tuple, Dict, Optional, cast
+from typing import Set, Tuple, Dict, Union, Optional, cast
 from .node_visit import post_visit_parsed_node, pre_visit_parsed_node
 from ..defs.add_ins import AddInTypeHandler
 from ..defs.parse_tree import (
@@ -12,6 +12,7 @@ from ..defs.parse_tree import (
 from ..defs.syntax_tree import (
     SyntaxNode,
     TypeParameter,
+    TypeField,
     AbcTypeProperty,
     AbcType,
     ListType,
@@ -85,7 +86,7 @@ class TypedTree:
 
     def mark_referenced(
         self,
-        value: AddInTypeHandler | TypeParameter,
+        value: Union[AddInTypeHandler, TypeParameter],
     ) -> None:
         """Mark the type as referenced."""
         if isinstance(value, TypeParameter):
@@ -97,17 +98,20 @@ class TypedTree:
 
     def get_handler(
         self,
-        type_val: BasicType | ListType | AbcType | AbcTypeProperty | None,
+        type_val: Union[BasicType, ListType, AbcType, AbcTypeProperty, None],
     ) -> Optional[AddInTypeHandler]:
         """Get the type handler for the type."""
-        if not type_val or isinstance(type_val, str):
+        if not type_val:
             return None
-        if isinstance(type_val, AbcTypeProperty):
+        if isinstance(type_val, (TypeParameter, TypeField)):
             type_val_type = type_val.type()
             if isinstance(type_val_type, AbcType):
                 return self.handlers.get(type_val_type)
             return None
-        return self.handlers.get(type_val)
+        if isinstance(type_val, AbcType):
+            return self.handlers.get(type_val)
+        # Else it's a basic type; return
+        return None
 
 
 def finish_tree(

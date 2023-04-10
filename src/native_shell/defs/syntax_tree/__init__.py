@@ -7,6 +7,7 @@ from . import defs
 from .defs import (
     BasicType,
     ListType,
+    ErrorType,
     SyntaxParameter,
     SyntaxNode,
     AbcBaseType,
@@ -17,6 +18,7 @@ from .defs import (
     TypeField,
     BASIC_TYPE_NAMES,
     LIST_TYPE_NAME,
+    ERROR_TYPE_NAME,
 )
 from .validations import (
     validate_source_path,
