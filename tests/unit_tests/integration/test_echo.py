@@ -48,14 +48,14 @@ class JustEchoIntegrationTest(unittest.TestCase):
 def mk_script() -> StagingScript:
     """Create the simple script."""
     root = mk_parameter(
-        [],
-        "root",
+        ["test-script"],
+        "",  # root node must have empty type id
         main=mk_parameter(
-            ["main"],
+            ["test-script", "main"],
             ECHO.type().type_id(),
             text=mk_list(
-                ["main", "text"],
-                mk_simple(["main", "text", "0"], "Hello, world!"),
+                ["test-script", "main", "text"],
+                mk_simple(["test-script", "main", "text", "0"], "Hello, world!"),
             ),
             stdout=mk_simple(["main", "stdout"], True),
         ),

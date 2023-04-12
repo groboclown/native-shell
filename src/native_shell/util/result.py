@@ -75,6 +75,11 @@ class Problem:
         return self._level == "info"
 
     @property
+    def source(self) -> SourcePath:
+        """The source of the problem."""
+        return self._source
+
+    @property
     def message(self) -> UserMessage:
         """The raw problem message."""
         return self._message
@@ -84,7 +89,11 @@ class Problem:
         return self._message.msg()
 
     def __repr__(self) -> str:
-        return f"[{self._level.upper()}] {self.msg()}"
+        return (
+            f"[{self._level.upper()}] "
+            f"{'/'.join([str(p) for p in self._source])} - "
+            f"{self.msg()}"
+        )
 
 
 class Result(Generic[_T_co]):

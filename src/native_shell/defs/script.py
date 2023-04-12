@@ -78,6 +78,15 @@ class TypeHandlerStore:
                 ret[key] = val
         return TypeHandlerStore(ret)
 
+    def add_dynamic(self, handler: AddInTypeHandler) -> None:
+        """Add a dynamically generated type handler.  It can't conflict with
+        any existing type handler."""
+        if handler.type().type_id() in self.__types:
+            raise ValueError(f"already registered type with id {handler.type().type_id()}")
+        new_types = dict(self.__types)
+        new_types[handler.type().type_id()] = handler
+        self.__types = new_types
+
 
 class HandlerStore:
     """Stores the add-in type and meta-type handlers and allows for easy reference."""

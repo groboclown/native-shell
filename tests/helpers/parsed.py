@@ -25,7 +25,7 @@ def mk_simple(path: List[str], value: SimpleParameter) -> ParsedSimpleNode:
     else:
         type_id = "reference"
     return ParsedSimpleNode(
-        node_id=mk_node_id(path),
+        node_id=mk_node_id(path[1:]),
         type_id=type_id,
         value=value,
     )
@@ -38,7 +38,7 @@ def mk_parameter(
 ) -> ParsedParameterNode:
     """Create a parameter node"""
     ret = ParsedParameterNode(
-        node_id=mk_node_id(__path),
+        node_id=mk_node_id(__path[1:]),
         type_id=__type_id,
     )
     for key, param in __params.items():
@@ -51,7 +51,7 @@ def mk_list(
     *__items: AbcParsedNode,
 ) -> ParsedListNode:
     """Create a list node"""
-    ret = ParsedListNode(node_id=mk_node_id(__path))
+    ret = ParsedListNode(node_id=mk_node_id(__path[1:]))
     for item in __items:
         ret.add_value(item)
     return ret

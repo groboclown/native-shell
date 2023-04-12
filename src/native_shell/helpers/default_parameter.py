@@ -41,3 +41,6 @@ class DefaultTypeParameter(TypeParameter):
 
     def is_required(self) -> bool:
         return self.__required
+
+    def __repr__(self) -> str:
+        return f"TypeParameter({self.__key}, list? {self.__is_list}, type {self.__type})"

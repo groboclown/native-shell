@@ -116,6 +116,9 @@ class ParentReference:
     def __str__(self) -> str:
         return f"{self.__node!r}@{self.__key}"
 
+    def __repr__(self) -> str:
+        return f"{self.__node!r}@{self.__key}"
+
 
 # pylint:disable=missing-function-docstring
 class AbcParsedNode(Protocol):
@@ -304,6 +307,9 @@ class ParsedSimpleNode:
     def __str__(self) -> str:
         return str(self.__id)
 
+    def __repr__(self) -> str:
+        return f"ParsedSimpleNode({self.__id})"
+
 
 class ParsedListNode:
     """A node that contains other nodes in an ordered list."""
@@ -425,6 +431,9 @@ class ParsedListNode:
 
     def __str__(self) -> str:
         return str(self.__id)
+
+    def __repr__(self) -> str:
+        return f"ParsedListNode({self.__id})"
 
 
 class ParsedParameterNode:
@@ -550,6 +559,9 @@ class ParsedParameterNode:
 
     def __str__(self) -> str:
         return str(self.__id)
+
+    def __repr__(self) -> str:
+        return f"ParsedParameterNode({self.__id!r})"
 
 
 def assert_is_parsed_node(node: object) -> AbcParsedNode:

@@ -22,11 +22,6 @@ BASIC_TYPE_NAMES = ("string", "number", "integer", "boolean", "reference")
 ListType = Literal["list"]
 LIST_TYPE_NAME: ListType = "list"
 
-# The ErrorType is used by type fields to indicate the error generated
-#   by an execution.  By convention, the final error report is in a field named 'err'.
-ErrorType = Literal["error"]
-ERROR_TYPE_NAME: ErrorType = "error"
-
 
 class AbcTypeProperty:
     """A value contained within a type."""
@@ -87,7 +82,7 @@ class TypeField(AbcTypeProperty, ABC):
     which the script cannot provide.
     """
 
-    def type(self) -> Union[BasicType, ErrorType, "AbcType"]:
+    def type(self) -> Union[BasicType, "AbcType"]:
         """Get the underlying type for this property.
 
         Note that property types can't be generator meta-types.

@@ -20,7 +20,7 @@ class NodeVisitTest(unittest.TestCase):
         visitor = MockVisitor()
         node_visit.post_visit_parsed_node(root, visitor)
         self.assertEqual(
-            ["//."],
+            ["/"],
             visitor.as_node_ids(),
         )
 
@@ -44,7 +44,7 @@ class NodeVisitTest(unittest.TestCase):
         visitor = MockVisitor()
         node_visit.post_visit_parsed_node(root, visitor)
         self.assertEqual(
-            ["//./c/1", "//./c/0", "//./c", "//./b", "//./a/a", "//./a", "//."],
+            ["//c/1", "//c/0", "//c", "//b", "//a/a", "//a", "/"],
             visitor.as_node_ids(),
         )
 
@@ -56,7 +56,7 @@ class NodeVisitTest(unittest.TestCase):
         visitor = MockVisitor()
         node_visit.post_visit_parsed_node(root, visitor)
         self.assertEqual(
-            ["//./b", "//./a", "//."],
+            ["//b", "//a", "/"],
             visitor.as_node_ids(),
         )
 

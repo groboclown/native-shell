@@ -1,12 +1,14 @@
 """The old 'echo' command."""
 
 from typing import Iterable, List, Union
+from .error import ERROR_TYPE
 from ...defs.add_ins import (
     AddInTypeHandler,
     GeneratedCode,
     CodeTemplate,
     CodeReference,
 )
+from ...defs.basic import mk_ref
 from ...defs.syntax_tree import AbcType, SyntaxNode
 from ...helpers import (
     DefaultType,
@@ -85,9 +87,9 @@ ECHO_ERROR_KEY = "err"
 ECHO_ERROR = DefaultTypeField(
     key=ECHO_ERROR_KEY,
     is_list=False,
-    type_val="integer",
-    title=_("file descriptor"),
-    description=_("The file descriptor written to by the echo operation."),
+    type_val=ERROR_TYPE,
+    title=_("command error"),
+    description=_("The error state after execution."),
     usable_before_invoking=False,
 )
 
@@ -109,7 +111,18 @@ class EchoCommand(AddInTypeHandler):
 
     def shared_code(self) -> Iterable[GeneratedCode]:
         # Does not generate shared code.
-        return ()
+        return (
+            GeneratedCode(
+                ref=mk_ref([str(p) for p in ECHO_TYPE.source()]),
+                purpose="import_as",
+                template=CodeTemplate(
+                    (
+                        "os",
+                        "fmt",
+                    )
+                ),
+            ),
+        )
 
     def instance_code(  # pylint:disable=too-many-locals
         self,
@@ -117,30 +130,21 @@ class EchoCommand(AddInTypeHandler):
     ) -> Result[Iterable[GeneratedCode]]:
         res = ResultGen()
         fileno_ref = mk_field_ref(node, ECHO_FILENO)
-        err_ref = mk_field_ref(node, ECHO_ERROR)
+        error_get_ref = CodeReference(
+            ident=mk_field_ref(node, ECHO_ERROR),
+            purpose="get_field_value",
+        )
         ret: List[GeneratedCode] = [
             # Will always have a fileno field.
             GeneratedCode(
                 ref=fileno_ref,
                 purpose="define_field",
-                template=CodeTemplate(
-                    (
-                        f"var {mk_var_name(fileno_ref)} *os.File",
-                        f"var {mk_var_name(err_ref)} error",
-                    )
-                ),
+                template=CodeTemplate((f"var {mk_var_name(fileno_ref)} *os.File\n",)),
             ),
-            # ... which needs to import "os"
             GeneratedCode(
-                ref=node.node_id(),
-                purpose="import_as",
-                template=CodeTemplate(
-                    (
-                        "os",
-                        "errors",
-                        "fmt",
-                    )
-                ),
+                ref=fileno_ref,
+                purpose="get_field_value",
+                template=CodeTemplate((mk_var_name(fileno_ref),)),
             ),
         ]
 
@@ -181,12 +185,16 @@ class EchoCommand(AddInTypeHandler):
                 )
             exec_parts.extend(
                 (
-                    f"{mk_var_name(fileno_ref)}, {mk_var_name(err_ref)} = os.Create(",
+                    f"{mk_var_name(fileno_ref)}, ",
+                    error_get_ref,
+                    " = os.Create(",
                     mk_param_code_ref(write, "get_field_value"),
                     ")\n",
                     # Unlike standard Go, we don't do the error check immediately
                     # after.  Instead, that's used for job execution flow.
-                    f"if {mk_var_name(err_ref)} == nil {{\n",
+                    "if ",
+                    error_get_ref,
+                    " == nil {{\n",
                     f"\tdefer {mk_var_name(fileno_ref)}.Close()\n",
                 )
             )
@@ -218,9 +226,12 @@ class EchoCommand(AddInTypeHandler):
                 text_bits.append(", ")
                 text_bits.append(mk_param_code_ref(bit, "get_field_value"))
                 index += 1
-        exec_parts.append(
-            f"{indent}{mk_var_name(err_ref)} = fmt.Fprintf({mk_var_name(fileno_ref)}, "
-            f'"{format_str}\\n"'
+        exec_parts.extend(
+            (
+                f"{indent}",
+                error_get_ref,
+                " = fmt.Fprintf({mk_var_name(fileno_ref)}, " f'"{format_str}\\n"',
+            )
         )
         exec_parts.extend(text_bits)
         exec_parts.append(")\n")

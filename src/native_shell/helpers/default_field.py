@@ -1,7 +1,7 @@
 """The default AbcType implementation."""
 
 from typing import Union
-from ..defs.syntax_tree import AbcType, TypeField, BasicType, ErrorType
+from ..defs.syntax_tree import AbcType, TypeField, BasicType
 from ..util.message import I18n
 
 
@@ -13,7 +13,7 @@ class DefaultTypeField(TypeField):
         *,
         key: str,
         is_list: bool,
-        type_val: Union[BasicType, ErrorType, AbcType],
+        type_val: Union[BasicType, AbcType],
         title: I18n,
         description: I18n,
         usable_before_invoking: bool,
@@ -31,7 +31,7 @@ class DefaultTypeField(TypeField):
     def is_list(self) -> bool:
         return self.__is_list
 
-    def type(self) -> Union[BasicType, ErrorType, AbcType]:
+    def type(self) -> Union[BasicType, AbcType]:
         return self.__type
 
     def title(self) -> I18n:
