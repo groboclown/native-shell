@@ -14,7 +14,7 @@ from typing import (
     cast,
 )
 import collections.abc
-from .message import UserMessage
+from .message import UserMessage, UserMessageData, I18n
 
 
 _T = TypeVar("_T")
@@ -49,14 +49,23 @@ class Problem:
 
     @staticmethod
     def as_validation(
-        source: SourcePath,
-        message: UserMessage,
+        __source: SourcePath,
+        __message: Union[UserMessage, I18n],
+        **__arguments: UserMessageData,
     ) -> "Problem":
         """Create a validation problem."""
+        if isinstance(__message, UserMessage):
+            if len(__arguments) > 0:
+                raise RuntimeError("Cannot pass arguments with a user namessage")
+            return Problem(
+                source=__source,
+                level="error",
+                message=__message,
+            )
         return Problem(
-            source=source,
+            source=__source,
             level="error",
-            message=message,
+            message=UserMessage(__message, **__arguments),
         )
 
     @property

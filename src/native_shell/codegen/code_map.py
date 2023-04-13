@@ -99,13 +99,15 @@ def create_code_map(script: PreparedScript) -> Result[CodeRefMap]:
             ret.add(code)
 
     def visitor(node: SyntaxNode) -> bool:
-        handler = script.type_handlers.get(node.node_type())
-        if handler:
+        node_type = node.node_type()
+        v_handler = script.type_handlers.get(node_type)
+        if v_handler:
             # If there isn't a handler, then ignore it.  Errors were
             # already managed in the script construction.
-            code_list = res.include(handler.instance_code(node), ())
-            for code in code_list:
-                ret.add(code)
+            code_list = res.include(v_handler.instance_code(node), ())
+            for v_code in code_list:
+                ret.add(v_code)
+
         return False
 
     walk_nodes(script.tree, visitor)

@@ -43,3 +43,6 @@ class DefaultType(AbcType):
 
     def fields(self) -> Sequence[TypeField]:
         return self.__fields
+
+    def __repr__(self) -> str:
+        return self.__type_id

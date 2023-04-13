@@ -3,6 +3,7 @@
 from typing import Set
 from .code_map import create_code_map, CodeRefMap
 from .expand_template import expand_template
+from ..defs.basic import mk_ref
 from ..defs.script import PreparedScript
 from ..defs.add_ins import CodePurpose
 from ..util.result import Result, ResultGen
@@ -73,12 +74,13 @@ def mk_makefile(script: PreparedScript, cr_map: CodeRefMap) -> Result[str]:
                 modules.add(part.strip())
             else:
                 raise RuntimeError(
-                    f"add-in generated 'modules' purpose template with non-string: " f"{part!r}"
+                    f"add-in generated 'modules' purpose template with non-string: {part!r}"
                 )
-    ret = ".PHONY: build clean\n\nbuild:"
+    ret = ".PHONY: build clean\n\nbuild:\n"
     for name in sorted(list(modules)):
         ret += f"\tgo get {name}\n"  # pylint:disable=consider-using-join
     ret += "\tmkdir -p bin\n"
+    ret += "\tgo fmt ./...\n"
     ret += f"\tgo build -o bin/{script.name} .\n\n"
     ret += "clean:\n\ttest -d bin && rm -r bin\n\n"
     return Result.as_value(ret)
@@ -89,7 +91,7 @@ def mk_main_go(_script: PreparedScript, cr_map: CodeRefMap) -> Result[str]:
     res = ResultGen()
     imports_str = mk_imports(cr_map)
     static_str = res.include(mk_static(cr_map), "")
-    main_str = mk_main_func(cr_map)
+    main_str = res.include(mk_main_func(cr_map), "")
 
     return res.build(
         f"""
@@ -140,7 +142,16 @@ def mk_main_func(cr_map: CodeRefMap) -> Result[str]:
     ret = "\nfunc main() {\n"
     ret += res.include(expand_all_purpose(cr_map, "initialize_field", "\t"), "")
 
-    ret += "\n\t// TODO include the main execution path.\n"
+    for code in cr_map.get_for_purpose(mk_ref(()), "execute"):
+        part = res.include(
+            expand_template(
+                source=code.ref,
+                template=code.template,
+                refs=cr_map,
+            ),
+            "",
+        )
+        ret += f"\t// {code.ref!r}\n{part}\n"
 
     ret += "\n}\n"
     return res.build(ret)

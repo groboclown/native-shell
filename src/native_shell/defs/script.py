@@ -1,6 +1,6 @@
 """The parsed user script."""
 
-from typing import Sequence, Tuple, Iterable, Dict, Mapping, Callable, Optional
+from typing import Sequence, Tuple, Iterable, Dict, Mapping, Callable, Union, Optional
 import datetime
 from .add_ins import AddInTypeHandler, AddInMetaTypeHandler, AddIn
 from .syntax_tree import SyntaxNode, AbcType, AbcMetaType
@@ -47,7 +47,10 @@ class ScriptSource:
 
 
 class TypeHandlerStore:
-    """Stores add-in type handlers and allows for easy reference."""
+    """Stores add-in type handlers and allows for easy reference.
+
+    This should probably include a built-in List type handler to allow for field access.
+    """
 
     __slots__ = ("__types",)
 
@@ -61,7 +64,7 @@ class TypeHandlerStore:
         """Get all type handlers known."""
         return self.__types.values()
 
-    def get(self, type_id: str | AbcType | None) -> Optional[AddInTypeHandler]:
+    def get(self, type_id: Union[str, AbcType, None]) -> Optional[AddInTypeHandler]:
         """Get the type handler with the given type name or type."""
         if type_id is None:
             return None
@@ -142,11 +145,13 @@ class HandlerStore:
 
         return res.build(HandlerStore(type_handlers, meta_handlers))
 
-    def get_type_handler(self, type_id: str | AbcType | None) -> Optional[AddInTypeHandler]:
+    def get_type_handler(self, type_id: Union[str, AbcType, None]) -> Optional[AddInTypeHandler]:
         """Get the type handler with the given type name or type."""
         return self.__types.get(type_id)
 
-    def get_meta_handler(self, meta_id: str | AbcMetaType | None) -> Optional[AddInMetaTypeHandler]:
+    def get_meta_handler(
+        self, meta_id: Union[str, AbcMetaType, None]
+    ) -> Optional[AddInMetaTypeHandler]:
         """Get the type handler with the given type name or type."""
         if meta_id is None:
             return None
@@ -154,11 +159,11 @@ class HandlerStore:
             meta_id = meta_id.type_id()
         return self.__meta.get(meta_id)
 
-    def has_type_handler(self, type_id: str | AbcType | None) -> bool:
+    def has_type_handler(self, type_id: Union[str, AbcType, None]) -> bool:
         """Is this type handler known?"""
         return self.get_type_handler(type_id) is not None
 
-    def has_meta_handler(self, type_id: str | AbcMetaType | None) -> bool:
+    def has_meta_handler(self, type_id: Union[str, AbcMetaType, None]) -> bool:
         """Is this meta-type handler known?"""
         return self.get_meta_handler(type_id) is not None
 
@@ -214,6 +219,60 @@ class StagingScript:
     def add_ins(self) -> Sequence[AddIn]:
         """Add-ins used by the script."""
         return self.__add_ins
+
+    @property
+    def tree(self) -> AbcParsedNode:
+        """The parsed, expanded syntax tree."""
+        return self.__tree
+
+
+class InitialScript:
+    """A pass at constructing the concrete script.  There may still be
+    meta-type nodes and problems."""
+
+    __slots__ = (
+        "__source",
+        "__name",
+        "__version",
+        "__add_in_names",
+        "__tree",
+    )
+
+    def __init__(
+        self,
+        *,
+        source: ScriptSource,
+        name: str,
+        version: str,
+        add_in_names: Iterable[str],
+        tree: AbcParsedNode,
+    ) -> None:
+        self.__source = source
+        self.__name = name
+        self.__version = version
+        self.__add_in_names = tuple(add_in_names)
+        self.__tree = tree
+
+    @property
+    def script_source(self) -> ScriptSource:
+        """Where the script came from."""
+        return self.__source
+
+    @property
+    def name(self) -> str:
+        """Name of the script.  Will be used to construct the
+        compiled command."""
+        return self.__name
+
+    @property
+    def version(self) -> str:
+        """Version of the script."""
+        return self.__version
+
+    @property
+    def add_in_names(self) -> Sequence[str]:
+        """Add-ins requested by the script."""
+        return self.__add_in_names
 
     @property
     def tree(self) -> AbcParsedNode:
@@ -278,5 +337,5 @@ class PreparedScript:
 # A ScriptParser transforms the user script into the staging pass.
 ScriptParser = Callable[
     [Sequence[Tuple[ScriptSource, bytes]]],
-    Result[StagingScript],
+    Result[InitialScript],
 ]

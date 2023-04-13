@@ -33,7 +33,7 @@ class ErrorField(AddInTypeHandler):
         return ERROR_TYPE
 
     def shared_code(self) -> Iterable[GeneratedCode]:
-        # Does not generate shared code.
+        # This requires importing the errors type.
         return (
             GeneratedCode(
                 ref=mk_ref([str(p) for p in ERROR_TYPE.source()]),
@@ -63,4 +63,4 @@ class ErrorField(AddInTypeHandler):
         )
 
 
-ERROR = ErrorField()
+ERROR_FIELD = ErrorField()

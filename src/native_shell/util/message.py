@@ -43,14 +43,14 @@ class UserMessage:
 
     def __init__(
         self,
-        message: I18n,
-        **arguments: UserMessageData,
+        __message: I18n,
+        **__arguments: UserMessageData,
     ) -> None:
-        self.__message = message
+        self.__message = __message
         # Note that, because the arguments are passed as key-values, this is not
         # a dictionary that the end-user can modify.  To conserve memory and speed up the
         # processing, the original mapping is stored.
-        self.__args = arguments
+        self.__args = __arguments
         self.__cached: Optional[str] = None
 
     def msg(self) -> str:

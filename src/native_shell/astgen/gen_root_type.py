@@ -14,7 +14,7 @@ from ..defs.syntax_tree import (
     AbcType,
     LIST_TYPE_NAME,
 )
-from ..helpers import DefaultType, DefaultTypeField, DefaultTypeParameter, mk_param_code_ref
+from ..helpers import DefaultType, DefaultTypeParameter, mk_param_code_ref
 from ..util.message import UserMessage, i18n
 from ..util.result import Result, Problem
 
@@ -39,17 +39,6 @@ def assign_root_node_type(tree: TypedTree) -> AddInTypeHandler:
             # Ignore
             # ... list type at top level should generate an error.
             continue
-        fields.append(
-            DefaultTypeField(
-                key=str(name),
-                is_list=isinstance(node, ParsedListNode),
-                type_val=node_type,
-                # Explicitly not translated.
-                title=i18n(f"field {index}"),
-                description=i18n(f"field {index}"),
-                usable_before_invoking=True,
-            )
-        )
         params.append(
             DefaultTypeParameter(
                 key=str(name),
@@ -99,7 +88,7 @@ class RootNodeHandler(AddInTypeHandler):
         return Result.as_value(
             (
                 GeneratedCode(
-                    ref=mk_ref([]),
+                    ref=mk_ref(node.node_id()),
                     purpose="execute",
                     template=CodeTemplate((mk_param_code_ref(main, "execute"),)),
                 ),

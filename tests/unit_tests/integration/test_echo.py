@@ -6,8 +6,8 @@ from helpers.parsed import mk_parameter, mk_list, mk_simple
 from native_shell.defs.script import StagingScript, ScriptSource
 from native_shell.astgen import generate_prepared_script
 from native_shell.codegen import assemble_code
-from native_shell.built_ins.core import CORE
-from native_shell.built_ins.core.echo import ECHO
+from native_shell.builtins.core import CORE
+from native_shell.builtins.core.echo import ECHO
 
 
 class JustEchoIntegrationTest(unittest.TestCase):
@@ -30,16 +30,51 @@ class JustEchoIntegrationTest(unittest.TestCase):
         assembled = assembled_res.required()
         self.assertEqual(
             """
+module just-echo
+
+go 1.20
+
 """,
             assembled.go_mod,
         )
         self.assertEqual(
-            """
+            """.PHONY: build clean
+
+build:
+\tmkdir -p bin
+\tgo fmt ./...
+\tgo build -o bin/just-echo .
+
+clean:
+\ttest -d bin && rm -r bin
+
 """,
             assembled.makefile,
         )
         self.assertEqual(
             """
+package main
+
+import (
+\t"errors"
+\t"fmt"
+\t"os"
+)
+
+// ('main', 'err')
+var MainErr error
+// ('main', 'fileno')
+var MainFileno *os.File
+
+
+func main() {
+\t// ()
+MainFileno = os.Stdout
+MainErr = fmt.Fprintf(MainFileno, "%s\\n", "Hello, world!")
+
+
+}
+
 """,
             assembled.main_go,
         )

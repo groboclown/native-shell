@@ -1,0 +1,18 @@
+
+name: test-echo
+version: 1
+
+require-libs:
+  - core
+
+main:
+  as: core.echo
+  with:
+    text:
+      as-list: string
+      items:
+        - Hello,
+        - world!
+    stdout:
+      as: boolean
+      value: true

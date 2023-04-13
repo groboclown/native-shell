@@ -8,7 +8,7 @@ from ..defs.syntax_tree import SyntaxNode, TypeField, SyntaxParameter
 
 def mk_field_ref(src: SyntaxNode, field: TypeField) -> NodeReference:
     """Create a reference to a field on a node."""
-    return mk_ref([*cast(Sequence[str], src.node_id), field.key()])
+    return mk_ref([*cast(Sequence[str], src.node_id()), field.key()])
 
 
 def mk_var_name(src: NodeReference) -> str:

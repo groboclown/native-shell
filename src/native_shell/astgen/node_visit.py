@@ -1,6 +1,6 @@
 """Visitor pattern for the syntax builder tree."""
 
-from typing import List, Tuple, Callable, Optional
+from typing import List, Tuple, Callable, Union, Optional
 from ..defs.parse_tree import (
     AbcParsedNode,
 )
@@ -58,7 +58,7 @@ class VisitState:
         self,
         *,
         parent: "Optional[VisitState]",
-        key: str | int,
+        key: Union[str, int],
         current: AbcParsedNode,
     ) -> None:
         self.parent = parent
@@ -88,7 +88,7 @@ class VisitState:
         ]
 
 
-def ordered_parameters(node: AbcParsedNode) -> List[Tuple[str | int, AbcParsedNode]]:
+def ordered_parameters(node: AbcParsedNode) -> List[Tuple[Union[str, int], AbcParsedNode]]:
     """Return the parameters in correct parse order."""
     # Note: sort must guarantee that all the items sorted on are of the
     #   same type.  The container types are designed such that their

@@ -5,8 +5,8 @@ from helpers.parsed import mk_parameter, mk_list, mk_simple
 from native_shell.astgen import gen_final
 from native_shell.astgen.gen_root_type import RootNodeHandler
 from native_shell.defs.script import TypeHandlerStore
-from native_shell.built_ins.core import CORE
-from native_shell.built_ins.core.echo import ECHO
+from native_shell.builtins.core import CORE
+from native_shell.builtins.core.echo import ECHO
 
 
 class GenFinalTest(unittest.TestCase):

@@ -63,7 +63,8 @@ class TypeParameter(AbcTypeProperty, ABC):
 
         Note that property types can't be generator meta-types.
         They can only reference concrete types whose values the generator will
-        aim to construct."""
+        aim to construct.  List types specify the list item type here
+        and the 'is_list' call marks it as a list."""
         raise NotImplementedError
 
     def is_required(self) -> bool:
@@ -78,16 +79,29 @@ class TypeParameter(AbcTypeProperty, ABC):
 class TypeField(AbcTypeProperty, ABC):
     """Storage for a value in a type.
 
+    Fields must be an AbcType, because their purpose is to express a value that
+    can be set and read from.  It may be possible in theory to have a field be
+    a list of values, but right now that isn't supported.
+
     A type may provide information usable by a script, such as a process ID,
     which the script cannot provide.
+
+    If a field type has a parameter, it is ignored.
+
+    Currently, a field's type may have its own fields, but they are also ignored.
+    The meaning behind that, from a code perspective, would be a member to a structure.
+    It's up to the caller that references that field to find the sub-field correctly.
     """
 
-    def type(self) -> Union[BasicType, "AbcType"]:
+    def type(self) -> "AbcType":
         """Get the underlying type for this property.
 
         Note that property types can't be generator meta-types.
         They can only reference concrete types whose values the generator will
-        aim to construct."""
+        aim to construct.
+        Field types can't be basic types, because their only purpose for being
+        declared is to be referencable through code, which means needing a type
+        handler to do just that."""
         raise NotImplementedError
 
     def is_usable_before_invoking(self) -> bool:
@@ -180,7 +194,7 @@ class SyntaxNode:
         *,
         source: SourcePath,
         node_id: NodeReference,
-        node_type: AbcType | ListType,
+        node_type: Union[AbcType, ListType],
         values: Mapping[str, SyntaxParameter],
     ) -> None:
         # As this is the finalized form, we make copies of the compound types.
@@ -199,7 +213,7 @@ class SyntaxNode:
         for the node."""
         return self.__node_id
 
-    def node_type(self) -> AbcType | ListType:
+    def node_type(self) -> Union[AbcType, ListType]:
         """Get the node's type."""
         return self.__type
 
@@ -208,3 +222,6 @@ class SyntaxNode:
         in the case of a list node, the list turned into a map by translating the
         index to a string."""
         return self.__values
+
+    def __repr__(self) -> str:
+        return "/".join(self.__node_id)

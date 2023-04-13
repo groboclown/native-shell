@@ -1,7 +1,8 @@
 """The old 'echo' command."""
 
 from typing import Iterable, List, Union
-from .error import ERROR_TYPE
+from .error_field import ERROR_TYPE
+from .os_file_field import OS_FILE_TYPE
 from ...defs.add_ins import (
     AddInTypeHandler,
     GeneratedCode,
@@ -77,7 +78,7 @@ ECHO_FILENO_KEY = "fileno"
 ECHO_FILENO = DefaultTypeField(
     key=ECHO_FILENO_KEY,
     is_list=False,
-    type_val="integer",
+    type_val=OS_FILE_TYPE,
     title=_("file descriptor"),
     description=_("The file descriptor written to by the echo operation."),
     usable_before_invoking=False,
@@ -99,7 +100,7 @@ ECHO_TYPE = DefaultType(
     title=_("echo"),
     description=_("Send output to stdout, stderr, or a file."),
     parameters=(ECHO_TEXT, ECHO_STDOUT, ECHO_STDERR, ECHO_WRITE, ECHO_APPEND),
-    fields=(ECHO_FILENO,),
+    fields=(ECHO_FILENO, ECHO_ERROR),
 )
 
 
@@ -115,12 +116,7 @@ class EchoCommand(AddInTypeHandler):
             GeneratedCode(
                 ref=mk_ref([str(p) for p in ECHO_TYPE.source()]),
                 purpose="import_as",
-                template=CodeTemplate(
-                    (
-                        "os",
-                        "fmt",
-                    )
-                ),
+                template=CodeTemplate(("fmt",)),
             ),
         )
 
@@ -134,19 +130,7 @@ class EchoCommand(AddInTypeHandler):
             ident=mk_field_ref(node, ECHO_ERROR),
             purpose="get_field_value",
         )
-        ret: List[GeneratedCode] = [
-            # Will always have a fileno field.
-            GeneratedCode(
-                ref=fileno_ref,
-                purpose="define_field",
-                template=CodeTemplate((f"var {mk_var_name(fileno_ref)} *os.File\n",)),
-            ),
-            GeneratedCode(
-                ref=fileno_ref,
-                purpose="get_field_value",
-                template=CodeTemplate((mk_var_name(fileno_ref),)),
-            ),
-        ]
+        ret: List[GeneratedCode] = []
 
         exec_parts: List[Union[CodeReference, str]] = []
         # Exactly one of stdout, stderr, write, append must be given.
@@ -230,12 +214,19 @@ class EchoCommand(AddInTypeHandler):
             (
                 f"{indent}",
                 error_get_ref,
-                " = fmt.Fprintf({mk_var_name(fileno_ref)}, " f'"{format_str}\\n"',
+                f' = fmt.Fprintf({mk_var_name(fileno_ref)}, "{format_str}\\n"',
             )
         )
         exec_parts.extend(text_bits)
         exec_parts.append(")\n")
         exec_parts.append(tail)
+        ret.append(
+            GeneratedCode(
+                ref=mk_ref(node.node_id()),
+                purpose="execute",
+                template=CodeTemplate(exec_parts),
+            )
+        )
 
         return res.build(ret)
 
