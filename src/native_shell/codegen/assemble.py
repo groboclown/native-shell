@@ -1,6 +1,7 @@
 """Assemble the code into the different files."""
 
-from typing import Set
+from typing import Set, Optional
+import os
 from .code_map import create_code_map, CodeRefMap
 from .expand_template import expand_template
 from ..defs.basic import mk_ref
@@ -66,6 +67,14 @@ go {GO_VERSION}
 def mk_makefile(script: PreparedScript, cr_map: CodeRefMap) -> Result[str]:
     """Creates the makefile for building the script."""
     # Needs to get all the modules to include.  They are added during the make process.
+    bin_location = script.bin_location
+    bin_dir: Optional[str] = None
+    if os.path.sep in bin_location and os.path.sep != "/":
+        bin_location = bin_location.replace(os.path.sep, "/")
+    # If the bin_location is only at the root path, then don't do special bin_dir handling.
+    if "/" in bin_location[1:]:
+        bin_dir = bin_location[: bin_location.rfind("/")]
+
     modules: Set[str] = set()
     for code in cr_map.get_all_for_purpose("modules"):
         # The template for a module entry must be one module per string.
@@ -79,10 +88,11 @@ def mk_makefile(script: PreparedScript, cr_map: CodeRefMap) -> Result[str]:
     ret = ".PHONY: build clean\n\nbuild:\n"
     for name in sorted(list(modules)):
         ret += f"\tgo get {name}\n"  # pylint:disable=consider-using-join
-    ret += "\tmkdir -p bin\n"
+    if bin_dir:
+        ret += f"\tmkdir -p {bin_dir}\n"
     ret += "\tgo fmt ./...\n"
-    ret += f"\tgo build -o bin/{script.name} .\n\n"
-    ret += "clean:\n\ttest -d bin && rm -r bin\n\n"
+    ret += f"\tgo build -o {bin_location} .\n\n"
+    ret += f"clean:\n\ttest -f {bin_location} && rm {bin_location}\n\n"
     return Result.as_value(ret)
 
 

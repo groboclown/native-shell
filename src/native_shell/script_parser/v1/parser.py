@@ -44,6 +44,8 @@ def parse_v1(source: Sequence[Tuple[ScriptSource, bytes]]) -> Result[InitialScri
     res = ResultGen()
     script_name = parse_script_name(script_source, raw_data, res)
     script_version = parse_script_version(script_source, raw_data, res)
+    bin_location = parse_bin_location(script_source, script_name, raw_data, res)
+
     add_ins = parse_required_add_ins(script_source, raw_data, res)
     tree = parse_root_node(script_source.source, raw_data, res)
     return res.build(
@@ -51,6 +53,7 @@ def parse_v1(source: Sequence[Tuple[ScriptSource, bytes]]) -> Result[InitialScri
             source=script_source,
             name=script_name,
             version=script_version,
+            bin_location=bin_location,
             add_in_names=add_ins,
             tree=tree,
         )
@@ -97,6 +100,28 @@ def parse_script_version(
             )
         )
     return "1"
+
+
+def parse_bin_location(
+    script_source: ScriptSource,
+    script_name: str,
+    data: Dict[str, Any],
+    res: ResultGen,
+) -> str:
+    """Extract the script name from the source."""
+    if "bin" in data:
+        bin_location = data["bin"]
+        # Remove the field so it isn't picked up by the root parser.
+        del data["bin"]
+        if bin_location and isinstance(bin_location, str):
+            return bin_location
+        res.add(
+            Problem.as_validation(
+                (*script_source.source, "bin_location"),
+                _("'bin_location' if given must be a non-empty string"),
+            )
+        )
+    return f"bin/{script_name}"
 
 
 def parse_required_add_ins(

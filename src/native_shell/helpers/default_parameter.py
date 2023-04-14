@@ -1,5 +1,6 @@
 """The default AbcType implementation."""
 
+from typing import Union
 from ..defs.syntax_tree import AbcType, TypeParameter, BasicType
 from ..util.message import I18n
 
@@ -12,7 +13,7 @@ class DefaultTypeParameter(TypeParameter):
         *,
         key: str,
         is_list: bool,
-        type_val: BasicType | AbcType,
+        type_val: Union[BasicType, AbcType],
         title: I18n,
         description: I18n,
         required: bool,
@@ -30,7 +31,7 @@ class DefaultTypeParameter(TypeParameter):
     def is_list(self) -> bool:
         return self.__is_list
 
-    def type(self) -> BasicType | AbcType:
+    def type(self) -> Union[BasicType, AbcType]:
         return self.__type
 
     def title(self) -> I18n:

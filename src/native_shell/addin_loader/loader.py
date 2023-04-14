@@ -33,6 +33,7 @@ def load_add_ins(script: InitialScript) -> Result[StagingScript]:
             source=script.script_source,
             name=script.name,
             version=script.version,
+            bin_location=script.bin_location,
             add_ins=add_ins,
             tree=script.tree,
         )

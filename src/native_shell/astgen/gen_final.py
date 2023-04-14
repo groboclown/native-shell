@@ -60,6 +60,7 @@ def generate_prepared_script(
                 source=staging.script_source,
                 name=staging.name,
                 version=staging.version,
+                bin_location=staging.bin_location,
                 type_handlers=res[1],
                 tree=res[0],
             )

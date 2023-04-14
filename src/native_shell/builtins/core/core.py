@@ -1,7 +1,6 @@
 """The core add-in."""
 
 from .echo import ECHO
-from .error_field import ERROR_FIELD
 from .simple_field import (
     INT_FIELD,
     INT8_FIELD,
@@ -17,8 +16,9 @@ from .simple_field import (
     FLOAT64_FIELD,
     BOOL_FIELD,
     STRING_FIELD,
+    ERROR_FIELD,
+    OS_FILE_FIELD,
 )
-from .os_file_field import OS_FILE_FIELD
 from ...defs.add_ins import AddIn
 
 

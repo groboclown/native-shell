@@ -46,7 +46,7 @@ build:
 \tgo build -o bin/just-echo .
 
 clean:
-\ttest -d bin && rm -r bin
+\ttest -f bin/just-echo && rm bin/just-echo
 
 """,
             assembled.makefile,
@@ -56,7 +56,6 @@ clean:
 package main
 
 import (
-\t"errors"
 \t"fmt"
 \t"os"
 )
@@ -70,7 +69,7 @@ var MainFileno *os.File
 func main() {
 \t// ()
 MainFileno = os.Stdout
-MainErr = fmt.Fprintf(MainFileno, "%s\\n", "Hello, world!")
+_, MainErr = fmt.Fprintf(MainFileno, "%s\\n", "Hello, world!")
 
 
 }
@@ -99,6 +98,7 @@ def mk_script() -> StagingScript:
         source=ScriptSource(source=("test",), src_hash="??", when=datetime.datetime.now()),
         name="just-echo",
         version="1.0",
+        bin_location="bin/just-echo",
         add_ins=(CORE,),
         tree=root,
     )

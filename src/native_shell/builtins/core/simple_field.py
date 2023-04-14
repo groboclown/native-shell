@@ -6,6 +6,7 @@ from ...defs.add_ins import (
     GeneratedCode,
     CodeTemplate,
 )
+from ...defs.basic import mk_ref
 from ...defs.syntax_tree import AbcType, SyntaxNode
 from ...helpers import (
     DefaultType,
@@ -18,16 +19,31 @@ from ...util.result import Result
 class SimpleField(AddInTypeHandler):
     """A simple field type."""
 
-    def __init__(self, go_type: str, type_val: AbcType) -> None:
+    def __init__(
+        self,
+        go_type: str,
+        type_val: AbcType,
+        imports: Iterable[str] = (),
+    ) -> None:
         self.go_type = go_type
         self.type_val = type_val
+        self.import_templates: Iterable[GeneratedCode]
+        if imports:
+            self.import_templates = (
+                GeneratedCode(
+                    ref=mk_ref([str(p) for p in type_val.source()]),
+                    purpose="import_as",
+                    template=CodeTemplate(tuple(imports)),
+                ),
+            )
+        else:
+            self.import_templates = ()
 
     def type(self) -> AbcType:
         return self.type_val
 
     def shared_code(self) -> Iterable[GeneratedCode]:
-        # Does not generate shared code.
-        return ()
+        return self.import_templates
 
     def instance_code(  # pylint:disable=too-many-locals
         self,
@@ -102,3 +118,9 @@ BOOL_FIELD = SimpleField("bool", BOOL_TYPE)
 
 STRING_TYPE = _mk_type("string")
 STRING_FIELD = SimpleField("string", STRING_TYPE)
+
+ERROR_TYPE = _mk_type("error")
+ERROR_FIELD = SimpleField("error", ERROR_TYPE)
+
+OS_FILE_TYPE = _mk_type("file")
+OS_FILE_FIELD = SimpleField("*os.File", OS_FILE_TYPE, ("os",))

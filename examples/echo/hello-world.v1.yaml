@@ -1,5 +1,7 @@
+# v1 script
 
 name: test-echo
+bin: /go-echo
 version: 1
 
 require-libs:

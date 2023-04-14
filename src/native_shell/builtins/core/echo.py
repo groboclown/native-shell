@@ -1,8 +1,7 @@
 """The old 'echo' command."""
 
 from typing import Iterable, List, Union
-from .error_field import ERROR_TYPE
-from .os_file_field import OS_FILE_TYPE
+from .simple_field import ERROR_TYPE, OS_FILE_TYPE
 from ...defs.add_ins import (
     AddInTypeHandler,
     GeneratedCode,
@@ -212,7 +211,7 @@ class EchoCommand(AddInTypeHandler):
                 index += 1
         exec_parts.extend(
             (
-                f"{indent}",
+                f"{indent}_, ",
                 error_get_ref,
                 f' = fmt.Fprintf({mk_var_name(fileno_ref)}, "{format_str}\\n"',
             )

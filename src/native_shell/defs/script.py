@@ -172,60 +172,6 @@ class HandlerStore:
         return self.__types
 
 
-class StagingScript:
-    """A pass at constructing the concrete script.  There may still be
-    meta-type nodes and problems."""
-
-    __slots__ = (
-        "__source",
-        "__name",
-        "__version",
-        "__add_ins",
-        "__tree",
-    )
-
-    def __init__(
-        self,
-        *,
-        source: ScriptSource,
-        name: str,
-        version: str,
-        add_ins: Iterable[AddIn],
-        tree: AbcParsedNode,
-    ) -> None:
-        self.__source = source
-        self.__name = name
-        self.__version = version
-        self.__add_ins = tuple(add_ins)
-        self.__tree = tree
-
-    @property
-    def script_source(self) -> ScriptSource:
-        """Where the script came from."""
-        return self.__source
-
-    @property
-    def name(self) -> str:
-        """Name of the script.  Will be used to construct the
-        compiled command."""
-        return self.__name
-
-    @property
-    def version(self) -> str:
-        """Version of the script."""
-        return self.__version
-
-    @property
-    def add_ins(self) -> Sequence[AddIn]:
-        """Add-ins used by the script."""
-        return self.__add_ins
-
-    @property
-    def tree(self) -> AbcParsedNode:
-        """The parsed, expanded syntax tree."""
-        return self.__tree
-
-
 class InitialScript:
     """A pass at constructing the concrete script.  There may still be
     meta-type nodes and problems."""
@@ -234,6 +180,7 @@ class InitialScript:
         "__source",
         "__name",
         "__version",
+        "__bin_location",
         "__add_in_names",
         "__tree",
     )
@@ -244,12 +191,14 @@ class InitialScript:
         source: ScriptSource,
         name: str,
         version: str,
+        bin_location: str,
         add_in_names: Iterable[str],
         tree: AbcParsedNode,
     ) -> None:
         self.__source = source
         self.__name = name
         self.__version = version
+        self.__bin_location = bin_location
         self.__add_in_names = tuple(add_in_names)
         self.__tree = tree
 
@@ -270,9 +219,76 @@ class InitialScript:
         return self.__version
 
     @property
+    def bin_location(self) -> str:
+        """Binary output file location, for the makefile."""
+        return self.__bin_location
+
+    @property
     def add_in_names(self) -> Sequence[str]:
         """Add-ins requested by the script."""
         return self.__add_in_names
+
+    @property
+    def tree(self) -> AbcParsedNode:
+        """The parsed, expanded syntax tree."""
+        return self.__tree
+
+
+class StagingScript:
+    """A pass at constructing the concrete script.  There may still be
+    meta-type nodes and problems."""
+
+    __slots__ = (
+        "__source",
+        "__name",
+        "__version",
+        "__bin_location",
+        "__add_ins",
+        "__tree",
+    )
+
+    def __init__(
+        self,
+        *,
+        source: ScriptSource,
+        name: str,
+        version: str,
+        bin_location: str,
+        add_ins: Iterable[AddIn],
+        tree: AbcParsedNode,
+    ) -> None:
+        self.__source = source
+        self.__name = name
+        self.__version = version
+        self.__bin_location = bin_location
+        self.__add_ins = tuple(add_ins)
+        self.__tree = tree
+
+    @property
+    def script_source(self) -> ScriptSource:
+        """Where the script came from."""
+        return self.__source
+
+    @property
+    def name(self) -> str:
+        """Name of the script.  Will be used to construct the
+        compiled command."""
+        return self.__name
+
+    @property
+    def version(self) -> str:
+        """Version of the script."""
+        return self.__version
+
+    @property
+    def bin_location(self) -> str:
+        """Binary output file location, for the makefile."""
+        return self.__bin_location
+
+    @property
+    def add_ins(self) -> Sequence[AddIn]:
+        """Add-ins used by the script."""
+        return self.__add_ins
 
     @property
     def tree(self) -> AbcParsedNode:
@@ -287,6 +303,7 @@ class PreparedScript:
     __slots__ = (
         "__source",
         "__name",
+        "__bin_location",
         "__version",
         "__type_handlers",
         "__tree",
@@ -298,12 +315,14 @@ class PreparedScript:
         source: ScriptSource,
         name: str,
         version: str,
+        bin_location: str,
         type_handlers: TypeHandlerStore,
         tree: SyntaxNode,
     ) -> None:
         self.__source = source
         self.__name = name
         self.__version = version
+        self.__bin_location = bin_location
         self.__type_handlers = type_handlers
         self.__tree = tree
 
@@ -322,6 +341,11 @@ class PreparedScript:
     def version(self) -> str:
         """Version of the script."""
         return self.__version
+
+    @property
+    def bin_location(self) -> str:
+        """Binary output file location, for the makefile."""
+        return self.__bin_location
 
     @property
     def type_handlers(self) -> TypeHandlerStore:
