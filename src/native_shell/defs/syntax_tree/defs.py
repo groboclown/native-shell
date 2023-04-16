@@ -22,6 +22,10 @@ BASIC_TYPE_NAMES = ("string", "number", "integer", "boolean", "reference")
 ListType = Literal["list"]
 LIST_TYPE_NAME: ListType = "list"
 
+# The AnyParamType is an artificial type used to be any AbcType.
+AnyParamType = Literal["any"]
+ANY_PARAM_TYPE_NAME = "any"
+
 
 class AbcTypeProperty:
     """A value contained within a type."""

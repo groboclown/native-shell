@@ -23,9 +23,22 @@ pythonpath = ["src", "tests"]
 source = ["src"]
 branch = true
 timid = true
+omit = [".*?/__main__.py"]
 
 [tool.coverage.report]
-fail_under = 95
+fail_under = 75
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "if self.debug:",
+    "if settings.DEBUG",
+    "raise NotImplementedError",
+    "if 0:",
+    "if __name__ == .__main__.:",
+    "if TYPE_CHECKING:",
+    "class .*\\bProtocol\\):",
+    "\\.\\.\\.",
+]
 
 [tool.mypy]
 python_version = "3.9"

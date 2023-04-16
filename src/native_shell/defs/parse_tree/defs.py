@@ -148,9 +148,6 @@ class AbcParsedNode(Protocol):
     def problems(self) -> Sequence[Problem]:
         ...
 
-    def is_valid(self) -> bool:
-        ...
-
     def is_not_valid(self) -> bool:
         ...
 
@@ -263,10 +260,6 @@ class ParsedSimpleNode:
         """Get the registered problems for this node."""
         return self.__problems.problems
 
-    def is_valid(self) -> bool:
-        """Is this node valid?"""
-        return self.__problems.is_valid()
-
     def is_not_valid(self) -> bool:
         """Is this node not valid?"""
         return self.__problems.is_not_valid()
@@ -363,10 +356,6 @@ class ParsedListNode:
     def problems(self) -> Sequence[Problem]:
         """Get the registered problems for this node."""
         return self.__problems.problems
-
-    def is_valid(self) -> bool:
-        """Is this node valid?"""
-        return self.__problems.is_valid()
 
     def is_not_valid(self) -> bool:
         """Is this node not valid?"""
@@ -486,10 +475,6 @@ class ParsedParameterNode:
     def problems(self) -> Sequence[Problem]:
         """Get the registered problems for this node."""
         return self.__problems.problems
-
-    def is_valid(self) -> bool:
-        """Is this node valid?"""
-        return self.__problems.is_valid()
 
     def is_not_valid(self) -> bool:
         """Is this node not valid?"""
