@@ -7,8 +7,8 @@ from ..defs.parse_tree import (
     ParsedParameterNode,
 )
 from ..defs.syntax_tree import (
-    TypeParameter,
-    TypeField,
+    AbcTypeParameter,
+    AbcTypeField,
     AbcTypeProperty,
     AbcType,
     ListType,
@@ -35,10 +35,10 @@ class TypedTree:
 
     def mark_referenced(
         self,
-        value: Union[AddInTypeHandler, TypeParameter],
+        value: Union[AddInTypeHandler, AbcTypeParameter],
     ) -> None:
         """Mark the type as referenced."""
-        if isinstance(value, TypeParameter):
+        if isinstance(value, AbcTypeParameter):
             param_type = value.type()
             if isinstance(param_type, AbcType):
                 self.referenced_handlers.add(param_type.type_id())
@@ -52,7 +52,7 @@ class TypedTree:
         """Get the type handler for the type."""
         if not type_val:
             return None
-        if isinstance(type_val, (TypeParameter, TypeField)):
+        if isinstance(type_val, (AbcTypeParameter, AbcTypeField)):
             type_val_type = type_val.type()
             if isinstance(type_val_type, AbcType):
                 return self.handlers.get(type_val_type)

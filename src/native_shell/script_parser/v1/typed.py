@@ -10,7 +10,7 @@ from ...defs.parse_tree import (
     ParsedSimpleNode,
     ParsedParameterNode,
 )
-from ...defs.syntax_tree import BASIC_TYPE_NAMES, BasicType
+from ...defs.node_type import BASIC_TYPES, BasicType, BasicTypeId
 from ...util.message import i18n as _
 from ...util.result import Problem, ResultGen
 
@@ -54,14 +54,16 @@ def parse_typed_node(  # pylint:disable=too-many-branches
         return None
     del data[name]
 
-    if as_type in BASIC_TYPE_NAMES:
+    if as_type in BASIC_TYPES:
+        # if as_type is a key in BASIC_TYPES, then it's a BasicTypeId, because that's
+        #   the only allowed keys.
         return parse_basic_node(
             parent=parent,
             node_key=node_key,
             data=data,
             res=res,
             is_list=is_list,
-            as_type=cast(BasicType, as_type),
+            as_type=BASIC_TYPES[cast(BasicTypeId, as_type)],
         )
 
     ret: Optional[AbcParsedNode]
@@ -209,7 +211,7 @@ def parse_basic_node(
                 Problem.as_validation(
                     (*parent.source, node_key),
                     _("basic type {typ} must have a 'value'"),
-                    typ=as_type,
+                    typ=repr(as_type),
                 )
             )
             return None
@@ -230,7 +232,7 @@ def parse_basic_node(
         )
         ret = pln
         for item in value_list:
-            simple = parse_basic_type(parent, node_key, cast(BasicType, as_type), item)
+            simple = parse_basic_type(parent, node_key, as_type, item)
             res.add(simple)
             pln.add_value(
                 ParsedSimpleNode(
@@ -238,7 +240,7 @@ def parse_basic_node(
                         source=(*parent.source, node_key),
                         ref=mk_ref((*parent.ref, node_key)),
                     ),
-                    type_id=as_type,
+                    type_val=as_type,
                     value=simple.optional() or "",
                 )
             )
@@ -249,21 +251,21 @@ def parse_basic_node(
                 Problem.as_validation(
                     (*parent.source, node_key),
                     _("basic type {typ} must have a 'value'"),
-                    typ=as_type,
+                    typ=repr(as_type),
                 )
             )
             return None
         del data["value"]
 
         # we can cast here because of the "as_type in BASIC_TYPE_NAMES" check.
-        simple = parse_basic_type(parent, node_key, cast(BasicType, as_type), value)
+        simple = parse_basic_type(parent, node_key, as_type, value)
         res.add(simple)
         ret = ParsedSimpleNode(
             node_id=ParsedNodeId(
                 source=(*parent.source, node_key),
                 ref=mk_ref((*parent.ref, node_key)),
             ),
-            type_id=as_type,
+            type_val=as_type,
             value=simple.optional() or "",
         )
 

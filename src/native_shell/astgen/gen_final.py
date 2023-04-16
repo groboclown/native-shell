@@ -11,13 +11,8 @@ from ..defs.parse_tree import (
     AbcParsedNode,
     ParsedSimpleNode,
 )
-from ..defs.syntax_tree import (
-    SyntaxNode,
-    AbcType,
-    ListType,
-    SyntaxParameter,
-    BASIC_TYPE_NAMES,
-)
+from ..defs.node_type import AbcType, AbcListType
+from ..defs.syntax_tree import SyntaxNode, SyntaxParameter
 from ..defs.script import StagingScript, PreparedScript, HandlerStore, TypeHandlerStore
 from ..util.message import i18n as _
 from ..util.message import UserMessage

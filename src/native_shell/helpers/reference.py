@@ -3,10 +3,10 @@
 from typing import Sequence, Union, cast
 from ..defs.basic import NodeReference, mk_ref
 from ..defs.add_ins import CodeReference, CodeReferencePurpose
-from ..defs.syntax_tree import SyntaxNode, TypeField, SyntaxParameter
+from ..defs.syntax_tree import SyntaxNode, AbcTypeField, SyntaxParameter
 
 
-def mk_field_ref(src: SyntaxNode, field: TypeField) -> NodeReference:
+def mk_field_ref(src: SyntaxNode, field: AbcTypeField) -> NodeReference:
     """Create a reference to a field on a node."""
     return mk_ref([*cast(Sequence[str], src.node_id()), field.key()])
 

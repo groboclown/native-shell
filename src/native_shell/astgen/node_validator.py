@@ -220,7 +220,7 @@ def check_list_node(
         # If the parent is the root node, then there won't be a parameter type.
         if param_type:
             # There's a parameter type, so it must match up.
-            if item_type and param_type.type() != item_type.type():
+            if item_type and param_type.is_type_allowed(item_type.type()):
                 node.add_problem(
                     Problem.as_validation(
                         node.node_id.source,

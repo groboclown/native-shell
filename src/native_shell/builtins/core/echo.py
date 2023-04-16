@@ -1,7 +1,9 @@
 """The old 'echo' command."""
 
 from typing import Iterable, List, Union
-from .simple_field import ERROR_TYPE, OS_FILE_TYPE
+
+from .simple_field import ERROR_FIELD_TYPE, OS_FILE_FIELD_TYPE
+from .simple_parameters import STRING_LIST_TYPE
 from ...defs.add_ins import (
     AddInTypeHandler,
     GeneratedCode,
@@ -9,10 +11,10 @@ from ...defs.add_ins import (
     CodeReference,
 )
 from ...defs.basic import mk_ref
-from ...defs.syntax_tree import AbcType, SyntaxNode
+from ...defs.node_type import AbcType, ConstructType, BOOLEAN_TYPE
+from ...defs.syntax_tree import SyntaxNode
 from ...helpers import (
-    DefaultType,
-    DefaultTypeParameter,
+    ExplicitTypeParameter,
     DefaultTypeField,
     mk_field_ref,
     mk_var_name,
@@ -24,50 +26,45 @@ from ...util.result import Result, ResultGen, Problem
 
 
 ECHO_TEXT_KEY = "text"
-ECHO_TEXT = DefaultTypeParameter(
+ECHO_TEXT = ExplicitTypeParameter(
     key=ECHO_TEXT_KEY,
-    is_list=True,
-    type_val="string",
     title=_("echo text"),
     description=_("Send formatted text to an output."),
     required=True,
+    type_val=STRING_LIST_TYPE,
 )
 
 ECHO_STDOUT_KEY = "stdout"
-ECHO_STDOUT = DefaultTypeParameter(
+ECHO_STDOUT = ExplicitTypeParameter(
     key=ECHO_STDOUT_KEY,
-    is_list=False,
-    type_val="boolean",
+    type_val=BOOLEAN_TYPE,
     title=_("stdout"),
     description=_("Should the echo text be sent to stdout?  Defaults to false."),
     required=False,
 )
 
 ECHO_STDERR_KEY = "stderr"
-ECHO_STDERR = DefaultTypeParameter(
+ECHO_STDERR = ExplicitTypeParameter(
     key=ECHO_STDERR_KEY,
-    is_list=False,
-    type_val="boolean",
+    type_val=BOOLEAN_TYPE,
     title=_("stderr"),
     description=_("Should the echo text be sent to stderr?  Defaults to false."),
     required=False,
 )
 
 ECHO_WRITE_KEY = "write to"
-ECHO_WRITE = DefaultTypeParameter(
+ECHO_WRITE = ExplicitTypeParameter(
     key=ECHO_WRITE_KEY,
-    is_list=False,
-    type_val="string",
+    type_val=BOOLEAN_TYPE,
     title=_("write to a file"),
     description=_("The filename to send the echo to; defaults to no file output."),
     required=False,
 )
 
 ECHO_APPEND_KEY = "append to"
-ECHO_APPEND = DefaultTypeParameter(
+ECHO_APPEND = ExplicitTypeParameter(
     key=ECHO_APPEND_KEY,
-    is_list=False,
-    type_val="string",
+    type_val=BOOLEAN_TYPE,
     title=_("append to a file"),
     description=_("The filename to send the echo to; defaults to no file output."),
     required=False,
@@ -76,8 +73,7 @@ ECHO_APPEND = DefaultTypeParameter(
 ECHO_FILENO_KEY = "fileno"
 ECHO_FILENO = DefaultTypeField(
     key=ECHO_FILENO_KEY,
-    is_list=False,
-    type_val=OS_FILE_TYPE,
+    type_val=OS_FILE_FIELD_TYPE,
     title=_("file descriptor"),
     description=_("The file descriptor written to by the echo operation."),
     usable_before_invoking=False,
@@ -86,14 +82,13 @@ ECHO_FILENO = DefaultTypeField(
 ECHO_ERROR_KEY = "err"
 ECHO_ERROR = DefaultTypeField(
     key=ECHO_ERROR_KEY,
-    is_list=False,
-    type_val=ERROR_TYPE,
+    type_val=ERROR_FIELD_TYPE,
     title=_("command error"),
     description=_("The error state after execution."),
     usable_before_invoking=False,
 )
 
-ECHO_TYPE = DefaultType(
+ECHO_TYPE = ConstructType(
     source=("core", "echo"),
     type_id="core.echo",
     title=_("echo"),

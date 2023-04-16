@@ -9,7 +9,7 @@ from ..defs.parse_tree import (
     ParsedParameterNode,
 )
 from ..defs.syntax_tree import (
-    TypeParameter,
+    AbcTypeParameter,
 )
 from ..util.message import i18n as _
 from ..util.message import UserMessage
@@ -82,7 +82,7 @@ def assign_types_to_node(  # pylint:disable=too-many-return-statements,too-many-
         # Find the key in the parent type handler.
         parent_handler = tree.handlers.get(parent.node.type_id)
         if parent_handler:
-            param_type: Optional[TypeParameter] = None
+            param_type: Optional[AbcTypeParameter] = None
             for kpt in parent_handler.type().parameters():
                 if kpt.key() == parent.key:
                     param_type = kpt

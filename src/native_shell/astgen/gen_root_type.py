@@ -9,8 +9,8 @@ from ..defs.parse_tree import (
 )
 from ..defs.syntax_tree import (
     SyntaxNode,
-    TypeParameter,
-    TypeField,
+    AbcTypeParameter,
+    AbcTypeField,
     AbcType,
     LIST_TYPE_NAME,
 )
@@ -29,8 +29,8 @@ def assign_root_node_type(tree: TypedTree) -> AddInTypeHandler:
     reference tree for general use.
     """
     # Every included value is both a parameter and a field.
-    fields: List[TypeField] = []
-    params: List[TypeParameter] = []
+    fields: List[AbcTypeField] = []
+    params: List[AbcTypeParameter] = []
 
     index = 0
     for name, node in tree.root.mapping().items():

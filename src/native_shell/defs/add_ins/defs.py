@@ -2,7 +2,8 @@
 
 from typing import Iterable, Iterator, Sequence, Literal, Union
 from ..basic import NodeReference
-from ..syntax_tree import AbcType, AbcMetaType, SyntaxNode
+from ..node_type import AbcType, AbcMetaType
+from ..syntax_tree import SyntaxNode
 from ..parse_tree import AbcParsedNode
 from ...util.result import Result
 
