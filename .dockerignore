@@ -1,0 +1,6 @@
+/.tox
+/.mypy_cache
+/.venv
+/build
+/.coverage
+__pycache__/

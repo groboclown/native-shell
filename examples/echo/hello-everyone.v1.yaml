@@ -1,0 +1,32 @@
+# v1 script
+
+name: test-echo
+bin: /go-echo
+version: 1
+
+require-libs:
+  - core
+
+main:
+  as: core.run
+  with:
+    run:
+      with-list:
+        - as: core.echo
+          with:
+            text:
+              as-list: string
+              items:
+                - Hello, you!
+            stdout:
+              as: boolean
+              value: true
+        - as: core.echo
+          with:
+            text:
+              as-list: string
+              items:
+                - Hello, me!
+            stdout:
+              as: boolean
+              value: true
