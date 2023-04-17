@@ -6,21 +6,20 @@ up to this point worked right.  That is to say, it's just checking
 for bugs in the parser.
 """
 
-from typing import Mapping, Callable, Union, cast
+from typing import Mapping, Callable
 from ..defs.basic import SimpleParameter
 from ..defs.parse_tree import (
     AbcParsedNode,
     ParsedListNode,
     ParsedParameterNode,
     ParsedSimpleNode,
-    ParentReference,
 )
-from ..defs.syntax_tree import (
-    BasicType,
-    ListType,
+from ..defs.node_type import (
     AbcType,
-    BASIC_TYPE_NAMES,
-    LIST_TYPE_NAME,
+    BasicType,
+    BasicTypeId,
+    ListType,
+    ConstructType,
 )
 from ..util.message import i18n as _
 from ..util.result import Problem
@@ -34,6 +33,12 @@ def validate_node(node: AbcParsedNode) -> None:
     If this method is called on a node with existing problems, then there's
     a chance that problems will be duplicated in the output.
     """
+
+    # General approach for these checks:
+    #   - ensure the expected parent type matches the node type.
+    #   - ensure expected children exist, and no extra children.
+    # The parent is not responsible for checking the child type.
+    # Otherwise, errors would be duplicated.
 
     node_type = node.get_assigned_type()
     parent = node.get_parent()
@@ -53,18 +58,28 @@ def validate_node(node: AbcParsedNode) -> None:
             )
             return
 
-        # General approach for these checks:
-        #   - ensure the expected parent type matches the node type.
-        #   - ensure expected children exist, and no extra children.
-        # The parent is not responsible for checking the child type.
-        # Otherwise, errors would be duplicated.
+        parameter_type = parent.get_parameter_type()
+        # If the parent node is the root node, then the parent type and parameter
+        # type are None at this point.
+        if parameter_type and not parameter_type.is_type_allowed(node_type):
+            node.add_problem(
+                Problem.as_validation(
+                    node.node_id.source,
+                    _("node has type {typ} while parent '{key}' is a {par}"),
+                    typ=repr(node_type),
+                    key=parameter_type.key(),
+                    par=repr(parameter_type),
+                )
+            )
 
+        # The parent for the node has already been checked.  The
+        #   specific instanceof checks are for checking their contents and children.
         if isinstance(node, ParsedSimpleNode):
-            check_simple_node(node, node_type, parent)
+            check_simple_node(node, node_type)
         elif isinstance(node, ParsedListNode):
-            check_list_node(node, node_type, parent)
+            check_list_node(node, node_type)
         elif isinstance(node, ParsedParameterNode):
-            check_parameter_node(node, node_type, parent)
+            check_parameter_node(node, node_type)
         else:
             node.add_problem(
                 Problem.as_validation(
@@ -90,7 +105,7 @@ def _is_reference_type(value: SimpleParameter) -> bool:
     return True
 
 
-_SIMPLE_TYPE: Mapping[BasicType, Callable[[SimpleParameter], bool]] = {
+_SIMPLE_TYPE: Mapping[BasicTypeId, Callable[[SimpleParameter], bool]] = {
     "string": lambda p: isinstance(p, str),
     "number": lambda p: isinstance(p, (float, int)),
     "integer": lambda p: isinstance(p, int),
@@ -99,94 +114,42 @@ _SIMPLE_TYPE: Mapping[BasicType, Callable[[SimpleParameter], bool]] = {
 }
 
 
-def check_simple_node(
-    node: ParsedSimpleNode,
-    orig_node_type: Union[BasicType, ListType, AbcType],
-    parent: ParentReference,
-) -> None:
+def check_simple_node(node: ParsedSimpleNode, node_type: AbcType) -> None:
     """Perform checks on a simple node."""
-    if orig_node_type not in BASIC_TYPE_NAMES:
+    if not isinstance(node_type, BasicType):
         node.add_problem(
             Problem.as_validation(
                 node.node_id.source,
                 _("node constructed as a {clz}, but type {typ} doesn't match"),
                 clz=repr(type(node)),
-                typ=repr(orig_node_type),
+                typ=repr(node_type),
             )
         )
         # Type doesn't match node class, so abort checking.
         return
 
-    # For mypy.  The above check essentially did this.
-    node_type = cast(BasicType, orig_node_type)
-
-    if isinstance(parent.node, ParsedListNode):
-        # Synthetic list parent handler.
-        parent_param = parent.node.get_item_type()
-        if parent_param and node_type != parent_param.type():
-            node.add_problem(
-                Problem.as_validation(
-                    node.node_id.source,
-                    _("node has type {typ} while parent is a list of type {par}"),
-                    typ=repr(node_type),
-                    par=repr(parent_param.type()),
-                )
-            )
-        # If parent_param is None, then that's the parent's problem.
-
-    if isinstance(parent.node, ParsedParameterNode):
-        # Parent is the only other parent storage type.
-        param_type = parent.get_parameter_type()
-
-        # If the parent is the root node, then there won't be a parameter type.
-        if param_type:
-            # There's a parameter type, so it must match up.
-            if param_type.type() != node_type:
-                node.add_problem(
-                    Problem.as_validation(
-                        node.node_id.source,
-                        _("Parent required {key} to be a {par}, but it is a {typ}"),
-                        typ=repr(node_type),
-                        key=param_type.key(),
-                        par=repr(param_type.type()),
-                    )
-                )
-            if param_type.is_list():
-                node.add_problem(
-                    Problem.as_validation(
-                        node.node_id.source,
-                        _("Parent required {key} to be a list of {par}, but it is a {typ}"),
-                        typ=repr(node_type),
-                        key=param_type.key(),
-                        par=repr(param_type.type()),
-                    )
-                )
-        # Else there isn't a parameter type for this node.  That means
-        #   that the node is on a key that the parameter node didn't define.
-        #   This situation will be checked in the parent node, when it verifies
-        #   the key existence.
+    # Else there isn't a parameter type for this node.  That means
+    #   that the node is on a key that the parameter node didn't define.
+    #   This situation will be checked in the parent node, when it verifies
+    #   the key existence.
 
     # Check the actual type of the value against the node type.
     value = node.value
-    type_checker = _SIMPLE_TYPE.get(node_type)
+    type_checker = _SIMPLE_TYPE.get(node.type_id)
     if not type_checker or not type_checker(value):
         node.add_problem(
             Problem.as_validation(
                 node.node_id.source,
                 _("Node marked as a {exp}, but the value is a {typ}"),
-                exp=node_type,
+                exp=node.type_id,
                 typ=repr(type(value)),
             )
         )
 
 
-def check_list_node(
-    node: ParsedListNode,
-    node_type: Union[BasicType, ListType, AbcType],
-    parent: ParentReference,
-) -> None:
-    """Perform checks on a list node."""
-    if node_type != LIST_TYPE_NAME:
+def check_list_node(node: ParsedListNode, node_type: AbcType) -> None:
+    """Perform checks on a list node and the children count."""
+    if not isinstance(node_type, ListType):
         node.add_problem(
             Problem.as_validation(
                 node.node_id.source,
@@ -198,63 +161,32 @@ def check_list_node(
         # Type doesn't match node class, so abort checking.
         return
 
-    # node.get_item_type - if this is None, then that usually means the
-    #   parent didn't have a parameter for this node.  That's a problem
-    #   for the parent to report, not this node.
-
-    if isinstance(parent.node, ParsedListNode):
-        # Because list nodes are synthetic, and just the semantics
-        # of the tree structure, we can't have lists of lists directly.
+    children = tuple(node.values())
+    count = len(children)
+    max_count = node_type.get_maximum_count()
+    if max_count is not None and count > max_count:
         node.add_problem(
             Problem.as_validation(
                 node.node_id.source,
-                _("list nodes cannot have parents that are list nodes."),
+                _("node can have a maximum of {mx} values, but it has {count} items"),
+                mx=node_type.get_maximum_count(),
+                count=count,
+            )
+        )
+    if count < node_type.get_minimum_count():
+        node.add_problem(
+            Problem.as_validation(
+                node.node_id.source,
+                _("node requires at least {mn} values, but it has {count} items"),
+                mn=node_type.get_minimum_count(),
+                count=count,
             )
         )
 
-    if isinstance(parent.node, ParsedParameterNode):
-        item_type = node.get_item_type()
-        # Parent is the only other parent storage type.
-        param_type = parent.get_parameter_type()
 
-        # If the parent is the root node, then there won't be a parameter type.
-        if param_type:
-            # There's a parameter type, so it must match up.
-            if item_type and param_type.is_type_allowed(item_type.type()):
-                node.add_problem(
-                    Problem.as_validation(
-                        node.node_id.source,
-                        _("Parent required {key} to be a {par}, but it is a {typ}"),
-                        typ=repr(node_type),
-                        key=param_type.key(),
-                        par=repr(param_type.type()),
-                    )
-                )
-            if not param_type.is_list():
-                node.add_problem(
-                    Problem.as_validation(
-                        node.node_id.source,
-                        _("Parent required {key} to be a {par}, but it is a list of {typ}"),
-                        typ=repr(node.get_item_type()),
-                        key=param_type.key(),
-                        par=repr(param_type.type()),
-                    )
-                )
-        # Else there isn't a parameter type for this node.  That means
-        #   that the node is on a key that the parameter node didn't define.
-        #   This situation will be checked in the parent node, when it verifies
-        #   the key existence.
-
-    # ... do not check children types.
-
-
-def check_parameter_node(
-    node: ParsedParameterNode,
-    node_type: Union[BasicType, ListType, AbcType],
-    parent: ParentReference,
-) -> None:
+def check_parameter_node(node: ParsedParameterNode, node_type: AbcType) -> None:
     """Perform checks on a parameter node."""
-    if not isinstance(node_type, AbcType):
+    if not isinstance(node_type, ConstructType):
         node.add_problem(
             Problem.as_validation(
                 node.node_id.source,
@@ -265,51 +197,6 @@ def check_parameter_node(
         )
         # Type doesn't match node class, so abort checking.
         return
-    # From here on, AbcType checks must be "is" or "is not", not == or !=.
-
-    if isinstance(parent.node, ParsedListNode):
-        # Synthetic list parent handler.
-        if node_type is not parent.node.get_item_type():
-            node.add_problem(
-                Problem.as_validation(
-                    node.node_id.source,
-                    _("node has type {typ} while parent is a list of type {par}"),
-                    typ=repr(node_type),
-                    par=repr(parent.node.get_item_type()),
-                )
-            )
-
-    if isinstance(parent.node, ParsedParameterNode):
-        # Parent is the only other parent storage type.
-        param_type = parent.get_parameter_type()
-
-        # If the parent is the root node, then there won't be a parameter type.
-        if param_type:
-            # There's a parameter type, so it must match up.
-            if node_type is not param_type.type():
-                node.add_problem(
-                    Problem.as_validation(
-                        node.node_id.source,
-                        _("Parent required {key} to be a {par}, but it is a {typ}"),
-                        typ=repr(node_type),
-                        key=param_type.key(),
-                        par=repr(param_type.type()),
-                    )
-                )
-            if param_type.is_list():
-                node.add_problem(
-                    Problem.as_validation(
-                        node.node_id.source,
-                        _("Parent required {key} to be a list of {par}, but it is a {typ}"),
-                        typ=repr(node_type),
-                        key=param_type.key(),
-                        par=repr(param_type.type()),
-                    )
-                )
-        # Else there isn't a parameter type for this node.  That means
-        #   that the node is on a key that the parameter node didn't define.
-        #   This situation will be checked in the parent node, when it verifies
-        #   the key existence.
 
     # Now ensure all the required parameters exist, and that all other
     # parameters are optional.

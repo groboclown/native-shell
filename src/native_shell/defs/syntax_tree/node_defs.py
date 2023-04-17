@@ -1,7 +1,7 @@
 """Syntax tree structure."""
 
 from typing import Mapping, Union
-from ..node_type import AbcType
+from ..node_type.defs import AbcType
 from ..basic import SimpleParameter, NodeReference
 from ...util.result import SourcePath
 

@@ -3,7 +3,8 @@
 from typing import Sequence, Union, cast
 from ..defs.basic import NodeReference, mk_ref
 from ..defs.add_ins import CodeReference, CodeReferencePurpose
-from ..defs.syntax_tree import SyntaxNode, AbcTypeField, SyntaxParameter
+from ..defs.node_type import AbcTypeField
+from ..defs.syntax_tree import SyntaxNode, SyntaxParameter
 
 
 def mk_field_ref(src: SyntaxNode, field: AbcTypeField) -> NodeReference:

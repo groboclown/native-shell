@@ -176,8 +176,11 @@ class ConstructType(AbcType):
         for checking available fields and ."""
         return self.__fields
 
+    def __repr__(self) -> str:
+        return self.__title
 
-class AbcListType(AbcType, ABC):
+
+class ListType(AbcType):
     """The Abstract Base Class of the list types.  The mapping of values for the syntax
     node will be a conversion of the index to a string key.
 
@@ -186,32 +189,65 @@ class AbcListType(AbcType, ABC):
     is used as a marker that the underlying generated code will have special keys.
     """
 
+    def __init__(
+        self,
+        *,
+        source: SourcePath,
+        type_id: str,
+        title: I18n,
+        description: I18n,
+        items: AbcTypeParameter,
+        minimum_count: int,
+        maximum_count: Optional[int],
+    ) -> None:
+        self.__source = source
+        self.__type_id = type_id
+        self.__title = title
+        self.__description = description
+        self.__items = items
+        self.__minimum_count = minimum_count
+        self.__maximum_count = maximum_count
+
+    def source(self) -> SourcePath:
+        return self.__source
+
+    def type_id(self) -> str:
+        return self.__type_id
+
+    def title(self) -> I18n:
+        return self.__title
+
+    def description(self) -> I18n:
+        return self.__description
+
     def get_minimum_count(self) -> int:
         """Get the minimum number of items required by the list."""
-        raise NotImplementedError
+        return self.__minimum_count
 
     def get_maximum_count(self) -> Optional[int]:
         """Get the maximum number of items required by the list.
 
         Returns None if there is no maximum count."""
-        raise NotImplementedError
+        return self.__maximum_count
 
-    def is_type_allowed(self, other: AbcType) -> bool:
-        """For this type, used as a required parameter type, does the other
-        type satisfy the requirements for this?
+    def get_item_parameter(self) -> AbcTypeParameter:
+        """A reference to the items stored in the list, as a parameter.
+        The 'key' for the parameter should be 'items'.  'is_required' should
+        be false."""
+        return self.__items
 
-        This should be a type *value* validator, but that introduces complex
-        dependency issues.  Instead, type validation is handled here.
-
-        Most types should have a simple "return some_type is other" check
-        """
-        raise NotImplementedError
+    def __repr__(self) -> str:
+        return self.__title
 
 
 # Matches with SimpleParameter types.
 BasicTypeId = Literal["integer", "number", "boolean", "string", "reference"]
 BASIC_TYPE_IDS: Sequence[BasicTypeId] = (
-    "integer", "number", "boolean", "string", "reference",
+    "integer",
+    "number",
+    "boolean",
+    "string",
+    "reference",
 )
 
 

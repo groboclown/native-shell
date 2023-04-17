@@ -3,7 +3,7 @@
 from .defs import (
     AbcBaseType,
     AbcType,
-    AbcListType,
+    ListType,
     ConstructType,
     BasicType,
     AbcMetaType,

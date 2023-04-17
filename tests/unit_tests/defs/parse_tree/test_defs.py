@@ -2,8 +2,9 @@
 
 import unittest
 from helpers.parsed import mk_simple, mk_list, mk_parameter
+from native_shell.builtins.core import INTEGER_LIST_TYPE
 from native_shell.defs.parse_tree import defs
-from native_shell.helpers import DefaultType, DefaultTypeParameter
+from native_shell.defs.node_type import ConstructType
 from native_shell.util.message import i18n
 
 
@@ -46,7 +47,7 @@ class ParsedParameterNodeTest(unittest.TestCase):
     def test_set_type__already_set(self) -> None:
         """Test set_type with the type already set, even if exactly already set."""
         node = mk_parameter(["test", "x", "1"], "tuna")
-        type1 = DefaultType(
+        type1 = ConstructType(
             source=[""],
             type_id="tuna",
             title=i18n("tuna"),
@@ -76,16 +77,8 @@ class ParsedListNodeTest(unittest.TestCase):
     def test_set_item_type__already_set(self) -> None:
         """Test set_item_type with the value already set, even if exactly already set."""
         node = mk_list(["test", "x", "1"])
-        param = DefaultTypeParameter(
-            key="squid",
-            is_list=True,
-            type_val="integer",
-            title=i18n("squid"),
-            description=i18n("squid"),
-            required=True,
-        )
-        node.set_item_type(param)
+        node.set_type(INTEGER_LIST_TYPE)
         try:
-            node.set_item_type(param)
+            node.set_type(INTEGER_LIST_TYPE)
         except RuntimeError as err:
-            self.assertEqual("RuntimeError('Attempted to set item type for //x/1')", repr(err))
+            self.assertEqual("RuntimeError('Attempted to set type for //x/1')", repr(err))

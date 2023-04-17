@@ -3,7 +3,6 @@
 from typing import Iterable, List, Union
 
 from .simple_field import ERROR_FIELD_TYPE, OS_FILE_FIELD_TYPE
-from .simple_parameters import STRING_LIST_TYPE
 from ...defs.add_ins import (
     AddInTypeHandler,
     GeneratedCode,
@@ -14,7 +13,8 @@ from ...defs.basic import mk_ref
 from ...defs.node_type import AbcType, ConstructType, BOOLEAN_TYPE
 from ...defs.syntax_tree import SyntaxNode
 from ...helpers import (
-    ExplicitTypeParameter,
+    create_explicit_type_parameter,
+    create_delayed_list_type_parameter,
     DefaultTypeField,
     mk_field_ref,
     mk_var_name,
@@ -26,16 +26,15 @@ from ...util.result import Result, ResultGen, Problem
 
 
 ECHO_TEXT_KEY = "text"
-ECHO_TEXT = ExplicitTypeParameter(
+ECHO_TEXT = create_delayed_list_type_parameter(
     key=ECHO_TEXT_KEY,
     title=_("echo text"),
     description=_("Send formatted text to an output."),
     required=True,
-    type_val=STRING_LIST_TYPE,
 )
 
 ECHO_STDOUT_KEY = "stdout"
-ECHO_STDOUT = ExplicitTypeParameter(
+ECHO_STDOUT = create_explicit_type_parameter(
     key=ECHO_STDOUT_KEY,
     type_val=BOOLEAN_TYPE,
     title=_("stdout"),
@@ -44,7 +43,7 @@ ECHO_STDOUT = ExplicitTypeParameter(
 )
 
 ECHO_STDERR_KEY = "stderr"
-ECHO_STDERR = ExplicitTypeParameter(
+ECHO_STDERR = create_explicit_type_parameter(
     key=ECHO_STDERR_KEY,
     type_val=BOOLEAN_TYPE,
     title=_("stderr"),
@@ -53,7 +52,7 @@ ECHO_STDERR = ExplicitTypeParameter(
 )
 
 ECHO_WRITE_KEY = "write to"
-ECHO_WRITE = ExplicitTypeParameter(
+ECHO_WRITE = create_explicit_type_parameter(
     key=ECHO_WRITE_KEY,
     type_val=BOOLEAN_TYPE,
     title=_("write to a file"),
@@ -62,7 +61,7 @@ ECHO_WRITE = ExplicitTypeParameter(
 )
 
 ECHO_APPEND_KEY = "append to"
-ECHO_APPEND = ExplicitTypeParameter(
+ECHO_APPEND = create_explicit_type_parameter(
     key=ECHO_APPEND_KEY,
     type_val=BOOLEAN_TYPE,
     title=_("append to a file"),

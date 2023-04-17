@@ -7,6 +7,7 @@ from helpers.parsed import (
 )
 from native_shell.astgen import assign_type
 from native_shell.astgen.typed_tree import TypedTree
+from native_shell.defs.node_type import INTEGER_TYPE
 from native_shell.defs.script import TypeHandlerStore
 from native_shell.util.message import i18n
 from native_shell.util.result import Problem
@@ -45,7 +46,7 @@ class AssignTypeTest(unittest.TestCase):
 
         self.assertEqual([], root.problems())
         self.assertEqual([], node.problems())
-        self.assertEqual("integer", node.get_assigned_type())
+        self.assertEqual(INTEGER_TYPE, node.get_assigned_type())
 
     def test_assign_types_to_node__simple(self) -> None:
         """Test assign_types_to_node with a simple node."""
@@ -57,4 +58,4 @@ class AssignTypeTest(unittest.TestCase):
 
         self.assertEqual([], node.problems())
         self.assertEqual([], root.problems())
-        self.assertEqual("integer", node.get_assigned_type())
+        self.assertEqual(INTEGER_TYPE, node.get_assigned_type())

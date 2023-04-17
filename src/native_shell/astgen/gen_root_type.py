@@ -4,17 +4,14 @@ from typing import List, Iterable
 from .typed_tree import TypedTree
 from ..defs.basic import mk_ref
 from ..defs.add_ins import AddInTypeHandler, GeneratedCode, CodeTemplate
-from ..defs.parse_tree import (
-    ParsedListNode,
-)
-from ..defs.syntax_tree import (
-    SyntaxNode,
+from ..defs.node_type import (
     AbcTypeParameter,
     AbcTypeField,
     AbcType,
-    LIST_TYPE_NAME,
+    ConstructType,
 )
-from ..helpers import DefaultType, DefaultTypeParameter, mk_param_code_ref
+from ..defs.syntax_tree import SyntaxNode
+from ..helpers import DefaultTypeParameter, mk_param_code_ref
 from ..util.message import UserMessage, i18n
 from ..util.result import Result, Problem
 
@@ -32,25 +29,18 @@ def assign_root_node_type(tree: TypedTree) -> AddInTypeHandler:
     fields: List[AbcTypeField] = []
     params: List[AbcTypeParameter] = []
 
-    index = 0
-    for name, node in tree.root.mapping().items():
-        node_type = node.get_assigned_type()
-        if node_type is None or node_type == LIST_TYPE_NAME:
-            # Ignore
-            # ... list type at top level should generate an error.
-            continue
+    for name, _node in tree.root.mapping().items():
         params.append(
             DefaultTypeParameter(
                 key=str(name),
-                is_list=isinstance(node, ParsedListNode),
-                type_val=node_type,
-                title=i18n(f"parameter {index}"),
-                description=i18n(f"parameter {index}"),
+                title=i18n(f"parameter {name}"),
+                description=i18n(f"parameter {name}"),
                 required=True,
+                type_checker=lambda x: True,
             )
         )
 
-    type_val = DefaultType(
+    type_val = ConstructType(
         source=tree.root.node_id.source,
         type_id="-root",
         title=_("parsed script"),

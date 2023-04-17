@@ -3,6 +3,7 @@
 from typing import List
 from native_shell.defs import build_ref
 from native_shell.defs.basic import SimpleParameter
+from native_shell.defs.node_type import BASIC_TYPES, BasicTypeId
 from native_shell.defs.parse_tree import (
     ParsedNodeId,
     AbcParsedNode,
@@ -14,6 +15,7 @@ from native_shell.defs.parse_tree import (
 
 def mk_simple(path: List[str], value: SimpleParameter) -> ParsedSimpleNode:
     """Create a simple node"""
+    type_id: BasicTypeId
     if isinstance(value, str):
         type_id = "string"
     elif isinstance(value, bool):
@@ -21,12 +23,12 @@ def mk_simple(path: List[str], value: SimpleParameter) -> ParsedSimpleNode:
     elif isinstance(value, int):
         type_id = "integer"
     elif isinstance(value, float):
-        type_id = "float"
+        type_id = "number"
     else:
         type_id = "reference"
     return ParsedSimpleNode(
         node_id=mk_node_id(path[1:]),
-        type_id=type_id,
+        type_val=BASIC_TYPES[type_id],
         value=value,
     )
 

@@ -307,6 +307,9 @@ class ResultGen:
             return Result.as_error(self.__problems)
         return Result.as_value(callback(), self.__problems)
 
+    def __repr__(self) -> str:
+        return f"ResultGen({'invalid / ' if self.__invalid else ''}{len(self.__problems)})"
+
 
 def _flatten_problems(
     problems: Sequence[Union[Problem, Iterable[Problem]]],

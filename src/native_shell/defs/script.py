@@ -3,7 +3,8 @@
 from typing import Sequence, Tuple, Iterable, Dict, Mapping, Callable, Union, Optional
 import datetime
 from .add_ins import AddInTypeHandler, AddInMetaTypeHandler, AddIn
-from .syntax_tree import SyntaxNode, AbcType, AbcMetaType
+from .node_type import AbcType, AbcMetaType
+from .syntax_tree import SyntaxNode
 from .parse_tree import AbcParsedNode
 from ..util.message import i18n as _
 from ..util.message import UserMessage

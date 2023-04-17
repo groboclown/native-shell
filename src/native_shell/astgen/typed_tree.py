@@ -6,13 +6,11 @@ from ..defs.parse_tree import (
     AbcParsedNode,
     ParsedParameterNode,
 )
-from ..defs.syntax_tree import (
-    AbcTypeParameter,
+from ..defs.node_type import (
     AbcTypeField,
     AbcTypeProperty,
     AbcType,
-    ListType,
-    BasicType,
+    ConstructType,
 )
 from ..defs.script import TypeHandlerStore
 
@@ -35,37 +33,40 @@ class TypedTree:
 
     def mark_referenced(
         self,
-        value: Union[AddInTypeHandler, AbcTypeParameter],
+        value: Union[AddInTypeHandler, AbcType],
     ) -> None:
         """Mark the type as referenced."""
-        if isinstance(value, AbcTypeParameter):
-            param_type = value.type()
-            if isinstance(param_type, AbcType):
-                self.referenced_handlers.add(param_type.type_id())
+        if isinstance(value, AbcType):
+            self.referenced_handlers.add(value.type_id())
         else:
             self.referenced_handlers.add(value.type().type_id())
 
     def get_handler(
         self,
-        type_val: Union[BasicType, ListType, AbcType, AbcTypeProperty, None],
+        type_val: Union[AbcType, AbcTypeProperty, str, None],
     ) -> Optional[AddInTypeHandler]:
         """Get the type handler for the type."""
         if not type_val:
             return None
-        if isinstance(type_val, (AbcTypeParameter, AbcTypeField)):
+        if isinstance(type_val, str):
+            return self.handlers.get(type_val)
+        if isinstance(type_val, AbcTypeField):
             type_val_type = type_val.type()
             if isinstance(type_val_type, AbcType):
                 return self.handlers.get(type_val_type)
             return None
         if isinstance(type_val, AbcType):
             return self.handlers.get(type_val)
-        # Else it's a basic type; return
+        # Else it's an unknown type, or doesn't support a handler.
         return None
 
     def assign_root_type(self, handler: AddInTypeHandler) -> None:
         """The root node is special and has its type dynamically constructed."""
         if self.root.get_assigned_type() is not None:
             raise RuntimeError("Already assigned root type.")
-        self.root.set_type(handler.type())
+        handler_type = handler.type()
+        if not isinstance(handler_type, ConstructType):
+            raise RuntimeError(f"root handler must be for a construct type; found {handler_type!r}")
+        self.root.set_type(handler_type)
         self.handlers.add_dynamic(handler)
         self.mark_referenced(handler)
