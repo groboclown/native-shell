@@ -15,7 +15,11 @@ from ...util.message import i18n as _
 from ...util.result import Problem, ResultGen
 
 
-def parse_typed_node(  # pylint:disable=too-many-branches
+# R0912 too-many-branches
+# R0914 too-many-locals
+# R0911 too-many-return-statements
+# R0915 too-many-statements
+def parse_typed_node(  # pylint:disable=R0915,R0914,R0911,R0912
     *,
     parent: ParsedNodeId,
     node_key: str,
@@ -27,6 +31,55 @@ def parse_typed_node(  # pylint:disable=too-many-branches
         return None
 
     is_list: bool
+    with_list_items = data.get("with-list")
+    if with_list_items:
+        # A list of values, each with their own type.
+        del data["with-list"]
+        if data.keys():
+            # Don't stop
+            res.add(
+                Problem.as_validation(
+                    (*parent.source, node_key),
+                    _("type supports only 'with-list'; found additional: {keys}"),
+                    keys=data.keys(),
+                )
+            )
+        if not isinstance(with_list_items, (tuple, list)):
+            res.add(
+                Problem.as_validation(
+                    (*parent.source, node_key, "list"),
+                    _("type with an 'items' must have it be a list"),
+                )
+            )
+            return None
+        pln = ParsedListNode(
+            node_id=ParsedNodeId(
+                source=(*parent.source, node_key),
+                ref=mk_ref((*parent.ref, node_key)),
+            ),
+        )
+        # Don't set the type.
+        index = -1
+        for item in with_list_items:
+            index += 1
+            if not isinstance(item, dict):
+                res.add(
+                    Problem.as_validation(
+                        (*parent.source, node_key, "items"),
+                        _("type with an 'items' must have each one be a dict"),
+                    )
+                )
+                continue
+            created = parse_typed_node(
+                parent=pln.node_id,
+                node_key=str(index),
+                data=item,
+                res=res,
+            )
+            if created:
+                pln.add_value(created)
+        return pln
+
     as_list_type = data.get("as-list")
     as_type = data.get("as")
     if (as_type and as_list_type) or (not as_type and not as_list_type):

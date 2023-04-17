@@ -66,8 +66,8 @@ class CodeReference:
         """The purpose version of this code reference."""
         return self.__purpose
 
-    def __str__(self) -> str:
-        return f"{self.__ident}/{self.__purpose}"
+    def __repr__(self) -> str:
+        return f"@{self.__ident}/{self.__purpose}"
 
 
 class CodeTemplate:
@@ -88,6 +88,9 @@ class CodeTemplate:
 
     def __iter__(self) -> Iterator[Union[CodeReference, str]]:
         return iter(self.__parts)
+
+    def __repr__(self) -> str:
+        return " ; ".join([repr(p) for p in self.__parts])
 
 
 class GeneratedCode:
@@ -126,6 +129,9 @@ class GeneratedCode:
 
     def __str__(self) -> str:
         return f"{self.__ref}/{self.__purpose}"
+
+    def __repr__(self) -> str:
+        return f"[{self.__ref}/{self.__purpose} :: {self.__template}]"
 
 
 class AddInTypeHandler:

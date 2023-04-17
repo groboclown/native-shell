@@ -19,6 +19,7 @@ from .simple_field import (
     ERROR_FIELD_HANDLER,
     OS_FILE_FIELD_HANDLER,
 )
+from .sequential import SEQUENTIAL
 from ...defs.add_ins import AddIn
 
 
@@ -28,6 +29,7 @@ CORE = AddIn(
     include_name="core",
     type_handlers=(
         ECHO,
+        SEQUENTIAL,
         ERROR_FIELD_HANDLER,
         INT_FIELD_HANDLER,
         INT8_FIELD_HANDLER,

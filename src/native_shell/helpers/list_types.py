@@ -1,8 +1,9 @@
 """The default AbcType implementation."""
 
-from typing import Callable, Union, Optional
+from typing import List, Tuple, Callable, Union, Optional
 from .default_parameter import DefaultTypeParameter, create_explicit_type_parameter
 from ..defs.node_type import AbcType, ListType, AbcTypeParameter
+from ..defs.syntax_tree import SyntaxNode, SyntaxParameter
 from ..util.message import i18n as _
 from ..util.message import I18n
 from ..util.result import SourcePath
@@ -56,3 +57,19 @@ def create_list_type(
         minimum_count=min_count,
         maximum_count=max_count,
     )
+
+
+def get_ordered_children(node: SyntaxNode) -> List[SyntaxParameter]:
+    """Order the children, possibly using numeric typing if possible."""
+
+    int_keys: List[Tuple[int, SyntaxParameter]] = []
+    values = node.values()
+    for key, val in values.items():
+        try:
+            i_key = int(key)
+            int_keys.append((i_key, val))
+        except ValueError:
+            # Not a number.  Just use normal sorting.
+            return [values[key] for key in sorted(list(values.keys()))]
+    int_keys.sort(key=lambda x: x[0])
+    return [x[1] for x in int_keys]

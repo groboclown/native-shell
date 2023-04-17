@@ -2,6 +2,7 @@
 
 from typing import Iterable, List, Union
 
+from .consts import ERROR_FIELD_KEY
 from .simple_field import ERROR_FIELD_TYPE, OS_FILE_FIELD_TYPE
 from ...defs.add_ins import (
     AddInTypeHandler,
@@ -78,7 +79,7 @@ ECHO_FILENO = DefaultTypeField(
     usable_before_invoking=False,
 )
 
-ECHO_ERROR_KEY = "err"
+ECHO_ERROR_KEY = ERROR_FIELD_KEY
 ECHO_ERROR = DefaultTypeField(
     key=ECHO_ERROR_KEY,
     type_val=ERROR_FIELD_TYPE,
