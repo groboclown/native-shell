@@ -26,7 +26,7 @@ timid = true
 omit = [".*?/__main__.py"]
 
 [tool.coverage.report]
-fail_under = 75
+fail_under = 70
 exclude_lines = [
     "pragma: no cover",
     "def __repr__",

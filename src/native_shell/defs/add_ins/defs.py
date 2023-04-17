@@ -2,7 +2,8 @@
 
 from typing import Iterable, Iterator, Sequence, Literal, Union
 from ..basic import NodeReference
-from ..syntax_tree import AbcType, AbcMetaType, SyntaxNode
+from ..node_type import AbcType, AbcMetaType
+from ..syntax_tree import SyntaxNode
 from ..parse_tree import AbcParsedNode
 from ...util.result import Result
 
@@ -65,8 +66,8 @@ class CodeReference:
         """The purpose version of this code reference."""
         return self.__purpose
 
-    def __str__(self) -> str:
-        return f"{self.__ident}/{self.__purpose}"
+    def __repr__(self) -> str:
+        return f"@{self.__ident}/{self.__purpose}"
 
 
 class CodeTemplate:
@@ -87,6 +88,9 @@ class CodeTemplate:
 
     def __iter__(self) -> Iterator[Union[CodeReference, str]]:
         return iter(self.__parts)
+
+    def __repr__(self) -> str:
+        return " ; ".join([repr(p) for p in self.__parts])
 
 
 class GeneratedCode:
@@ -125,6 +129,9 @@ class GeneratedCode:
 
     def __str__(self) -> str:
         return f"{self.__ref}/{self.__purpose}"
+
+    def __repr__(self) -> str:
+        return f"[{self.__ref}/{self.__purpose} :: {self.__template}]"
 
 
 class AddInTypeHandler:

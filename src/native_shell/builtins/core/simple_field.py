@@ -1,4 +1,4 @@
-"""A Go error.  By convention, these are the 'err' field of executable types."""
+"""Field types that relate to basic Go types."""
 
 from typing import Iterable
 from ...defs.add_ins import (
@@ -7,16 +7,16 @@ from ...defs.add_ins import (
     CodeTemplate,
 )
 from ...defs.basic import mk_ref
-from ...defs.syntax_tree import AbcType, SyntaxNode
+from ...defs.node_type import AbcType, ConstructType
+from ...defs.syntax_tree import SyntaxNode
 from ...helpers import (
-    DefaultType,
     mk_var_name,
 )
 from ...util.message import i18n
 from ...util.result import Result
 
 
-class SimpleField(AddInTypeHandler):
+class SimpleFieldHandler(AddInTypeHandler):
     """A simple field type."""
 
     def __init__(
@@ -67,8 +67,11 @@ class SimpleField(AddInTypeHandler):
 
 
 def _mk_type(name: str) -> AbcType:
-    return DefaultType(
-        source=("core", "types", name),
+    # These simple types explicitly relate to Golang structures,
+    # not user-passed values.  As such, they are turned into
+    # parameter types with no fields or .
+    return ConstructType(
+        source=("core", "field-types", name),
         type_id=f"core.types.{name}",
         title=i18n(name),
         description=i18n(name),
@@ -77,50 +80,50 @@ def _mk_type(name: str) -> AbcType:
     )
 
 
-INT_TYPE = _mk_type("int")
-INT_FIELD = SimpleField("int", INT_TYPE)
+INT_FIELD_TYPE = _mk_type("int")
+INT_FIELD_HANDLER = SimpleFieldHandler("int", INT_FIELD_TYPE)
 
-UINT8_TYPE = _mk_type("uint8")
-UINT8_FIELD = SimpleField("uint8", UINT8_TYPE)
+UINT8_FIELD_TYPE = _mk_type("uint8")
+UINT8_FIELD_HANDLER = SimpleFieldHandler("uint8", UINT8_FIELD_TYPE)
 
-INT8_TYPE = _mk_type("int8")
-INT8_FIELD = SimpleField("int8", INT8_TYPE)
+INT8_FIELD_TYPE = _mk_type("int8")
+INT8_FIELD_HANDLER = SimpleFieldHandler("int8", INT8_FIELD_TYPE)
 
-UINT16_TYPE = _mk_type("uint16")
-UINT16_FIELD = SimpleField("uint16", UINT16_TYPE)
+UINT16_FIELD_TYPE = _mk_type("uint16")
+UINT16_FIELD_HANDLER = SimpleFieldHandler("uint16", UINT16_FIELD_TYPE)
 
-INT16_TYPE = _mk_type("int16")
-INT16_FIELD = SimpleField("int16", INT16_TYPE)
+INT16_FIELD_TYPE = _mk_type("int16")
+INT16_FIELD_HANDLER = SimpleFieldHandler("int16", INT16_FIELD_TYPE)
 
-UINT32_TYPE = _mk_type("uint32")
-UINT32_FIELD = SimpleField("uint32", UINT32_TYPE)
+UINT32_FIELD_TYPE = _mk_type("uint32")
+UINT32_FIELD_HANDLER = SimpleFieldHandler("uint32", UINT32_FIELD_TYPE)
 
-INT32_TYPE = _mk_type("int32")
-INT32_FIELD = SimpleField("int32", INT32_TYPE)
+INT32_FIELD_TYPE = _mk_type("int32")
+INT32_FIELD_HANDLER = SimpleFieldHandler("int32", INT32_FIELD_TYPE)
 
-UINT64_TYPE = _mk_type("uint64")
-UINT64_FIELD = SimpleField("uint64", UINT64_TYPE)
+UINT64_FIELD_TYPE = _mk_type("uint64")
+UINT64_FIELD_HANDLER = SimpleFieldHandler("uint64", UINT64_FIELD_TYPE)
 
-INT64_TYPE = _mk_type("int64")
-INT64_FIELD = SimpleField("int64", INT64_TYPE)
+INT64_FIELD_TYPE = _mk_type("int64")
+INT64_FIELD = SimpleFieldHandler("int64", INT64_FIELD_TYPE)
 
-FLOAT_TYPE = _mk_type("float")
-FLOAT_FIELD = SimpleField("float", FLOAT_TYPE)
+FLOAT_FIELD_TYPE = _mk_type("float")
+FLOAT_FIELD_HANDLER = SimpleFieldHandler("float", FLOAT_FIELD_TYPE)
 
-FLOAT32_TYPE = _mk_type("float32")
-FLOAT32_FIELD = SimpleField("float32", FLOAT32_TYPE)
+FLOAT32_FIELD_TYPE = _mk_type("float32")
+FLOAT32_FIELD_HANDLER = SimpleFieldHandler("float32", FLOAT32_FIELD_TYPE)
 
-FLOAT64_TYPE = _mk_type("float64")
-FLOAT64_FIELD = SimpleField("float64", FLOAT64_TYPE)
+FLOAT64_FIELD_TYPE = _mk_type("float64")
+FLOAT64_FIELD_HANDLER = SimpleFieldHandler("float64", FLOAT64_FIELD_TYPE)
 
-BOOL_TYPE = _mk_type("bool")
-BOOL_FIELD = SimpleField("bool", BOOL_TYPE)
+BOOL_FIELD_TYPE = _mk_type("bool")
+BOOL_FIELD_HANDLER = SimpleFieldHandler("bool", BOOL_FIELD_TYPE)
 
-STRING_TYPE = _mk_type("string")
-STRING_FIELD = SimpleField("string", STRING_TYPE)
+STRING_FIELD_TYPE = _mk_type("string")
+STRING_FIELD_HANDLER = SimpleFieldHandler("string", STRING_FIELD_TYPE)
 
-ERROR_TYPE = _mk_type("error")
-ERROR_FIELD = SimpleField("error", ERROR_TYPE)
+ERROR_FIELD_TYPE = _mk_type("error")
+ERROR_FIELD_HANDLER = SimpleFieldHandler("error", ERROR_FIELD_TYPE)
 
-OS_FILE_TYPE = _mk_type("file")
-OS_FILE_FIELD = SimpleField("*os.File", OS_FILE_TYPE, ("os",))
+OS_FILE_FIELD_TYPE = _mk_type("file")
+OS_FILE_FIELD_HANDLER = SimpleFieldHandler("*os.File", OS_FILE_FIELD_TYPE, ("os",))

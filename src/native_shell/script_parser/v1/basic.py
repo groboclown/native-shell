@@ -3,7 +3,7 @@
 from typing import List, Any
 from ...defs.basic import mk_ref, SimpleParameter
 from ...defs.parse_tree import ParsedNodeId
-from ...defs.syntax_tree import BasicType
+from ...defs.node_type import BasicType
 from ...util.message import i18n as _
 from ...util.result import Result, Problem, ResultGen
 
@@ -15,51 +15,51 @@ def parse_basic_type(  # pylint:disable=too-many-return-statements,too-many-bran
     value: Any,
 ) -> Result[SimpleParameter]:
     """Parse the value as the given basic type."""
-    if as_type == "string":
+    if as_type.type_id() == "string":
         if not isinstance(value, str):
             return Result.as_error(
                 Problem.as_validation(
                     (*parent.source, key),
                     _("node with type {typ} contains a value of type {val}"),
-                    typ=as_type,
+                    typ=repr(as_type),
                     val=str(type(value)),
                 )
             )
         return Result.as_value(value)
-    if as_type == "number":
+    if as_type.type_id() == "number":
         if not isinstance(value, (int, float)):
             return Result.as_error(
                 Problem.as_validation(
                     (*parent.source, key),
                     _("node with type {typ} contains a value of type {val}"),
-                    typ=as_type,
+                    typ=repr(as_type),
                     val=str(type(value)),
                 )
             )
         return Result.as_value(float(value))
-    if as_type == "integer":
+    if as_type.type_id() == "integer":
         if not isinstance(value, int):
             return Result.as_error(
                 Problem.as_validation(
                     (*parent.source, key),
                     _("node with type {typ} contains a value of type {val}"),
-                    typ=as_type,
+                    typ=repr(as_type),
                     val=str(type(value)),
                 )
             )
         return Result.as_value(value)
-    if as_type == "boolean":
+    if as_type.type_id() == "boolean":
         if not isinstance(value, bool):
             return Result.as_error(
                 Problem.as_validation(
                     (*parent.source, key),
                     _("node with type {typ} contains a value of type {val}"),
-                    typ=as_type,
+                    typ=repr(as_type),
                     val=str(type(value)),
                 )
             )
         return Result.as_value(value)
-    if as_type == "reference":
+    if as_type.type_id() == "reference":
         problems = ResultGen()
         ret: List[str] = []
         if not isinstance(value, (tuple, list)):
@@ -67,7 +67,7 @@ def parse_basic_type(  # pylint:disable=too-many-return-statements,too-many-bran
                 Problem.as_validation(
                     (*parent.source, key),
                     _("node with type {typ} contains a value of type {val}"),
-                    typ=as_type,
+                    typ=repr(as_type),
                     val=str(type(value)),
                 )
             )
@@ -88,7 +88,7 @@ def parse_basic_type(  # pylint:disable=too-many-return-statements,too-many-bran
         Problem.as_validation(
             (*parent.source, key),
             _("unknown basic type {typ}"),
-            typ=as_type,
+            typ=repr(as_type),
         )
     )
 

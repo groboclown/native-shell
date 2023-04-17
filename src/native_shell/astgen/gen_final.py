@@ -1,6 +1,6 @@
 """Convert the ParsedNode into the AbcSyntaxNode."""
 
-from typing import Tuple, Dict, Union, cast
+from typing import Tuple, Dict
 from .node_visit import post_visit_parsed_node, pre_visit_parsed_node
 from .typed_tree import TypedTree
 from .gen_root_type import assign_root_node_type
@@ -11,13 +11,8 @@ from ..defs.parse_tree import (
     AbcParsedNode,
     ParsedSimpleNode,
 )
-from ..defs.syntax_tree import (
-    SyntaxNode,
-    AbcType,
-    ListType,
-    SyntaxParameter,
-    BASIC_TYPE_NAMES,
-)
+from ..defs.node_type import ConstructType, BasicType
+from ..defs.syntax_tree import SyntaxNode, SyntaxParameter
 from ..defs.script import StagingScript, PreparedScript, HandlerStore, TypeHandlerStore
 from ..util.message import i18n as _
 from ..util.message import UserMessage
@@ -81,24 +76,20 @@ def finish_tree(
         if isinstance(node, ParsedSimpleNode):
             # These are directly added to the generated node, not cached.
             return
-        base_node_type = node.get_assigned_type()
-        if not base_node_type or node.is_not_valid():
+        node_type = node.get_assigned_type()
+        if not node_type or node.is_not_valid():
             # Don't handle this node.  The errors should have already errored out,
             # though.
             res.force_not_valid()
             return
-        if base_node_type in BASIC_TYPE_NAMES:
+        if isinstance(node_type, BasicType):
             # This is a basic assertion for code correctness.
             # This type should only be possible for simple nodes, which
             # have already been omitted.
             raise RuntimeError(
                 f"node {node!r} is marked as a complex parsed node "
-                f"({type(base_node_type)}), but has simple assigned type ({base_node_type})"
+                f"({type(node_type)}), but has simple assigned type ({node_type})"
             )
-        # There should be special handling of the ListType.  The SyntaxNode should only allow
-        # AbcType, and a special ListType handler should replace the real type.  This will
-        # allow for code generation of list access.
-        n_type = cast(Union[AbcType, ListType], base_node_type)
 
         children: Dict[str, SyntaxParameter] = {}
         valid = True
@@ -125,13 +116,12 @@ def finish_tree(
             else:
                 children[str(key)] = child_gen
 
-        if isinstance(n_type, AbcType):
+        if isinstance(node_type, ConstructType):
             # Fields will become their own synthetic syntax nodes.
             # This allows their generated code to be referencable.
-            for field in n_type.fields():
-                if field.is_list():
-                    raise NotImplementedError("Need to generate a synthetic list AbcType")
+            for field in node_type.fields():
                 field_type = field.type()
+                typed_tree.mark_referenced(field_type)
                 children[field.key()] = SyntaxNode(
                     source=[*node.node_id.source, field.key()],
                     node_id=mk_ref([*node.node_id.ref, field.key()]),
@@ -149,7 +139,7 @@ def finish_tree(
             gen[node.node_id.node_ptr] = SyntaxNode(
                 source=node.node_id.source,
                 node_id=node.node_id.ref,
-                node_type=n_type,
+                node_type=node_type,
                 values=children,
             )
 

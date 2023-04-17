@@ -6,16 +6,14 @@ basic script parsing into the final syntax tree.
 from typing import Iterable, Sequence, List, Mapping, Dict, Union, Optional, Any, cast
 from typing_extensions import Protocol
 from ..basic import SimpleParameter, NodeReference
-from ..syntax_tree import (
+from ..node_type import (
     AbcType,
-    TypeParameter,
-    BasicType,
     ListType,
-    BASIC_TYPE_NAMES,
-    LIST_TYPE_NAME,
+    ConstructType,
+    AbcTypeParameter,
+    BasicType,
+    BasicTypeId,
 )
-from ...util.message import i18n as _
-from ...util.message import UserMessage
 from ...util.result import Result, ResultGen, Problem, SourcePath
 
 
@@ -54,7 +52,7 @@ class ParsedNodeId:
         absolute reference path."""
         return self.__node_ptr
 
-    def __str__(self) -> str:
+    def __repr__(self) -> str:
         return self.__node_ptr
 
 
@@ -72,7 +70,7 @@ class ParentReference:
         *,
         node: Union["ParsedParameterNode", "ParsedListNode"],
         key: Union[str, int],
-        parameter_type: Optional[TypeParameter] = None,
+        parameter_type: Optional[AbcTypeParameter] = None,
     ) -> None:
         # Runtime checks.
         if isinstance(key, str) and not isinstance(node, ParsedParameterNode):
@@ -94,23 +92,27 @@ class ParentReference:
         """The key in the ``node``."""
         return self.__key
 
-    def get_parameter_type(self) -> Optional[TypeParameter]:
+    def get_parameter_type(self) -> Optional[AbcTypeParameter]:
         """The property type for the ``key`` in the ``node``.
         If the node is a list container, then the returned value is
-        the same as the node's own parameter type.
+        the node's list type.
 
         If the value returned is None, then it hasn't been discovered yet.
         """
         return self.__parameter_type
 
-    def set_parameter_type(self, param_type: TypeParameter) -> None:
+    def is_child_type_allowed(self, param: AbcType) -> bool:
+        """Is the given child type for this parent's parameter allowed?
+
+        Will raise an error if the parameter type hasn't been set.
+        """
+        if self.__parameter_type is None:
+            raise RuntimeError(f"did not set parameter type for {self}")
+        return self.__parameter_type.is_type_allowed(param)
+
+    def set_parameter_type(self, param_type: AbcTypeParameter) -> None:
         """Set the parameter type.  May only be called once."""
-        if self.__parameter_type is not None:
-            raise RuntimeError(
-                f"attempted to set parameter type on {self} twice; "
-                f"already assigned to {self.__parameter_type}, tried to set to "
-                f"{param_type}."
-            )
+        _ensure_type_property_not_set(self.node.node_id, self.__parameter_type)
         self.__parameter_type = param_type
 
     def __str__(self) -> str:
@@ -162,7 +164,7 @@ class AbcParsedNode(Protocol):
     ) -> None:
         ...
 
-    def get_assigned_type(self) -> Union[BasicType, ListType, AbcType, None]:
+    def get_assigned_type(self) -> Optional[AbcType]:
         ...
 
     def mapping(self) -> Mapping[Union[str, int], "AbcParsedNode"]:
@@ -191,7 +193,9 @@ def _ensure_type_not_set(node_id: ParsedNodeId, type_val: Optional[AbcType]) -> 
         raise RuntimeError(f"Attempted to set type for {node_id}")
 
 
-def _ensure_type_property_not_set(node_id: ParsedNodeId, type_val: Optional[TypeParameter]) -> None:
+def _ensure_type_property_not_set(
+    node_id: ParsedNodeId, type_val: Optional[AbcTypeParameter]
+) -> None:
     if type_val is not None:
         raise RuntimeError(f"Attempted to set item type for {node_id}")
 
@@ -208,24 +212,16 @@ class ParsedSimpleNode:
         self,
         *,
         node_id: ParsedNodeId,
-        type_id: str,
+        type_val: BasicType,
         value: SimpleParameter,
     ) -> None:
         self.__id = node_id
         self.__parent: Optional[ParentReference] = None
         self.__value = value
-        self.__type_id = type_id
+        # BasicType must have a type of BasicTypeId.  That's how it's created.
+        self.__type_id = cast(BasicTypeId, type_val.type_id())
         self.__problems = ResultGen()
-        self.__type: Optional[BasicType] = None
-        if type_id not in BASIC_TYPE_NAMES:
-            self.__problems.add(
-                Problem.as_validation(
-                    node_id.source,
-                    UserMessage(_("Assigned simple node to not basic type {name}"), name=type_id),
-                )
-            )
-        else:
-            self.__type = cast(BasicType, type_id)
+        self.__type = type_val
 
     @property
     def node_id(self) -> ParsedNodeId:
@@ -233,11 +229,11 @@ class ParsedSimpleNode:
         return self.__id
 
     @property
-    def type_id(self) -> str:
+    def type_id(self) -> BasicTypeId:
         """The declared value type of this node."""
         return self.__type_id
 
-    def get_assigned_type(self) -> Union[BasicType, ListType, AbcType, None]:
+    def get_assigned_type(self) -> Optional[AbcType]:
         """Get the assigned type."""
         return self.__type
 
@@ -307,7 +303,7 @@ class ParsedSimpleNode:
 class ParsedListNode:
     """A node that contains other nodes in an ordered list."""
 
-    __slots__ = ("__id", "__parent", "__items", "__item_type", "__problems")
+    __slots__ = ("__id", "__parent", "__items", "__type", "__problems")
 
     def __init__(
         self,
@@ -318,7 +314,7 @@ class ParsedListNode:
         self.__parent: Optional[ParentReference] = None
         self.__problems = ResultGen()
         self.__items: List[AbcParsedNode] = []
-        self.__item_type: Optional[TypeParameter] = None
+        self.__type: Optional[ListType] = None
 
     @property
     def node_id(self) -> ParsedNodeId:
@@ -328,20 +324,16 @@ class ParsedListNode:
     @property
     def type_id(self) -> str:
         """The declared value type of this node.  List nodes can only be of type list."""
-        return LIST_TYPE_NAME
+        return "<list>"
 
-    def get_item_type(self) -> Union[TypeParameter, None]:
-        """Get the item type."""
-        return self.__item_type
+    def set_type(self, type_val: ListType) -> None:
+        """Sets the list type as defined by the parent parameter.  May only be called once."""
+        _ensure_type_not_set(self.node_id, self.__type)
+        self.__type = type_val
 
-    def set_item_type(self, type_val: TypeParameter) -> None:
-        """Sets the item type.  May only be called once."""
-        _ensure_type_property_not_set(self.node_id, self.__item_type)
-        self.__item_type = type_val
-
-    def get_assigned_type(self) -> Union[BasicType, ListType, AbcType, None]:
+    def get_assigned_type(self) -> Optional[AbcType]:
         """Get the assigned type."""
-        return LIST_TYPE_NAME
+        return self.__type
 
     def get_parent(self) -> Optional[ParentReference]:
         """Get the parent reference, if there is one and it's been
@@ -441,7 +433,7 @@ class ParsedParameterNode:
         self.__type_id = type_id
         self.__problems = ResultGen()
         self.__params: Dict[str, AbcParsedNode] = {}
-        self.__type: Optional[AbcType] = None
+        self.__type: Optional[ConstructType] = None
 
     @property
     def node_id(self) -> ParsedNodeId:
@@ -463,12 +455,12 @@ class ParsedParameterNode:
         _ensure_parent_not_set(self.__id, self.__parent)
         self.__parent = parent
 
-    def set_type(self, type_val: AbcType) -> None:
+    def set_type(self, type_val: ConstructType) -> None:
         """Attempt to set the type."""
         _ensure_type_not_set(self.__id, self.__type)
         self.__type = type_val
 
-    def get_assigned_type(self) -> Union[BasicType, ListType, AbcType, None]:
+    def get_assigned_type(self) -> Optional[AbcType]:
         """Get the assigned type."""
         return self.__type
 

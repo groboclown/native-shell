@@ -10,7 +10,7 @@ def pre_visit_parsed_node(
     root: AbcParsedNode,
     visitor: Callable[[AbcParsedNode], None],
 ) -> None:
-    """Visit the node in pre ordering (node then all children)"""
+    """Visit the node in pre-ordering (node then all children)"""
     stack: List[AbcParsedNode] = [root]
 
     while stack:

@@ -77,6 +77,7 @@ def _recursive_expand(
         if len(ref_template) > 1:
             # There might be a correct way to handle this, but
             #   that would require knowing proper ordering which isn't guaranteed.
+            print("Multiple templates:\n - " + "\n - ".join([repr(t) for t in ref_template]))
             problems.add(
                 Problem.as_validation(
                     tuple(part.ref),

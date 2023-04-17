@@ -30,5 +30,5 @@ def build_ref(*paths: Union[int, str, Iterable[str]]) -> NodeReference:
             for item in path:
                 ret.append(str(item))
         else:
-            ret.append(str(item))
+            ret.append(str(path))
     return NodeReference(tuple(ret))
