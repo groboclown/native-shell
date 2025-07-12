@@ -12,7 +12,211 @@ The script language should provide:
 2. Basic typing.  Should support JSON like types, so that those file structures can be loaded into the script.
 
 
-## Try 1
+
+# Try 2
+
+The primary use case for the language are container authors needing to create glue code between components, primarily for initializing the container state before executing the primary process in the container.  In some cases, the authors need to deal with historical tools that don't fit neatly into containerization.
+
+With the first cut, it should try to cover common use cases related to containers.  While behaviors like "run a thing when a file changes" occur in some systems, it's not the primary use case we're covering.  This intends to cover:
+
+* Acting on signals from the OS.
+* Running server programs or complex setup programs
+  * Redirecting input and output file descriptors to other programs or files.
+  * Acting on exit codes
+  * Allowing program restarts.
+
+The "service" handling includes basic tee and file and shell stream redirects.  Actions like filtering from these should be possible, but it's a later priority.
+
+```yaml
+
+command-sets:
+  # Command sets define a runtime environment for programs.  A program execution can use
+  # a pre-defined command set, or use a custom command set, or modify a pre-defined command set.
+  redis:
+    cwd: "/var/lib/redis"
+    env:
+      REDIS_HOST:
+        value: "localhost"
+      REDIS_PORT:
+        value: "${REDIS_PORT}"
+    # Can also include:
+    # on-error: for a list of things to do on the process exiting with non-zero error code.
+    # on-success: for list of things to do on the process exiting with zero exit code.
+    # on: for acting on a specific exit code value or range of values.
+    # streams: for how to redirect file descriptors.
+  web-server:
+    cwd: "/var/www/html"
+
+shell:
+  # Shell reflects the execution shell environment, how it
+  # manages OS interaction forwarding from the managed processes.
+  signals:
+    # When the shell receives a signal, it will forward it to the
+    # processes who listen to a specific signal.
+    SIGTERM: term
+    SIGINT: term
+    SIGHUP: reload
+
+    # "+NAME" means a built-in behavior to send the given signal all running processes.
+    SIGKILL: +kill
+  env:
+    # List of required or optional environment variables.  The system will
+    # fail to start if required ones are missing.
+    HOME:
+      required: true
+      # required: true cannot have a "default" field.
+    REDIS_PORT:
+      # providing a default implies required: false
+      default: 6379
+    ALLOW_USER_PAGES:
+      default: "false"
+    REDIS_ARGS:
+      required: false
+      default: []
+  values:
+    # Constructed values to use in the script.  Unlike environment variables, these aren't passed to child processes.
+    # They can also have an 'array' structure, to split the value into an array, for use in injecting its value
+    # into array parameters.
+    # Also, these are scope sensitive, meaning they are evaluated at time of use.  If associated to a process,
+    # then it reads from the environment variables passed to the process.
+  
+  # By default, stdout and stderr are line merged from all incoming
+  # streams.
+  stdout:
+    merge: line
+  stderr:
+    merge: line
+  stdin:
+    close-on-start: true
+  
+  # If needed, also allows 'fd:' for a list of numbered file descriptors.
+  # these must be declared as 'in' or 'out' types.  The 'std*' items are syntax sugar.
+
+
+steps:
+  # List of named steps to perform in-between the processes.
+  "redis server config":
+    run: filter-file
+    with:
+      source-file: /etc/redis.d/default.config
+      output-file: /etc/redis.d/config
+    replace:
+      - text: "${BASEDIR}"
+        with: /etc/redis.d
+      - text: "#require-tls: false"
+        with: "require-tls: true"
+    on-error:
+      - shell: abort
+        err-message: "Invalid file replacement: ${err}"
+  "web server modules":
+    run:
+      - if:
+          oper: equal
+          items:
+            - "${ALLOW_USER_PAGES}"
+            - "true"
+        then:
+          - run: cp
+            with:
+              - source-file: /etc/apache.d/modules/mod_userdir
+              - output-dir: /etc/apache.d/active-modules
+  "ensure db server running":
+    run: retry
+    with:
+      execute:
+        - /usr/local/bin/redis-cli
+        - -u
+        - "${REDIS_USERNAME}"
+        - -p
+        - "${REDIS_PASSWORD}"
+        - -H
+        - "${REDIS_HOST}:${REDIS_PORT}"
+      expects-exit: 0
+      retry: 3
+      initial-delay: 5
+      retry-delay: 2
+      send-stdout: /dev/null
+      send-stderr: shell.stdout
+    on-error:
+      - shell: abort
+        err-message: "Timed out waiting for database to start: ${err}"
+
+
+processes:
+  # List of *possible* processes to run.
+  # The 'shell' group's streams reflect some processes that must run,
+  # by having 'required: true' set; this also implies all their dependencies
+  # must run.  Other processes must have a 'default: true' set to force
+  # execution, which also implies all their dependencies must run.
+  redis-server:
+    type: process
+    # 'default' means it's a primary execution process.
+    # As one of the sources of the shell, it implies 'default'.
+    default: true
+    command: /usr/local/bin/redis
+    pre-steps:
+      # List of steps to run before this starts.
+      - run: redis server config
+
+    command-set: "redis"
+    # The command set describes many defaults, which
+    # the process may overwrite.
+    env:
+      # Environment variables later overwrite earlier ones.
+      - name: "REDIS_PASSWORD"
+        value: "secret"
+      - name: "REDIS_USERNAME"
+        value: "admin"
+    streams:
+      - name: stdout
+        into:
+          - stream: shell.stdout
+          - file: /var/log/redis/access.log
+            # Could also include standard logging things like rolling backups
+      - name: stderr
+        into:
+          - stream: shell.stderr
+    on-actions:
+      term:
+        # What to do when the shell receives a signal that
+        # forwards on to the 'term' actions.
+        - type: send-signal
+          signal: SIGTERM
+
+  - name: "web-server"
+    type: process
+    command: /usr/local/bin/httpd
+    default: true
+    before:
+      - parallel:
+          - run: ensure db server running
+          - run: web server modules
+    on-halt:
+      type: signal
+      signal: SIGTERM
+    command-set: "web-server"
+    streams:
+      output:
+        - fd: 1
+          into-file: /var/log/httpd/access.log
+        - fd: 2
+          into-file: /var/log/httpd/error.log
+        - fd: 3
+          into-file: /var/log/httpd/debug.log
+
+  - name: "redis-active"
+    type: module
+    module: network-connects
+    cmd-set: "redis"
+    args:
+      - name: address
+        env: REDIS_HOST
+      - name: port
+        env: REDIS_PORT
+```
+
+
+# Try 1
 
 Make the DAG job processing the top level language semantic.  Split the execution into "jobs", with dependencies declared within.  With the "job" being the execution primitive, it would then be easy to construct corresponding function names to make debugging easier.
 
@@ -306,3 +510,4 @@ Based on this, some notes:
 * "ref" types are essentially pointers to variable contents.  They allow for peeking into data loaded from files or environment variables which themselves may have been altered by other actions.
 * The names from an AST are turned into essentially `path_item_key_another_item` names.  This will help make the names unique and linkable to the source.
 * During code generation, it will need to be done in two passes - first the meta-type translation, then a post order visiting of the tree to construct the final generated code.  The code generation will need to store the in-flight code snippets in the node so that the higher level can plop it in.  Better yet would be to have the code generators not have access to the leaf generated code, and instead create a tree of generated code.
+

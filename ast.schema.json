@@ -1,0 +1,959 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$spdx-license": "MIT",
+  "title": "Native Shell AST Schema",
+  "description": "An abstract syntax tree (AST) schema for a Native Shell.",
+  "type": "object",
+  "required": ["version", "source", "events", "nodes", "default-start"],
+  "additionalProperties": false,
+  "properties": {
+    "version": {
+      "type": "string",
+      "description": "The version of the AST schema."
+    },
+    "source": { "$ref": "#/$defs/Source" },
+    "events": {
+      "type": "array",
+      "title": "Event Name List",
+      "description": "The event names that nodes can trigger.  These construct a named group of event brokers, which are referenced by the nodes through the index.  Eventually, this may have a parameter list, but for the moment, events can carry a message and/or a code.",
+      "items": {
+        "type": "object",
+        "title": "Event Name",
+        "description": "An event name that can be triggered by a node.",
+        "required": ["source", "name", "text"],
+        "additionalProperties": false,
+        "properties": {
+          "source": { "$ref": "#/$defs/Source" },
+          "name": {
+            "type": "integer",
+            "description": "The event index that triggers this action list."
+          },
+          "text": {
+            "type": "string",
+            "description": "The text description of the event.  This is used for debugging and logging."
+          }
+        }
+      }
+    },
+    "nodes": {
+      "type": "array",
+      "title": "Node List",
+      "description": "The nodes in the AST.  Each node is a module with a backing builder.",
+      "items": {
+        "$ref": "#/$defs/Node"
+      }
+    },
+    "default-start": {
+      "type": "array",
+      "description": "The default start nodes for the script.  These are the nodes that is executed when the script starts.",
+      "items": {
+        "type": "string",
+        "description": "The name of the node to start."
+      }
+    }
+  },
+  "$defs": {
+    "Source": {
+      "type": "object",
+      "title": "Source",
+      "description": "The source from the script.",
+      "required": ["file", "line", "column"],
+      "additionalProperties": false,
+      "properties": {
+        "file": {
+          "type": "string",
+          "description": "The file where the node is defined."
+        },
+        "line": {
+          "type": "integer",
+          "description": "The line number where the node is defined."
+        },
+        "column": {
+          "type": "integer",
+          "description": "The column number where the node is defined."
+        }
+      }
+    },
+    "Node": {
+      "type": "object",
+      "title": "Node",
+      "description": "A node in the AST.  Each node has a name, a type, and a list of actions.",
+      "required": ["name", "source", "module", "environment", "streams", "initial-parameters", "runtime-parameters", "exit-actions", "event-listeners"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "The name of the node."
+        },
+        "source": { "$ref": "#/$defs/Source" },
+        "module": {
+          "type": "string",
+          "description": "The build implementation for the node."
+        },
+        "environment": {
+          "type": "object",
+          "description": "The environment for the node.",
+          "required": ["source"],
+          "additionalProperties": false,
+          "properties": {
+            "parent": {
+              "type": "string",
+              "description": "The parent node of this node.  This is used to construct inherited environments."
+            },
+            "source": { "$ref": "#/$defs/Source" },
+            "environment-variables": {
+              "type": "array",
+              "description": "The environment variables for the node.",
+              "items": {
+                "type": "object",
+                "title": "Environment Variable",
+                "description": "An environment variable for the node.",
+                "required": ["source", "name", "value"],
+                "properties": {
+                  "source": { "$ref": "#/$defs/Source" },
+                  "name": { "$ref": "#/$defs/ComputedValue" },
+                  "value": { "$ref": "#/$defs/ComputedValue" }
+                }
+              }
+            },
+            "cwd": { "$ref": "#/$defs/ComputedValue" },
+            "umode": {
+              "type": "integer",
+              "description": "The user mode for the node.  This is used to set the user and group for the node."
+            }
+          }
+        },
+        "streams": {
+          "type": "array",
+          "description": "The streams for the node.  This shows how to link this node to other nodes.",
+          "items": {
+            "type": "object",
+            "title": "Stream",
+            "description": "A stream that connects this node to another node.",
+            "required": ["fd", "source", "mode", "to-node", "to-fd"],
+            "additionalProperties": false,
+            "properties": {
+              "fd": {
+                "type": "integer",
+                "description": "The FD of the stream."
+              },
+              "name": {
+                "type": "string",
+                "description": "The name of the stream.  Used only for debugging."
+              },
+              "source": { "$ref": "#/$defs/Source" },
+              "mode": {
+                "type": "string",
+                "enum": [
+                  "input",
+                  "output"
+                ],
+                "description": "The type of the stream."
+              },
+              "to-node": {
+                "type": "string",
+                "description": "The name of the node that this stream connects to.  This is used to link the node to other nodes."
+              },
+              "to-fd": {
+                "type": "integer",
+                "description": "The FD of the node that this stream connects to.  This is used to link the node to other nodes."
+              }
+            }
+          }
+        },
+        "initial-parameters": {
+          "type": "object",
+          "title": "Initial Parameters",
+          "description": "The compile-time parameters for the node.  These parameters are static and help initialize the module.",
+          "patternProperties": {
+            "^[a-zA-Z_][a-zA-Z0-9_]*$": {
+              "type": "object",
+              "title": "Parameter",
+              "description": "A compile-time parameter for the node.",
+              "additionalProperties": false,
+              "required": ["source", "value"],
+              "properties": {
+                "source": { "$ref": "#/$defs/Source" },
+                "value": {"type": ["string", "number", "boolean", "null"]}
+              }
+            }
+          }
+        },
+        "runtime-parameters": { "$ref": "#/$defs/NamedParameters" },
+        "exit-actions": {
+          "type": "array",
+          "title": "Exit Actions",
+          "description": "A list of actions that are triggered when the node exits.",
+          "items": {
+            "type": "object",
+            "title": "Exit Action",
+            "description": "An action that is triggered when the node exits.",
+            "required": ["source", "actions"],
+            "additionalProperties": false,
+            "properties": {
+              "source": { "$ref": "#/$defs/Source" },
+              "code-start": {
+                "type": "integer",
+                "description": "Exit code range start (inclusive) for triggering this action list.  Do not set for no lower bound."
+              },
+              "code-end": {
+                "type": "integer",
+                "description": "Exit code range end (inclusive) for triggering this action list.  Do not set for no upper bound."
+              },
+              "actions": { "$ref": "#/$defs/OrderedActions" }
+            }
+          }
+        },
+        "event-listeners": {
+          "type": "array",
+          "title": "Event Listeners",
+          "description": "A list of event listeners that are triggered by the node.  This is a named group of event brokers.",
+          "items": {
+            "type": "object",
+            "title": "Event Listener",
+            "description": "An event listener that is triggered by the node.",
+            "required": ["source", "name", "actions"],
+            "additionalProperties": false,
+            "properties": {
+              "source": { "$ref": "#/$defs/Source" },
+              "name": {
+                "type": "integer",
+                "description": "The event index that triggers this action list."
+              },
+              "actions": { "$ref": "#/$defs/OrderedActions" }
+            }
+          }
+        }
+      }
+    },
+    "OrderedActions": {
+      "type": "array",
+      "title": "Ordered Actions",
+      "description": "A list of actions that can be triggered by a node.  This is a named group of event brokers.",
+      "items": {
+        "$ref": "#/$defs/Action"
+      }
+    },
+    "Action": {
+      "type": "object",
+      "title": "Action",
+      "description": "An action that can be triggered by a node.  This is a named group of event brokers.",
+      "required": ["name", "run", "source"],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "The name of the action.  Used only for debugging."
+        },
+        "source": { "$ref": "#/$defs/Source" },
+        "run": {
+          "oneOf": [
+            {
+              "type": "object",
+              "title": "Run Node Handler",
+              "description": "Execute a handler on the current node.",
+              "required": ["source", "type", "handler", "parameters"],
+              "additionalProperties": false,
+              "properties": {
+                "source": { "$ref": "#/$defs/Source" },
+                "type": { "const": "run-node-handler" },
+                "handler": {
+                  "type": "string",
+                  "description": "The name of the handler to run on the current node."
+                },
+                "parameters": { "$ref": "#/$defs/NamedParameters" }
+              }
+            },
+            {
+              "type": "object",
+              "title": "Run Node",
+              "description": "Execute a node, either start it or restart it.  If it's currently running, this will wait for it to finish and reuse its exit code.",
+              "required": ["source", "type", "node"],
+              "additionalProperties": false,
+              "properties": {
+                "source": { "$ref": "#/$defs/Source" },
+                "type": { "const": "run-node" },
+                "node": {
+                  "type": "string",
+                  "description": "The node ID to run."
+                },
+                "for-exit": {
+                  "type": "array",
+                  "title": "For Exit",
+                  "description": "Behavior for the next action in the list depending on the executed node's exit code.",
+                  "items": {
+                    "type": "object",
+                    "title": "Exit Behavior",
+                    "description": "Behavior based on the node's exit code.",
+                    "required": ["source", "behavior"],
+                    "additionalProperties": false,
+                    "properties": {
+                      "source": { "$ref": "#/$defs/Source" },
+                      "code-start": {
+                        "type": "integer",
+                        "description": "Exit code range start (inclusive) for triggering this action list.  Do not set for no lower bound."
+                      },
+                      "code-end": {
+                        "type": "integer",
+                        "description": "Exit code range end (inclusive) for triggering this action list.  Do not set for no upper bound."
+                      },
+                      "behavior": {
+                        "type": "string",
+                        "enum": [
+                          "run",
+                          "skip-next",
+                          "skip-all",
+                          "abort-script"
+                        ],
+                        "description": "The behavior to take based on the exit code of the node.  'run' means run the next action, 'skip-next' means skip the next action, 'skip-all' means skip all remaining actions, and 'abort-script' means terminate the script."
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            {
+              "type": "object",
+              "title": "Send Event",
+              "description": "Send an event to the event broker.  It has either a string message, or an integer code, or both, or neither.",
+              "required": ["source", "type", "group"],
+              "additionalProperties": false,
+              "properties": {
+                "source": { "$ref": "#/$defs/Source" },
+                "type": { "const": "send-event" },
+                "name": {
+                  "type": "integer",
+                  "description": "The event index to send."
+                },
+                "message": {
+                  "description": "The message to send with the event.",
+                  "type": ["string", "null"]
+                },
+                "code": {
+                  "type": ["integer", "null"],
+                  "description": "The integer code to send with the event.  Associated with a signal or exit code or something else."
+                }
+              }
+            },
+            {
+              "type": "object",
+              "title": "Abort Script",
+              "description": "Abort the script's execution.",
+              "required": ["source", "type", "message", "exit-code"],
+              "additionalProperties": false,
+              "properties": {
+                "source": { "$ref": "#/$defs/Source" },
+                "type": { "const": "abort" },
+                "message": {
+                  "type": "string",
+                  "description": "Message to report to the user."
+                },
+                "exit-code": {
+                  "type": "integer",
+                  "description": "The exit code to return from the script engine.",
+                  "minimum": -128,
+                  "maximum": 127
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+
+    "NamedParameters": {
+      "type": "array",
+      "description": "The parameters for the action.",
+      "items": {
+        "type": "object",
+        "title": "Action Parameter",
+        "description": "A parameter for the action. Must provide exactly one of a value or a value-array.",
+        "required": ["source", "name"],
+        "additionalProperties": false,
+        "properties": {
+          "source": { "$ref": "#/$defs/Source" },
+          "name": {
+            "type": "string",
+            "description": "The name of the parameter."
+          },
+          "value": { "$ref": "#/$defs/ComputedValue" }
+        }
+      }
+    },
+    "ComputedValue": {
+      "title": "Computed Value",
+      "description": "A value that is computed at runtime.  This can be a constant value, a lookup from a node's state, or an array of values, or an operation on a list of values.",
+      "oneOf": [
+        { "$ref": "#/$defs/ComputedStringValue" },
+        { "$ref": "#/$defs/ComputedNumberValue" },
+        { "$ref": "#/$defs/ComputedBooleanValue" },
+        { "$ref": "#/$defs/ComputedStringListValue" },
+        { "$ref": "#/$defs/ComputedNumberListValue" },
+        { "$ref": "#/$defs/ComputedBooleanListValue" },
+        { "$ref": "#/$defs/ComputedStringMapValue" },
+        { "$ref": "#/$defs/ComputedNumberMapValue" },
+        { "$ref": "#/$defs/ComputedBooleanMapValue" }
+      ]
+    },
+
+
+    "ComputedStringValue": {
+      "title": "Computed String Value",
+      "description": "A computed string value.",
+      "oneOf": [
+        {"$ref": "#/$defs/LookupStateStringValue" },
+        {"$ref": "#/$defs/LookupEnvStringValue" },
+        {"$ref": "#/$defs/ConcatenatedStringValue" },
+        {"$ref": "#/$defs/NumberToStringValue" },
+        {"$ref": "#/$defs/BooleanToStringValue" },
+        {"$ref": "#/$defs/ListToStringValue" },
+        {"$ref": "#/$defs/MapToStringValue" },
+        {"$ref": "#/$defs/ConstantStringValue" }
+      ]
+    },
+    "LookupStateStringValue": {
+      "title": "Lookup String Value",
+      "description": "A string value that is looked up from a node's state.",
+      "type": "object",
+      "required": ["source", "type", "node", "name"],
+      "additionalProperties": false,
+      "properties": {
+        "source": { "$ref": "#/$defs/Source" },
+        "type": { "const": "lookup-state-string" },
+        "node": { "$ref": "#/$defs/ComputedStringValue" },
+        "name": { "$ref": "#/$defs/ComputedStringValue" }
+      }
+    },
+    "LookupEnvStringValue": {
+      "title": "Lookup String Value",
+      "description": "A string value that is looked up from a node's environment.",
+      "type": "object",
+      "required": ["source", "type", "node", "name"],
+      "additionalProperties": false,
+      "properties": {
+        "source": { "$ref": "#/$defs/Source" },
+        "type": { "const": "lookup-env-string" },
+        "node": { "$ref": "#/$defs/ComputedStringValue" },
+        "name": { "$ref": "#/$defs/ComputedStringValue" }
+      }
+    },
+    "ConcatenatedStringValue": {
+      "title": "Concatenated String Value",
+      "description": "A string value that is the concatenation of multiple string values.",
+      "type": "object",
+      "required": ["source", "type", "value"],
+      "additionalProperties": false,
+      "properties": {
+        "source": { "$ref": "#/$defs/Source" },
+        "type": { "const": "concatenated-string" },
+        "value": { "$ref": "#/$defs/ComputedStringListValue" }
+      }
+    },
+    "NumberToStringValue": {
+      "title": "Number to String Value",
+      "description": "A string value that is the string representation of a number.",
+      "type": "object",
+      "required": ["source", "type", "value"],
+      "additionalProperties": false,
+      "$comment": "We may want to expand the format into an explicit definition so it does not require additional parsing.  At the moment, this is the printf format string.",
+      "properties": {
+        "source": { "$ref": "#/$defs/Source" },
+        "type": { "const": "number-to-string" },
+        "value": { "$ref": "#/$defs/ComputedNumberValue" },
+        "format": { "$ref": "#/$defs/ComputedStringValue" }
+      }
+    },
+    "BooleanToStringValue": {
+      "title": "Boolean to String Value",
+      "description": "A string value that is the string representation of a boolean.",
+      "type": "object",
+      "required": ["source", "type", "value"],
+      "additionalProperties": false,
+      "properties": {
+        "source": { "$ref": "#/$defs/Source" },
+        "type": { "const": "boolean-to-string" },
+        "value": { "$ref": "#/$defs/ComputedBooleanValue" },
+        "true-string": { "$ref": "#/$defs/ComputedStringValue" },
+        "false-string": { "$ref": "#/$defs/ComputedStringValue" }
+      }
+    },
+    "ListToStringValue": {
+      "title": "List to String Value",
+      "description": "A string value that is the string representation of a list.",
+      "type": "object",
+      "required": ["source", "type", "value"],
+      "additionalProperties": false,
+      "properties": {
+        "source": { "$ref": "#/$defs/Source" },
+        "type": { "const": "list-to-string" },
+        "value": { "$ref": "#/$defs/ComputedStringListValue" },
+        "separator": { "$ref": "#/$defs/ComputedStringValue" }
+      }
+    },
+    "MapToStringValue": {
+      "title": "Map to String Value",
+      "description": "A string value that is the string representation of a map.",
+      "type": "object",
+      "required": ["source", "type", "value"],
+      "additionalProperties": false,
+      "properties": {
+        "source": { "$ref": "#/$defs/Source" },
+        "type": { "const": "map-to-string" },
+        "value": { "$ref": "#/$defs/ComputedStringMapValue" },
+        "key-separator": { "$ref": "#/$defs/ComputedStringValue" },
+        "item-separator": { "$ref": "#/$defs/ComputedStringValue" }
+      }
+    },
+    "ConstantStringValue": {
+      "title": "Constant String Value",
+      "description": "A constant string value.",
+      "type": "object",
+      "required": ["source", "type", "value"],
+      "additionalProperties": false,
+      "properties": {
+        "source": { "$ref": "#/$defs/Source" },
+        "type": { "const": "constant-string" },
+        "value": {
+          "type": "string",
+          "description": "The constant string value."
+        }
+      }
+    },
+
+
+    "ComputedNumberValue": {
+      "title": "Computed Number Value",
+      "description": "A computed number value.",
+      "oneOf": [
+        {"$ref": "#/$defs/LookupNumberValue" },
+        {"$ref": "#/$defs/ArithmeticValue" },
+        {"$ref": "#/$defs/ConstantNumberValue" }
+      ]
+    },
+    "LookupNumberValue": {
+      "title": "Lookup Number Value",
+      "description": "A number value that is looked up from a node's state.",
+      "type": "object",
+      "required": ["source", "type", "node", "name"],
+      "additionalProperties": false,
+      "properties": {
+        "source": { "$ref": "#/$defs/Source" },
+        "type": { "const": "lookup-state-number" },
+        "node": { "$ref": "#/$defs/ComputedStringValue" },
+        "name": { "$ref": "#/$defs/ComputedStringValue" }
+      }
+    },
+    "ArithmeticValue": {
+      "title": "Arithmetic Value",
+      "description": "A number value that is the result of an arithmetic operation on two or more number values.",
+      "type": "object",
+      "required": ["source", "type", "operation", "value"],
+      "additionalProperties": false,
+      "properties": {
+        "source": { "$ref": "#/$defs/Source" },
+        "type": { "const": "arithmetic" },
+        "operation": {
+          "type": "string",
+          "enum": [
+            "add",
+            "subtract",
+            "multiply",
+            "divide",
+            "modulus",
+            "power",
+            "round",
+            "floor",
+            "ceil"
+          ],
+          "description": "The arithmetic operation to perform."
+        },
+        "value": { "$ref": "#/$defs/ComputedNumberListValue" }
+      }
+    },
+    "ConstantNumberValue": {
+      "title": "Constant Number Value",
+      "description": "A constant number value.",
+      "type": "object",
+      "required": ["source", "type", "value"],
+      "additionalProperties": false,
+      "properties": {
+        "source": { "$ref": "#/$defs/Source" },
+        "type": { "const": "constant-number" },
+        "value": {
+          "type": "number",
+          "description": "The constant number value."
+        }
+      }
+    },
+
+
+    "ComputedBooleanValue": {
+      "title": "Computed Boolean Value",
+      "description": "A computed boolean value.",
+      "oneOf": [
+        {"$ref": "#/$defs/LookupBooleanValue" },
+        {"$ref": "#/$defs/LogicalBooleanValue" },
+        {"$ref": "#/$defs/ConstantBooleanValue" }
+      ]
+    },
+    "LookupBooleanValue": {
+      "title": "Lookup Boolean Value",
+      "description": "A boolean value that is looked up from a node's state.",
+      "type": "object",
+      "required": ["source", "type", "node", "name"],
+      "additionalProperties": false,
+      "properties": {
+        "source": { "$ref": "#/$defs/Source" },
+        "type": { "const": "lookup-state-boolean" },
+        "node": { "$ref": "#/$defs/ComputedStringValue" },
+        "name": { "$ref": "#/$defs/ComputedStringValue" }
+      }
+    },
+    "LogicalBooleanValue": {
+      "title": "Logical Boolean Value",
+      "description": "A boolean value that is the result of a logical operation on two or more boolean values.",
+      "type": "object",
+      "required": ["source", "type", "operation", "value"],
+      "additionalProperties": false,
+      "properties": {
+        "source": { "$ref": "#/$defs/Source" },
+        "type": { "const": "logical" },
+        "operation": {
+          "type": "string",
+          "enum": [
+            "and",
+            "or",
+            "not",
+            "xor",
+            "nand",
+            "nor",
+            "xnor"
+          ],
+          "description": "The logical operation to perform."
+        },
+        "value": {"$ref": "#/$defs/ComputedBooleanListValue" }
+      }
+    },
+    "ConstantBooleanValue": {
+      "title": "Constant Boolean Value",
+      "description": "A constant boolean value.",
+      "type": "object",
+      "required": ["source", "type", "value"],
+      "additionalProperties": false,
+      "properties": {
+        "source": { "$ref": "#/$defs/Source" },
+        "type": { "const": "constant-boolean" },
+        "value": {
+          "type": "boolean",
+          "description": "The constant boolean value."
+        }
+      }
+    },
+
+
+    "ComputedStringListValue": {
+      "title": "Computed List Value",
+      "description": "A computed list value.",
+      "oneOf": [
+        {"$ref": "#/$defs/LookupStringListValue" },
+        {"$ref": "#/$defs/ConstantStringListValue" }
+      ]
+    },
+    "LookupStringListValue": {
+      "title": "Lookup String List Value",
+      "description": "A string list value that is looked up from a node's state.",
+      "type": "object",
+      "required": ["source", "type", "node", "name"],
+      "additionalProperties": false,
+      "properties": {
+        "source": { "$ref": "#/$defs/Source" },
+        "type": { "const": "lookup-state-string-list" },
+        "node": { "$ref": "#/$defs/ComputedStringValue" },
+        "name": { "$ref": "#/$defs/ComputedStringValue" }
+      }
+    },
+    "ConstantStringListValue": {
+      "title": "Constant String List Value",
+      "description": "A constant string list value.  Can include expanding a sub-list within the list.",
+      "type": "object",
+      "required": ["source", "type", "value"],
+      "additionalProperties": false,
+      "properties": {
+        "source": { "$ref": "#/$defs/Source" },
+        "type": { "const": "constant-string-list" },
+        "value": {
+          "type": "array",
+          "description": "The constant string list value.",
+          "items": {
+            "oneOf": [
+              { "$ref": "#/$defs/ComputedStringValue" },
+              { "$ref": "#/$defs/ComputedStringListValue" }
+            ]
+          }
+        }
+      }
+    },
+
+
+    "ComputedNumberListValue": {
+      "title": "Computed List Value",
+      "description": "A computed list value.",
+      "oneOf": [
+        {"$ref": "#/$defs/LookupNumberListValue" },
+        {"$ref": "#/$defs/ConstantNumberListValue" }
+      ]
+    },
+    "LookupNumberListValue": {
+      "title": "Lookup Number List Value",
+      "description": "A number list value that is looked up from a node's state.",
+      "type": "object",
+      "required": ["source", "type", "node", "name"],
+      "additionalProperties": false,
+      "properties": {
+        "source": { "$ref": "#/$defs/Source" },
+        "type": { "const": "lookup-state-number-list" },
+        "node": { "$ref": "#/$defs/ComputedStringValue" },
+        "name": { "$ref": "#/$defs/ComputedStringValue" }
+      }
+    },
+    "ConstantNumberListValue": {
+      "title": "Constant Number List Value",
+      "description": "A constant number list value.  Can include expanding a sub-list within the list.",
+      "type": "object",
+      "required": ["source", "type", "value"],
+      "additionalProperties": false,
+      "properties": {
+        "source": { "$ref": "#/$defs/Source" },
+        "type": { "const": "constant-number-list" },
+        "value": {
+          "type": "array",
+          "description": "The constant number list value.",
+          "items": {
+            "oneOf": [
+              { "$ref": "#/$defs/ComputedNumberValue" },
+              { "$ref": "#/$defs/ComputedNumberListValue" }
+            ]
+          }
+        }
+      }
+    },
+
+
+    "ComputedBooleanListValue": {
+      "title": "Computed List Value",
+      "description": "A computed list value.",
+      "oneOf": [
+        {"$ref": "#/$defs/LookupBooleanListValue" },
+        {"$ref": "#/$defs/ConstantBooleanListValue" }
+      ]
+    },
+    "LookupBooleanListValue": {
+      "title": "Lookup Boolean List Value",
+      "description": "A boolean list value that is looked up from a node's state.",
+      "type": "object",
+      "required": ["source", "type", "node", "name"],
+      "additionalProperties": false,
+      "properties": {
+        "source": { "$ref": "#/$defs/Source" },
+        "type": { "const": "lookup-state-boolean-list" },
+        "node": { "$ref": "#/$defs/ComputedStringValue" },
+        "name": { "$ref": "#/$defs/ComputedStringValue" }
+      }
+    },
+    "ConstantBooleanListValue": {
+      "title": "Constant Boolean List Value",
+      "description": "A constant boolean list value.  Can include expanding a sub-list within the list.",
+      "type": "object",
+      "required": ["source", "type", "value"],
+      "additionalProperties": false,
+      "properties": {
+        "source": { "$ref": "#/$defs/Source" },
+        "type": { "const": "constant-boolean-list" },
+        "value": {
+          "type": "array",
+          "description": "The constant boolean list value.",
+          "items": {
+            "oneOf": [
+              { "$ref": "#/$defs/ComputedBooleanValue" },
+              { "$ref": "#/$defs/ComputedBooleanListValue" }
+            ]
+          }
+        }
+      }
+    },
+
+
+    "ComputedStringMapValue": {
+      "title": "Computed Map Value",
+      "description": "A computed map value.",
+      "oneOf": [
+        {"$ref": "#/$defs/LookupStringMapValue" },
+        {"$ref": "#/$defs/UnionStringMapValue" },
+        {"$ref": "#/$defs/ConstantStringMapValue" }
+      ]
+    },
+    "LookupStringMapValue": {
+      "title": "Lookup String Map Value",
+      "description": "A string map value that is looked up from a node's state.",
+      "type": "object",
+      "required": ["source", "type", "node", "name"],
+      "additionalProperties": false,
+      "properties": {
+        "source": { "$ref": "#/$defs/Source" },
+        "type": { "const": "lookup-state-string-map" },
+        "node": { "$ref": "#/$defs/ComputedStringValue" },
+        "name": { "$ref": "#/$defs/ComputedStringValue" }
+      }
+    },
+    "UnionStringMapValue": {
+      "title": "Union String Map Value",
+      "description": "A string map value that is the union of multiple string map values.",
+      "type": "object",
+      "required": ["source", "type", "values"],
+      "additionalProperties": false,
+      "properties": {
+        "source": { "$ref": "#/$defs/Source" },
+        "type": { "const": "union-string-map" },
+        "values": {
+          "type": "array",
+          "description": "The values to union.",
+          "items": { "$ref": "#/$defs/ComputedStringMapValue" }
+        }
+      }
+    },
+    "ConstantStringMapValue": {
+      "title": "Constant String Map Value",
+      "description": "A constant string map value.  Can include expanding a sub-map within the map.",
+      "type": "object",
+      "required": ["source", "type", "value"],
+      "additionalProperties": false,
+      "properties": {
+        "source": { "$ref": "#/$defs/Source" },
+        "type": { "const": "constant-string-map" },
+        "value": {
+          "type": "object",
+          "description": "The constant string map value.",
+          "patternProperties": {
+            ".*": { "$ref": "#/$defs/ComputedStringValue" }
+          }
+        }
+      }
+    },
+
+
+    "ComputedNumberMapValue": {
+      "title": "Computed Map Value",
+      "description": "A computed map value.",
+      "oneOf": [
+        {"$ref": "#/$defs/LookupNumberMapValue" },
+        {"$ref": "#/$defs/UnionNumberMapValue" },
+        {"$ref": "#/$defs/ConstantNumberMapValue" }
+      ]
+    },
+    "LookupNumberMapValue": {
+      "title": "Lookup Number Map Value",
+      "description": "A number map value that is looked up from a node's state.",
+      "type": "object",
+      "required": ["source", "type", "node", "name"],
+      "additionalProperties": false,
+      "properties": {
+        "source": { "$ref": "#/$defs/Source" },
+        "type": { "const": "lookup-state-number-map" },
+        "node": { "$ref": "#/$defs/ComputedStringValue" },
+        "name": { "$ref": "#/$defs/ComputedStringValue" }
+      }
+    },
+    "UnionNumberMapValue": {
+      "title": "Union Number Map Value",
+      "description": "A number map value that is the union of multiple number map values.",
+      "type": "object",
+      "required": ["source", "type", "values"],
+      "additionalProperties": false,
+      "properties": {
+        "source": { "$ref": "#/$defs/Source" },
+        "type": { "const": "union-number-map" },
+        "values": {
+          "type": "array",
+          "description": "The values to union.",
+          "items": { "$ref": "#/$defs/ComputedNumberMapValue" }
+        }
+      }
+    },
+    "ConstantNumberMapValue": {
+      "title": "Constant Number Map Value",
+      "description": "A constant number map value.  Can include expanding a sub-map within the map.",
+      "type": "object",
+      "required": ["source", "type", "value"],
+      "additionalProperties": false,
+      "properties": {
+        "source": { "$ref": "#/$defs/Source" },
+        "type": { "const": "constant-number-map" },
+        "value": {
+          "type": "object",
+          "description": "The constant number map value.",
+          "patternProperties": {
+            ".*": { "$ref": "#/$defs/ComputedNumberValue" }
+          }
+        }
+      }
+    },
+
+
+    "ComputedBooleanMapValue": {
+      "title": "Computed Map Value",
+      "description": "A computed map value.",
+      "oneOf": [
+        {"$ref": "#/$defs/LookupBooleanMapValue" },
+        {"$ref": "#/$defs/UnionBooleanMapValue" },
+        {"$ref": "#/$defs/ConstantBooleanMapValue" }
+      ]
+    },
+    "LookupBooleanMapValue": {
+      "title": "Lookup Boolean Map Value",
+      "description": "A boolean map value that is looked up from a node's state.",
+      "type": "object",
+      "required": ["source", "type", "node", "name"],
+      "additionalProperties": false,
+      "properties": {
+        "source": { "$ref": "#/$defs/Source" },
+        "type": { "const": "lookup-state-boolean-map" },
+        "node": { "$ref": "#/$defs/ComputedStringValue" },
+        "name": { "$ref": "#/$defs/ComputedStringValue" }
+      }
+    },
+    "UnionBooleanMapValue": {
+      "title": "Union Boolean Map Value",
+      "description": "A boolean map value that is the union of multiple boolean map values.",
+      "type": "object",
+      "required": ["source", "type", "values"],
+      "additionalProperties": false,
+      "properties": {
+        "source": { "$ref": "#/$defs/Source" },
+        "type": { "const": "union-boolean-map" },
+        "values": {
+          "type": "array",
+          "description": "The values to union.",
+          "items": { "$ref": "#/$defs/ComputedBooleanMapValue" }
+        }
+      }
+    },
+    "ConstantBooleanMapValue": {
+      "title": "Constant Boolean Map Value",
+      "description": "A constant boolean map value.  Can include expanding a sub-map within the map.",
+      "type": "object",
+      "required": ["source", "type", "value"],
+      "additionalProperties": false,
+      "properties": {
+        "source": { "$ref": "#/$defs/Source" },
+        "type": { "const": "constant-boolean-map" },
+        "value": {
+          "type": "object",
+          "description": "The constant boolean map value.",
+          "patternProperties": {
+            ".*": { "$ref": "#/$defs/ComputedBooleanValue" }
+          }
+        }
+      }
+    }
+
+  }
+}

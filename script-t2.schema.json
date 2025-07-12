@@ -1,0 +1,570 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$spdx-license": "MIT",
+  "title": "Native Shell Script 2 Schema",
+  "description": "A json-like format conversion from the script 2 layout.  Based on 'try 2' of the script language experiments.",
+  "$comment": "The patternProperties here uses '.*', when it should really use '^[a-zA-Z0-9_.$ -]+$'.  This comes from a known bug in quicktype (https://github.com/glideapps/quicktype/issues/1464).",
+  "type": "object",
+  "required": ["processes"],
+  "additionalProperties": false,
+  "properties": {
+    "shell": {
+      "type": "object",
+      "title": "Shell",
+      "description": "The shell's interaction with the parent environment.",
+      "required": [],
+      "additionalProperties": false,
+      "properties": {
+        "fd": {
+          "type": "array",
+          "title": "File Descriptor",
+          "description": "Describes what to do with the file descriptors for the shell.  By default, only 0-2 are allowed; additional ones must be declared.",
+          "items": {
+            "type": "object",
+            "title": "File Descriptor",
+            "description": "A file descriptor definition.",
+            "required": ["id", "type"],
+            "additionalProperties": false,
+            "properties": {
+              "id": {
+                "type": "integer",
+                "description": "The file descriptor ID established by the owning process that launched the shell.",
+                "minimum": 0
+              },
+              "description": { "$ref": "#/$defs/Description" },
+              "type": {
+                "type": "string",
+                "enum": ["in", "out"],
+                "description": "The type of the file descriptor."
+              },
+              "merge": {
+                "type": "string",
+                "default": "line",
+                "enum": ["line", "byte"],
+                "description": "How to merge the output of this file descriptor.  'line' means interleaving complete lines.  'byte' means writing directly to the stream without any buffering.  Only applicable to 'out' type file descriptors."
+              },
+              "close-on-start": {
+                "type": "boolean",
+                "default": false,
+                "description": "Whether to close this file descriptor when the shell starts.  This is useful for file descriptors that are not needed by the shell."
+              }
+            }
+          }
+        },
+        "stdin": {
+          "type": "object",
+          "title": "Standard Input",
+          "description": "Standard input for the shell.",
+          "required": [],
+          "additionalProperties": false,
+          "properties": {
+            "description": { "$ref": "#/$defs/Description" },
+            "close-on-start": {
+              "type": "boolean",
+              "default": false,
+              "description": "Whether to close standard input when the shell starts."
+            }
+          }
+        },
+        "stdout": {
+          "type": "object",
+          "title": "Standard Input",
+          "description": "Standard input for the shell.",
+          "required": [],
+          "additionalProperties": false,
+          "properties": {
+            "description": { "$ref": "#/$defs/Description" },
+            "merge": {
+              "type": "string",
+              "default": "line",
+              "enum": ["line", "byte"],
+              "description": "How to merge the output of this file descriptor.  'line' means interleaving complete lines.  'byte' means writing directly to the stream without any buffering.  Only applicable to 'out' type file descriptors."
+            },
+            "close-on-start": {
+              "type": "boolean",
+              "default": false,
+              "description": "Whether to close standard input when the shell starts."
+            }
+          }
+        },
+        "stderr": {
+          "type": "object",
+          "title": "Standard Input",
+          "description": "Standard input for the shell.",
+          "required": [],
+          "additionalProperties": false,
+          "properties": {
+            "description": { "$ref": "#/$defs/Description" },
+            "merge": {
+              "type": "string",
+              "default": "byte",
+              "enum": ["line", "byte"],
+              "description": "How to merge the output of this file descriptor.  'line' means interleaving complete lines.  'byte' means writing directly to the stream without any buffering.  Only applicable to 'out' type file descriptors."
+            },
+            "close-on-start": {
+              "type": "boolean",
+              "default": false,
+              "description": "Whether to close standard input when the shell starts."
+            }
+          }
+        },
+        "signals": {
+          "type": "object",
+          "title": "OS Signal Handler",
+          "description": "How to handle OS signals received by the shell process.  The shell can either send events to the event broker system, or send a signal to all running processes.  The object key is the signal name or number, and the value is the event name or, if prefixed with '+', the signal to send to all processes.",
+          "patternProperties": {
+            ".*": {
+              "type": "string",
+              "title": "Signal Handler",
+              "description": "The name of the event to send to the event broker system, or a signal to send to all processes.  If prefixed with '+', it is a signal to send to all processes."
+            }
+          }
+        },
+        "env": {
+          "type": "object",
+          "title": "Environment Variables",
+          "description": "Environment variables to require for the shell process, or the default values.",
+          "patternProperties": {
+            ".*": {
+              "type": "object",
+              "title": "Environment Variable",
+              "description": "An environment variable definition.",
+              "required": [],
+              "additionalProperties": false,
+              "properties": {
+                "description": { "$ref": "#/$defs/Description" },
+                "required": {
+                  "type": "boolean",
+                  "default": false,
+                  "description": "Whether this environment variable is required.  If true, the shell will fail to start if this variable is not set.  If false, then the 'default' value must be supplied."
+                },
+                "default": {
+                  "type": ["string", "null"],
+                  "description": "The default value for the environment variable.  If not set, the variable must be provided by the parent process."
+                }
+              }
+            }
+          }
+        },
+        "values": {
+          "type": "object",
+          "title": "Constructed Values",
+          "description": "Constructed values to use in the script.  Unlike environment variables, these aren't passed to child processes.  They can also have an 'array' structure, to split the value into an array, for use in injecting its value into array parameters.  Also, these are scope sensitive, meaning they are evaluated at time of use.  If associated to a process, then it reads from the environment variables passed to the process.",
+          "patternProperties": {
+            ".*": {
+              "type": "object",
+              "title": "Constructed Value",
+              "description": "A constructed value definition.",
+              "required": ["value"],
+              "additionalProperties": false,
+              "properties": {
+                "description": { "$ref": "#/$defs/Description" },
+                "value": { "$ref": "#/$defs/ParameterValue" },
+                "format": {
+                  "type": "string",
+                  "description": "A format string to apply to the value.  If not present, then the value is used as-is.  Only valid for boolean, integer and numeric types."
+                },
+                "is-array": {
+                  "type": "boolean",
+                  "default": false,
+                  "description": "If true, then treat the value as an array.  If false, then the value is treated as a single string."
+                },
+                "array-split": {
+                  "type": "string",
+                  "title": "Array Split Character",
+                  "description": "If present, then split the environment variable value by this character to create an array.  Default are space characters."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "command-sets": {
+      "type": "object",
+      "title": "Command Sets",
+      "description": "Named command sets that define a runtime environment for processes.",
+      "required": [],
+      "patternProperties": {
+        ".*": { "$ref": "#/$defs/CommandSet" }
+      }
+    },
+    "steps": {
+      "type": "object",
+      "title": "Steps",
+      "description": "A map of named steps available to run in the script.  Each step can be a process, a module, or a control flow statement.",
+      "patternProperties": {
+        ".*": { "$ref": "#/$defs/Action"}
+      }
+    },
+    "processes": {
+      "type": "object",
+      "title": "Processes",
+      "description": "A map of named executables that can be managed by the script.",
+      "patternProperties": {
+        ".*": { "$ref": "#/$defs/Process" }
+      }
+    }
+  },
+  "$defs": {
+    "IdRef": {
+      "type": "string",
+      "title": "ID Reference",
+      "description": "An identifier.",
+      "pattern": "^[a-zA-Z0-9_.$ -]+$"
+    },
+    "Description": {
+      "type": "string",
+      "title": "Description",
+      "description": "A description of the item.",
+      "maxLength": 2000,
+      "minLength": 0
+    },
+    "ActionList": {
+      "type": "array",
+      "title": "On Event List",
+      "description": "An ordered list of actions to take when an event happens.",
+      "items": {
+        "$ref": "#/$defs/Action"
+      },
+      "minItems": 0
+    },
+    "MapActionList": {
+      "type": "object",
+      "title": "Map of On Event Lists",
+      "description": "A map of event names to actions to take when the event happens.",
+      "patternProperties": {
+        ".*": {
+          "$ref": "#/$defs/ActionList"
+        }
+      }
+    },
+    "Action": {
+      "type": "object",
+      "title": "Action",
+      "description": "Perform some operation.",
+      "required": [],
+      "additionalProperties": false,
+      "properties": {
+        "description": { "$ref": "#/$defs/Description" },
+        "run-step": {
+          "type": "string",
+          "title": "Run Step",
+          "description": "Run the named step in the step list.  Does not take any other parameters."
+        },
+        "run": {
+          "type": "string",
+          "title": "Run a module.",
+          "description": "Run an internal module.  For example, 'spawn', 'if', 'exec'."
+        },
+        "with": {
+          "type": "object",
+          "title": "With Parameters",
+          "description": "Run the action with the given named parameters.",
+          "patternProperties": {
+            ".*": { "$ref": "#/$defs/ParameterValue" }
+          }
+        },
+        "fd": { "$ref": "#/$defs/ActionFdSet" },
+        "stdin": { "$ref": "#/$defs/ActionStdin" },
+        "stdout": { "$ref": "#/$defs/ActionStdout" },
+        "stderr": { "$ref": "#/$defs/ActionStderr" },
+        "on-error": { "$ref": "#/$defs/ActionList" },
+        "on-success": { "$ref": "#/$defs/ActionList" },
+        "on": { "$ref": "#/$defs/MapActionList" }
+      }
+    },
+    "ActionFdSet": {
+      "type": "array",
+      "title": "File Descriptor",
+      "description": "Describes what to do with the file descriptors for the shell.  By default, only 0-2 are allowed; additional ones must be declared.",
+      "items": {
+        "type": "object",
+        "title": "File Descriptor",
+        "description": "A file descriptor definition.",
+        "required": ["id", "type"],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "The file descriptor ID established by the owning process that launched the shell.",
+            "minimum": 0
+          },
+          "description": { "$ref": "#/$defs/Description" },
+          "type": {
+            "type": "string",
+            "enum": ["in", "out"],
+            "description": "The type of the file descriptor."
+          },
+          "close-on-start": {
+            "type": "boolean",
+            "default": false,
+            "description": "Whether to close this file descriptor when the shell starts.  This is useful for file descriptors that are not needed by the shell."
+          },
+          "log-level": {
+            "type": "string",
+            "default": "info",
+            "enum": ["debug", "info", "warn", "error", "fatal", "ignore"],
+            "description": "When the script runs in different log levels, it can control whether this stream is processed or not.  Only applies to out streams."
+          },
+          "file": {
+            "type": "string",
+            "description": "If set, then the file descriptor is opened from this file.  This is useful for file descriptors that are not needed by the shell."
+          },
+          "to-shell": {
+            "type": ["string", "null"],
+            "description": "If set, then connect this FD to the shell's corresponding file descriptor stream.  It must match the shell's corresponding type."
+          }
+        }
+      }
+    },
+    "ActionStdin": {
+      "type": "object",
+      "title": "Standard Input",
+      "description": "Standard input behavior for the action.",
+      "required": [],
+      "additionalProperties": false,
+      "properties": {
+        "description": { "$ref": "#/$defs/Description" },
+        "close-on-start": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether to close standard input when the shell starts."
+        },
+        "file": {
+          "type": "string",
+          "description": "If set, then the file descriptor is opened from this file.  This is useful for file descriptors that are not needed by the shell."
+        },
+        "to-shell": {
+          "type": ["string", "null"],
+          "description": "If set, then connect this FD to the shell's corresponding file descriptor stream.  It must match the shell's corresponding type."
+        }
+      }
+    },
+    "ActionStdout": {
+      "type": "object",
+      "title": "Standard Output",
+      "description": "Standard output for the action.",
+      "required": [],
+      "additionalProperties": false,
+      "properties": {
+        "description": { "$ref": "#/$defs/Description" },
+        "close-on-start": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether to close this file descriptor when the shell starts.  This is useful for file descriptors that are not needed by the shell."
+        },
+        "log-level": {
+          "type": "string",
+          "default": "info",
+          "enum": ["debug", "info", "warn", "error", "fatal", "ignore"],
+          "description": "When the script runs in different log levels, it can control whether this stream is processed or not."
+        },
+        "file": {
+          "type": "string",
+          "description": "If set, then the file descriptor is opened from this file.  This is useful for file descriptors that are not needed by the shell."
+        },
+        "to-shell": {
+          "type": ["string", "null"],
+          "description": "If set, then connect this FD to the shell's corresponding file descriptor stream.  It must match the shell's corresponding type."
+        }
+      }
+    },
+    "ActionStderr": {
+      "type": "object",
+      "title": "Standard Error",
+      "description": "Standard error for the action.",
+      "required": [],
+      "additionalProperties": false,
+      "properties": {
+        "description": { "$ref": "#/$defs/Description" },
+        "close-on-start": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether to close this file descriptor when the shell starts.  This is useful for file descriptors that are not needed by the shell."
+        },
+        "log-level": {
+          "type": "string",
+          "default": "info",
+          "enum": ["debug", "info", "warn", "error", "fatal", "ignore"],
+          "description": "When the script runs in different log levels, it can control whether this stream is processed or not."
+        },
+        "file": {
+          "type": "string",
+          "description": "If set, then the file descriptor is opened from this file.  This is useful for file descriptors that are not needed by the shell."
+        },
+        "to-shell": {
+          "type": ["string", "null"],
+          "description": "If set, then connect this FD to the shell's corresponding file descriptor stream.  It must match the shell's corresponding type."
+        }
+      }
+    },
+    "CommandSet": {
+      "type": "object",
+      "title": "Command Set",
+      "description": "A command set definition.  Provides default values for a process or step.",
+      "required": [],
+      "additionalProperties": false,
+      "properties": {
+        "description": { "$ref": "#/$defs/Description" },
+        "cwd": { "$ref": "#/$defs/IdRef" },
+        "inherit-env": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether to inherit the environment variables from the parent process.  If false, then the environment variables must be explicitly set."
+        },
+        "env": {
+          "type": "object",
+          "title": "Environment Variables",
+          "description": "Environment variables to require for the shell process, or the default values.",
+          "patternProperties": {
+            ".*": {
+              "type": "object",
+              "title": "Environment Variable",
+              "description": "An environment variable definition.",
+              "required": [],
+              "additionalProperties": false,
+              "properties": {
+                "description": { "$ref": "#/$defs/Description" },
+                "required": {
+                  "type": "boolean",
+                  "default": false,
+                  "description": "Whether this environment variable is required.  If true, the shell will fail to start if this variable is not set.  If false, then the 'default' value must be supplied."
+                },
+                "default": {
+                  "type": ["string", "null"],
+                  "description": "The default value for the environment variable.  If not set, the variable must be provided by the parent process."
+                },
+                "value": {
+                  "type": "string",
+                  "description": "Overrides any parent value.  Cannot be used with 'default'."
+                },
+                "unset": {
+                  "type": "boolean",
+                  "default": false,
+                  "description": "If true, then unset the environment variable in the process.  This is useful for removing inherited environment variables."
+                }
+              }
+            }
+          }
+        },
+        "fd": { "$ref": "#/$defs/ActionFdSet" },
+        "stdin": { "$ref": "#/$defs/ActionStdin" },
+        "stdout": { "$ref": "#/$defs/ActionStdout" },
+        "stderr": { "$ref": "#/$defs/ActionStderr" },
+        "on-error": { "$ref": "#/$defs/ActionList" },
+        "on-success": { "$ref": "#/$defs/ActionList" },
+        "on": { "$ref": "#/$defs/MapActionList" }
+      }
+    },
+    "Process": {
+      "type": "object",
+      "title": "Process",
+      "description": "A process definition.  A process is a named executable that can be run in the script.",
+      "required": ["command"],
+      "additionalProperties": false,
+      "properties": {
+        "description": { "$ref": "#/$defs/Description" },
+        "default": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether this process runs by default with the script.  If true, then this process will be run when the script is executed without any arguments."
+        },
+        "command": {
+          "type": "string",
+          "title": "Command",
+          "description": "The command to run for this process.  This can be a simple command (which means reading the location from the context's PATH env) or a full path to an executable."
+        },
+        "args": {
+          "type": "array",
+          "title": "Arguments",
+          "description": "Arguments to pass to the command when it is run.",
+          "items": {
+            "type": ["string", "number", "boolean", "null"],
+            "title": "Argument Value",
+            "description": "The value of the argument.  Can be a string, number, boolean, or null.  The shell syntax of '${VALUE[@]}' and '${VALUE[*]}' can be used here for injecting array values."
+          },
+          "default": []
+        },
+        "command-set": { "$ref": "#/$defs/IdRef" },
+        "cwd": { "type": "string" },
+        "inherit-env": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether to inherit the environment variables from the parent process.  If false, then the environment variables must be explicitly set."
+        },
+        "env": {
+          "type": "object",
+          "title": "Environment Variables",
+          "description": "Environment variables to require for the shell process, or the default values.",
+          "required": [],
+          "patternProperties": {
+            ".*": {
+              "type": "object",
+              "title": "Environment Variable",
+              "description": "An environment variable definition.",
+              "required": [],
+              "additionalProperties": false,
+              "properties": {
+                "description": { "$ref": "#/$defs/Description" },
+                "required": {
+                  "type": "boolean",
+                  "default": false,
+                  "description": "Whether this environment variable is required.  If true, the shell will fail to start if this variable is not set.  If false, then the 'default' value must be supplied."
+                },
+                "default": {
+                  "type": ["string", "null"],
+                  "description": "The default value for the environment variable.  If not set, the variable must be provided by the parent process."
+                },
+                "value": {
+                  "type": "string",
+                  "description": "Overrides any parent value.  Cannot be used with 'default'."
+                },
+                "unset": {
+                  "type": "boolean",
+                  "default": false,
+                  "description": "If true, then unset the environment variable in the process.  This is useful for removing inherited environment variables."
+                }
+              }
+            }
+          }
+        },
+        "fd": { "$ref": "#/$defs/ActionFdSet" },
+        "stdin": { "$ref": "#/$defs/ActionStdin" },
+        "stdout": { "$ref": "#/$defs/ActionStdout" },
+        "stderr": { "$ref": "#/$defs/ActionStderr" },
+        "on-error": { "$ref": "#/$defs/ActionList" },
+        "on-success": { "$ref": "#/$defs/ActionList" },
+        "on": { "$ref": "#/$defs/MapActionList" }
+      }
+    },
+    "ParameterValue": {
+      "type": "object",
+      "title": "Parameter Value",
+      "description": "The value of a parameter.  Can be a string, number, or boolean.  The shell syntax of '${VALUE[@]}' and '${VALUE[*]}' can be used here for injecting array values.  Blown out to allow for easier code generation.",
+      "additionalProperties": false,
+      "properties": {
+        "string": {
+          "type": "string",
+          "description": "A string value."
+        },
+        "number": {
+          "type": "number",
+          "description": "A number value."
+        },
+        "boolean": {
+          "type": "boolean",
+          "description": "A boolean value."
+        },
+        "array": {
+          "type": "array",
+          "title": "Array Value",
+          "description": "An array value.  For the purposes of this schema, only string items are allowed.",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}
