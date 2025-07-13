@@ -251,31 +251,64 @@
               "type": "object",
               "title": "Run Node Handler",
               "description": "Execute a handler on the current node.",
-              "required": ["source", "type", "handler", "parameters"],
+              "required": ["source", "type", "handler", "parameters", "on-success", "on-failure"],
               "additionalProperties": false,
               "properties": {
                 "source": { "$ref": "#/$defs/Source" },
                 "type": { "const": "run-node-handler" },
                 "handler": {
                   "type": "string",
-                  "description": "The name of the handler to run on the current node."
+                  "description": "The name of the handler to run on the current node until the handler completes."
                 },
-                "parameters": { "$ref": "#/$defs/NamedParameters" }
+                "parameters": { "$ref": "#/$defs/NamedParameters" },
+                "on-success": { "$ref": "#/$defs/ActionEndBehavior" },
+                "on-failure": { "$ref": "#/$defs/ActionEndBehavior" }
               }
             },
             {
               "type": "object",
-              "title": "Run Node",
-              "description": "Execute a node, either start it or restart it.  If it's currently running, this will wait for it to finish and reuse its exit code.",
+              "title": "Spawn Node",
+              "description": "Requests the parallel execution of a node, either start it or restart it.  If it's currently running, this will wait for it to finish and reuse its exit code.",
               "required": ["source", "type", "node"],
               "additionalProperties": false,
               "properties": {
                 "source": { "$ref": "#/$defs/Source" },
-                "type": { "const": "run-node" },
+                "type": { "const": "spawn-node" },
+                "node": {
+                  "type": "string",
+                  "description": "The node ID to run."
+                }
+              }
+            },
+            {
+              "type": "object",
+              "title": "Ensure Node Started At Least Once",
+              "description": "If the node has never started, then start it through the action reference.  Otherwise, do nothing.",
+              "required": ["source", "type", "node"],
+              "additionalProperties": false,
+              "properties": {
+                "source": { "$ref": "#/$defs/Source" },
+                "type": { "const": "ensure-node-started-at-least-once" },
+                "node": {
+                  "type": "string",
+                  "description": "The node ID to run."
+                }
+              }
+            },
+            {
+              "type": "object",
+              "title": "Wait For Node",
+              "description": "Wait for a node to finish executing.  This will block until the node's execution exits.  If it has already finished exiting, this will continue without waiting.",
+              "required": ["source", "type", "node", "for-exit", "if-not-started"],
+              "additionalProperties": false,
+              "properties": {
+                "source": { "$ref": "#/$defs/Source" },
+                "type": { "const": "wait-for-node" },
                 "node": {
                   "type": "string",
                   "description": "The node ID to run."
                 },
+                "if-not-started": { "$ref": "#/$defs/ActionEndBehavior" },
                 "for-exit": {
                   "type": "array",
                   "title": "For Exit",
@@ -296,16 +329,7 @@
                         "type": "integer",
                         "description": "Exit code range end (inclusive) for triggering this action list.  Do not set for no upper bound."
                       },
-                      "behavior": {
-                        "type": "string",
-                        "enum": [
-                          "run",
-                          "skip-next",
-                          "skip-all",
-                          "abort-script"
-                        ],
-                        "description": "The behavior to take based on the exit code of the node.  'run' means run the next action, 'skip-next' means skip the next action, 'skip-all' means skip all remaining actions, and 'abort-script' means terminate the script."
-                      }
+                      "behavior": { "$ref": "#/$defs/ActionEndBehavior" }
                     }
                   }
                 }
@@ -358,6 +382,16 @@
           ]
         }
       }
+    },
+    "ActionEndBehavior": {
+      "type": "string",
+      "enum": [
+        "run",
+        "skip-next",
+        "skip-all",
+        "abort-script"
+      ],
+      "description": "The behavior to take based on the exit code of the node.  'run' means run the next action, 'skip-next' means skip the next action, 'skip-all' means skip all remaining actions, and 'abort-script' means terminate the script."
     },
 
     "NamedParameters": {

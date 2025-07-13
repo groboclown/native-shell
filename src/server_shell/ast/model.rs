@@ -51,14 +51,22 @@ pub mod error {
 #[doc = "          \"type\": \"object\","]
 #[doc = "          \"required\": ["]
 #[doc = "            \"handler\","]
+#[doc = "            \"on-failure\","]
+#[doc = "            \"on-success\","]
 #[doc = "            \"parameters\","]
 #[doc = "            \"source\","]
 #[doc = "            \"type\""]
 #[doc = "          ],"]
 #[doc = "          \"properties\": {"]
 #[doc = "            \"handler\": {"]
-#[doc = "              \"description\": \"The name of the handler to run on the current node.\","]
+#[doc = "              \"description\": \"The name of the handler to run on the current node until the handler completes.\","]
 #[doc = "              \"type\": \"string\""]
+#[doc = "            },"]
+#[doc = "            \"on-failure\": {"]
+#[doc = "              \"$ref\": \"#/$defs/ActionEndBehavior\""]
+#[doc = "            },"]
+#[doc = "            \"on-success\": {"]
+#[doc = "              \"$ref\": \"#/$defs/ActionEndBehavior\""]
 #[doc = "            },"]
 #[doc = "            \"parameters\": {"]
 #[doc = "              \"$ref\": \"#/$defs/NamedParameters\""]
@@ -73,10 +81,58 @@ pub mod error {
 #[doc = "          \"additionalProperties\": false"]
 #[doc = "        },"]
 #[doc = "        {"]
-#[doc = "          \"title\": \"Run Node\","]
-#[doc = "          \"description\": \"Execute a node, either start it or restart it.  If it's currently running, this will wait for it to finish and reuse its exit code.\","]
+#[doc = "          \"title\": \"Spawn Node\","]
+#[doc = "          \"description\": \"Requests the parallel execution of a node, either start it or restart it.  If it's currently running, this will wait for it to finish and reuse its exit code.\","]
 #[doc = "          \"type\": \"object\","]
 #[doc = "          \"required\": ["]
+#[doc = "            \"node\","]
+#[doc = "            \"source\","]
+#[doc = "            \"type\""]
+#[doc = "          ],"]
+#[doc = "          \"properties\": {"]
+#[doc = "            \"node\": {"]
+#[doc = "              \"description\": \"The node ID to run.\","]
+#[doc = "              \"type\": \"string\""]
+#[doc = "            },"]
+#[doc = "            \"source\": {"]
+#[doc = "              \"$ref\": \"#/$defs/Source\""]
+#[doc = "            },"]
+#[doc = "            \"type\": {"]
+#[doc = "              \"const\": \"spawn-node\""]
+#[doc = "            }"]
+#[doc = "          },"]
+#[doc = "          \"additionalProperties\": false"]
+#[doc = "        },"]
+#[doc = "        {"]
+#[doc = "          \"title\": \"Ensure Node Started At Least Once\","]
+#[doc = "          \"description\": \"If the node has never started, then start it through the action reference.  Otherwise, do nothing.\","]
+#[doc = "          \"type\": \"object\","]
+#[doc = "          \"required\": ["]
+#[doc = "            \"node\","]
+#[doc = "            \"source\","]
+#[doc = "            \"type\""]
+#[doc = "          ],"]
+#[doc = "          \"properties\": {"]
+#[doc = "            \"node\": {"]
+#[doc = "              \"description\": \"The node ID to run.\","]
+#[doc = "              \"type\": \"string\""]
+#[doc = "            },"]
+#[doc = "            \"source\": {"]
+#[doc = "              \"$ref\": \"#/$defs/Source\""]
+#[doc = "            },"]
+#[doc = "            \"type\": {"]
+#[doc = "              \"const\": \"ensure-node-started-at-least-once\""]
+#[doc = "            }"]
+#[doc = "          },"]
+#[doc = "          \"additionalProperties\": false"]
+#[doc = "        },"]
+#[doc = "        {"]
+#[doc = "          \"title\": \"Wait For Node\","]
+#[doc = "          \"description\": \"Wait for a node to finish executing.  This will block until the node's execution exits.  If it has already finished exiting, this will continue without waiting.\","]
+#[doc = "          \"type\": \"object\","]
+#[doc = "          \"required\": ["]
+#[doc = "            \"for-exit\","]
+#[doc = "            \"if-not-started\","]
 #[doc = "            \"node\","]
 #[doc = "            \"source\","]
 #[doc = "            \"type\""]
@@ -96,14 +152,7 @@ pub mod error {
 #[doc = "                ],"]
 #[doc = "                \"properties\": {"]
 #[doc = "                  \"behavior\": {"]
-#[doc = "                    \"description\": \"The behavior to take based on the exit code of the node.  'run' means run the next action, 'skip-next' means skip the next action, 'skip-all' means skip all remaining actions, and 'abort-script' means terminate the script.\","]
-#[doc = "                    \"type\": \"string\","]
-#[doc = "                    \"enum\": ["]
-#[doc = "                      \"run\","]
-#[doc = "                      \"skip-next\","]
-#[doc = "                      \"skip-all\","]
-#[doc = "                      \"abort-script\""]
-#[doc = "                    ]"]
+#[doc = "                    \"$ref\": \"#/$defs/ActionEndBehavior\""]
 #[doc = "                  },"]
 #[doc = "                  \"code-end\": {"]
 #[doc = "                    \"description\": \"Exit code range end (inclusive) for triggering this action list.  Do not set for no upper bound.\","]
@@ -120,6 +169,9 @@ pub mod error {
 #[doc = "                \"additionalProperties\": false"]
 #[doc = "              }"]
 #[doc = "            },"]
+#[doc = "            \"if-not-started\": {"]
+#[doc = "              \"$ref\": \"#/$defs/ActionEndBehavior\""]
+#[doc = "            },"]
 #[doc = "            \"node\": {"]
 #[doc = "              \"description\": \"The node ID to run.\","]
 #[doc = "              \"type\": \"string\""]
@@ -128,7 +180,7 @@ pub mod error {
 #[doc = "              \"$ref\": \"#/$defs/Source\""]
 #[doc = "            },"]
 #[doc = "            \"type\": {"]
-#[doc = "              \"const\": \"run-node\""]
+#[doc = "              \"const\": \"wait-for-node\""]
 #[doc = "            }"]
 #[doc = "          },"]
 #[doc = "          \"additionalProperties\": false"]
@@ -228,6 +280,94 @@ impl Action {
         Default::default()
     }
 }
+#[doc = "The behavior to take based on the exit code of the node.  'run' means run the next action, 'skip-next' means skip the next action, 'skip-all' means skip all remaining actions, and 'abort-script' means terminate the script."]
+#[doc = r""]
+#[doc = r" <details><summary>JSON schema</summary>"]
+#[doc = r""]
+#[doc = r" ```json"]
+#[doc = "{"]
+#[doc = "  \"description\": \"The behavior to take based on the exit code of the node.  'run' means run the next action, 'skip-next' means skip the next action, 'skip-all' means skip all remaining actions, and 'abort-script' means terminate the script.\","]
+#[doc = "  \"type\": \"string\","]
+#[doc = "  \"enum\": ["]
+#[doc = "    \"run\","]
+#[doc = "    \"skip-next\","]
+#[doc = "    \"skip-all\","]
+#[doc = "    \"abort-script\""]
+#[doc = "  ]"]
+#[doc = "}"]
+#[doc = r" ```"]
+#[doc = r" </details>"]
+#[derive(
+    :: serde :: Deserialize,
+    :: serde :: Serialize,
+    Clone,
+    Copy,
+    Debug,
+    Eq,
+    Hash,
+    Ord,
+    PartialEq,
+    PartialOrd,
+)]
+pub enum ActionEndBehavior {
+    #[serde(rename = "run")]
+    Run,
+    #[serde(rename = "skip-next")]
+    SkipNext,
+    #[serde(rename = "skip-all")]
+    SkipAll,
+    #[serde(rename = "abort-script")]
+    AbortScript,
+}
+impl ::std::convert::From<&Self> for ActionEndBehavior {
+    fn from(value: &ActionEndBehavior) -> Self {
+        value.clone()
+    }
+}
+impl ::std::fmt::Display for ActionEndBehavior {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        match *self {
+            Self::Run => write!(f, "run"),
+            Self::SkipNext => write!(f, "skip-next"),
+            Self::SkipAll => write!(f, "skip-all"),
+            Self::AbortScript => write!(f, "abort-script"),
+        }
+    }
+}
+impl ::std::str::FromStr for ActionEndBehavior {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        match value {
+            "run" => Ok(Self::Run),
+            "skip-next" => Ok(Self::SkipNext),
+            "skip-all" => Ok(Self::SkipAll),
+            "abort-script" => Ok(Self::AbortScript),
+            _ => Err("invalid value".into()),
+        }
+    }
+}
+impl ::std::convert::TryFrom<&str> for ActionEndBehavior {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<&::std::string::String> for ActionEndBehavior {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: &::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for ActionEndBehavior {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
 #[doc = "A parameter for the action. Must provide exactly one of a value or a value-array."]
 #[doc = r""]
 #[doc = r" <details><summary>JSON schema</summary>"]
@@ -289,14 +429,22 @@ impl ActionParameter {
 #[doc = "      \"type\": \"object\","]
 #[doc = "      \"required\": ["]
 #[doc = "        \"handler\","]
+#[doc = "        \"on-failure\","]
+#[doc = "        \"on-success\","]
 #[doc = "        \"parameters\","]
 #[doc = "        \"source\","]
 #[doc = "        \"type\""]
 #[doc = "      ],"]
 #[doc = "      \"properties\": {"]
 #[doc = "        \"handler\": {"]
-#[doc = "          \"description\": \"The name of the handler to run on the current node.\","]
+#[doc = "          \"description\": \"The name of the handler to run on the current node until the handler completes.\","]
 #[doc = "          \"type\": \"string\""]
+#[doc = "        },"]
+#[doc = "        \"on-failure\": {"]
+#[doc = "          \"$ref\": \"#/$defs/ActionEndBehavior\""]
+#[doc = "        },"]
+#[doc = "        \"on-success\": {"]
+#[doc = "          \"$ref\": \"#/$defs/ActionEndBehavior\""]
 #[doc = "        },"]
 #[doc = "        \"parameters\": {"]
 #[doc = "          \"$ref\": \"#/$defs/NamedParameters\""]
@@ -311,10 +459,58 @@ impl ActionParameter {
 #[doc = "      \"additionalProperties\": false"]
 #[doc = "    },"]
 #[doc = "    {"]
-#[doc = "      \"title\": \"Run Node\","]
-#[doc = "      \"description\": \"Execute a node, either start it or restart it.  If it's currently running, this will wait for it to finish and reuse its exit code.\","]
+#[doc = "      \"title\": \"Spawn Node\","]
+#[doc = "      \"description\": \"Requests the parallel execution of a node, either start it or restart it.  If it's currently running, this will wait for it to finish and reuse its exit code.\","]
 #[doc = "      \"type\": \"object\","]
 #[doc = "      \"required\": ["]
+#[doc = "        \"node\","]
+#[doc = "        \"source\","]
+#[doc = "        \"type\""]
+#[doc = "      ],"]
+#[doc = "      \"properties\": {"]
+#[doc = "        \"node\": {"]
+#[doc = "          \"description\": \"The node ID to run.\","]
+#[doc = "          \"type\": \"string\""]
+#[doc = "        },"]
+#[doc = "        \"source\": {"]
+#[doc = "          \"$ref\": \"#/$defs/Source\""]
+#[doc = "        },"]
+#[doc = "        \"type\": {"]
+#[doc = "          \"const\": \"spawn-node\""]
+#[doc = "        }"]
+#[doc = "      },"]
+#[doc = "      \"additionalProperties\": false"]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"title\": \"Ensure Node Started At Least Once\","]
+#[doc = "      \"description\": \"If the node has never started, then start it through the action reference.  Otherwise, do nothing.\","]
+#[doc = "      \"type\": \"object\","]
+#[doc = "      \"required\": ["]
+#[doc = "        \"node\","]
+#[doc = "        \"source\","]
+#[doc = "        \"type\""]
+#[doc = "      ],"]
+#[doc = "      \"properties\": {"]
+#[doc = "        \"node\": {"]
+#[doc = "          \"description\": \"The node ID to run.\","]
+#[doc = "          \"type\": \"string\""]
+#[doc = "        },"]
+#[doc = "        \"source\": {"]
+#[doc = "          \"$ref\": \"#/$defs/Source\""]
+#[doc = "        },"]
+#[doc = "        \"type\": {"]
+#[doc = "          \"const\": \"ensure-node-started-at-least-once\""]
+#[doc = "        }"]
+#[doc = "      },"]
+#[doc = "      \"additionalProperties\": false"]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"title\": \"Wait For Node\","]
+#[doc = "      \"description\": \"Wait for a node to finish executing.  This will block until the node's execution exits.  If it has already finished exiting, this will continue without waiting.\","]
+#[doc = "      \"type\": \"object\","]
+#[doc = "      \"required\": ["]
+#[doc = "        \"for-exit\","]
+#[doc = "        \"if-not-started\","]
 #[doc = "        \"node\","]
 #[doc = "        \"source\","]
 #[doc = "        \"type\""]
@@ -334,14 +530,7 @@ impl ActionParameter {
 #[doc = "            ],"]
 #[doc = "            \"properties\": {"]
 #[doc = "              \"behavior\": {"]
-#[doc = "                \"description\": \"The behavior to take based on the exit code of the node.  'run' means run the next action, 'skip-next' means skip the next action, 'skip-all' means skip all remaining actions, and 'abort-script' means terminate the script.\","]
-#[doc = "                \"type\": \"string\","]
-#[doc = "                \"enum\": ["]
-#[doc = "                  \"run\","]
-#[doc = "                  \"skip-next\","]
-#[doc = "                  \"skip-all\","]
-#[doc = "                  \"abort-script\""]
-#[doc = "                ]"]
+#[doc = "                \"$ref\": \"#/$defs/ActionEndBehavior\""]
 #[doc = "              },"]
 #[doc = "              \"code-end\": {"]
 #[doc = "                \"description\": \"Exit code range end (inclusive) for triggering this action list.  Do not set for no upper bound.\","]
@@ -358,6 +547,9 @@ impl ActionParameter {
 #[doc = "            \"additionalProperties\": false"]
 #[doc = "          }"]
 #[doc = "        },"]
+#[doc = "        \"if-not-started\": {"]
+#[doc = "          \"$ref\": \"#/$defs/ActionEndBehavior\""]
+#[doc = "        },"]
 #[doc = "        \"node\": {"]
 #[doc = "          \"description\": \"The node ID to run.\","]
 #[doc = "          \"type\": \"string\""]
@@ -366,7 +558,7 @@ impl ActionParameter {
 #[doc = "          \"$ref\": \"#/$defs/Source\""]
 #[doc = "        },"]
 #[doc = "        \"type\": {"]
-#[doc = "          \"const\": \"run-node\""]
+#[doc = "          \"const\": \"wait-for-node\""]
 #[doc = "        }"]
 #[doc = "      },"]
 #[doc = "      \"additionalProperties\": false"]
@@ -448,21 +640,37 @@ pub enum ActionRun {
     #[doc = "Run Node Handler\n\nExecute a handler on the current node."]
     #[serde(rename = "run-node-handler")]
     RunNodeHandler {
-        #[doc = "The name of the handler to run on the current node."]
+        #[doc = "The name of the handler to run on the current node until the handler completes."]
         handler: ::std::string::String,
+        #[serde(rename = "on-failure")]
+        on_failure: ActionEndBehavior,
+        #[serde(rename = "on-success")]
+        on_success: ActionEndBehavior,
         parameters: NamedParameters,
         source: Source,
     },
-    #[doc = "Run Node\n\nExecute a node, either start it or restart it.  If it's currently running, this will wait for it to finish and reuse its exit code."]
-    #[serde(rename = "run-node")]
-    RunNode {
+    #[doc = "Spawn Node\n\nRequests the parallel execution of a node, either start it or restart it.  If it's currently running, this will wait for it to finish and reuse its exit code."]
+    #[serde(rename = "spawn-node")]
+    SpawnNode {
+        #[doc = "The node ID to run."]
+        node: ::std::string::String,
+        source: Source,
+    },
+    #[doc = "Ensure Node Started At Least Once\n\nIf the node has never started, then start it through the action reference.  Otherwise, do nothing."]
+    #[serde(rename = "ensure-node-started-at-least-once")]
+    EnsureNodeStartedAtLeastOnce {
+        #[doc = "The node ID to run."]
+        node: ::std::string::String,
+        source: Source,
+    },
+    #[doc = "Wait For Node\n\nWait for a node to finish executing.  This will block until the node's execution exits.  If it has already finished exiting, this will continue without waiting."]
+    #[serde(rename = "wait-for-node")]
+    WaitForNode {
         #[doc = "Behavior for the next action in the list depending on the executed node's exit code."]
-        #[serde(
-            rename = "for-exit",
-            default,
-            skip_serializing_if = "::std::vec::Vec::is_empty"
-        )]
+        #[serde(rename = "for-exit")]
         for_exit: ::std::vec::Vec<ExitBehavior>,
+        #[serde(rename = "if-not-started")]
+        if_not_started: ActionEndBehavior,
         #[doc = "The node ID to run."]
         node: ::std::string::String,
         source: Source,
@@ -2394,14 +2602,7 @@ impl ExitAction {
 #[doc = "  ],"]
 #[doc = "  \"properties\": {"]
 #[doc = "    \"behavior\": {"]
-#[doc = "      \"description\": \"The behavior to take based on the exit code of the node.  'run' means run the next action, 'skip-next' means skip the next action, 'skip-all' means skip all remaining actions, and 'abort-script' means terminate the script.\","]
-#[doc = "      \"type\": \"string\","]
-#[doc = "      \"enum\": ["]
-#[doc = "        \"run\","]
-#[doc = "        \"skip-next\","]
-#[doc = "        \"skip-all\","]
-#[doc = "        \"abort-script\""]
-#[doc = "      ]"]
+#[doc = "      \"$ref\": \"#/$defs/ActionEndBehavior\""]
 #[doc = "    },"]
 #[doc = "    \"code-end\": {"]
 #[doc = "      \"description\": \"Exit code range end (inclusive) for triggering this action list.  Do not set for no upper bound.\","]
@@ -2422,8 +2623,7 @@ impl ExitAction {
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
 pub struct ExitBehavior {
-    #[doc = "The behavior to take based on the exit code of the node.  'run' means run the next action, 'skip-next' means skip the next action, 'skip-all' means skip all remaining actions, and 'abort-script' means terminate the script."]
-    pub behavior: ExitBehaviorBehavior,
+    pub behavior: ActionEndBehavior,
     #[doc = "Exit code range end (inclusive) for triggering this action list.  Do not set for no upper bound."]
     #[serde(
         rename = "code-end",
@@ -2448,94 +2648,6 @@ impl ::std::convert::From<&ExitBehavior> for ExitBehavior {
 impl ExitBehavior {
     pub fn builder() -> builder::ExitBehavior {
         Default::default()
-    }
-}
-#[doc = "The behavior to take based on the exit code of the node.  'run' means run the next action, 'skip-next' means skip the next action, 'skip-all' means skip all remaining actions, and 'abort-script' means terminate the script."]
-#[doc = r""]
-#[doc = r" <details><summary>JSON schema</summary>"]
-#[doc = r""]
-#[doc = r" ```json"]
-#[doc = "{"]
-#[doc = "  \"description\": \"The behavior to take based on the exit code of the node.  'run' means run the next action, 'skip-next' means skip the next action, 'skip-all' means skip all remaining actions, and 'abort-script' means terminate the script.\","]
-#[doc = "  \"type\": \"string\","]
-#[doc = "  \"enum\": ["]
-#[doc = "    \"run\","]
-#[doc = "    \"skip-next\","]
-#[doc = "    \"skip-all\","]
-#[doc = "    \"abort-script\""]
-#[doc = "  ]"]
-#[doc = "}"]
-#[doc = r" ```"]
-#[doc = r" </details>"]
-#[derive(
-    :: serde :: Deserialize,
-    :: serde :: Serialize,
-    Clone,
-    Copy,
-    Debug,
-    Eq,
-    Hash,
-    Ord,
-    PartialEq,
-    PartialOrd,
-)]
-pub enum ExitBehaviorBehavior {
-    #[serde(rename = "run")]
-    Run,
-    #[serde(rename = "skip-next")]
-    SkipNext,
-    #[serde(rename = "skip-all")]
-    SkipAll,
-    #[serde(rename = "abort-script")]
-    AbortScript,
-}
-impl ::std::convert::From<&Self> for ExitBehaviorBehavior {
-    fn from(value: &ExitBehaviorBehavior) -> Self {
-        value.clone()
-    }
-}
-impl ::std::fmt::Display for ExitBehaviorBehavior {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        match *self {
-            Self::Run => write!(f, "run"),
-            Self::SkipNext => write!(f, "skip-next"),
-            Self::SkipAll => write!(f, "skip-all"),
-            Self::AbortScript => write!(f, "abort-script"),
-        }
-    }
-}
-impl ::std::str::FromStr for ExitBehaviorBehavior {
-    type Err = self::error::ConversionError;
-    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
-        match value {
-            "run" => Ok(Self::Run),
-            "skip-next" => Ok(Self::SkipNext),
-            "skip-all" => Ok(Self::SkipAll),
-            "abort-script" => Ok(Self::AbortScript),
-            _ => Err("invalid value".into()),
-        }
-    }
-}
-impl ::std::convert::TryFrom<&str> for ExitBehaviorBehavior {
-    type Error = self::error::ConversionError;
-    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
-        value.parse()
-    }
-}
-impl ::std::convert::TryFrom<&::std::string::String> for ExitBehaviorBehavior {
-    type Error = self::error::ConversionError;
-    fn try_from(
-        value: &::std::string::String,
-    ) -> ::std::result::Result<Self, self::error::ConversionError> {
-        value.parse()
-    }
-}
-impl ::std::convert::TryFrom<::std::string::String> for ExitBehaviorBehavior {
-    type Error = self::error::ConversionError;
-    fn try_from(
-        value: ::std::string::String,
-    ) -> ::std::result::Result<Self, self::error::ConversionError> {
-        value.parse()
     }
 }
 #[doc = "A string value that is the string representation of a list."]
@@ -5791,7 +5903,7 @@ pub mod builder {
     }
     #[derive(Clone, Debug)]
     pub struct ExitBehavior {
-        behavior: ::std::result::Result<super::ExitBehaviorBehavior, ::std::string::String>,
+        behavior: ::std::result::Result<super::ActionEndBehavior, ::std::string::String>,
         code_end: ::std::result::Result<::std::option::Option<i64>, ::std::string::String>,
         code_start: ::std::result::Result<::std::option::Option<i64>, ::std::string::String>,
         source: ::std::result::Result<super::Source, ::std::string::String>,
@@ -5809,7 +5921,7 @@ pub mod builder {
     impl ExitBehavior {
         pub fn behavior<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<super::ExitBehaviorBehavior>,
+            T: ::std::convert::TryInto<super::ActionEndBehavior>,
             T::Error: ::std::fmt::Display,
         {
             self.behavior = value

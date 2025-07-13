@@ -1,7 +1,7 @@
 //! The equivalent of '> filename'.
 
-use std::io;
-use std::{io::Write, os::fd::OwnedFd};
+use std::{io::{self, Write}, os::fd::OwnedFd};
+use std::sync::RwLock;
 
 use crate::shell_lib::helpers::abort_handler;
 use crate::shell_lib::{
@@ -38,7 +38,17 @@ pub fn module_meta() -> ModuleMeta {
                 },
             ],
         }),
-        state_struct: None,
+        state_struct: Some(ModuleStructure {
+            name: "FileSinkModuleState".to_string(),
+            new: None,
+            fields: vec![
+                NamedValue {
+                    name: "size".to_string(),
+                    value_type: ValueType::Float,
+                    optional: false,
+                },
+            ],
+        }),
         stream_struct: Some(ModuleStreamStructure {
             name: "FileSinkModuleStream".to_string(),
             fixed_streams: vec![
@@ -58,11 +68,17 @@ pub fn module_meta() -> ModuleMeta {
 
 pub struct FileSinkModule {
     state: abort_handler::RunState<abort_handler::FdIn>,
+    count: RwLock<f64>,
 }
 
 pub struct FileSinkModuleRuntimeParams {
     pub filename: String,
     pub append: Option<bool>,
+}
+
+pub struct FileSinkModuleState {
+    /// Bytes consumed by the file sink.
+    pub size: f64,
 }
 
 pub struct FileSinkModuleStream {
@@ -71,7 +87,7 @@ pub struct FileSinkModuleStream {
 
 impl FileSinkModule {
     pub fn new() -> Self {
-        FileSinkModule { state: abort_handler::RunState::new() }
+        FileSinkModule { state: abort_handler::RunState::new(), count: RwLock::new(0.0) }
     }
 
     // The streams must be mut, as per the docs.
@@ -95,6 +111,10 @@ impl FileSinkModule {
 
 
     fn exec_impl<R: std::io::Read>(&self, params: &FileSinkModuleRuntimeParams, mut inp: R) -> Result<(), std::io::Error> {
+        {
+            let mut count = self.count.write().unwrap();
+            *count = 0.0;
+        }
         let filename = params.filename.clone();
         let mut out = if params.append.unwrap_or(false) {
             std::fs::OpenOptions::new()
@@ -118,6 +138,7 @@ impl FileSinkModule {
                     // Errors mean stop.
                     out.write(&buf[..size])?;
                     out.flush()?;
+                    *(self.count.write().unwrap()) += size as f64;
                 },
                 Err(ref e) if e.kind() == io::ErrorKind::WouldBlock => continue,
                 Err(ref e) if e.kind() == io::ErrorKind::UnexpectedEof => {
@@ -130,6 +151,12 @@ impl FileSinkModule {
                 }
             }
         };
+    }
+
+    pub fn state(&self) -> FileSinkModuleState {
+        FileSinkModuleState {
+            size: *self.count.read().unwrap(),
+        }
     }
 
     /// Required module abort handler.

@@ -151,11 +151,11 @@ pub struct ModuleStreamStructure {
 ///             Only passed if the compile_param_struct is Some.
 ///     * `exec(&self) -> Result<i16, String>`: The function that executes the module.
 ///         Parameter order:
+///           * `context: Box<dyn EngineContext>`: Allows for limited interaction with the engine.
 ///           * `params: #[runtime_param_struct.name]`: The runtime parameters.
 ///             Only passed if the runtime_param_struct is Some.
 ///           * `mut streams: #[stream_struct.name]`: The stream structure.
 ///             Only passed if the stream_struct is Some.
-///           * `alert: SendAction`: A callback to the action event bus.
 ///         This function returns the exit code of the module, or an error if the
 ///         parameter setup was wrong and the module could not start.
 ///         The function is required to clean up its state on exit, including closing all
@@ -167,7 +167,7 @@ pub struct ModuleStreamStructure {
 ///         An implicit action all modules must implement.  It should attempt to stop the module from running.
 ///         The script engine will only call this if the module is running, but if the abort is registered
 ///         through an event group, then it may be called before or after it runs.
-///     * `#[handler name](&self, #[handler_params]) -> Result<(), String>`: The handler functions.
+///     * `#[handler name](&self, Box<dyn EngineContext>, #[handler_params]) -> Result<i16, String>`: The handler functions.
 /// * `state_struct`: The name of the module's state `type strut`.
 ///     It's returned by the module's `get_state()` method.
 /// * `state_fields`: A list of states the module reports, for use by the compiled code to get.
