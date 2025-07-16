@@ -4,11 +4,8 @@ use std::collections::HashSet;
 
 use crate::server_shell::{ast::model::{NativeShellAstSchema, Node}};
 
-
 pub fn ast_to_module_source<W: std::io::Write>(
     ast: &NativeShellAstSchema,
-    init_code: &String,
-    state_fields: &String,
     out: W,
 ) -> Result<(), std::io::Error> {
     // out.write(join_uses(ast))?;

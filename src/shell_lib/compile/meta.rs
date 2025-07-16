@@ -151,7 +151,7 @@ pub struct ModuleStreamStructure {
 ///             Only passed if the compile_param_struct is Some.
 ///     * `exec(&self) -> Result<i16, String>`: The function that executes the module.
 ///         Parameter order:
-///           * `context: Box<dyn EngineContext>`: Allows for limited interaction with the engine.
+///           * `context: Box<dyn JobRunnerContext>`: Allows for limited interaction with the engine.
 ///           * `params: #[runtime_param_struct.name]`: The runtime parameters.
 ///             Only passed if the runtime_param_struct is Some.
 ///           * `mut streams: #[stream_struct.name]`: The stream structure.
@@ -167,7 +167,7 @@ pub struct ModuleStreamStructure {
 ///         An implicit action all modules must implement.  It should attempt to stop the module from running.
 ///         The script engine will only call this if the module is running, but if the abort is registered
 ///         through an event group, then it may be called before or after it runs.
-///     * `#[handler name](&self, Box<dyn EngineContext>, #[handler_params]) -> Result<i16, String>`: The handler functions.
+///     * `#[handler name](&self, Box<dyn JobRunnerContext>, #[handler_params]) -> Result<i16, String>`: The handler functions.
 /// * `state_struct`: The name of the module's state `type strut`.
 ///     It's returned by the module's `get_state()` method.
 /// * `state_fields`: A list of states the module reports, for use by the compiled code to get.
@@ -181,8 +181,22 @@ pub struct ModuleStreamStructure {
 /// * `handlers`: A list of available handlers and their parameters.
 ///     The first element is the action's method name which matches with the name of the action available to the script author,
 ///     the second is the list of parameters the script author passes to the action.
+/// * `dependencies`: A list of the Cargo.toml `[dependencies]` lines this module depends on.
+/// * `os_dependencies`: A list of the Cargo.toml OS dependencies this module requires, where the first item is the
+///     `[target.'cfg(target_os = "NAME")'.dependencies]` NAME value, and the second is the dependency line in that section.
 /// 
 /// It's the responsibility of the module to close all streams passed to it.
+/// 
+/// Separate from this is the "main" module.  Each AST must have exactly one node named "main", which follows the
+/// rules of a main module.  The main module's provided streams should include the standard input, output, and error streams,
+/// but it doesn't need to; the builder will make these available to other nodes.  It can also provide handlers to perform
+/// special functions.  Uniquely, though, the main module does not provide an `exec()` function, but rather a `run()`
+/// function that takes the `Box<dyn JobRunnerContext>` and returns `Result<(String, Sender<Vec<Option<job::ExitCode>>>), String>`,
+/// where the `Sender` is a channel that the module that alerts the run function that the script has ended, and the String value
+/// contains the name of the event that starts the process.  This allows
+/// the main module to monitor system signals and other events.  Because of the nature of the `run()` function, it does not
+/// use a runtime parameter structure.
+/// 
 pub struct ModuleMeta {
     /// The human readable module name.
     pub name: String,
@@ -194,6 +208,9 @@ pub struct ModuleMeta {
     pub authors: Vec<String>,
 
     // Below here are Rust reflection of the module's source.
+
+    pub dependencies: Vec<String>,
+    pub os_dependencies: Vec<(String, String)>,
 
     /// The module's mod name, divided along paths.
     pub mod_name: Vec<String>,

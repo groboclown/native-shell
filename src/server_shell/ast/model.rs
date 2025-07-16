@@ -2491,7 +2491,7 @@ impl EventListener {
 #[doc = "  \"properties\": {"]
 #[doc = "    \"name\": {"]
 #[doc = "      \"description\": \"The event index that triggers this action list.\","]
-#[doc = "      \"type\": \"integer\""]
+#[doc = "      \"type\": \"string\""]
 #[doc = "    },"]
 #[doc = "    \"source\": {"]
 #[doc = "      \"$ref\": \"#/$defs/Source\""]
@@ -2509,7 +2509,7 @@ impl EventListener {
 #[serde(deny_unknown_fields)]
 pub struct EventName {
     #[doc = "The event index that triggers this action list."]
-    pub name: i64,
+    pub name: ::std::string::String,
     pub source: Source,
     #[doc = "The text description of the event.  This is used for debugging and logging."]
     pub text: ::std::string::String,
@@ -3523,18 +3523,11 @@ impl ::std::convert::From<::std::vec::Vec<ActionParameter>> for NamedParameters 
 #[doc = "    \"default-start\","]
 #[doc = "    \"events\","]
 #[doc = "    \"nodes\","]
+#[doc = "    \"schema-version\","]
 #[doc = "    \"source\","]
 #[doc = "    \"version\""]
 #[doc = "  ],"]
 #[doc = "  \"properties\": {"]
-#[doc = "    \"default-start\": {"]
-#[doc = "      \"description\": \"The default start nodes for the script.  These are the nodes that is executed when the script starts.\","]
-#[doc = "      \"type\": \"array\","]
-#[doc = "      \"items\": {"]
-#[doc = "        \"description\": \"The name of the node to start.\","]
-#[doc = "        \"type\": \"string\""]
-#[doc = "      }"]
-#[doc = "    },"]
 #[doc = "    \"events\": {"]
 #[doc = "      \"title\": \"Event Name List\","]
 #[doc = "      \"description\": \"The event names that nodes can trigger.  These construct a named group of event brokers, which are referenced by the nodes through the index.  Eventually, this may have a parameter list, but for the moment, events can carry a message and/or a code.\","]
@@ -3551,7 +3544,7 @@ impl ::std::convert::From<::std::vec::Vec<ActionParameter>> for NamedParameters 
 #[doc = "        \"properties\": {"]
 #[doc = "          \"name\": {"]
 #[doc = "            \"description\": \"The event index that triggers this action list.\","]
-#[doc = "            \"type\": \"integer\""]
+#[doc = "            \"type\": \"string\""]
 #[doc = "          },"]
 #[doc = "          \"source\": {"]
 #[doc = "            \"$ref\": \"#/$defs/Source\""]
@@ -3572,6 +3565,10 @@ impl ::std::convert::From<::std::vec::Vec<ActionParameter>> for NamedParameters 
 #[doc = "        \"$ref\": \"#/$defs/Node\""]
 #[doc = "      }"]
 #[doc = "    },"]
+#[doc = "    \"schema-version\": {"]
+#[doc = "      \"description\": \"The version of the schema for this AST.  This is used to ensure compatibility with the parser and runtime.\","]
+#[doc = "      \"const\": \"1.0.0\""]
+#[doc = "    },"]
 #[doc = "    \"source\": {"]
 #[doc = "      \"$ref\": \"#/$defs/Source\""]
 #[doc = "    },"]
@@ -3588,13 +3585,15 @@ impl ::std::convert::From<::std::vec::Vec<ActionParameter>> for NamedParameters 
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
 pub struct NativeShellAstSchema {
-    #[doc = "The default start nodes for the script.  These are the nodes that is executed when the script starts."]
     #[serde(rename = "default-start")]
-    pub default_start: ::std::vec::Vec<::std::string::String>,
+    pub default_start: ::serde_json::Value,
     #[doc = "The event names that nodes can trigger.  These construct a named group of event brokers, which are referenced by the nodes through the index.  Eventually, this may have a parameter list, but for the moment, events can carry a message and/or a code."]
     pub events: ::std::vec::Vec<EventName>,
     #[doc = "The nodes in the AST.  Each node is a module with a backing builder."]
     pub nodes: ::std::vec::Vec<Node>,
+    #[doc = "The version of the schema for this AST.  This is used to ensure compatibility with the parser and runtime."]
+    #[serde(rename = "schema-version")]
+    pub schema_version: ::serde_json::Value,
     pub source: Source,
     #[doc = "The version of the AST schema."]
     pub version: ::std::string::String,
@@ -3790,11 +3789,10 @@ impl NativeShellAstSchema {
 #[doc = "        \"description\": \"A stream that connects this node to another node.\","]
 #[doc = "        \"type\": \"object\","]
 #[doc = "        \"required\": ["]
-#[doc = "          \"fd\","]
 #[doc = "          \"mode\","]
 #[doc = "          \"source\","]
-#[doc = "          \"to-fd\","]
-#[doc = "          \"to-node\""]
+#[doc = "          \"to-node\","]
+#[doc = "          \"to-stream\""]
 #[doc = "        ],"]
 #[doc = "        \"properties\": {"]
 #[doc = "          \"fd\": {"]
@@ -3802,7 +3800,7 @@ impl NativeShellAstSchema {
 #[doc = "            \"type\": \"integer\""]
 #[doc = "          },"]
 #[doc = "          \"mode\": {"]
-#[doc = "            \"description\": \"The type of the stream.\","]
+#[doc = "            \"description\": \"The type of the stream.  Even for modules where this maps to a fixed stream, this helps ensure the script's assumptions and the module align.\","]
 #[doc = "            \"type\": \"string\","]
 #[doc = "            \"enum\": ["]
 #[doc = "              \"input\","]
@@ -3810,19 +3808,22 @@ impl NativeShellAstSchema {
 #[doc = "            ]"]
 #[doc = "          },"]
 #[doc = "          \"name\": {"]
-#[doc = "            \"description\": \"The name of the stream.  Used only for debugging.\","]
+#[doc = "            \"description\": \"The name of the stream, if associated with a named stream.\","]
 #[doc = "            \"type\": \"string\""]
 #[doc = "          },"]
 #[doc = "          \"source\": {"]
 #[doc = "            \"$ref\": \"#/$defs/Source\""]
 #[doc = "          },"]
-#[doc = "          \"to-fd\": {"]
-#[doc = "            \"description\": \"The FD of the node that this stream connects to.  This is used to link the node to other nodes.\","]
-#[doc = "            \"type\": \"integer\""]
-#[doc = "          },"]
 #[doc = "          \"to-node\": {"]
 #[doc = "            \"description\": \"The name of the node that this stream connects to.  This is used to link the node to other nodes.\","]
 #[doc = "            \"type\": \"string\""]
+#[doc = "          },"]
+#[doc = "          \"to-stream\": {"]
+#[doc = "            \"description\": \"The FD or named stream of the node that this stream connects to.  This is used to link the node to other nodes.\","]
+#[doc = "            \"type\": ["]
+#[doc = "              \"integer\","]
+#[doc = "              \"string\""]
+#[doc = "            ]"]
 #[doc = "          }"]
 #[doc = "        },"]
 #[doc = "        \"additionalProperties\": false"]
@@ -4265,11 +4266,10 @@ impl Source {
 #[doc = "  \"description\": \"A stream that connects this node to another node.\","]
 #[doc = "  \"type\": \"object\","]
 #[doc = "  \"required\": ["]
-#[doc = "    \"fd\","]
 #[doc = "    \"mode\","]
 #[doc = "    \"source\","]
-#[doc = "    \"to-fd\","]
-#[doc = "    \"to-node\""]
+#[doc = "    \"to-node\","]
+#[doc = "    \"to-stream\""]
 #[doc = "  ],"]
 #[doc = "  \"properties\": {"]
 #[doc = "    \"fd\": {"]
@@ -4277,7 +4277,7 @@ impl Source {
 #[doc = "      \"type\": \"integer\""]
 #[doc = "    },"]
 #[doc = "    \"mode\": {"]
-#[doc = "      \"description\": \"The type of the stream.\","]
+#[doc = "      \"description\": \"The type of the stream.  Even for modules where this maps to a fixed stream, this helps ensure the script's assumptions and the module align.\","]
 #[doc = "      \"type\": \"string\","]
 #[doc = "      \"enum\": ["]
 #[doc = "        \"input\","]
@@ -4285,19 +4285,22 @@ impl Source {
 #[doc = "      ]"]
 #[doc = "    },"]
 #[doc = "    \"name\": {"]
-#[doc = "      \"description\": \"The name of the stream.  Used only for debugging.\","]
+#[doc = "      \"description\": \"The name of the stream, if associated with a named stream.\","]
 #[doc = "      \"type\": \"string\""]
 #[doc = "    },"]
 #[doc = "    \"source\": {"]
 #[doc = "      \"$ref\": \"#/$defs/Source\""]
 #[doc = "    },"]
-#[doc = "    \"to-fd\": {"]
-#[doc = "      \"description\": \"The FD of the node that this stream connects to.  This is used to link the node to other nodes.\","]
-#[doc = "      \"type\": \"integer\""]
-#[doc = "    },"]
 #[doc = "    \"to-node\": {"]
 #[doc = "      \"description\": \"The name of the node that this stream connects to.  This is used to link the node to other nodes.\","]
 #[doc = "      \"type\": \"string\""]
+#[doc = "    },"]
+#[doc = "    \"to-stream\": {"]
+#[doc = "      \"description\": \"The FD or named stream of the node that this stream connects to.  This is used to link the node to other nodes.\","]
+#[doc = "      \"type\": ["]
+#[doc = "        \"integer\","]
+#[doc = "        \"string\""]
+#[doc = "      ]"]
 #[doc = "    }"]
 #[doc = "  },"]
 #[doc = "  \"additionalProperties\": false"]
@@ -4308,19 +4311,20 @@ impl Source {
 #[serde(deny_unknown_fields)]
 pub struct Stream {
     #[doc = "The FD of the stream."]
-    pub fd: i64,
-    #[doc = "The type of the stream."]
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub fd: ::std::option::Option<i64>,
+    #[doc = "The type of the stream.  Even for modules where this maps to a fixed stream, this helps ensure the script's assumptions and the module align."]
     pub mode: StreamMode,
-    #[doc = "The name of the stream.  Used only for debugging."]
+    #[doc = "The name of the stream, if associated with a named stream."]
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub name: ::std::option::Option<::std::string::String>,
     pub source: Source,
-    #[doc = "The FD of the node that this stream connects to.  This is used to link the node to other nodes."]
-    #[serde(rename = "to-fd")]
-    pub to_fd: i64,
     #[doc = "The name of the node that this stream connects to.  This is used to link the node to other nodes."]
     #[serde(rename = "to-node")]
     pub to_node: ::std::string::String,
+    #[doc = "The FD or named stream of the node that this stream connects to.  This is used to link the node to other nodes."]
+    #[serde(rename = "to-stream")]
+    pub to_stream: StreamToStream,
 }
 impl ::std::convert::From<&Stream> for Stream {
     fn from(value: &Stream) -> Self {
@@ -4332,13 +4336,13 @@ impl Stream {
         Default::default()
     }
 }
-#[doc = "The type of the stream."]
+#[doc = "The type of the stream.  Even for modules where this maps to a fixed stream, this helps ensure the script's assumptions and the module align."]
 #[doc = r""]
 #[doc = r" <details><summary>JSON schema</summary>"]
 #[doc = r""]
 #[doc = r" ```json"]
 #[doc = "{"]
-#[doc = "  \"description\": \"The type of the stream.\","]
+#[doc = "  \"description\": \"The type of the stream.  Even for modules where this maps to a fixed stream, this helps ensure the script's assumptions and the module align.\","]
 #[doc = "  \"type\": \"string\","]
 #[doc = "  \"enum\": ["]
 #[doc = "    \"input\","]
@@ -4408,6 +4412,78 @@ impl ::std::convert::TryFrom<::std::string::String> for StreamMode {
         value: ::std::string::String,
     ) -> ::std::result::Result<Self, self::error::ConversionError> {
         value.parse()
+    }
+}
+#[doc = "The FD or named stream of the node that this stream connects to.  This is used to link the node to other nodes."]
+#[doc = r""]
+#[doc = r" <details><summary>JSON schema</summary>"]
+#[doc = r""]
+#[doc = r" ```json"]
+#[doc = "{"]
+#[doc = "  \"description\": \"The FD or named stream of the node that this stream connects to.  This is used to link the node to other nodes.\","]
+#[doc = "  \"type\": ["]
+#[doc = "    \"integer\","]
+#[doc = "    \"string\""]
+#[doc = "  ]"]
+#[doc = "}"]
+#[doc = r" ```"]
+#[doc = r" </details>"]
+#[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
+#[serde(untagged)]
+pub enum StreamToStream {
+    String(::std::string::String),
+    Integer(i64),
+}
+impl ::std::convert::From<&Self> for StreamToStream {
+    fn from(value: &StreamToStream) -> Self {
+        value.clone()
+    }
+}
+impl ::std::str::FromStr for StreamToStream {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if let Ok(v) = value.parse() {
+            Ok(Self::String(v))
+        } else if let Ok(v) = value.parse() {
+            Ok(Self::Integer(v))
+        } else {
+            Err("string conversion failed for all variants".into())
+        }
+    }
+}
+impl ::std::convert::TryFrom<&str> for StreamToStream {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<&::std::string::String> for StreamToStream {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: &::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for StreamToStream {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::fmt::Display for StreamToStream {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        match self {
+            Self::String(x) => x.fmt(f),
+            Self::Integer(x) => x.fmt(f),
+        }
+    }
+}
+impl ::std::convert::From<i64> for StreamToStream {
+    fn from(value: i64) -> Self {
+        Self::Integer(value)
     }
 }
 #[doc = "A boolean map value that is the union of multiple boolean map values."]
@@ -5753,7 +5829,7 @@ pub mod builder {
     }
     #[derive(Clone, Debug)]
     pub struct EventName {
-        name: ::std::result::Result<i64, ::std::string::String>,
+        name: ::std::result::Result<::std::string::String, ::std::string::String>,
         source: ::std::result::Result<super::Source, ::std::string::String>,
         text: ::std::result::Result<::std::string::String, ::std::string::String>,
     }
@@ -5769,7 +5845,7 @@ pub mod builder {
     impl EventName {
         pub fn name<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<i64>,
+            T: ::std::convert::TryInto<::std::string::String>,
             T::Error: ::std::fmt::Display,
         {
             self.name = value
@@ -7123,10 +7199,10 @@ pub mod builder {
     }
     #[derive(Clone, Debug)]
     pub struct NativeShellAstSchema {
-        default_start:
-            ::std::result::Result<::std::vec::Vec<::std::string::String>, ::std::string::String>,
+        default_start: ::std::result::Result<::serde_json::Value, ::std::string::String>,
         events: ::std::result::Result<::std::vec::Vec<super::EventName>, ::std::string::String>,
         nodes: ::std::result::Result<::std::vec::Vec<super::Node>, ::std::string::String>,
+        schema_version: ::std::result::Result<::serde_json::Value, ::std::string::String>,
         source: ::std::result::Result<super::Source, ::std::string::String>,
         version: ::std::result::Result<::std::string::String, ::std::string::String>,
     }
@@ -7136,6 +7212,7 @@ pub mod builder {
                 default_start: Err("no value supplied for default_start".to_string()),
                 events: Err("no value supplied for events".to_string()),
                 nodes: Err("no value supplied for nodes".to_string()),
+                schema_version: Err("no value supplied for schema_version".to_string()),
                 source: Err("no value supplied for source".to_string()),
                 version: Err("no value supplied for version".to_string()),
             }
@@ -7144,7 +7221,7 @@ pub mod builder {
     impl NativeShellAstSchema {
         pub fn default_start<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::std::vec::Vec<::std::string::String>>,
+            T: ::std::convert::TryInto<::serde_json::Value>,
             T::Error: ::std::fmt::Display,
         {
             self.default_start = value
@@ -7170,6 +7247,16 @@ pub mod builder {
             self.nodes = value
                 .try_into()
                 .map_err(|e| format!("error converting supplied value for nodes: {}", e));
+            self
+        }
+        pub fn schema_version<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::serde_json::Value>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.schema_version = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for schema_version: {}", e));
             self
         }
         pub fn source<T>(mut self, value: T) -> Self
@@ -7202,6 +7289,7 @@ pub mod builder {
                 default_start: value.default_start?,
                 events: value.events?,
                 nodes: value.nodes?,
+                schema_version: value.schema_version?,
                 source: value.source?,
                 version: value.version?,
             })
@@ -7213,6 +7301,7 @@ pub mod builder {
                 default_start: Ok(value.default_start),
                 events: Ok(value.events),
                 nodes: Ok(value.nodes),
+                schema_version: Ok(value.schema_version),
                 source: Ok(value.source),
                 version: Ok(value.version),
             }
@@ -7698,32 +7787,32 @@ pub mod builder {
     }
     #[derive(Clone, Debug)]
     pub struct Stream {
-        fd: ::std::result::Result<i64, ::std::string::String>,
+        fd: ::std::result::Result<::std::option::Option<i64>, ::std::string::String>,
         mode: ::std::result::Result<super::StreamMode, ::std::string::String>,
         name: ::std::result::Result<
             ::std::option::Option<::std::string::String>,
             ::std::string::String,
         >,
         source: ::std::result::Result<super::Source, ::std::string::String>,
-        to_fd: ::std::result::Result<i64, ::std::string::String>,
         to_node: ::std::result::Result<::std::string::String, ::std::string::String>,
+        to_stream: ::std::result::Result<super::StreamToStream, ::std::string::String>,
     }
     impl ::std::default::Default for Stream {
         fn default() -> Self {
             Self {
-                fd: Err("no value supplied for fd".to_string()),
+                fd: Ok(Default::default()),
                 mode: Err("no value supplied for mode".to_string()),
                 name: Ok(Default::default()),
                 source: Err("no value supplied for source".to_string()),
-                to_fd: Err("no value supplied for to_fd".to_string()),
                 to_node: Err("no value supplied for to_node".to_string()),
+                to_stream: Err("no value supplied for to_stream".to_string()),
             }
         }
     }
     impl Stream {
         pub fn fd<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<i64>,
+            T: ::std::convert::TryInto<::std::option::Option<i64>>,
             T::Error: ::std::fmt::Display,
         {
             self.fd = value
@@ -7761,16 +7850,6 @@ pub mod builder {
                 .map_err(|e| format!("error converting supplied value for source: {}", e));
             self
         }
-        pub fn to_fd<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<i64>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.to_fd = value
-                .try_into()
-                .map_err(|e| format!("error converting supplied value for to_fd: {}", e));
-            self
-        }
         pub fn to_node<T>(mut self, value: T) -> Self
         where
             T: ::std::convert::TryInto<::std::string::String>,
@@ -7779,6 +7858,16 @@ pub mod builder {
             self.to_node = value
                 .try_into()
                 .map_err(|e| format!("error converting supplied value for to_node: {}", e));
+            self
+        }
+        pub fn to_stream<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<super::StreamToStream>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.to_stream = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for to_stream: {}", e));
             self
         }
     }
@@ -7790,8 +7879,8 @@ pub mod builder {
                 mode: value.mode?,
                 name: value.name?,
                 source: value.source?,
-                to_fd: value.to_fd?,
                 to_node: value.to_node?,
+                to_stream: value.to_stream?,
             })
         }
     }
@@ -7802,8 +7891,8 @@ pub mod builder {
                 mode: Ok(value.mode),
                 name: Ok(value.name),
                 source: Ok(value.source),
-                to_fd: Ok(value.to_fd),
                 to_node: Ok(value.to_node),
+                to_stream: Ok(value.to_stream),
             }
         }
     }

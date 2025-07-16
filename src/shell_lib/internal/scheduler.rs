@@ -5,4 +5,5 @@
 //! jobs, then trigger them to start through the job scheduler.  The builder must ensure that stateful dependencies like
 //! this correctly manage the invocation, so that the stateful sub-jobs only start through the parent.
 
+pub mod event_group;
 pub mod run_state;

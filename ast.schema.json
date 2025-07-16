@@ -4,9 +4,13 @@
   "title": "Native Shell AST Schema",
   "description": "An abstract syntax tree (AST) schema for a Native Shell.",
   "type": "object",
-  "required": ["version", "source", "events", "nodes", "default-start"],
+  "required": ["schema-version", "version", "source", "events", "nodes", "default-start"],
   "additionalProperties": false,
   "properties": {
+    "schema-version": {
+      "const": "1.0.0",
+      "description": "The version of the schema for this AST.  This is used to ensure compatibility with the parser and runtime."
+    },
     "version": {
       "type": "string",
       "description": "The version of the AST schema."
@@ -25,7 +29,7 @@
         "properties": {
           "source": { "$ref": "#/$defs/Source" },
           "name": {
-            "type": "integer",
+            "type": "string",
             "description": "The event index that triggers this action list."
           },
           "text": {
@@ -41,14 +45,6 @@
       "description": "The nodes in the AST.  Each node is a module with a backing builder.",
       "items": {
         "$ref": "#/$defs/Node"
-      }
-    },
-    "default-start": {
-      "type": "array",
-      "description": "The default start nodes for the script.  These are the nodes that is executed when the script starts.",
-      "items": {
-        "type": "string",
-        "description": "The name of the node to start."
       }
     }
   },
@@ -129,7 +125,7 @@
             "type": "object",
             "title": "Stream",
             "description": "A stream that connects this node to another node.",
-            "required": ["fd", "source", "mode", "to-node", "to-fd"],
+            "required": ["source", "mode", "to-node", "to-stream"],
             "additionalProperties": false,
             "properties": {
               "fd": {
@@ -138,7 +134,7 @@
               },
               "name": {
                 "type": "string",
-                "description": "The name of the stream.  Used only for debugging."
+                "description": "The name of the stream, if associated with a named stream."
               },
               "source": { "$ref": "#/$defs/Source" },
               "mode": {
@@ -147,15 +143,15 @@
                   "input",
                   "output"
                 ],
-                "description": "The type of the stream."
+                "description": "The type of the stream.  Even for modules where this maps to a fixed stream, this helps ensure the script's assumptions and the module align."
               },
               "to-node": {
                 "type": "string",
                 "description": "The name of the node that this stream connects to.  This is used to link the node to other nodes."
               },
-              "to-fd": {
-                "type": "integer",
-                "description": "The FD of the node that this stream connects to.  This is used to link the node to other nodes."
+              "to-stream": {
+                "type": ["integer", "string"],
+                "description": "The FD or named stream of the node that this stream connects to.  This is used to link the node to other nodes."
               }
             }
           }

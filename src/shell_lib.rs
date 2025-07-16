@@ -9,4 +9,4 @@ pub mod helpers;
 pub mod modules;
 pub mod runtime;
 
-mod internal;
+pub mod internal;

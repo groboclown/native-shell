@@ -20,6 +20,8 @@ pub fn module_meta() -> ModuleMeta {
         version: "0.1.0".to_string(),
         authors: vec!["Native Shell Developers".to_string()],
         mod_name: vec!["shell_lib".to_string(), "modules".to_string(), "file_sink".to_string()],
+        dependencies: vec![],
+        os_dependencies: vec![],
         instance_struct: "FileSinkModule".to_string(),
         compile_param_struct: None,
         runtime_param_struct: Some(ModuleStructure {
@@ -53,7 +55,7 @@ pub fn module_meta() -> ModuleMeta {
             name: "FileSinkModuleStream".to_string(),
             fixed_streams: vec![
                 FixedStreamDef {
-                    name: Some("inp".to_string()),
+                    name: Some("input".to_string()),
                     fd_index: Some(0),
                     stream_type: StreamType::Input(StreamInterface::Fd),
                     required: true,

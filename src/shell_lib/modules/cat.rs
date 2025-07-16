@@ -14,6 +14,8 @@ pub fn module_meta() -> ModuleMeta {
         version: "0.1.0".to_string(),
         authors: vec!["Native Shell Developers".to_string()],
         mod_name: vec!["shell_lib".to_string(), "modules".to_string(), "cat".to_string()],
+        dependencies: vec![],
+        os_dependencies: vec![],
         instance_struct: "CatModule".to_string(),
         compile_param_struct: None,
         runtime_param_struct: Some(ModuleStructure {
@@ -32,7 +34,7 @@ pub fn module_meta() -> ModuleMeta {
             name: "CatModuleStream".to_string(),
             fixed_streams: vec![
                 FixedStreamDef {
-                    name: Some("out".to_string()),
+                    name: Some("output".to_string()),
                     fd_index: Some(0),
                     stream_type: StreamType::Output(StreamInterface::Fd),
                     required: true,
