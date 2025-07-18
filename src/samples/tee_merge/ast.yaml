@@ -1,0 +1,138 @@
+# Shell that shows off multiple node groups by having streams
+# spread across nodes.
+
+schema-version: "1.0.0"
+
+version: "1.0.0"
+source:
+  file: "tee-merge.ns"
+  line: 1
+  column: 1
+events:
+  - name: start
+    text: "Start of the shell script execution."
+nodes:
+  # The main node.  It must use a module that conforms to the builder's requirements.
+  - name: main
+    source:
+      file: "script.ns"
+      line: 1
+      column: 1
+    module: shell
+    environment:
+      source:
+        file: "script.ns"
+        line: 1
+        column: 1
+    initial-parameters:
+      description: "Sends the contents of a file through a pipe into another file."
+      version: "1.0.0"
+      start_event: "start"
+      required_value_parameters:
+        - source
+        - target
+      usage_line: "--source=SOURCE --target=TARGET"
+      parameter_help:
+        "--source": (required) The file to read from.
+        "--target": (required) The file to write to.
+      end_help:
+        - Copies the contents of the source file to the target file.  It does not create directories, but will overwrite the target file if it exists.
+    event-listeners:
+      # The CLI action to run, as specified by the start_event field.
+      - name: start
+        source:
+          file: "script.ns"
+          line: 1
+          column: 1
+        actions:
+          - name: "Script execution"
+            source:
+              file: "script.ns"
+              line: 1
+              column: 1
+            run:
+              source:
+                file: "script.ns"
+                line: 1
+                column: 1
+              type: spawn-node
+              node: cat
+  - name: cat
+    source:
+      file: "script.ns"
+      line: 1
+      column: 1
+    module: cat
+    runtime-parameters:
+      - name: filenames
+        source:
+          file: "script.ns"
+          line: 1
+          column: 1
+        value:
+          type: constant-string-list
+          source:
+            file: "script.ns"
+            line: 1
+            column: 1
+          value:
+            - type: lookup-state-string
+              source:
+                file: "script.ns"
+                line: 1
+                column: 1
+              node: main
+              name: source
+
+    streams:
+      - name: output
+        source:
+          file: "script.ns"
+          line: 1
+          column: 1
+        mode: output
+        to-node: output
+        to-stream: input
+    environment:
+      source:
+        file: "script.ns"
+        line: 1
+        column: 1
+  
+  - name: output
+    source:
+      file: "script.ns"
+      line: 1
+      column: 1
+    module: file_sink
+    runtime-parameters:
+      - name: filename
+        source:
+          file: "script.ns"
+          line: 1
+          column: 1
+        value:
+          type: lookup-state-string
+          source:
+            file: "script.ns"
+            line: 1
+            column: 1
+          node: main
+          name: target
+      - name: append
+        source:
+          file: "script.ns"
+          line: 1
+          column: 1
+        value:
+          type: constant-boolean
+          source:
+            file: "script.ns"
+            line: 1
+            column: 1
+          value: false
+    environment:
+      source:
+        file: "script.ns"
+        line: 1
+        column: 1

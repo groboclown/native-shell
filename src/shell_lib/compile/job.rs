@@ -1,10 +1,14 @@
 //! Defines the job that the compiler constructs to allow for interaction with the scheduler.
 //! These loosely map to the actions and execution of the modules in the script.
 
+use std::fmt::{Display, Write};
+
 pub type ExitCode = i32;
 pub type JobRef = usize;
 pub type JobSequenceRef = usize;
-pub type EventRef = usize;
+
+/// Events are sent as names from the modules.
+pub type EventRef = String;
 
 /// A single step in a scheduled sequence.
 #[derive(Clone, Debug)]
@@ -219,6 +223,23 @@ pub enum EventPayload {
 
     /// An event with an integer payload.
     Signal(ExitCode),
+}
+
+impl Display for EventPayload {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Message(m) => {
+                f.write_str("EventPayload::Message(")?;
+                f.write_str(m)?;
+                f.write_str(")")
+            }
+            Self::Signal(s) => {
+                f.write_str("EventPayload::Signal(")?;
+                f.write_str(&s.to_string())?;
+                f.write_str(")")
+            }
+        }
+    }
 }
 
 /// Context sent to the job runner to allow it to have limited interaction with the scheduler.

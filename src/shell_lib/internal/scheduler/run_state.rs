@@ -387,6 +387,7 @@ impl SchedulerContext {
         self.state.add_global_completion_listener(tx);
 
         // If no sequence has started, or they've all stopped, then this will trigger the end.
+        // If any are still running, then this will do nothing.
         self.send_global_completion();
 
         match timeout {
@@ -531,9 +532,10 @@ impl SchedulerContext {
             // Getting the sequence state requires the global lock.
             let _unused = self.state.global
                 .read().expect("failed locking global state");
-            steps = self.state.get_sequence_state(sequence_ref)
-                .read().expect("failed locking sequence state")
-                .steps.clone();
+            let seq = self.state.get_sequence_state(sequence_ref)
+                .read().expect("failed locking sequence state");
+            steps = seq.steps.clone();
+            log::info!("JobSequence {}: \"{}\" from {}", sequence_ref, seq.name, seq.source);
         }
         let mut final_code = job::ExitCode::MIN;
         let mut skip_step = false;
@@ -542,7 +544,7 @@ impl SchedulerContext {
         for step in steps.iter() {
             // Right now, just loop over the steps and run incrementally for a single sequence.
             // This might change and share a single thread for all sequences in the future.
-            index += 1;
+            log::info!("JobSequence {}/{} ({:?})", sequence_ref, index, step);
 
             {
                 // Set the current state.
@@ -551,12 +553,14 @@ impl SchedulerContext {
                     .read().expect("failed locking global state");
                 if global.aborted {
                     // Something else aborted the script.  Do not change global abort state.
+                    log::debug!("JobSequence {}: Aborted due to global abort", sequence_ref);
                     break;
                 }
                 let mut state = self.state.get_sequence_state(sequence_ref)
                     .write().expect("failed locking sequence state");
                 state.active_action_index = index;
             }
+            index += 1;
             {
                 let prev_skip_step = skip_step;
                 skip_step = false;
@@ -569,7 +573,8 @@ impl SchedulerContext {
             match step {
                 job::ScheduleStep::SendEvent(event_ref, payload) => {
                     // Send the event to the event group.
-                    let res = self.handle_event(*event_ref, payload.clone());
+                    log::debug!("JobSequence {}/{}: sending event {} {}", sequence_ref, index-1, event_ref, payload);
+                    let res = self.handle_event(event_ref.clone(), payload.clone());
                     // FIXME handle the error properly.
                     if let Err(e) = res {
                         eprintln!("Failed to send event {}: {}", event_ref, e);
@@ -577,6 +582,7 @@ impl SchedulerContext {
                 }
                 job::ScheduleStep::SpawnJob(job_ref) => {
                     // Schedule the job to run.
+                    log::debug!("JobSequence {}/{}: spawn job {}", sequence_ref, index-1, *job_ref);
                     let res = self.schedule_job(sequence_ref, *job_ref);
                     if res.is_err() {
                         // Currently only means that the job is aborted.
@@ -587,14 +593,20 @@ impl SchedulerContext {
                 }
                 job::ScheduleStep::WaitForJob(job_ref, exit_behavior) => {
                     // Wait for the job to complete.
+                    log::debug!("JobSequence {}/{}: wait for job {}", sequence_ref, index-1, *job_ref);
                     let mut job_code = job::ExitCode::MIN;
                     let res = self.state.job_exit_channel(sequence_ref, *job_ref);
                     let mut on_exit = exit_behavior.default_behavior.clone();
                     if let Some(rx) = res {
                         if let Ok((_, code)) = rx.recv() {
+                            log::debug!("JobSequence {}/{}: wait for job {}: exited with {}", sequence_ref, index-1, *job_ref, code);
                             job_code = code;
                             on_exit = exit_behavior.behavior_for(code);
+                        } else {
+                            log::debug!("JobSequence {}/{}: wait for job {}: exit channel already closed", sequence_ref, index-1, *job_ref);
                         }
+                    } else {
+                        log::debug!("JobSequence {}/{}: wait for job {}: no exit channel available", sequence_ref, index-1, *job_ref);
                     }
                     // Else the job was never started.
                     match on_exit {
@@ -666,7 +678,9 @@ impl SchedulerContext {
         }
 
         // Finalize the sequence state.
+        let mut is_complete = false;
         {
+            log::debug!("JobSequence {} ending", sequence_ref);
             let mut global = self.state.global
                 .write().expect("failed locking global state");
             global.aborted |= aborted;
@@ -681,10 +695,14 @@ impl SchedulerContext {
                 let _ = tx.send(final_code);
             }
 
+            log::debug!("Remaining active sequences: {}", global.active_sequences);
             if global.active_sequences == 0 {
-                // Note: send global completion with the write lock still held.
-                self.send_global_completion();
+                // Note: send global completion obtains the global lock, so need to release it first.
+                is_complete = true;
             }
+        }
+        if is_complete {
+            self.send_global_completion();
         }
     }
 
@@ -693,6 +711,7 @@ impl SchedulerContext {
         let mut global = self.state.global
             .write().expect("failed locking global state");
         if global.active_sequences > 0 || global.completion_listeners.is_empty() {
+            log::debug!("send_global_completion: still have active sequences or no completion listeners");
             // Early exit.
         }
 
@@ -704,6 +723,7 @@ impl SchedulerContext {
         for tx in global.completion_listeners.drain(..) {
             // A closed back-end channel should not cause a panic.
             // It generally means the listener timed out.
+            log::debug!("send_global_completion: sending completion notice");
             let _ = tx.send(codes.clone());
         }
     }

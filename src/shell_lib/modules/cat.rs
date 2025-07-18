@@ -1,8 +1,8 @@
 //! Provide 'cat' functionality for the shell.
 
-use std::{f32::consts::E, fs::File, io::{Read, Write}, os::fd::OwnedFd};
+use std::{fs::File, io::{Read, Write}, os::fd::OwnedFd};
 
-use crate::shell_lib::compile::meta::{FixedStreamDef, ModuleMeta, ModuleStreamStructure, ModuleStructure, NamedValue, StreamInterface, StreamType, ValueType};
+use crate::shell_lib::compile::{job, meta::{FixedStreamDef, ModuleMeta, ModuleStreamStructure, ModuleStructure, NamedValue, StreamInterface, StreamType, ValueType}};
 
 const BUFFER_SIZE: usize = 8192;
 const RETRY_TIME: std::time::Duration = std::time::Duration::from_millis(10);
@@ -47,6 +47,7 @@ pub fn module_meta() -> ModuleMeta {
     }
 }
 
+#[derive(Clone, Debug)]
 pub struct CatModuleRuntimeParams {
     pub filenames: Vec<String>,
 }
@@ -63,7 +64,7 @@ impl CatModule {
         CatModule {}
     }
 
-    pub fn exec(&self, params: CatModuleRuntimeParams, streams: CatModuleStream) -> Result<i16, String> {
+    pub fn exec(&self, _context: Box<dyn job::JobRunnerContext>, params: CatModuleRuntimeParams, streams: CatModuleStream) -> Result<job::ExitCode, String> {
         let mut out = File::from(streams.fd_0);
         let mut buf = [0 as u8; BUFFER_SIZE];
         for filename in params.filenames {

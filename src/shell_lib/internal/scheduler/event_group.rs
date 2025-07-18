@@ -61,27 +61,36 @@ impl EventGroup {
 /// The event groups are defined by the script and, thus, are static.
 pub struct EventBus {
     /// The list of event groups.
+    group_names: HashMap<String, usize>,
     event_groups: Vec<EventGroup>,
 }
 
 impl EventBus {
     pub fn new(groups: Vec<job::EventGroup>) -> Self {
+        let mut group_names = HashMap::new();
         let mut event_groups = Vec::with_capacity(groups.len());
         for desc in groups {
+            let name = &desc.name;
+            if group_names.contains_key(name) {
+                panic!("Duplicate group names registered ({name})");
+            }
+            group_names.insert(name.clone(), event_groups.len());
             event_groups.push(EventGroup::new(desc));
         }
-        Self { event_groups }
+        Self { group_names, event_groups }
     }
 
     pub fn add_listener(&self, event_ref: job::EventRef, job_ref: job::JobRef, handler: job::EventHandler) {
+        let idx = self.group_names.get(&event_ref).expect("unknown event group name");
         self.event_groups
-            .get(event_ref).expect("event reference out of bounds")
+            .get(*idx).expect("event reference out of bounds")
             .add_listener(job_ref, handler);
     }
 
     pub fn remove_listener(&self, event_ref: job::EventRef, job_ref: &job::JobRef) {
+        let idx = self.group_names.get(&event_ref).expect("unknown event group name");
         self.event_groups
-            .get(event_ref).expect("event reference out of bounds")
+            .get(*idx).expect("event reference out of bounds")
             .remove_listener(job_ref);
     }
 
@@ -89,8 +98,9 @@ impl EventBus {
     where
         F: Fn(job::JobRef, &job::EventHandler) -> Result<(), String>,
     {
+        let idx = self.group_names.get(&event_ref).expect("unknown event group name");
         self.event_groups
-            .get(event_ref).expect("event reference out of bounds")
+            .get(*idx).expect("event reference out of bounds")
             .listener_map(f)
     }
 }

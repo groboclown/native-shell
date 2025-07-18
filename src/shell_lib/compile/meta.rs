@@ -188,14 +188,25 @@ pub struct ModuleStreamStructure {
 /// It's the responsibility of the module to close all streams passed to it.
 /// 
 /// Separate from this is the "main" module.  Each AST must have exactly one node named "main", which follows the
-/// rules of a main module.  The main module's provided streams should include the standard input, output, and error streams,
-/// but it doesn't need to; the builder will make these available to other nodes.  It can also provide handlers to perform
-/// special functions.  Uniquely, though, the main module does not provide an `exec()` function, but rather a `run()`
-/// function that takes the `Box<dyn JobRunnerContext>` and returns `Result<(String, Sender<Vec<Option<job::ExitCode>>>), String>`,
-/// where the `Sender` is a channel that the module that alerts the run function that the script has ended, and the String value
-/// contains the name of the event that starts the process.  This allows
-/// the main module to monitor system signals and other events.  Because of the nature of the `run()` function, it does not
-/// use a runtime parameter structure.
+/// rules of a main module:
+/// 
+/// * The module may include `argv` parameter, which will be populated with the script's command line arguments.  If included,
+///   it must be of type StringList.  This must be `optional`, because the AST must not include it.
+/// * The module may include `environ` parameter, which will be populated with the script's environment variables.
+///   If included, it must be of type StringMap.  This must be `optional`, because the AST must not include it.
+/// * If the main module provides other nodes access to the standard input, output, and error streams, then they
+///   must exist with fd indices 0, 1, and 2 respectively.  Note that, because these are consumed by other nodes,
+///   they have the opposite kind than usually thought of - stdin is an output stream (because other nodes read from it),
+///   and stdout and stderr are input streams (because other nodes write to them).
+/// * The module does not use the `exec()` function like a normal module.  Instead, it has a `start()` function whose signature is:
+///     `fn start(&self, context: Box<dyn JobRunnerContext>, on_exit: std::sync::mpsc::Receiver<Vec<Option<job::ExitCode>>>) -> Result<String, String>`
+///   The result string is the name of the event that starts the process.  The `on_exit` receiver is a channel that the module
+///   must monitor to know when the script has ended, so it can clean up its state.  This allows the module to implement
+///   signal handling and other OS interactions.
+/// * Because the main does not support the `exec()`, it does not use a runtime parameter structure, and it will be ignored.
+/// * Under review: the argument parsing could be done through the compilation step, rather than at runtime by the module.
+///   If so, this means that the main module needs some method to describe arguments passed to compile parameters.  Though, this
+///   may be just a generic feature that all modules can support.  Same goes for CLI help text.
 /// 
 pub struct ModuleMeta {
     /// The human readable module name.

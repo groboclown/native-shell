@@ -1,5 +1,6 @@
 pub mod cat;
 pub mod cp;
+pub mod echo;
 pub mod file_sink;
 pub mod merge;
 pub mod shell;

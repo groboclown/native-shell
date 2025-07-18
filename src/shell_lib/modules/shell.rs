@@ -10,6 +10,8 @@
 //! it must be named 'main'.
 
 use std::collections::{HashMap, HashSet};
+use std::sync::mpsc::Receiver;
+use std::thread;
 
 use crate::shell_lib::compile::meta::{
     FixedStreamDef, ModuleMeta, ModuleStreamStructure, ModuleStructure,
@@ -57,13 +59,17 @@ pub fn module_meta() -> ModuleMeta {
                     optional: false,
                 },
                 NamedValue {
-                    // Name of the parameter and help.
-                    name: "value_parameters".to_string(),
+                    name: "required_value_parameters".to_string(),
                     value_type: ValueType::StringList,
                     optional: true,
                 },
                 NamedValue {
-                    // Name of the parameter and help.
+                    name: "optional_value_parameters".to_string(),
+                    value_type: ValueType::StringList,
+                    optional: true,
+                },
+                NamedValue {
+                    // boolean parameters are always optional and default to false.
                     name: "boolean_parameters".to_string(),
                     value_type: ValueType::StringList,
                     optional: true,
@@ -101,6 +107,18 @@ pub fn module_meta() -> ModuleMeta {
                 NamedValue {
                     name: "end_help".to_string(),
                     value_type: ValueType::StringList,
+                    optional: true,
+                },
+
+                // main() provided only; script users do not provide these.
+                NamedValue {
+                    name: "argv".to_string(),
+                    value_type: ValueType::StringList,
+                    optional: true,
+                },
+                NamedValue {
+                    name: "environ".to_string(),
+                    value_type: ValueType::StringMap,
                     optional: true,
                 },
             ],
@@ -153,7 +171,7 @@ pub fn module_meta() -> ModuleMeta {
             new: Some("new".to_string()),
             fields: vec![
                 NamedValue {
-                    name: "env".to_string(),
+                    name: "environ".to_string(),
                     value_type: ValueType::StringMap,
                     optional: false,
                 },
@@ -184,7 +202,8 @@ pub struct ShellModuleCompileParams {
     pub version: Option<String>,
     pub authors: Option<Vec<String>>,
     pub start_event: String,
-    pub value_parameters: Option<Vec<String>>,
+    pub required_value_parameters: Option<Vec<String>>,
+    pub optional_value_parameters: Option<Vec<String>>,
     pub boolean_parameters: Option<Vec<String>>,
     pub position_parameter_min: Option<f64>,
     pub position_parameter_max: Option<f64>,
@@ -192,6 +211,8 @@ pub struct ShellModuleCompileParams {
     pub parameter_help: Option<HashMap<String, String>>,
     pub start_help: Option<Vec<String>>,
     pub end_help: Option<Vec<String>>,
+    pub argv: Option<Vec<String>>,
+    pub environ: Option<HashMap<String, String>>,
 }
 
 impl ShellModuleCompileParams {
@@ -202,7 +223,8 @@ impl ShellModuleCompileParams {
             version: None,
             authors: None,
             start_event: "start".to_string(),
-            value_parameters: None,
+            required_value_parameters: None,
+            optional_value_parameters: None,
             boolean_parameters: None,
             position_parameter_min: None,
             position_parameter_max: None,
@@ -210,6 +232,8 @@ impl ShellModuleCompileParams {
             parameter_help: None,
             start_help: None,
             end_help: None,
+            argv: None,
+            environ: None,
         }
     }
 }
@@ -222,20 +246,24 @@ pub struct ShellModuleStreams {
     pub output_fds: Vec<std::os::fd::OwnedFd>,
 }
 
+#[derive(Clone, Debug)]
 pub struct ShellModuleState {
-    pub env: std::collections::HashMap<String, String>,
+    pub environ: std::collections::HashMap<String, String>,
     pub value_params: std::collections::HashMap<String, String>,
     pub bool_params: std::collections::HashMap<String, bool>,
     pub position_params: Vec<String>,
 }
 
 pub struct ShellModule {
+    start: String,
     state: ShellModuleState,
 }
 
 impl ShellModule {
     pub fn new(compile_params: ShellModuleCompileParams) -> Self {
         let width = termion::terminal_size().map_or(80, |(w, _)| w as usize);
+        let start = compile_params.start_event.clone();
+        let environ = compile_params.environ.clone().expect("main must set environ");
         let params = parse_params(
             compile_params,
             &mut std::io::stderr(),
@@ -246,31 +274,46 @@ impl ShellModule {
         }
         let params = params.unwrap();
         let state = ShellModuleState {
-            env: std::env::vars().collect(),
+            environ: environ,
             value_params: params.0,
             bool_params: params.1,
             position_params: params.2,
         };
-        ShellModule { state }
+        ShellModule { state, start }
     }
 
-    pub fn run(&self, _context: Box<dyn job::JobRunnerContext>) -> Result<(String, std::sync::mpsc::Sender<Vec<Option<job::ExitCode>>>), String> {
+    pub fn state(&self) -> ShellModuleState {
+        self.state.clone()
+    }
+
+    pub fn start(&self, _context: Box<dyn job::JobRunnerContext>, on_exit: Receiver<Vec<Option<job::ExitCode>>>) -> Result<String, String> {
         // The shell module does not have an exec function, but rather a run function.
         // It will return a channel that the main module can use to signal that the script has ended.
         // This allows the shell module to monitor system signals and other events.
 
-        todo!("Implement the shell module run function to monitor OS interactions and forward them to events.");
+        thread::Builder::new()
+            .name("os_monitor".to_string())
+            .spawn(move || {
+                // TODO add in OS signal monitoring.
+
+                let _ = on_exit.recv();
+            })
+            .expect("Failed to launch OS monitor");
+
+        Ok(self.start.clone())
     }
 }
 
 /// Parse command line arguments.
 /// If the user requests help, or if the parameters are invalid, it returns an error.
+/// TODO in the future, this should be generated code, which may mean a special
+/// 'main' module meta, or just more special naming conventions for compile parameters.
 fn parse_params<W: std::io::Write>(
     params: ShellModuleCompileParams,
     out: &mut W,
     width: usize,
 ) -> Result<(HashMap<String, String>, HashMap<String, bool>, Vec<String>), i32> {
-    let value_param_names: HashSet<String> = HashSet::from_iter(params.value_parameters.as_ref().unwrap_or(&vec![]).iter().cloned());
+    let mut value_param_names: HashSet<String> = HashSet::new();
     let mut bool_param_names = HashSet::new();
     let mut value_params = HashMap::new();
     let mut bool_params = HashMap::new();
@@ -278,9 +321,19 @@ fn parse_params<W: std::io::Write>(
     let mut problems: Vec<String> = vec![];
     let mut requested_help = false;
 
-    let mut args = std::env::args().into_iter();
+    let mut args = params.argv.expect("main did not set argv").into_iter();
     let cmd_name = args.next().expect("Command name should always be present");
 
+    if let Some(params) = &params.required_value_parameters {
+        for name in params {
+            value_param_names.insert(name.clone());
+        }
+    }
+    if let Some(params) = &params.optional_value_parameters {
+        for name in params {
+            value_param_names.insert(name.clone());
+        }
+    }
     if let Some(params) = &params.boolean_parameters {
         for name in params {
             bool_param_names.insert(name.clone());
@@ -346,12 +399,12 @@ fn parse_params<W: std::io::Write>(
     if position_param_count > max_position_param_count {
         problems.push(format!("Too many position parameters: expected {}, found {}", max_position_param_count, position_params.len()));
     }
-
-    if !problems.is_empty() {
-        // Note: does not display help unless explicitly asked.
-        let _ = print_str(out, "Script invocation failed", width);
-        let _ = print_lines(out, &problems, width);
-        return Err(1);
+    if let Some(params) = &params.required_value_parameters {
+        for name in params {
+            if !value_params.contains_key(name) {
+                problems.push(format!("Required parameter not provided: --{}", name));
+            }
+        }
     }
 
     if requested_help {
@@ -378,10 +431,18 @@ fn parse_params<W: std::io::Write>(
             }
         } else {
             let key_col_width =
-                find_max_width(&params.value_parameters)
+                find_max_width(&params.required_value_parameters)
+                .max(find_max_width(&params.optional_value_parameters))
                 .max(find_max_width(&params.boolean_parameters)) + 2;
-            for param in value_param_names {
-                let _ = print_key_val(out, &param, "<value>", key_col_width, width);
+            if let Some(params) = &params.required_value_parameters {
+                for param in params {
+                    let _ = print_key_val(out, &param, "<value> (required)", key_col_width, width);
+                }
+            }
+            if let Some(params) = &params.optional_value_parameters {
+                for param in params {
+                    let _ = print_key_val(out, &param, "<value> (optional)", key_col_width, width);
+                }
             }
             if let Some(params) = &params.boolean_parameters {
                 let _ = print_lines(out, &params, width);
@@ -392,6 +453,14 @@ fn parse_params<W: std::io::Write>(
             let _ = print_lines(out, &lines, width);
         }
         return Err(0);
+    }
+
+    if !problems.is_empty() {
+        // Note: does not display help unless explicitly asked.
+        let _ = print_str(out, "Script invocation failed.", width);
+        let _ = print_lines(out, &problems, width);
+        let _ = print_str(out, "Run with '--help' for details on how to run the script.", width);
+        return Err(1);
     }
 
     Ok((value_params, bool_params, position_params))

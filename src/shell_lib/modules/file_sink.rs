@@ -3,7 +3,7 @@
 use std::{io::{self, Write}, os::fd::OwnedFd};
 use std::sync::RwLock;
 
-use crate::shell_lib::helpers::abort_handler;
+use crate::shell_lib::{compile::job, helpers::abort_handler};
 use crate::shell_lib::{
     compile::meta::{
         FixedStreamDef, ModuleMeta, ModuleStreamStructure, ModuleStructure, NamedValue, StreamInterface, StreamType, ValueType
@@ -73,6 +73,7 @@ pub struct FileSinkModule {
     count: RwLock<f64>,
 }
 
+#[derive(Clone, Debug)]
 pub struct FileSinkModuleRuntimeParams {
     pub filename: String,
     pub append: Option<bool>,
@@ -93,20 +94,20 @@ impl FileSinkModule {
     }
 
     // The streams must be mut, as per the docs.
-    pub fn exec(&self, params: FileSinkModuleRuntimeParams, mut streams: FileSinkModuleStream, alert: SendAction) -> Result<i16, String> {
+    pub fn exec(&self, context: Box<dyn job::JobRunnerContext>, params: FileSinkModuleRuntimeParams, mut streams: FileSinkModuleStream) -> Result<job::ExitCode, String> {
         let (inp, reader) = abort_handler::FdIn::new(streams.fd_0);
         self.state.start(inp);
 
-        let mut ret: i16 = 0;
+        let mut ret: job::ExitCode = 0;
         if let Err(e) = self.exec_impl(&params, reader) {
-            alert(ERROR_LOG, format!("{}: {}", params.filename.clone(), e));
+            (*context).send_event(ERROR_LOG.to_string(), job::EventPayload::Message(format!("{}: {}", params.filename.clone(), e)));
             ret = 1;
         }
 
         // The FD close happens in the stop, in order ensure the
         // FD close happen just once.
         if let Err(e) = self.stop() {
-            alert(ERROR_LOG, format!("Failed to clean up file sink: {}", e));
+            (*context).send_event(ERROR_LOG.to_string(), job::EventPayload::Message(format!("Failed to clean up file sink: {}", e)));
         }
         Ok(ret)
     }
@@ -177,59 +178,26 @@ impl FileSinkModule {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::{fs, io::{Read, Write}, thread, time::Duration};
+    use std::{cell::RefCell, fs, io::{Read, Write}, thread, time::Duration};
     use std::env;
-    use std::os::fd::OwnedFd;
     use std::sync::Arc;
-    #[cfg(unix)]
-    use std::os::unix::io::{FromRawFd, IntoRawFd};
-    #[cfg(windows)]
-    use std::os::windows::io::{FromRawHandle, IntoRawHandle};
+    use crate::shell_lib::helpers::fd::{file_from_fd, mk_pipe, owned_from_file};
 
-    // Helper to wrap File into OwnedFd/OwnedHandle
-    #[cfg(unix)]
-    fn owned_from_file(file: fs::File) -> OwnedFd {
-        let raw = file.into_raw_fd();
-        unsafe { OwnedFd::from_raw_fd(raw) }
+    struct EventBus {
+        name: &'static str,
+        msgs: RefCell<Vec<(String, job::EventPayload)>>,
     }
-    #[cfg(windows)]
-    fn owned_from_file(file: fs::File) -> OwnedFd {
-        let raw = file.into_raw_handle();
-        unsafe { OwnedFd::from_raw_handle(raw) }
-    }
-    #[cfg(unix)]
-    fn mk_pipe() -> (OwnedFd, OwnedFd) {
-        use libc;
-        use std::os::unix::io::FromRawFd;
-
-        let mut fds = [0; 2];
-        unsafe { if libc::pipe(fds.as_mut_ptr()) != 0 { panic!("pipe failed"); } }
-        let r = unsafe { OwnedFd::from_raw_fd(fds[0]) };
-        let w = unsafe { OwnedFd::from_raw_fd(fds[1]) };
-        (r, w)
-    }
-    #[cfg(windows)]
-    fn mk_pipe() -> (OwnedFd, OwnedFd) {
-        use std::ptr::null_mut;
-        use std::os::windows::io::FromRawHandle;
-        use winapi::um::namedpipeapi::CreatePipe;
-
-        let mut read_pipe = null_mut();
-        let mut write_pipe = null_mut();
-        unsafe {
-            if CreatePipe(&mut read_pipe, &mut write_pipe, null_mut(), 0) == 0 {
-                panic!("CreatePipe failed");
-            }
-            let r = OwnedFd::from_raw_handle(read_pipe);
-            let w = OwnedFd::from_raw_handle(write_pipe);
-            (r, w)
+    impl job::JobRunnerContext for EventBus {
+        fn send_event(&self, event_ref: job::EventRef, payload: job::EventPayload) -> Result<(), String> {
+            println!("{} {}: {}", self.name, event_ref, payload);
+            self.msgs.borrow_mut().push((event_ref, payload));
+            Ok(())
         }
     }
 
-    // Note: because tests can run async, the file names must be unique.
-    
     #[test]
     fn test_file_sink_writes_data_to_file() {
+        let context = Box::new(EventBus{ name: "00", msgs: RefCell::new(vec![]) });
         // Prepare input file
         let dir = env::temp_dir();
         let input_path = dir.join("00_in.txt");
@@ -246,7 +214,7 @@ mod tests {
         let _ = fs::remove_file(&out_path);
         let params = FileSinkModuleRuntimeParams { filename: out_path.to_str().unwrap().to_string(), append: Some(false) };
         let streams = FileSinkModuleStream { fd_0: fd };
-        let res = module.exec(params, streams, |g, m| { println!("00 {}: {}", g, m) }).unwrap();
+        let res = module.exec(context, params, streams).unwrap();
         assert_eq!(res, 0);
         // Verify output
         let mut contents = String::new();
@@ -258,6 +226,7 @@ mod tests {
 
     #[test]
     fn test_file_sink_appends_to_file() {
+        let context = Box::new(EventBus{ name: "01", msgs: RefCell::new(vec![]) });
         let dir = env::temp_dir();
         let out_file = dir.join("01_out.txt");
         let _ = fs::remove_file(&out_file);
@@ -277,7 +246,7 @@ mod tests {
         let module = FileSinkModule::new();
         let params = FileSinkModuleRuntimeParams { filename: out_file.to_str().unwrap().to_string(), append: Some(true) };
         let streams = FileSinkModuleStream { fd_0: fd };
-        let res = module.exec(params, streams, |g, m| { println!("01 {}: {}", g, m) }).unwrap();
+        let res = module.exec(context, params, streams).unwrap();
         assert_eq!(res, 0);
         // Verify append
         let mut contents = String::new();
@@ -289,6 +258,7 @@ mod tests {
 
     #[test]
     fn test_file_sink_appends_to_non_existent_file() {
+        let context = Box::new(EventBus{ name: "02", msgs: RefCell::new(vec![]) });
         let dir = env::temp_dir();
         let out_file = dir.join("02_out.txt");
         let _ = fs::remove_file(&out_file);
@@ -304,7 +274,7 @@ mod tests {
         let module = FileSinkModule::new();
         let params = FileSinkModuleRuntimeParams { filename: out_file.to_str().unwrap().to_string(), append: Some(true) };
         let streams = FileSinkModuleStream { fd_0: fd };
-        let res = module.exec(params, streams, |g, m| { println!("02 {}: {}", g, m) }).unwrap();
+        let res = module.exec(context, params, streams).unwrap();
         assert_eq!(res, 0);
         // Verify append
         let mut contents = String::new();
@@ -316,19 +286,20 @@ mod tests {
 
     #[test]
     fn test_stop_async() {
+        let context = Box::new(EventBus{ name: "03", msgs: RefCell::new(vec![]) });
         let dir = env::temp_dir();
         let target = dir.join("03_out.txt");
 
         // Create pipe
         let (r, w) = mk_pipe();
-        let mut writer = unsafe { fs::File::from_raw_fd(w.into_raw_fd()) };
+        let mut writer = file_from_fd(w);
 
         let params = FileSinkModuleRuntimeParams { filename: target.to_str().unwrap().to_string(), append: Some(false) };
         let streams = FileSinkModuleStream { fd_0: r };
         let module_arc = Arc::new(FileSinkModule::new());
         let spawned = module_arc.clone();
         let handle = thread::spawn(move || {
-            spawned.exec(params, streams, |g, m| { println!("03 {}: {}", g, m) }).unwrap()
+            spawned.exec(context, params, streams).unwrap()
         });
 
         // Write small data after exec started.

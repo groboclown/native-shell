@@ -1,7 +1,5 @@
 //! Turns the AST into a module source.
 
-use std::collections::HashSet;
-
 use crate::server_shell::{ast::model::{NativeShellAstSchema, Node}};
 
 pub fn ast_to_module_source<W: std::io::Write>(

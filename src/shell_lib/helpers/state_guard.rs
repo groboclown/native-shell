@@ -5,13 +5,16 @@ pub enum ExecState<R, E> {
     Ran(Result<R, E>),
 }
 
-
 pub struct StateGuard<T> {
     guard: Arc<RwLock<T>>,
 }
 
 impl<T> StateGuard<T> {
-    pub fn new(state: T) -> (Self, Self) {
+    pub fn new(state: T) -> Self {
+        StateGuard{ guard: Arc::new(RwLock::new(state)) }
+    }
+
+    pub fn new_double(state: T) -> (Self, Self) {
         let guard = Arc::new(RwLock::new(state));
         (StateGuard{guard: guard.clone()}, StateGuard{guard})
     }
@@ -33,6 +36,12 @@ impl<T> StateGuard<T> {
             Err(_) => return ExecState::LockContention,
         };
         ExecState::Ran(handler(&active_ref))
+    }
+}
+
+impl<T> Clone for StateGuard<T> {
+    fn clone(&self) -> Self {
+        StateGuard { guard: self.guard.clone() }
     }
 }
 
