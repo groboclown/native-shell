@@ -19,17 +19,61 @@ nodes:
       line: 1
       column: 1
     module: shell
-    environment:
-      source:
-        file: "script.ns"
-        line: 1
-        column: 1
     initial-parameters:
-      description: "Sends the contents of a file through a pipe into another file."
-      version: "1.0.0"
-      start_event: "start"
+      description:
+        source:
+          file: "script.ns"
+          line: 1
+          column: 1
+        type: string
+        value: "Sends the contents of a file through a pipe into another file."
+      version:
+        source:
+          file: "script.ns"
+          line: 1
+          column: 1
+        type: string
+        value: "1.0.0"
+      start_event:
+        source:
+          file: "script.ns"
+          line: 1
+          column: 1
+        type: string
+        value: "start"
+      required_value_parameters:
+        source:
+          file: "script.ns"
+          line: 1
+          column: 1
+        type: string-list
+        value: 
+          - source
+          - target
+      usage_line:
+        source:
+          file: "script.ns"
+          line: 1
+          column: 1
+        type: string
+        value: "--source=SOURCE --target=TARGET"
+      parameter_help:
+        source:
+          file: "script.ns"
+          line: 1
+          column: 1
+        type: string-map
+        value:       
+          "--source": (required) The file to read from.
+          "--target": (required) The file to write to.
       end_help:
-        - Passes streams through many commands.
+        source:
+          file: "script.ns"
+          line: 1
+          column: 1
+        type: string-list
+        value: 
+          - Copies the contents of the source file to the target file.  It does not create directories, but will overwrite the target file if it exists.
     event-listeners:
       # The CLI action to run, as specified by the start_event field.
       - name: start
@@ -37,4 +81,125 @@ nodes:
           file: "script.ns"
           line: 1
           column: 1
-        actions: []
+        actions:
+          - name: "Script execution"
+            source:
+              file: "script.ns"
+              line: 1
+              column: 1
+            run:
+              source:
+                file: "script.ns"
+                line: 1
+                column: 1
+              type: spawn-node
+              node: cat
+  - name: cat
+    source:
+      file: "script.ns"
+      line: 1
+      column: 1
+    module: cat
+    runtime-parameters:
+      - name: filenames
+        source:
+          file: "script.ns"
+          line: 1
+          column: 1
+        value:
+          type: constant-string-list
+          source:
+            file: "script.ns"
+            line: 1
+            column: 1
+          value:
+            - type: map-key-string
+              source:
+                file: "script.ns"
+                line: 1
+                column: 1
+              map:
+                source:
+                  file: "script.ns"
+                  line: 1
+                  column: 1
+                type: lookup-string-map
+                value:
+                  type: lookup-string
+                  source:
+                    file: "script.ns"
+                    line: 1
+                    column: 1
+                  node: main
+                  name: value_params
+              key:
+                type: constant-string
+                source:
+                  file: "script.ns"
+                  line: 1
+                  column: 1
+                value: "source"
+              default: ""
+
+    streams:
+      - name: output
+        source:
+          file: "script.ns"
+          line: 1
+          column: 1
+        mode: output
+        to-node: output
+        to-stream: input
+  
+  - name: output
+    source:
+      file: "script.ns"
+      line: 1
+      column: 1
+    module: file_sink
+    runtime-parameters:
+      - name: filename
+        source:
+          file: "script.ns"
+          line: 1
+          column: 1
+        value:
+          type: map-key-string
+          source:
+            file: "script.ns"
+            line: 1
+            column: 1
+          map:
+            source:
+              file: "script.ns"
+              line: 1
+              column: 1
+            type: lookup-string-map
+            value:
+              type: lookup-string
+              source:
+                file: "script.ns"
+                line: 1
+                column: 1
+              node: main
+              name: value_params
+          key:
+            type: constant-string
+            source:
+              file: "script.ns"
+              line: 1
+              column: 1
+            value: "target"
+            default: ""
+      - name: append
+        source:
+          file: "script.ns"
+          line: 1
+          column: 1
+        value:
+          type: constant-boolean
+          source:
+            file: "script.ns"
+            line: 1
+            column: 1
+          value: false

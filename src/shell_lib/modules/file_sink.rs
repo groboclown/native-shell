@@ -8,7 +8,7 @@ use crate::shell_lib::{
     compile::meta::{
         FixedStreamDef, ModuleMeta, ModuleStreamStructure, ModuleStructure, NamedValue, StreamInterface, StreamType, ValueType
     },
-    runtime::event_bus::{SendAction, ERROR_LOG},
+    runtime::event_bus::ERROR_LOG,
 };
 
 const BUFFER_SIZE: usize = 8192;
@@ -100,14 +100,14 @@ impl FileSinkModule {
 
         let mut ret: job::ExitCode = 0;
         if let Err(e) = self.exec_impl(&params, reader) {
-            (*context).send_event(ERROR_LOG.to_string(), job::EventPayload::Message(format!("{}: {}", params.filename.clone(), e)));
+            let _ = (*context).send_event(ERROR_LOG.to_string(), job::EventPayload::Message(format!("{}: {}", params.filename.clone(), e)));
             ret = 1;
         }
 
         // The FD close happens in the stop, in order ensure the
         // FD close happen just once.
         if let Err(e) = self.stop() {
-            (*context).send_event(ERROR_LOG.to_string(), job::EventPayload::Message(format!("Failed to clean up file sink: {}", e)));
+            let _ = (*context).send_event(ERROR_LOG.to_string(), job::EventPayload::Message(format!("Failed to clean up file sink: {}", e)));
         }
         Ok(ret)
     }

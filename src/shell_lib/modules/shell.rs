@@ -434,6 +434,7 @@ fn parse_params<W: std::io::Write>(
                 find_max_width(&params.required_value_parameters)
                 .max(find_max_width(&params.optional_value_parameters))
                 .max(find_max_width(&params.boolean_parameters)) + 2;
+            let _ = print_key_val(out, "-h/--help", "Display this help", key_col_width, width);
             if let Some(params) = &params.required_value_parameters {
                 for param in params {
                     let _ = print_key_val(out, &param, "<value> (required)", key_col_width, width);

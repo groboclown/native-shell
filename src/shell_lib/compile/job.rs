@@ -1,7 +1,7 @@
 //! Defines the job that the compiler constructs to allow for interaction with the scheduler.
 //! These loosely map to the actions and execution of the modules in the script.
 
-use std::fmt::{Display, Write};
+use std::fmt::Display;
 
 pub type ExitCode = i32;
 pub type JobRef = usize;

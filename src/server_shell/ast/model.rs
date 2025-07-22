@@ -962,6 +962,9 @@ impl BooleanToStringValue {
 #[doc = "      \"$ref\": \"#/$defs/LookupBooleanListValue\""]
 #[doc = "    },"]
 #[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/RangeBooleanListValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
 #[doc = "      \"$ref\": \"#/$defs/ConstantBooleanListValue\""]
 #[doc = "    }"]
 #[doc = "  ]"]
@@ -972,6 +975,7 @@ impl BooleanToStringValue {
 #[serde(untagged)]
 pub enum ComputedBooleanListValue {
     LookupBooleanListValue(LookupBooleanListValue),
+    RangeBooleanListValue(RangeBooleanListValue),
     ConstantBooleanListValue(ConstantBooleanListValue),
 }
 impl ::std::convert::From<&Self> for ComputedBooleanListValue {
@@ -982,6 +986,11 @@ impl ::std::convert::From<&Self> for ComputedBooleanListValue {
 impl ::std::convert::From<LookupBooleanListValue> for ComputedBooleanListValue {
     fn from(value: LookupBooleanListValue) -> Self {
         Self::LookupBooleanListValue(value)
+    }
+}
+impl ::std::convert::From<RangeBooleanListValue> for ComputedBooleanListValue {
+    fn from(value: RangeBooleanListValue) -> Self {
+        Self::RangeBooleanListValue(value)
     }
 }
 impl ::std::convert::From<ConstantBooleanListValue> for ComputedBooleanListValue {
@@ -1054,6 +1063,12 @@ impl ::std::convert::From<ConstantBooleanMapValue> for ComputedBooleanMapValue {
 #[doc = "      \"$ref\": \"#/$defs/LogicalBooleanValue\""]
 #[doc = "    },"]
 #[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/ListIndexBooleanValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/MapKeyBooleanValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
 #[doc = "      \"$ref\": \"#/$defs/ConstantBooleanValue\""]
 #[doc = "    }"]
 #[doc = "  ]"]
@@ -1065,6 +1080,8 @@ impl ::std::convert::From<ConstantBooleanMapValue> for ComputedBooleanMapValue {
 pub enum ComputedBooleanValue {
     LookupBooleanValue(LookupBooleanValue),
     LogicalBooleanValue(LogicalBooleanValue),
+    ListIndexBooleanValue(ListIndexBooleanValue),
+    MapKeyBooleanValue(MapKeyBooleanValue),
     ConstantBooleanValue(ConstantBooleanValue),
 }
 impl ::std::convert::From<&Self> for ComputedBooleanValue {
@@ -1080,6 +1097,16 @@ impl ::std::convert::From<LookupBooleanValue> for ComputedBooleanValue {
 impl ::std::convert::From<LogicalBooleanValue> for ComputedBooleanValue {
     fn from(value: LogicalBooleanValue) -> Self {
         Self::LogicalBooleanValue(value)
+    }
+}
+impl ::std::convert::From<ListIndexBooleanValue> for ComputedBooleanValue {
+    fn from(value: ListIndexBooleanValue) -> Self {
+        Self::ListIndexBooleanValue(value)
+    }
+}
+impl ::std::convert::From<MapKeyBooleanValue> for ComputedBooleanValue {
+    fn from(value: MapKeyBooleanValue) -> Self {
+        Self::MapKeyBooleanValue(value)
     }
 }
 impl ::std::convert::From<ConstantBooleanValue> for ComputedBooleanValue {
@@ -1100,6 +1127,9 @@ impl ::std::convert::From<ConstantBooleanValue> for ComputedBooleanValue {
 #[doc = "      \"$ref\": \"#/$defs/LookupNumberListValue\""]
 #[doc = "    },"]
 #[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/RangeNumberListValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
 #[doc = "      \"$ref\": \"#/$defs/ConstantNumberListValue\""]
 #[doc = "    }"]
 #[doc = "  ]"]
@@ -1110,6 +1140,7 @@ impl ::std::convert::From<ConstantBooleanValue> for ComputedBooleanValue {
 #[serde(untagged)]
 pub enum ComputedNumberListValue {
     LookupNumberListValue(LookupNumberListValue),
+    RangeNumberListValue(RangeNumberListValue),
     ConstantNumberListValue(ConstantNumberListValue),
 }
 impl ::std::convert::From<&Self> for ComputedNumberListValue {
@@ -1120,6 +1151,11 @@ impl ::std::convert::From<&Self> for ComputedNumberListValue {
 impl ::std::convert::From<LookupNumberListValue> for ComputedNumberListValue {
     fn from(value: LookupNumberListValue) -> Self {
         Self::LookupNumberListValue(value)
+    }
+}
+impl ::std::convert::From<RangeNumberListValue> for ComputedNumberListValue {
+    fn from(value: RangeNumberListValue) -> Self {
+        Self::RangeNumberListValue(value)
     }
 }
 impl ::std::convert::From<ConstantNumberListValue> for ComputedNumberListValue {
@@ -1192,6 +1228,12 @@ impl ::std::convert::From<ConstantNumberMapValue> for ComputedNumberMapValue {
 #[doc = "      \"$ref\": \"#/$defs/ArithmeticValue\""]
 #[doc = "    },"]
 #[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/ListIndexNumberValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/MapKeyNumberValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
 #[doc = "      \"$ref\": \"#/$defs/ConstantNumberValue\""]
 #[doc = "    }"]
 #[doc = "  ]"]
@@ -1203,6 +1245,8 @@ impl ::std::convert::From<ConstantNumberMapValue> for ComputedNumberMapValue {
 pub enum ComputedNumberValue {
     LookupNumberValue(LookupNumberValue),
     ArithmeticValue(::std::boxed::Box<ArithmeticValue>),
+    ListIndexNumberValue(ListIndexNumberValue),
+    MapKeyNumberValue(MapKeyNumberValue),
     ConstantNumberValue(ConstantNumberValue),
 }
 impl ::std::convert::From<&Self> for ComputedNumberValue {
@@ -1218,6 +1262,16 @@ impl ::std::convert::From<LookupNumberValue> for ComputedNumberValue {
 impl ::std::convert::From<::std::boxed::Box<ArithmeticValue>> for ComputedNumberValue {
     fn from(value: ::std::boxed::Box<ArithmeticValue>) -> Self {
         Self::ArithmeticValue(value)
+    }
+}
+impl ::std::convert::From<ListIndexNumberValue> for ComputedNumberValue {
+    fn from(value: ListIndexNumberValue) -> Self {
+        Self::ListIndexNumberValue(value)
+    }
+}
+impl ::std::convert::From<MapKeyNumberValue> for ComputedNumberValue {
+    fn from(value: MapKeyNumberValue) -> Self {
+        Self::MapKeyNumberValue(value)
     }
 }
 impl ::std::convert::From<ConstantNumberValue> for ComputedNumberValue {
@@ -1238,6 +1292,12 @@ impl ::std::convert::From<ConstantNumberValue> for ComputedNumberValue {
 #[doc = "      \"$ref\": \"#/$defs/LookupStringListValue\""]
 #[doc = "    },"]
 #[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/SplitStringValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/RangeStringListValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
 #[doc = "      \"$ref\": \"#/$defs/ConstantStringListValue\""]
 #[doc = "    }"]
 #[doc = "  ]"]
@@ -1248,6 +1308,8 @@ impl ::std::convert::From<ConstantNumberValue> for ComputedNumberValue {
 #[serde(untagged)]
 pub enum ComputedStringListValue {
     LookupStringListValue(LookupStringListValue),
+    SplitStringValue(SplitStringValue),
+    RangeStringListValue(RangeStringListValue),
     ConstantStringListValue(ConstantStringListValue),
 }
 impl ::std::convert::From<&Self> for ComputedStringListValue {
@@ -1258,6 +1320,16 @@ impl ::std::convert::From<&Self> for ComputedStringListValue {
 impl ::std::convert::From<LookupStringListValue> for ComputedStringListValue {
     fn from(value: LookupStringListValue) -> Self {
         Self::LookupStringListValue(value)
+    }
+}
+impl ::std::convert::From<SplitStringValue> for ComputedStringListValue {
+    fn from(value: SplitStringValue) -> Self {
+        Self::SplitStringValue(value)
+    }
+}
+impl ::std::convert::From<RangeStringListValue> for ComputedStringListValue {
+    fn from(value: RangeStringListValue) -> Self {
+        Self::RangeStringListValue(value)
     }
 }
 impl ::std::convert::From<ConstantStringListValue> for ComputedStringListValue {
@@ -1324,10 +1396,16 @@ impl ::std::convert::From<ConstantStringMapValue> for ComputedStringMapValue {
 #[doc = "  \"description\": \"A computed string value.\","]
 #[doc = "  \"oneOf\": ["]
 #[doc = "    {"]
-#[doc = "      \"$ref\": \"#/$defs/LookupStateStringValue\""]
+#[doc = "      \"$ref\": \"#/$defs/LookupStringValue\""]
 #[doc = "    },"]
 #[doc = "    {"]
-#[doc = "      \"$ref\": \"#/$defs/LookupEnvStringValue\""]
+#[doc = "      \"$ref\": \"#/$defs/ListIndexStringValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/MapKeyStringValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/SubStringValue\""]
 #[doc = "    },"]
 #[doc = "    {"]
 #[doc = "      \"$ref\": \"#/$defs/ConcatenatedStringValue\""]
@@ -1354,8 +1432,10 @@ impl ::std::convert::From<ConstantStringMapValue> for ComputedStringMapValue {
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(untagged)]
 pub enum ComputedStringValue {
-    LookupStateStringValue(LookupStateStringValue),
-    LookupEnvStringValue(LookupEnvStringValue),
+    LookupStringValue(LookupStringValue),
+    ListIndexStringValue(ListIndexStringValue),
+    MapKeyStringValue(MapKeyStringValue),
+    SubStringValue(SubStringValue),
     ConcatenatedStringValue(ConcatenatedStringValue),
     NumberToStringValue(NumberToStringValue),
     BooleanToStringValue(BooleanToStringValue),
@@ -1368,14 +1448,24 @@ impl ::std::convert::From<&Self> for ComputedStringValue {
         value.clone()
     }
 }
-impl ::std::convert::From<LookupStateStringValue> for ComputedStringValue {
-    fn from(value: LookupStateStringValue) -> Self {
-        Self::LookupStateStringValue(value)
+impl ::std::convert::From<LookupStringValue> for ComputedStringValue {
+    fn from(value: LookupStringValue) -> Self {
+        Self::LookupStringValue(value)
     }
 }
-impl ::std::convert::From<LookupEnvStringValue> for ComputedStringValue {
-    fn from(value: LookupEnvStringValue) -> Self {
-        Self::LookupEnvStringValue(value)
+impl ::std::convert::From<ListIndexStringValue> for ComputedStringValue {
+    fn from(value: ListIndexStringValue) -> Self {
+        Self::ListIndexStringValue(value)
+    }
+}
+impl ::std::convert::From<MapKeyStringValue> for ComputedStringValue {
+    fn from(value: MapKeyStringValue) -> Self {
+        Self::MapKeyStringValue(value)
+    }
+}
+impl ::std::convert::From<SubStringValue> for ComputedStringValue {
+    fn from(value: SubStringValue) -> Self {
+        Self::SubStringValue(value)
     }
 }
 impl ::std::convert::From<ConcatenatedStringValue> for ComputedStringValue {
@@ -1655,14 +1745,14 @@ impl ::std::convert::From<ComputedBooleanListValue> for ConstantBooleanListValue
         Self::ListValue(value)
     }
 }
-#[doc = "A constant boolean map value.  Can include expanding a sub-map within the map."]
+#[doc = "A constant boolean map value.  Can include expanding a sub-map within the map.  This also includes a 'null' value for the key to allow blanking out values if used in a union."]
 #[doc = r""]
 #[doc = r" <details><summary>JSON schema</summary>"]
 #[doc = r""]
 #[doc = r" ```json"]
 #[doc = "{"]
 #[doc = "  \"title\": \"Constant Boolean Map Value\","]
-#[doc = "  \"description\": \"A constant boolean map value.  Can include expanding a sub-map within the map.\","]
+#[doc = "  \"description\": \"A constant boolean map value.  Can include expanding a sub-map within the map.  This also includes a 'null' value for the key to allow blanking out values if used in a union.\","]
 #[doc = "  \"type\": \"object\","]
 #[doc = "  \"required\": ["]
 #[doc = "    \"source\","]
@@ -1681,7 +1771,14 @@ impl ::std::convert::From<ComputedBooleanListValue> for ConstantBooleanListValue
 #[doc = "      \"type\": \"object\","]
 #[doc = "      \"patternProperties\": {"]
 #[doc = "        \".*\": {"]
-#[doc = "          \"$ref\": \"#/$defs/ComputedBooleanValue\""]
+#[doc = "          \"oneOf\": ["]
+#[doc = "            {"]
+#[doc = "              \"$ref\": \"#/$defs/ComputedBooleanValue\""]
+#[doc = "            },"]
+#[doc = "            {"]
+#[doc = "              \"type\": \"null\""]
+#[doc = "            }"]
+#[doc = "          ]"]
 #[doc = "        }"]
 #[doc = "      }"]
 #[doc = "    }"]
@@ -1697,7 +1794,10 @@ pub struct ConstantBooleanMapValue {
     #[serde(rename = "type")]
     pub type_: ::serde_json::Value,
     #[doc = "The constant boolean map value."]
-    pub value: ::std::collections::HashMap<ConstantBooleanMapValueValueKey, ComputedBooleanValue>,
+    pub value: ::std::collections::HashMap<
+        ConstantBooleanMapValueValueKey,
+        ::std::option::Option<ComputedBooleanValue>,
+    >,
 }
 impl ::std::convert::From<&ConstantBooleanMapValue> for ConstantBooleanMapValue {
     fn from(value: &ConstantBooleanMapValue) -> Self {
@@ -1930,14 +2030,14 @@ impl ::std::convert::From<ComputedNumberListValue> for ConstantNumberListValueVa
         Self::ListValue(value)
     }
 }
-#[doc = "A constant number map value.  Can include expanding a sub-map within the map."]
+#[doc = "A constant number map value.  Can include expanding a sub-map within the map.  This also includes a 'null' value for the key to allow blanking out values if used in a union."]
 #[doc = r""]
 #[doc = r" <details><summary>JSON schema</summary>"]
 #[doc = r""]
 #[doc = r" ```json"]
 #[doc = "{"]
 #[doc = "  \"title\": \"Constant Number Map Value\","]
-#[doc = "  \"description\": \"A constant number map value.  Can include expanding a sub-map within the map.\","]
+#[doc = "  \"description\": \"A constant number map value.  Can include expanding a sub-map within the map.  This also includes a 'null' value for the key to allow blanking out values if used in a union.\","]
 #[doc = "  \"type\": \"object\","]
 #[doc = "  \"required\": ["]
 #[doc = "    \"source\","]
@@ -1956,7 +2056,14 @@ impl ::std::convert::From<ComputedNumberListValue> for ConstantNumberListValueVa
 #[doc = "      \"type\": \"object\","]
 #[doc = "      \"patternProperties\": {"]
 #[doc = "        \".*\": {"]
-#[doc = "          \"$ref\": \"#/$defs/ComputedNumberValue\""]
+#[doc = "          \"oneOf\": ["]
+#[doc = "            {"]
+#[doc = "              \"$ref\": \"#/$defs/ComputedNumberValue\""]
+#[doc = "            },"]
+#[doc = "            {"]
+#[doc = "              \"type\": \"null\""]
+#[doc = "            }"]
+#[doc = "          ]"]
 #[doc = "        }"]
 #[doc = "      }"]
 #[doc = "    }"]
@@ -1972,7 +2079,10 @@ pub struct ConstantNumberMapValue {
     #[serde(rename = "type")]
     pub type_: ::serde_json::Value,
     #[doc = "The constant number map value."]
-    pub value: ::std::collections::HashMap<ConstantNumberMapValueValueKey, ComputedNumberValue>,
+    pub value: ::std::collections::HashMap<
+        ConstantNumberMapValueValueKey,
+        ::std::option::Option<ComputedNumberValue>,
+    >,
 }
 impl ::std::convert::From<&ConstantNumberMapValue> for ConstantNumberMapValue {
     fn from(value: &ConstantNumberMapValue) -> Self {
@@ -2204,14 +2314,14 @@ impl ::std::convert::From<ComputedStringListValue> for ConstantStringListValueVa
         Self::ListValue(value)
     }
 }
-#[doc = "A constant string map value.  Can include expanding a sub-map within the map."]
+#[doc = "A constant string map value.  Can include expanding a sub-map within the map.  This also includes a 'null' value for the key to allow blanking out values if used in a union."]
 #[doc = r""]
 #[doc = r" <details><summary>JSON schema</summary>"]
 #[doc = r""]
 #[doc = r" ```json"]
 #[doc = "{"]
 #[doc = "  \"title\": \"Constant String Map Value\","]
-#[doc = "  \"description\": \"A constant string map value.  Can include expanding a sub-map within the map.\","]
+#[doc = "  \"description\": \"A constant string map value.  Can include expanding a sub-map within the map.  This also includes a 'null' value for the key to allow blanking out values if used in a union.\","]
 #[doc = "  \"type\": \"object\","]
 #[doc = "  \"required\": ["]
 #[doc = "    \"source\","]
@@ -2230,7 +2340,14 @@ impl ::std::convert::From<ComputedStringListValue> for ConstantStringListValueVa
 #[doc = "      \"type\": \"object\","]
 #[doc = "      \"patternProperties\": {"]
 #[doc = "        \".*\": {"]
-#[doc = "          \"$ref\": \"#/$defs/ComputedStringValue\""]
+#[doc = "          \"oneOf\": ["]
+#[doc = "            {"]
+#[doc = "              \"$ref\": \"#/$defs/ComputedStringValue\""]
+#[doc = "            },"]
+#[doc = "            {"]
+#[doc = "              \"type\": \"null\""]
+#[doc = "            }"]
+#[doc = "          ]"]
 #[doc = "        }"]
 #[doc = "      }"]
 #[doc = "    }"]
@@ -2246,7 +2363,10 @@ pub struct ConstantStringMapValue {
     #[serde(rename = "type")]
     pub type_: ::serde_json::Value,
     #[doc = "The constant string map value."]
-    pub value: ::std::collections::HashMap<ConstantStringMapValueValueKey, ComputedStringValue>,
+    pub value: ::std::collections::HashMap<
+        ConstantStringMapValueValueKey,
+        ::std::option::Option<::std::boxed::Box<ComputedStringValue>>,
+    >,
 }
 impl ::std::convert::From<&ConstantStringMapValue> for ConstantStringMapValue {
     fn from(value: &ConstantStringMapValue) -> Self {
@@ -2379,50 +2499,6 @@ impl ::std::convert::From<&ConstantStringValue> for ConstantStringValue {
 }
 impl ConstantStringValue {
     pub fn builder() -> builder::ConstantStringValue {
-        Default::default()
-    }
-}
-#[doc = "An environment variable for the node."]
-#[doc = r""]
-#[doc = r" <details><summary>JSON schema</summary>"]
-#[doc = r""]
-#[doc = r" ```json"]
-#[doc = "{"]
-#[doc = "  \"title\": \"Environment Variable\","]
-#[doc = "  \"description\": \"An environment variable for the node.\","]
-#[doc = "  \"type\": \"object\","]
-#[doc = "  \"required\": ["]
-#[doc = "    \"name\","]
-#[doc = "    \"source\","]
-#[doc = "    \"value\""]
-#[doc = "  ],"]
-#[doc = "  \"properties\": {"]
-#[doc = "    \"name\": {"]
-#[doc = "      \"$ref\": \"#/$defs/ComputedValue\""]
-#[doc = "    },"]
-#[doc = "    \"source\": {"]
-#[doc = "      \"$ref\": \"#/$defs/Source\""]
-#[doc = "    },"]
-#[doc = "    \"value\": {"]
-#[doc = "      \"$ref\": \"#/$defs/ComputedValue\""]
-#[doc = "    }"]
-#[doc = "  }"]
-#[doc = "}"]
-#[doc = r" ```"]
-#[doc = r" </details>"]
-#[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
-pub struct EnvironmentVariable {
-    pub name: ComputedValue,
-    pub source: Source,
-    pub value: ComputedValue,
-}
-impl ::std::convert::From<&EnvironmentVariable> for EnvironmentVariable {
-    fn from(value: &EnvironmentVariable) -> Self {
-        value.clone()
-    }
-}
-impl EnvironmentVariable {
-    pub fn builder() -> builder::EnvironmentVariable {
         Default::default()
     }
 }
@@ -2647,6 +2723,177 @@ impl ::std::convert::From<&ExitBehavior> for ExitBehavior {
 }
 impl ExitBehavior {
     pub fn builder() -> builder::ExitBehavior {
+        Default::default()
+    }
+}
+#[doc = "Extracts a single indexed boolean from a string list.  A default must be given, in case the index is out of bounds."]
+#[doc = r""]
+#[doc = r" <details><summary>JSON schema</summary>"]
+#[doc = r""]
+#[doc = r" ```json"]
+#[doc = "{"]
+#[doc = "  \"title\": \"List Indexed Boolean Value\","]
+#[doc = "  \"description\": \"Extracts a single indexed boolean from a string list.  A default must be given, in case the index is out of bounds.\","]
+#[doc = "  \"type\": \"object\","]
+#[doc = "  \"required\": ["]
+#[doc = "    \"default\","]
+#[doc = "    \"index\","]
+#[doc = "    \"list\","]
+#[doc = "    \"source\","]
+#[doc = "    \"type\""]
+#[doc = "  ],"]
+#[doc = "  \"properties\": {"]
+#[doc = "    \"default\": {"]
+#[doc = "      \"$ref\": \"#/$defs/ComputedBooleanValue\""]
+#[doc = "    },"]
+#[doc = "    \"index\": {"]
+#[doc = "      \"$ref\": \"#/$defs/ComputedNumberValue\""]
+#[doc = "    },"]
+#[doc = "    \"list\": {"]
+#[doc = "      \"$ref\": \"#/$defs/ComputedBooleanListValue\""]
+#[doc = "    },"]
+#[doc = "    \"source\": {"]
+#[doc = "      \"$ref\": \"#/$defs/Source\""]
+#[doc = "    },"]
+#[doc = "    \"type\": {"]
+#[doc = "      \"const\": \"list-index-boolean\""]
+#[doc = "    }"]
+#[doc = "  },"]
+#[doc = "  \"additionalProperties\": false"]
+#[doc = "}"]
+#[doc = r" ```"]
+#[doc = r" </details>"]
+#[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
+#[serde(deny_unknown_fields)]
+pub struct ListIndexBooleanValue {
+    pub default: ::std::boxed::Box<ComputedBooleanValue>,
+    pub index: ::std::boxed::Box<ComputedNumberValue>,
+    pub list: ComputedBooleanListValue,
+    pub source: Source,
+    #[serde(rename = "type")]
+    pub type_: ::serde_json::Value,
+}
+impl ::std::convert::From<&ListIndexBooleanValue> for ListIndexBooleanValue {
+    fn from(value: &ListIndexBooleanValue) -> Self {
+        value.clone()
+    }
+}
+impl ListIndexBooleanValue {
+    pub fn builder() -> builder::ListIndexBooleanValue {
+        Default::default()
+    }
+}
+#[doc = "Extracts a single indexed number from a string list.  A default must be given, in case the index is out of bounds."]
+#[doc = r""]
+#[doc = r" <details><summary>JSON schema</summary>"]
+#[doc = r""]
+#[doc = r" ```json"]
+#[doc = "{"]
+#[doc = "  \"title\": \"List Indexed Number Value\","]
+#[doc = "  \"description\": \"Extracts a single indexed number from a string list.  A default must be given, in case the index is out of bounds.\","]
+#[doc = "  \"type\": \"object\","]
+#[doc = "  \"required\": ["]
+#[doc = "    \"default\","]
+#[doc = "    \"index\","]
+#[doc = "    \"list\","]
+#[doc = "    \"source\","]
+#[doc = "    \"type\""]
+#[doc = "  ],"]
+#[doc = "  \"properties\": {"]
+#[doc = "    \"default\": {"]
+#[doc = "      \"$ref\": \"#/$defs/ComputedNumberValue\""]
+#[doc = "    },"]
+#[doc = "    \"index\": {"]
+#[doc = "      \"$ref\": \"#/$defs/ComputedNumberValue\""]
+#[doc = "    },"]
+#[doc = "    \"list\": {"]
+#[doc = "      \"$ref\": \"#/$defs/ComputedNumberListValue\""]
+#[doc = "    },"]
+#[doc = "    \"source\": {"]
+#[doc = "      \"$ref\": \"#/$defs/Source\""]
+#[doc = "    },"]
+#[doc = "    \"type\": {"]
+#[doc = "      \"const\": \"list-index-number\""]
+#[doc = "    }"]
+#[doc = "  },"]
+#[doc = "  \"additionalProperties\": false"]
+#[doc = "}"]
+#[doc = r" ```"]
+#[doc = r" </details>"]
+#[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
+#[serde(deny_unknown_fields)]
+pub struct ListIndexNumberValue {
+    pub default: ::std::boxed::Box<ComputedNumberValue>,
+    pub index: ::std::boxed::Box<ComputedNumberValue>,
+    pub list: ::std::boxed::Box<ComputedNumberListValue>,
+    pub source: Source,
+    #[serde(rename = "type")]
+    pub type_: ::serde_json::Value,
+}
+impl ::std::convert::From<&ListIndexNumberValue> for ListIndexNumberValue {
+    fn from(value: &ListIndexNumberValue) -> Self {
+        value.clone()
+    }
+}
+impl ListIndexNumberValue {
+    pub fn builder() -> builder::ListIndexNumberValue {
+        Default::default()
+    }
+}
+#[doc = "Extracts a single indexed string from a string list.  A default must be given, in case the index is out of bounds."]
+#[doc = r""]
+#[doc = r" <details><summary>JSON schema</summary>"]
+#[doc = r""]
+#[doc = r" ```json"]
+#[doc = "{"]
+#[doc = "  \"title\": \"List Indexed String Value\","]
+#[doc = "  \"description\": \"Extracts a single indexed string from a string list.  A default must be given, in case the index is out of bounds.\","]
+#[doc = "  \"type\": \"object\","]
+#[doc = "  \"required\": ["]
+#[doc = "    \"default\","]
+#[doc = "    \"index\","]
+#[doc = "    \"list\","]
+#[doc = "    \"source\","]
+#[doc = "    \"type\""]
+#[doc = "  ],"]
+#[doc = "  \"properties\": {"]
+#[doc = "    \"default\": {"]
+#[doc = "      \"$ref\": \"#/$defs/ComputedStringValue\""]
+#[doc = "    },"]
+#[doc = "    \"index\": {"]
+#[doc = "      \"$ref\": \"#/$defs/ComputedNumberValue\""]
+#[doc = "    },"]
+#[doc = "    \"list\": {"]
+#[doc = "      \"$ref\": \"#/$defs/ComputedStringListValue\""]
+#[doc = "    },"]
+#[doc = "    \"source\": {"]
+#[doc = "      \"$ref\": \"#/$defs/Source\""]
+#[doc = "    },"]
+#[doc = "    \"type\": {"]
+#[doc = "      \"const\": \"list-index-string\""]
+#[doc = "    }"]
+#[doc = "  },"]
+#[doc = "  \"additionalProperties\": false"]
+#[doc = "}"]
+#[doc = r" ```"]
+#[doc = r" </details>"]
+#[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
+#[serde(deny_unknown_fields)]
+pub struct ListIndexStringValue {
+    pub default: ::std::boxed::Box<ComputedStringValue>,
+    pub index: ::std::boxed::Box<ComputedNumberValue>,
+    pub list: ComputedStringListValue,
+    pub source: Source,
+    #[serde(rename = "type")]
+    pub type_: ::serde_json::Value,
+}
+impl ::std::convert::From<&ListIndexStringValue> for ListIndexStringValue {
+    fn from(value: &ListIndexStringValue) -> Self {
+        value.clone()
+    }
+}
+impl ListIndexStringValue {
+    pub fn builder() -> builder::ListIndexStringValue {
         Default::default()
     }
 }
@@ -2956,8 +3203,8 @@ impl LookupBooleanListValue {
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
 pub struct LookupBooleanMapValue {
-    pub name: ComputedStringValue,
-    pub node: ComputedStringValue,
+    pub name: ::std::boxed::Box<ComputedStringValue>,
+    pub node: ::std::boxed::Box<ComputedStringValue>,
     pub source: Source,
     #[serde(rename = "type")]
     pub type_: ::serde_json::Value,
@@ -3021,58 +3268,6 @@ impl ::std::convert::From<&LookupBooleanValue> for LookupBooleanValue {
 }
 impl LookupBooleanValue {
     pub fn builder() -> builder::LookupBooleanValue {
-        Default::default()
-    }
-}
-#[doc = "A string value that is looked up from a node's environment."]
-#[doc = r""]
-#[doc = r" <details><summary>JSON schema</summary>"]
-#[doc = r""]
-#[doc = r" ```json"]
-#[doc = "{"]
-#[doc = "  \"title\": \"Lookup String Value\","]
-#[doc = "  \"description\": \"A string value that is looked up from a node's environment.\","]
-#[doc = "  \"type\": \"object\","]
-#[doc = "  \"required\": ["]
-#[doc = "    \"name\","]
-#[doc = "    \"node\","]
-#[doc = "    \"source\","]
-#[doc = "    \"type\""]
-#[doc = "  ],"]
-#[doc = "  \"properties\": {"]
-#[doc = "    \"name\": {"]
-#[doc = "      \"$ref\": \"#/$defs/ComputedStringValue\""]
-#[doc = "    },"]
-#[doc = "    \"node\": {"]
-#[doc = "      \"$ref\": \"#/$defs/ComputedStringValue\""]
-#[doc = "    },"]
-#[doc = "    \"source\": {"]
-#[doc = "      \"$ref\": \"#/$defs/Source\""]
-#[doc = "    },"]
-#[doc = "    \"type\": {"]
-#[doc = "      \"const\": \"lookup-env-string\""]
-#[doc = "    }"]
-#[doc = "  },"]
-#[doc = "  \"additionalProperties\": false"]
-#[doc = "}"]
-#[doc = r" ```"]
-#[doc = r" </details>"]
-#[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
-#[serde(deny_unknown_fields)]
-pub struct LookupEnvStringValue {
-    pub name: ::std::boxed::Box<ComputedStringValue>,
-    pub node: ::std::boxed::Box<ComputedStringValue>,
-    pub source: Source,
-    #[serde(rename = "type")]
-    pub type_: ::serde_json::Value,
-}
-impl ::std::convert::From<&LookupEnvStringValue> for LookupEnvStringValue {
-    fn from(value: &LookupEnvStringValue) -> Self {
-        value.clone()
-    }
-}
-impl LookupEnvStringValue {
-    pub fn builder() -> builder::LookupEnvStringValue {
         Default::default()
     }
 }
@@ -3216,8 +3411,8 @@ impl LookupNumberMapValue {
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
 pub struct LookupNumberValue {
-    pub name: ::std::boxed::Box<ComputedStringValue>,
-    pub node: ::std::boxed::Box<ComputedStringValue>,
+    pub name: ComputedStringValue,
+    pub node: ComputedStringValue,
     pub source: Source,
     #[serde(rename = "type")]
     pub type_: ::serde_json::Value,
@@ -3229,58 +3424,6 @@ impl ::std::convert::From<&LookupNumberValue> for LookupNumberValue {
 }
 impl LookupNumberValue {
     pub fn builder() -> builder::LookupNumberValue {
-        Default::default()
-    }
-}
-#[doc = "A string value that is looked up from a node's state."]
-#[doc = r""]
-#[doc = r" <details><summary>JSON schema</summary>"]
-#[doc = r""]
-#[doc = r" ```json"]
-#[doc = "{"]
-#[doc = "  \"title\": \"Lookup String Value\","]
-#[doc = "  \"description\": \"A string value that is looked up from a node's state.\","]
-#[doc = "  \"type\": \"object\","]
-#[doc = "  \"required\": ["]
-#[doc = "    \"name\","]
-#[doc = "    \"node\","]
-#[doc = "    \"source\","]
-#[doc = "    \"type\""]
-#[doc = "  ],"]
-#[doc = "  \"properties\": {"]
-#[doc = "    \"name\": {"]
-#[doc = "      \"$ref\": \"#/$defs/ComputedStringValue\""]
-#[doc = "    },"]
-#[doc = "    \"node\": {"]
-#[doc = "      \"$ref\": \"#/$defs/ComputedStringValue\""]
-#[doc = "    },"]
-#[doc = "    \"source\": {"]
-#[doc = "      \"$ref\": \"#/$defs/Source\""]
-#[doc = "    },"]
-#[doc = "    \"type\": {"]
-#[doc = "      \"const\": \"lookup-state-string\""]
-#[doc = "    }"]
-#[doc = "  },"]
-#[doc = "  \"additionalProperties\": false"]
-#[doc = "}"]
-#[doc = r" ```"]
-#[doc = r" </details>"]
-#[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
-#[serde(deny_unknown_fields)]
-pub struct LookupStateStringValue {
-    pub name: ::std::boxed::Box<ComputedStringValue>,
-    pub node: ::std::boxed::Box<ComputedStringValue>,
-    pub source: Source,
-    #[serde(rename = "type")]
-    pub type_: ::serde_json::Value,
-}
-impl ::std::convert::From<&LookupStateStringValue> for LookupStateStringValue {
-    fn from(value: &LookupStateStringValue) -> Self {
-        value.clone()
-    }
-}
-impl LookupStateStringValue {
-    pub fn builder() -> builder::LookupStateStringValue {
         Default::default()
     }
 }
@@ -3385,6 +3528,229 @@ impl ::std::convert::From<&LookupStringMapValue> for LookupStringMapValue {
 }
 impl LookupStringMapValue {
     pub fn builder() -> builder::LookupStringMapValue {
+        Default::default()
+    }
+}
+#[doc = "A string value that is looked up from a node's state."]
+#[doc = r""]
+#[doc = r" <details><summary>JSON schema</summary>"]
+#[doc = r""]
+#[doc = r" ```json"]
+#[doc = "{"]
+#[doc = "  \"title\": \"Lookup String Value\","]
+#[doc = "  \"description\": \"A string value that is looked up from a node's state.\","]
+#[doc = "  \"type\": \"object\","]
+#[doc = "  \"required\": ["]
+#[doc = "    \"name\","]
+#[doc = "    \"node\","]
+#[doc = "    \"source\","]
+#[doc = "    \"type\""]
+#[doc = "  ],"]
+#[doc = "  \"properties\": {"]
+#[doc = "    \"name\": {"]
+#[doc = "      \"$ref\": \"#/$defs/ComputedStringValue\""]
+#[doc = "    },"]
+#[doc = "    \"node\": {"]
+#[doc = "      \"$ref\": \"#/$defs/ComputedStringValue\""]
+#[doc = "    },"]
+#[doc = "    \"source\": {"]
+#[doc = "      \"$ref\": \"#/$defs/Source\""]
+#[doc = "    },"]
+#[doc = "    \"type\": {"]
+#[doc = "      \"const\": \"lookup-string\""]
+#[doc = "    }"]
+#[doc = "  },"]
+#[doc = "  \"additionalProperties\": false"]
+#[doc = "}"]
+#[doc = r" ```"]
+#[doc = r" </details>"]
+#[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
+#[serde(deny_unknown_fields)]
+pub struct LookupStringValue {
+    pub name: ::std::boxed::Box<ComputedStringValue>,
+    pub node: ::std::boxed::Box<ComputedStringValue>,
+    pub source: Source,
+    #[serde(rename = "type")]
+    pub type_: ::serde_json::Value,
+}
+impl ::std::convert::From<&LookupStringValue> for LookupStringValue {
+    fn from(value: &LookupStringValue) -> Self {
+        value.clone()
+    }
+}
+impl LookupStringValue {
+    pub fn builder() -> builder::LookupStringValue {
+        Default::default()
+    }
+}
+#[doc = "A key's boolean value from a map.  A default must be given, in case the key is not found."]
+#[doc = r""]
+#[doc = r" <details><summary>JSON schema</summary>"]
+#[doc = r""]
+#[doc = r" ```json"]
+#[doc = "{"]
+#[doc = "  \"title\": \"Map Keyed Boolean Value\","]
+#[doc = "  \"description\": \"A key's boolean value from a map.  A default must be given, in case the key is not found.\","]
+#[doc = "  \"type\": \"object\","]
+#[doc = "  \"required\": ["]
+#[doc = "    \"default\","]
+#[doc = "    \"key\","]
+#[doc = "    \"map\","]
+#[doc = "    \"source\","]
+#[doc = "    \"type\""]
+#[doc = "  ],"]
+#[doc = "  \"properties\": {"]
+#[doc = "    \"default\": {"]
+#[doc = "      \"$ref\": \"#/$defs/ComputedBooleanValue\""]
+#[doc = "    },"]
+#[doc = "    \"key\": {"]
+#[doc = "      \"$ref\": \"#/$defs/ComputedStringValue\""]
+#[doc = "    },"]
+#[doc = "    \"map\": {"]
+#[doc = "      \"$ref\": \"#/$defs/ComputedBooleanMapValue\""]
+#[doc = "    },"]
+#[doc = "    \"source\": {"]
+#[doc = "      \"$ref\": \"#/$defs/Source\""]
+#[doc = "    },"]
+#[doc = "    \"type\": {"]
+#[doc = "      \"const\": \"map-key-boolean\""]
+#[doc = "    }"]
+#[doc = "  },"]
+#[doc = "  \"additionalProperties\": false"]
+#[doc = "}"]
+#[doc = r" ```"]
+#[doc = r" </details>"]
+#[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
+#[serde(deny_unknown_fields)]
+pub struct MapKeyBooleanValue {
+    pub default: ::std::boxed::Box<ComputedBooleanValue>,
+    pub key: ::std::boxed::Box<ComputedStringValue>,
+    pub map: ComputedBooleanMapValue,
+    pub source: Source,
+    #[serde(rename = "type")]
+    pub type_: ::serde_json::Value,
+}
+impl ::std::convert::From<&MapKeyBooleanValue> for MapKeyBooleanValue {
+    fn from(value: &MapKeyBooleanValue) -> Self {
+        value.clone()
+    }
+}
+impl MapKeyBooleanValue {
+    pub fn builder() -> builder::MapKeyBooleanValue {
+        Default::default()
+    }
+}
+#[doc = "A key's number value from a map.  A default must be given, in case the key is not found."]
+#[doc = r""]
+#[doc = r" <details><summary>JSON schema</summary>"]
+#[doc = r""]
+#[doc = r" ```json"]
+#[doc = "{"]
+#[doc = "  \"title\": \"Map Keyed Number Value\","]
+#[doc = "  \"description\": \"A key's number value from a map.  A default must be given, in case the key is not found.\","]
+#[doc = "  \"type\": \"object\","]
+#[doc = "  \"required\": ["]
+#[doc = "    \"default\","]
+#[doc = "    \"key\","]
+#[doc = "    \"map\","]
+#[doc = "    \"source\","]
+#[doc = "    \"type\""]
+#[doc = "  ],"]
+#[doc = "  \"properties\": {"]
+#[doc = "    \"default\": {"]
+#[doc = "      \"$ref\": \"#/$defs/ComputedNumberValue\""]
+#[doc = "    },"]
+#[doc = "    \"key\": {"]
+#[doc = "      \"$ref\": \"#/$defs/ComputedStringValue\""]
+#[doc = "    },"]
+#[doc = "    \"map\": {"]
+#[doc = "      \"$ref\": \"#/$defs/ComputedNumberMapValue\""]
+#[doc = "    },"]
+#[doc = "    \"source\": {"]
+#[doc = "      \"$ref\": \"#/$defs/Source\""]
+#[doc = "    },"]
+#[doc = "    \"type\": {"]
+#[doc = "      \"const\": \"map-key-number\""]
+#[doc = "    }"]
+#[doc = "  },"]
+#[doc = "  \"additionalProperties\": false"]
+#[doc = "}"]
+#[doc = r" ```"]
+#[doc = r" </details>"]
+#[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
+#[serde(deny_unknown_fields)]
+pub struct MapKeyNumberValue {
+    pub default: ::std::boxed::Box<ComputedNumberValue>,
+    pub key: ComputedStringValue,
+    pub map: ComputedNumberMapValue,
+    pub source: Source,
+    #[serde(rename = "type")]
+    pub type_: ::serde_json::Value,
+}
+impl ::std::convert::From<&MapKeyNumberValue> for MapKeyNumberValue {
+    fn from(value: &MapKeyNumberValue) -> Self {
+        value.clone()
+    }
+}
+impl MapKeyNumberValue {
+    pub fn builder() -> builder::MapKeyNumberValue {
+        Default::default()
+    }
+}
+#[doc = "A key's string value from a map.  A default must be given, in case the key is not found."]
+#[doc = r""]
+#[doc = r" <details><summary>JSON schema</summary>"]
+#[doc = r""]
+#[doc = r" ```json"]
+#[doc = "{"]
+#[doc = "  \"title\": \"Map Keyed String Value\","]
+#[doc = "  \"description\": \"A key's string value from a map.  A default must be given, in case the key is not found.\","]
+#[doc = "  \"type\": \"object\","]
+#[doc = "  \"required\": ["]
+#[doc = "    \"default\","]
+#[doc = "    \"key\","]
+#[doc = "    \"map\","]
+#[doc = "    \"source\","]
+#[doc = "    \"type\""]
+#[doc = "  ],"]
+#[doc = "  \"properties\": {"]
+#[doc = "    \"default\": {"]
+#[doc = "      \"$ref\": \"#/$defs/ComputedStringValue\""]
+#[doc = "    },"]
+#[doc = "    \"key\": {"]
+#[doc = "      \"$ref\": \"#/$defs/ComputedStringValue\""]
+#[doc = "    },"]
+#[doc = "    \"map\": {"]
+#[doc = "      \"$ref\": \"#/$defs/ComputedStringMapValue\""]
+#[doc = "    },"]
+#[doc = "    \"source\": {"]
+#[doc = "      \"$ref\": \"#/$defs/Source\""]
+#[doc = "    },"]
+#[doc = "    \"type\": {"]
+#[doc = "      \"const\": \"map-key-string\""]
+#[doc = "    }"]
+#[doc = "  },"]
+#[doc = "  \"additionalProperties\": false"]
+#[doc = "}"]
+#[doc = r" ```"]
+#[doc = r" </details>"]
+#[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
+#[serde(deny_unknown_fields)]
+pub struct MapKeyStringValue {
+    pub default: ::std::boxed::Box<ComputedStringValue>,
+    pub key: ::std::boxed::Box<ComputedStringValue>,
+    pub map: ComputedStringMapValue,
+    pub source: Source,
+    #[serde(rename = "type")]
+    pub type_: ::serde_json::Value,
+}
+impl ::std::convert::From<&MapKeyStringValue> for MapKeyStringValue {
+    fn from(value: &MapKeyStringValue) -> Self {
+        value.clone()
+    }
+}
+impl MapKeyStringValue {
+    pub fn builder() -> builder::MapKeyStringValue {
         Default::default()
     }
 }
@@ -3618,7 +3984,6 @@ impl NativeShellAstSchema {
 #[doc = "  \"description\": \"A node in the AST.  Each node has a name, a type, and a list of actions.\","]
 #[doc = "  \"type\": \"object\","]
 #[doc = "  \"required\": ["]
-#[doc = "    \"environment\","]
 #[doc = "    \"event-listeners\","]
 #[doc = "    \"exit-actions\","]
 #[doc = "    \"initial-parameters\","]
@@ -3629,55 +3994,6 @@ impl NativeShellAstSchema {
 #[doc = "    \"streams\""]
 #[doc = "  ],"]
 #[doc = "  \"properties\": {"]
-#[doc = "    \"environment\": {"]
-#[doc = "      \"description\": \"The environment for the node.\","]
-#[doc = "      \"type\": \"object\","]
-#[doc = "      \"required\": ["]
-#[doc = "        \"source\""]
-#[doc = "      ],"]
-#[doc = "      \"properties\": {"]
-#[doc = "        \"cwd\": {"]
-#[doc = "          \"$ref\": \"#/$defs/ComputedValue\""]
-#[doc = "        },"]
-#[doc = "        \"environment-variables\": {"]
-#[doc = "          \"description\": \"The environment variables for the node.\","]
-#[doc = "          \"type\": \"array\","]
-#[doc = "          \"items\": {"]
-#[doc = "            \"title\": \"Environment Variable\","]
-#[doc = "            \"description\": \"An environment variable for the node.\","]
-#[doc = "            \"type\": \"object\","]
-#[doc = "            \"required\": ["]
-#[doc = "              \"name\","]
-#[doc = "              \"source\","]
-#[doc = "              \"value\""]
-#[doc = "            ],"]
-#[doc = "            \"properties\": {"]
-#[doc = "              \"name\": {"]
-#[doc = "                \"$ref\": \"#/$defs/ComputedValue\""]
-#[doc = "              },"]
-#[doc = "              \"source\": {"]
-#[doc = "                \"$ref\": \"#/$defs/Source\""]
-#[doc = "              },"]
-#[doc = "              \"value\": {"]
-#[doc = "                \"$ref\": \"#/$defs/ComputedValue\""]
-#[doc = "              }"]
-#[doc = "            }"]
-#[doc = "          }"]
-#[doc = "        },"]
-#[doc = "        \"parent\": {"]
-#[doc = "          \"description\": \"The parent node of this node.  This is used to construct inherited environments.\","]
-#[doc = "          \"type\": \"string\""]
-#[doc = "        },"]
-#[doc = "        \"source\": {"]
-#[doc = "          \"$ref\": \"#/$defs/Source\""]
-#[doc = "        },"]
-#[doc = "        \"umode\": {"]
-#[doc = "          \"description\": \"The user mode for the node.  This is used to set the user and group for the node.\","]
-#[doc = "          \"type\": \"integer\""]
-#[doc = "        }"]
-#[doc = "      },"]
-#[doc = "      \"additionalProperties\": false"]
-#[doc = "    },"]
 #[doc = "    \"event-listeners\": {"]
 #[doc = "      \"title\": \"Event Listeners\","]
 #[doc = "      \"description\": \"A list of event listeners that are triggered by the node.  This is a named group of event brokers.\","]
@@ -3755,11 +4071,259 @@ impl NativeShellAstSchema {
 #[doc = "              \"$ref\": \"#/$defs/Source\""]
 #[doc = "            },"]
 #[doc = "            \"value\": {"]
-#[doc = "              \"type\": ["]
-#[doc = "                \"string\","]
-#[doc = "                \"number\","]
-#[doc = "                \"boolean\","]
-#[doc = "                \"null\""]
+#[doc = "              \"oneOf\": ["]
+#[doc = "                {"]
+#[doc = "                  \"title\": \"Compile-Time String\","]
+#[doc = "                  \"description\": \"A constant string value.\","]
+#[doc = "                  \"type\": \"object\","]
+#[doc = "                  \"required\": ["]
+#[doc = "                    \"source\","]
+#[doc = "                    \"type\","]
+#[doc = "                    \"value\""]
+#[doc = "                  ],"]
+#[doc = "                  \"properties\": {"]
+#[doc = "                    \"source\": {"]
+#[doc = "                      \"$ref\": \"#/$defs/Source\""]
+#[doc = "                    },"]
+#[doc = "                    \"type\": {"]
+#[doc = "                      \"const\": \"string\""]
+#[doc = "                    },"]
+#[doc = "                    \"value\": {"]
+#[doc = "                      \"description\": \"The constant string value.\","]
+#[doc = "                      \"type\": \"string\""]
+#[doc = "                    }"]
+#[doc = "                  },"]
+#[doc = "                  \"additionalProperties\": false"]
+#[doc = "                },"]
+#[doc = "                {"]
+#[doc = "                  \"title\": \"Compile-Time Number\","]
+#[doc = "                  \"description\": \"A constant number value.\","]
+#[doc = "                  \"type\": \"object\","]
+#[doc = "                  \"required\": ["]
+#[doc = "                    \"source\","]
+#[doc = "                    \"type\","]
+#[doc = "                    \"value\""]
+#[doc = "                  ],"]
+#[doc = "                  \"properties\": {"]
+#[doc = "                    \"source\": {"]
+#[doc = "                      \"$ref\": \"#/$defs/Source\""]
+#[doc = "                    },"]
+#[doc = "                    \"type\": {"]
+#[doc = "                      \"const\": \"number\""]
+#[doc = "                    },"]
+#[doc = "                    \"value\": {"]
+#[doc = "                      \"description\": \"The constant number value.\","]
+#[doc = "                      \"type\": \"number\""]
+#[doc = "                    }"]
+#[doc = "                  },"]
+#[doc = "                  \"additionalProperties\": false"]
+#[doc = "                },"]
+#[doc = "                {"]
+#[doc = "                  \"title\": \"Compile-Time Boolean\","]
+#[doc = "                  \"description\": \"A constant boolean value.\","]
+#[doc = "                  \"type\": \"object\","]
+#[doc = "                  \"required\": ["]
+#[doc = "                    \"source\","]
+#[doc = "                    \"type\","]
+#[doc = "                    \"value\""]
+#[doc = "                  ],"]
+#[doc = "                  \"properties\": {"]
+#[doc = "                    \"source\": {"]
+#[doc = "                      \"$ref\": \"#/$defs/Source\""]
+#[doc = "                    },"]
+#[doc = "                    \"type\": {"]
+#[doc = "                      \"const\": \"boolean\""]
+#[doc = "                    },"]
+#[doc = "                    \"value\": {"]
+#[doc = "                      \"description\": \"The constant boolean value.\","]
+#[doc = "                      \"type\": \"boolean\""]
+#[doc = "                    }"]
+#[doc = "                  },"]
+#[doc = "                  \"additionalProperties\": false"]
+#[doc = "                },"]
+#[doc = "                {"]
+#[doc = "                  \"title\": \"Compile-Time Null\","]
+#[doc = "                  \"description\": \"A constant null value.\","]
+#[doc = "                  \"type\": \"object\","]
+#[doc = "                  \"required\": ["]
+#[doc = "                    \"source\","]
+#[doc = "                    \"type\""]
+#[doc = "                  ],"]
+#[doc = "                  \"properties\": {"]
+#[doc = "                    \"source\": {"]
+#[doc = "                      \"$ref\": \"#/$defs/Source\""]
+#[doc = "                    },"]
+#[doc = "                    \"type\": {"]
+#[doc = "                      \"const\": \"null\""]
+#[doc = "                    }"]
+#[doc = "                  },"]
+#[doc = "                  \"additionalProperties\": false"]
+#[doc = "                },"]
+#[doc = "                {"]
+#[doc = "                  \"title\": \"Compile-Time String List\","]
+#[doc = "                  \"description\": \"A constant string list value.\","]
+#[doc = "                  \"type\": \"object\","]
+#[doc = "                  \"required\": ["]
+#[doc = "                    \"source\","]
+#[doc = "                    \"type\","]
+#[doc = "                    \"value\""]
+#[doc = "                  ],"]
+#[doc = "                  \"properties\": {"]
+#[doc = "                    \"source\": {"]
+#[doc = "                      \"$ref\": \"#/$defs/Source\""]
+#[doc = "                    },"]
+#[doc = "                    \"type\": {"]
+#[doc = "                      \"const\": \"string-list\""]
+#[doc = "                    },"]
+#[doc = "                    \"value\": {"]
+#[doc = "                      \"type\": \"array\","]
+#[doc = "                      \"items\": {"]
+#[doc = "                        \"type\": \"array\","]
+#[doc = "                        \"items\": {"]
+#[doc = "                          \"type\": \"string\""]
+#[doc = "                        }"]
+#[doc = "                      }"]
+#[doc = "                    }"]
+#[doc = "                  },"]
+#[doc = "                  \"additionalProperties\": false"]
+#[doc = "                },"]
+#[doc = "                {"]
+#[doc = "                  \"title\": \"Compile-Time Number List\","]
+#[doc = "                  \"description\": \"A constant number list value.\","]
+#[doc = "                  \"type\": \"object\","]
+#[doc = "                  \"required\": ["]
+#[doc = "                    \"source\","]
+#[doc = "                    \"type\","]
+#[doc = "                    \"value\""]
+#[doc = "                  ],"]
+#[doc = "                  \"properties\": {"]
+#[doc = "                    \"source\": {"]
+#[doc = "                      \"$ref\": \"#/$defs/Source\""]
+#[doc = "                    },"]
+#[doc = "                    \"type\": {"]
+#[doc = "                      \"const\": \"number-list\""]
+#[doc = "                    },"]
+#[doc = "                    \"value\": {"]
+#[doc = "                      \"type\": \"array\","]
+#[doc = "                      \"items\": {"]
+#[doc = "                        \"type\": \"array\","]
+#[doc = "                        \"items\": {"]
+#[doc = "                          \"type\": \"number\""]
+#[doc = "                        }"]
+#[doc = "                      }"]
+#[doc = "                    }"]
+#[doc = "                  },"]
+#[doc = "                  \"additionalProperties\": false"]
+#[doc = "                },"]
+#[doc = "                {"]
+#[doc = "                  \"title\": \"Compile-Time Boolean List\","]
+#[doc = "                  \"description\": \"A constant boolean list value.\","]
+#[doc = "                  \"type\": \"object\","]
+#[doc = "                  \"required\": ["]
+#[doc = "                    \"source\","]
+#[doc = "                    \"type\","]
+#[doc = "                    \"value\""]
+#[doc = "                  ],"]
+#[doc = "                  \"properties\": {"]
+#[doc = "                    \"source\": {"]
+#[doc = "                      \"$ref\": \"#/$defs/Source\""]
+#[doc = "                    },"]
+#[doc = "                    \"type\": {"]
+#[doc = "                      \"const\": \"boolean-list\""]
+#[doc = "                    },"]
+#[doc = "                    \"value\": {"]
+#[doc = "                      \"type\": \"array\","]
+#[doc = "                      \"items\": {"]
+#[doc = "                        \"type\": \"array\","]
+#[doc = "                        \"items\": {"]
+#[doc = "                          \"type\": \"boolean\""]
+#[doc = "                        }"]
+#[doc = "                      }"]
+#[doc = "                    }"]
+#[doc = "                  },"]
+#[doc = "                  \"additionalProperties\": false"]
+#[doc = "                },"]
+#[doc = "                {"]
+#[doc = "                  \"title\": \"Compile-Time String Map\","]
+#[doc = "                  \"description\": \"A constant string map value.\","]
+#[doc = "                  \"type\": \"object\","]
+#[doc = "                  \"required\": ["]
+#[doc = "                    \"source\","]
+#[doc = "                    \"type\","]
+#[doc = "                    \"value\""]
+#[doc = "                  ],"]
+#[doc = "                  \"properties\": {"]
+#[doc = "                    \"source\": {"]
+#[doc = "                      \"$ref\": \"#/$defs/Source\""]
+#[doc = "                    },"]
+#[doc = "                    \"type\": {"]
+#[doc = "                      \"const\": \"string-map\""]
+#[doc = "                    },"]
+#[doc = "                    \"value\": {"]
+#[doc = "                      \"type\": \"object\","]
+#[doc = "                      \"patternProperties\": {"]
+#[doc = "                        \".*\": {"]
+#[doc = "                          \"type\": \"string\""]
+#[doc = "                        }"]
+#[doc = "                      }"]
+#[doc = "                    }"]
+#[doc = "                  },"]
+#[doc = "                  \"additionalProperties\": false"]
+#[doc = "                },"]
+#[doc = "                {"]
+#[doc = "                  \"title\": \"Compile-Time Number Map\","]
+#[doc = "                  \"description\": \"A constant number map value.\","]
+#[doc = "                  \"type\": \"object\","]
+#[doc = "                  \"required\": ["]
+#[doc = "                    \"source\","]
+#[doc = "                    \"type\","]
+#[doc = "                    \"value\""]
+#[doc = "                  ],"]
+#[doc = "                  \"properties\": {"]
+#[doc = "                    \"source\": {"]
+#[doc = "                      \"$ref\": \"#/$defs/Source\""]
+#[doc = "                    },"]
+#[doc = "                    \"type\": {"]
+#[doc = "                      \"const\": \"number-map\""]
+#[doc = "                    },"]
+#[doc = "                    \"value\": {"]
+#[doc = "                      \"type\": \"object\","]
+#[doc = "                      \"patternProperties\": {"]
+#[doc = "                        \".*\": {"]
+#[doc = "                          \"type\": \"number\""]
+#[doc = "                        }"]
+#[doc = "                      }"]
+#[doc = "                    }"]
+#[doc = "                  },"]
+#[doc = "                  \"additionalProperties\": false"]
+#[doc = "                },"]
+#[doc = "                {"]
+#[doc = "                  \"title\": \"Compile-Time Boolean Map\","]
+#[doc = "                  \"description\": \"A constant boolean map value.\","]
+#[doc = "                  \"type\": \"object\","]
+#[doc = "                  \"required\": ["]
+#[doc = "                    \"source\","]
+#[doc = "                    \"type\","]
+#[doc = "                    \"value\""]
+#[doc = "                  ],"]
+#[doc = "                  \"properties\": {"]
+#[doc = "                    \"source\": {"]
+#[doc = "                      \"$ref\": \"#/$defs/Source\""]
+#[doc = "                    },"]
+#[doc = "                    \"type\": {"]
+#[doc = "                      \"const\": \"boolean-map\""]
+#[doc = "                    },"]
+#[doc = "                    \"value\": {"]
+#[doc = "                      \"type\": \"object\","]
+#[doc = "                      \"patternProperties\": {"]
+#[doc = "                        \".*\": {"]
+#[doc = "                          \"type\": \"boolean\""]
+#[doc = "                        }"]
+#[doc = "                      }"]
+#[doc = "                    }"]
+#[doc = "                  },"]
+#[doc = "                  \"additionalProperties\": false"]
+#[doc = "                }"]
 #[doc = "              ]"]
 #[doc = "            }"]
 #[doc = "          },"]
@@ -3835,7 +4399,6 @@ impl NativeShellAstSchema {
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 pub struct Node {
-    pub environment: NodeEnvironment,
     #[doc = "A list of event listeners that are triggered by the node.  This is a named group of event brokers."]
     #[serde(rename = "event-listeners")]
     pub event_listeners: ::std::vec::Vec<EventListener>,
@@ -3862,92 +4425,6 @@ impl ::std::convert::From<&Node> for Node {
 }
 impl Node {
     pub fn builder() -> builder::Node {
-        Default::default()
-    }
-}
-#[doc = "The environment for the node."]
-#[doc = r""]
-#[doc = r" <details><summary>JSON schema</summary>"]
-#[doc = r""]
-#[doc = r" ```json"]
-#[doc = "{"]
-#[doc = "  \"description\": \"The environment for the node.\","]
-#[doc = "  \"type\": \"object\","]
-#[doc = "  \"required\": ["]
-#[doc = "    \"source\""]
-#[doc = "  ],"]
-#[doc = "  \"properties\": {"]
-#[doc = "    \"cwd\": {"]
-#[doc = "      \"$ref\": \"#/$defs/ComputedValue\""]
-#[doc = "    },"]
-#[doc = "    \"environment-variables\": {"]
-#[doc = "      \"description\": \"The environment variables for the node.\","]
-#[doc = "      \"type\": \"array\","]
-#[doc = "      \"items\": {"]
-#[doc = "        \"title\": \"Environment Variable\","]
-#[doc = "        \"description\": \"An environment variable for the node.\","]
-#[doc = "        \"type\": \"object\","]
-#[doc = "        \"required\": ["]
-#[doc = "          \"name\","]
-#[doc = "          \"source\","]
-#[doc = "          \"value\""]
-#[doc = "        ],"]
-#[doc = "        \"properties\": {"]
-#[doc = "          \"name\": {"]
-#[doc = "            \"$ref\": \"#/$defs/ComputedValue\""]
-#[doc = "          },"]
-#[doc = "          \"source\": {"]
-#[doc = "            \"$ref\": \"#/$defs/Source\""]
-#[doc = "          },"]
-#[doc = "          \"value\": {"]
-#[doc = "            \"$ref\": \"#/$defs/ComputedValue\""]
-#[doc = "          }"]
-#[doc = "        }"]
-#[doc = "      }"]
-#[doc = "    },"]
-#[doc = "    \"parent\": {"]
-#[doc = "      \"description\": \"The parent node of this node.  This is used to construct inherited environments.\","]
-#[doc = "      \"type\": \"string\""]
-#[doc = "    },"]
-#[doc = "    \"source\": {"]
-#[doc = "      \"$ref\": \"#/$defs/Source\""]
-#[doc = "    },"]
-#[doc = "    \"umode\": {"]
-#[doc = "      \"description\": \"The user mode for the node.  This is used to set the user and group for the node.\","]
-#[doc = "      \"type\": \"integer\""]
-#[doc = "    }"]
-#[doc = "  },"]
-#[doc = "  \"additionalProperties\": false"]
-#[doc = "}"]
-#[doc = r" ```"]
-#[doc = r" </details>"]
-#[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
-#[serde(deny_unknown_fields)]
-pub struct NodeEnvironment {
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
-    pub cwd: ::std::option::Option<ComputedValue>,
-    #[doc = "The environment variables for the node."]
-    #[serde(
-        rename = "environment-variables",
-        default,
-        skip_serializing_if = "::std::vec::Vec::is_empty"
-    )]
-    pub environment_variables: ::std::vec::Vec<EnvironmentVariable>,
-    #[doc = "The parent node of this node.  This is used to construct inherited environments."]
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
-    pub parent: ::std::option::Option<::std::string::String>,
-    pub source: Source,
-    #[doc = "The user mode for the node.  This is used to set the user and group for the node."]
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
-    pub umode: ::std::option::Option<i64>,
-}
-impl ::std::convert::From<&NodeEnvironment> for NodeEnvironment {
-    fn from(value: &NodeEnvironment) -> Self {
-        value.clone()
-    }
-}
-impl NodeEnvironment {
-    pub fn builder() -> builder::NodeEnvironment {
         Default::default()
     }
 }
@@ -4069,7 +4546,7 @@ pub struct NumberToStringValue {
     pub source: Source,
     #[serde(rename = "type")]
     pub type_: ::serde_json::Value,
-    pub value: ComputedNumberValue,
+    pub value: ::std::boxed::Box<ComputedNumberValue>,
 }
 impl ::std::convert::From<&NumberToStringValue> for NumberToStringValue {
     fn from(value: &NumberToStringValue) -> Self {
@@ -4138,11 +4615,259 @@ impl ::std::convert::From<::std::vec::Vec<Action>> for OrderedActions {
 #[doc = "      \"$ref\": \"#/$defs/Source\""]
 #[doc = "    },"]
 #[doc = "    \"value\": {"]
-#[doc = "      \"type\": ["]
-#[doc = "        \"string\","]
-#[doc = "        \"number\","]
-#[doc = "        \"boolean\","]
-#[doc = "        \"null\""]
+#[doc = "      \"oneOf\": ["]
+#[doc = "        {"]
+#[doc = "          \"title\": \"Compile-Time String\","]
+#[doc = "          \"description\": \"A constant string value.\","]
+#[doc = "          \"type\": \"object\","]
+#[doc = "          \"required\": ["]
+#[doc = "            \"source\","]
+#[doc = "            \"type\","]
+#[doc = "            \"value\""]
+#[doc = "          ],"]
+#[doc = "          \"properties\": {"]
+#[doc = "            \"source\": {"]
+#[doc = "              \"$ref\": \"#/$defs/Source\""]
+#[doc = "            },"]
+#[doc = "            \"type\": {"]
+#[doc = "              \"const\": \"string\""]
+#[doc = "            },"]
+#[doc = "            \"value\": {"]
+#[doc = "              \"description\": \"The constant string value.\","]
+#[doc = "              \"type\": \"string\""]
+#[doc = "            }"]
+#[doc = "          },"]
+#[doc = "          \"additionalProperties\": false"]
+#[doc = "        },"]
+#[doc = "        {"]
+#[doc = "          \"title\": \"Compile-Time Number\","]
+#[doc = "          \"description\": \"A constant number value.\","]
+#[doc = "          \"type\": \"object\","]
+#[doc = "          \"required\": ["]
+#[doc = "            \"source\","]
+#[doc = "            \"type\","]
+#[doc = "            \"value\""]
+#[doc = "          ],"]
+#[doc = "          \"properties\": {"]
+#[doc = "            \"source\": {"]
+#[doc = "              \"$ref\": \"#/$defs/Source\""]
+#[doc = "            },"]
+#[doc = "            \"type\": {"]
+#[doc = "              \"const\": \"number\""]
+#[doc = "            },"]
+#[doc = "            \"value\": {"]
+#[doc = "              \"description\": \"The constant number value.\","]
+#[doc = "              \"type\": \"number\""]
+#[doc = "            }"]
+#[doc = "          },"]
+#[doc = "          \"additionalProperties\": false"]
+#[doc = "        },"]
+#[doc = "        {"]
+#[doc = "          \"title\": \"Compile-Time Boolean\","]
+#[doc = "          \"description\": \"A constant boolean value.\","]
+#[doc = "          \"type\": \"object\","]
+#[doc = "          \"required\": ["]
+#[doc = "            \"source\","]
+#[doc = "            \"type\","]
+#[doc = "            \"value\""]
+#[doc = "          ],"]
+#[doc = "          \"properties\": {"]
+#[doc = "            \"source\": {"]
+#[doc = "              \"$ref\": \"#/$defs/Source\""]
+#[doc = "            },"]
+#[doc = "            \"type\": {"]
+#[doc = "              \"const\": \"boolean\""]
+#[doc = "            },"]
+#[doc = "            \"value\": {"]
+#[doc = "              \"description\": \"The constant boolean value.\","]
+#[doc = "              \"type\": \"boolean\""]
+#[doc = "            }"]
+#[doc = "          },"]
+#[doc = "          \"additionalProperties\": false"]
+#[doc = "        },"]
+#[doc = "        {"]
+#[doc = "          \"title\": \"Compile-Time Null\","]
+#[doc = "          \"description\": \"A constant null value.\","]
+#[doc = "          \"type\": \"object\","]
+#[doc = "          \"required\": ["]
+#[doc = "            \"source\","]
+#[doc = "            \"type\""]
+#[doc = "          ],"]
+#[doc = "          \"properties\": {"]
+#[doc = "            \"source\": {"]
+#[doc = "              \"$ref\": \"#/$defs/Source\""]
+#[doc = "            },"]
+#[doc = "            \"type\": {"]
+#[doc = "              \"const\": \"null\""]
+#[doc = "            }"]
+#[doc = "          },"]
+#[doc = "          \"additionalProperties\": false"]
+#[doc = "        },"]
+#[doc = "        {"]
+#[doc = "          \"title\": \"Compile-Time String List\","]
+#[doc = "          \"description\": \"A constant string list value.\","]
+#[doc = "          \"type\": \"object\","]
+#[doc = "          \"required\": ["]
+#[doc = "            \"source\","]
+#[doc = "            \"type\","]
+#[doc = "            \"value\""]
+#[doc = "          ],"]
+#[doc = "          \"properties\": {"]
+#[doc = "            \"source\": {"]
+#[doc = "              \"$ref\": \"#/$defs/Source\""]
+#[doc = "            },"]
+#[doc = "            \"type\": {"]
+#[doc = "              \"const\": \"string-list\""]
+#[doc = "            },"]
+#[doc = "            \"value\": {"]
+#[doc = "              \"type\": \"array\","]
+#[doc = "              \"items\": {"]
+#[doc = "                \"type\": \"array\","]
+#[doc = "                \"items\": {"]
+#[doc = "                  \"type\": \"string\""]
+#[doc = "                }"]
+#[doc = "              }"]
+#[doc = "            }"]
+#[doc = "          },"]
+#[doc = "          \"additionalProperties\": false"]
+#[doc = "        },"]
+#[doc = "        {"]
+#[doc = "          \"title\": \"Compile-Time Number List\","]
+#[doc = "          \"description\": \"A constant number list value.\","]
+#[doc = "          \"type\": \"object\","]
+#[doc = "          \"required\": ["]
+#[doc = "            \"source\","]
+#[doc = "            \"type\","]
+#[doc = "            \"value\""]
+#[doc = "          ],"]
+#[doc = "          \"properties\": {"]
+#[doc = "            \"source\": {"]
+#[doc = "              \"$ref\": \"#/$defs/Source\""]
+#[doc = "            },"]
+#[doc = "            \"type\": {"]
+#[doc = "              \"const\": \"number-list\""]
+#[doc = "            },"]
+#[doc = "            \"value\": {"]
+#[doc = "              \"type\": \"array\","]
+#[doc = "              \"items\": {"]
+#[doc = "                \"type\": \"array\","]
+#[doc = "                \"items\": {"]
+#[doc = "                  \"type\": \"number\""]
+#[doc = "                }"]
+#[doc = "              }"]
+#[doc = "            }"]
+#[doc = "          },"]
+#[doc = "          \"additionalProperties\": false"]
+#[doc = "        },"]
+#[doc = "        {"]
+#[doc = "          \"title\": \"Compile-Time Boolean List\","]
+#[doc = "          \"description\": \"A constant boolean list value.\","]
+#[doc = "          \"type\": \"object\","]
+#[doc = "          \"required\": ["]
+#[doc = "            \"source\","]
+#[doc = "            \"type\","]
+#[doc = "            \"value\""]
+#[doc = "          ],"]
+#[doc = "          \"properties\": {"]
+#[doc = "            \"source\": {"]
+#[doc = "              \"$ref\": \"#/$defs/Source\""]
+#[doc = "            },"]
+#[doc = "            \"type\": {"]
+#[doc = "              \"const\": \"boolean-list\""]
+#[doc = "            },"]
+#[doc = "            \"value\": {"]
+#[doc = "              \"type\": \"array\","]
+#[doc = "              \"items\": {"]
+#[doc = "                \"type\": \"array\","]
+#[doc = "                \"items\": {"]
+#[doc = "                  \"type\": \"boolean\""]
+#[doc = "                }"]
+#[doc = "              }"]
+#[doc = "            }"]
+#[doc = "          },"]
+#[doc = "          \"additionalProperties\": false"]
+#[doc = "        },"]
+#[doc = "        {"]
+#[doc = "          \"title\": \"Compile-Time String Map\","]
+#[doc = "          \"description\": \"A constant string map value.\","]
+#[doc = "          \"type\": \"object\","]
+#[doc = "          \"required\": ["]
+#[doc = "            \"source\","]
+#[doc = "            \"type\","]
+#[doc = "            \"value\""]
+#[doc = "          ],"]
+#[doc = "          \"properties\": {"]
+#[doc = "            \"source\": {"]
+#[doc = "              \"$ref\": \"#/$defs/Source\""]
+#[doc = "            },"]
+#[doc = "            \"type\": {"]
+#[doc = "              \"const\": \"string-map\""]
+#[doc = "            },"]
+#[doc = "            \"value\": {"]
+#[doc = "              \"type\": \"object\","]
+#[doc = "              \"patternProperties\": {"]
+#[doc = "                \".*\": {"]
+#[doc = "                  \"type\": \"string\""]
+#[doc = "                }"]
+#[doc = "              }"]
+#[doc = "            }"]
+#[doc = "          },"]
+#[doc = "          \"additionalProperties\": false"]
+#[doc = "        },"]
+#[doc = "        {"]
+#[doc = "          \"title\": \"Compile-Time Number Map\","]
+#[doc = "          \"description\": \"A constant number map value.\","]
+#[doc = "          \"type\": \"object\","]
+#[doc = "          \"required\": ["]
+#[doc = "            \"source\","]
+#[doc = "            \"type\","]
+#[doc = "            \"value\""]
+#[doc = "          ],"]
+#[doc = "          \"properties\": {"]
+#[doc = "            \"source\": {"]
+#[doc = "              \"$ref\": \"#/$defs/Source\""]
+#[doc = "            },"]
+#[doc = "            \"type\": {"]
+#[doc = "              \"const\": \"number-map\""]
+#[doc = "            },"]
+#[doc = "            \"value\": {"]
+#[doc = "              \"type\": \"object\","]
+#[doc = "              \"patternProperties\": {"]
+#[doc = "                \".*\": {"]
+#[doc = "                  \"type\": \"number\""]
+#[doc = "                }"]
+#[doc = "              }"]
+#[doc = "            }"]
+#[doc = "          },"]
+#[doc = "          \"additionalProperties\": false"]
+#[doc = "        },"]
+#[doc = "        {"]
+#[doc = "          \"title\": \"Compile-Time Boolean Map\","]
+#[doc = "          \"description\": \"A constant boolean map value.\","]
+#[doc = "          \"type\": \"object\","]
+#[doc = "          \"required\": ["]
+#[doc = "            \"source\","]
+#[doc = "            \"type\","]
+#[doc = "            \"value\""]
+#[doc = "          ],"]
+#[doc = "          \"properties\": {"]
+#[doc = "            \"source\": {"]
+#[doc = "              \"$ref\": \"#/$defs/Source\""]
+#[doc = "            },"]
+#[doc = "            \"type\": {"]
+#[doc = "              \"const\": \"boolean-map\""]
+#[doc = "            },"]
+#[doc = "            \"value\": {"]
+#[doc = "              \"type\": \"object\","]
+#[doc = "              \"patternProperties\": {"]
+#[doc = "                \".*\": {"]
+#[doc = "                  \"type\": \"boolean\""]
+#[doc = "                }"]
+#[doc = "              }"]
+#[doc = "            }"]
+#[doc = "          },"]
+#[doc = "          \"additionalProperties\": false"]
+#[doc = "        }"]
 #[doc = "      ]"]
 #[doc = "    }"]
 #[doc = "  },"]
@@ -4172,36 +4897,587 @@ impl Parameter {
 #[doc = r""]
 #[doc = r" ```json"]
 #[doc = "{"]
-#[doc = "  \"type\": ["]
-#[doc = "    \"string\","]
-#[doc = "    \"number\","]
-#[doc = "    \"boolean\","]
-#[doc = "    \"null\""]
+#[doc = "  \"oneOf\": ["]
+#[doc = "    {"]
+#[doc = "      \"title\": \"Compile-Time String\","]
+#[doc = "      \"description\": \"A constant string value.\","]
+#[doc = "      \"type\": \"object\","]
+#[doc = "      \"required\": ["]
+#[doc = "        \"source\","]
+#[doc = "        \"type\","]
+#[doc = "        \"value\""]
+#[doc = "      ],"]
+#[doc = "      \"properties\": {"]
+#[doc = "        \"source\": {"]
+#[doc = "          \"$ref\": \"#/$defs/Source\""]
+#[doc = "        },"]
+#[doc = "        \"type\": {"]
+#[doc = "          \"const\": \"string\""]
+#[doc = "        },"]
+#[doc = "        \"value\": {"]
+#[doc = "          \"description\": \"The constant string value.\","]
+#[doc = "          \"type\": \"string\""]
+#[doc = "        }"]
+#[doc = "      },"]
+#[doc = "      \"additionalProperties\": false"]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"title\": \"Compile-Time Number\","]
+#[doc = "      \"description\": \"A constant number value.\","]
+#[doc = "      \"type\": \"object\","]
+#[doc = "      \"required\": ["]
+#[doc = "        \"source\","]
+#[doc = "        \"type\","]
+#[doc = "        \"value\""]
+#[doc = "      ],"]
+#[doc = "      \"properties\": {"]
+#[doc = "        \"source\": {"]
+#[doc = "          \"$ref\": \"#/$defs/Source\""]
+#[doc = "        },"]
+#[doc = "        \"type\": {"]
+#[doc = "          \"const\": \"number\""]
+#[doc = "        },"]
+#[doc = "        \"value\": {"]
+#[doc = "          \"description\": \"The constant number value.\","]
+#[doc = "          \"type\": \"number\""]
+#[doc = "        }"]
+#[doc = "      },"]
+#[doc = "      \"additionalProperties\": false"]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"title\": \"Compile-Time Boolean\","]
+#[doc = "      \"description\": \"A constant boolean value.\","]
+#[doc = "      \"type\": \"object\","]
+#[doc = "      \"required\": ["]
+#[doc = "        \"source\","]
+#[doc = "        \"type\","]
+#[doc = "        \"value\""]
+#[doc = "      ],"]
+#[doc = "      \"properties\": {"]
+#[doc = "        \"source\": {"]
+#[doc = "          \"$ref\": \"#/$defs/Source\""]
+#[doc = "        },"]
+#[doc = "        \"type\": {"]
+#[doc = "          \"const\": \"boolean\""]
+#[doc = "        },"]
+#[doc = "        \"value\": {"]
+#[doc = "          \"description\": \"The constant boolean value.\","]
+#[doc = "          \"type\": \"boolean\""]
+#[doc = "        }"]
+#[doc = "      },"]
+#[doc = "      \"additionalProperties\": false"]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"title\": \"Compile-Time Null\","]
+#[doc = "      \"description\": \"A constant null value.\","]
+#[doc = "      \"type\": \"object\","]
+#[doc = "      \"required\": ["]
+#[doc = "        \"source\","]
+#[doc = "        \"type\""]
+#[doc = "      ],"]
+#[doc = "      \"properties\": {"]
+#[doc = "        \"source\": {"]
+#[doc = "          \"$ref\": \"#/$defs/Source\""]
+#[doc = "        },"]
+#[doc = "        \"type\": {"]
+#[doc = "          \"const\": \"null\""]
+#[doc = "        }"]
+#[doc = "      },"]
+#[doc = "      \"additionalProperties\": false"]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"title\": \"Compile-Time String List\","]
+#[doc = "      \"description\": \"A constant string list value.\","]
+#[doc = "      \"type\": \"object\","]
+#[doc = "      \"required\": ["]
+#[doc = "        \"source\","]
+#[doc = "        \"type\","]
+#[doc = "        \"value\""]
+#[doc = "      ],"]
+#[doc = "      \"properties\": {"]
+#[doc = "        \"source\": {"]
+#[doc = "          \"$ref\": \"#/$defs/Source\""]
+#[doc = "        },"]
+#[doc = "        \"type\": {"]
+#[doc = "          \"const\": \"string-list\""]
+#[doc = "        },"]
+#[doc = "        \"value\": {"]
+#[doc = "          \"type\": \"array\","]
+#[doc = "          \"items\": {"]
+#[doc = "            \"type\": \"array\","]
+#[doc = "            \"items\": {"]
+#[doc = "              \"type\": \"string\""]
+#[doc = "            }"]
+#[doc = "          }"]
+#[doc = "        }"]
+#[doc = "      },"]
+#[doc = "      \"additionalProperties\": false"]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"title\": \"Compile-Time Number List\","]
+#[doc = "      \"description\": \"A constant number list value.\","]
+#[doc = "      \"type\": \"object\","]
+#[doc = "      \"required\": ["]
+#[doc = "        \"source\","]
+#[doc = "        \"type\","]
+#[doc = "        \"value\""]
+#[doc = "      ],"]
+#[doc = "      \"properties\": {"]
+#[doc = "        \"source\": {"]
+#[doc = "          \"$ref\": \"#/$defs/Source\""]
+#[doc = "        },"]
+#[doc = "        \"type\": {"]
+#[doc = "          \"const\": \"number-list\""]
+#[doc = "        },"]
+#[doc = "        \"value\": {"]
+#[doc = "          \"type\": \"array\","]
+#[doc = "          \"items\": {"]
+#[doc = "            \"type\": \"array\","]
+#[doc = "            \"items\": {"]
+#[doc = "              \"type\": \"number\""]
+#[doc = "            }"]
+#[doc = "          }"]
+#[doc = "        }"]
+#[doc = "      },"]
+#[doc = "      \"additionalProperties\": false"]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"title\": \"Compile-Time Boolean List\","]
+#[doc = "      \"description\": \"A constant boolean list value.\","]
+#[doc = "      \"type\": \"object\","]
+#[doc = "      \"required\": ["]
+#[doc = "        \"source\","]
+#[doc = "        \"type\","]
+#[doc = "        \"value\""]
+#[doc = "      ],"]
+#[doc = "      \"properties\": {"]
+#[doc = "        \"source\": {"]
+#[doc = "          \"$ref\": \"#/$defs/Source\""]
+#[doc = "        },"]
+#[doc = "        \"type\": {"]
+#[doc = "          \"const\": \"boolean-list\""]
+#[doc = "        },"]
+#[doc = "        \"value\": {"]
+#[doc = "          \"type\": \"array\","]
+#[doc = "          \"items\": {"]
+#[doc = "            \"type\": \"array\","]
+#[doc = "            \"items\": {"]
+#[doc = "              \"type\": \"boolean\""]
+#[doc = "            }"]
+#[doc = "          }"]
+#[doc = "        }"]
+#[doc = "      },"]
+#[doc = "      \"additionalProperties\": false"]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"title\": \"Compile-Time String Map\","]
+#[doc = "      \"description\": \"A constant string map value.\","]
+#[doc = "      \"type\": \"object\","]
+#[doc = "      \"required\": ["]
+#[doc = "        \"source\","]
+#[doc = "        \"type\","]
+#[doc = "        \"value\""]
+#[doc = "      ],"]
+#[doc = "      \"properties\": {"]
+#[doc = "        \"source\": {"]
+#[doc = "          \"$ref\": \"#/$defs/Source\""]
+#[doc = "        },"]
+#[doc = "        \"type\": {"]
+#[doc = "          \"const\": \"string-map\""]
+#[doc = "        },"]
+#[doc = "        \"value\": {"]
+#[doc = "          \"type\": \"object\","]
+#[doc = "          \"patternProperties\": {"]
+#[doc = "            \".*\": {"]
+#[doc = "              \"type\": \"string\""]
+#[doc = "            }"]
+#[doc = "          }"]
+#[doc = "        }"]
+#[doc = "      },"]
+#[doc = "      \"additionalProperties\": false"]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"title\": \"Compile-Time Number Map\","]
+#[doc = "      \"description\": \"A constant number map value.\","]
+#[doc = "      \"type\": \"object\","]
+#[doc = "      \"required\": ["]
+#[doc = "        \"source\","]
+#[doc = "        \"type\","]
+#[doc = "        \"value\""]
+#[doc = "      ],"]
+#[doc = "      \"properties\": {"]
+#[doc = "        \"source\": {"]
+#[doc = "          \"$ref\": \"#/$defs/Source\""]
+#[doc = "        },"]
+#[doc = "        \"type\": {"]
+#[doc = "          \"const\": \"number-map\""]
+#[doc = "        },"]
+#[doc = "        \"value\": {"]
+#[doc = "          \"type\": \"object\","]
+#[doc = "          \"patternProperties\": {"]
+#[doc = "            \".*\": {"]
+#[doc = "              \"type\": \"number\""]
+#[doc = "            }"]
+#[doc = "          }"]
+#[doc = "        }"]
+#[doc = "      },"]
+#[doc = "      \"additionalProperties\": false"]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"title\": \"Compile-Time Boolean Map\","]
+#[doc = "      \"description\": \"A constant boolean map value.\","]
+#[doc = "      \"type\": \"object\","]
+#[doc = "      \"required\": ["]
+#[doc = "        \"source\","]
+#[doc = "        \"type\","]
+#[doc = "        \"value\""]
+#[doc = "      ],"]
+#[doc = "      \"properties\": {"]
+#[doc = "        \"source\": {"]
+#[doc = "          \"$ref\": \"#/$defs/Source\""]
+#[doc = "        },"]
+#[doc = "        \"type\": {"]
+#[doc = "          \"const\": \"boolean-map\""]
+#[doc = "        },"]
+#[doc = "        \"value\": {"]
+#[doc = "          \"type\": \"object\","]
+#[doc = "          \"patternProperties\": {"]
+#[doc = "            \".*\": {"]
+#[doc = "              \"type\": \"boolean\""]
+#[doc = "            }"]
+#[doc = "          }"]
+#[doc = "        }"]
+#[doc = "      },"]
+#[doc = "      \"additionalProperties\": false"]
+#[doc = "    }"]
 #[doc = "  ]"]
 #[doc = "}"]
 #[doc = r" ```"]
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
-#[serde(untagged)]
+#[serde(tag = "type", deny_unknown_fields)]
 pub enum ParameterValue {
-    Null,
-    Boolean(bool),
-    Number(f64),
-    String(::std::string::String),
+    #[doc = "Compile-Time String\n\nA constant string value."]
+    #[serde(rename = "string")]
+    String {
+        source: Source,
+        #[doc = "The constant string value."]
+        value: ::std::string::String,
+    },
+    #[doc = "Compile-Time Number\n\nA constant number value."]
+    #[serde(rename = "number")]
+    Number { source: Source, value: f64 },
+    #[doc = "Compile-Time Boolean\n\nA constant boolean value."]
+    #[serde(rename = "boolean")]
+    Boolean {
+        source: Source,
+        #[doc = "The constant boolean value."]
+        value: bool,
+    },
+    #[doc = "Compile-Time Null\n\nA constant null value."]
+    #[serde(rename = "null")]
+    Null { source: Source },
+    #[doc = "Compile-Time String List\n\nA constant string list value."]
+    #[serde(rename = "string-list")]
+    StringList {
+        source: Source,
+        value: ::std::vec::Vec<::std::vec::Vec<::std::string::String>>,
+    },
+    #[doc = "Compile-Time Number List\n\nA constant number list value."]
+    #[serde(rename = "number-list")]
+    NumberList {
+        source: Source,
+        value: ::std::vec::Vec<::std::vec::Vec<f64>>,
+    },
+    #[doc = "Compile-Time Boolean List\n\nA constant boolean list value."]
+    #[serde(rename = "boolean-list")]
+    BooleanList {
+        source: Source,
+        value: ::std::vec::Vec<::std::vec::Vec<bool>>,
+    },
+    #[doc = "Compile-Time String Map\n\nA constant string map value."]
+    #[serde(rename = "string-map")]
+    StringMap {
+        source: Source,
+        value: ::std::collections::HashMap<ParameterValueValueKey, ::std::string::String>,
+    },
+    #[doc = "Compile-Time Number Map\n\nA constant number map value."]
+    #[serde(rename = "number-map")]
+    NumberMap {
+        source: Source,
+        value: ::std::collections::HashMap<ParameterValueValueKey, f64>,
+    },
+    #[doc = "Compile-Time Boolean Map\n\nA constant boolean map value."]
+    #[serde(rename = "boolean-map")]
+    BooleanMap {
+        source: Source,
+        value: ::std::collections::HashMap<ParameterValueValueKey, bool>,
+    },
 }
 impl ::std::convert::From<&Self> for ParameterValue {
     fn from(value: &ParameterValue) -> Self {
         value.clone()
     }
 }
-impl ::std::convert::From<bool> for ParameterValue {
-    fn from(value: bool) -> Self {
-        Self::Boolean(value)
+#[doc = "`ParameterValueValueKey`"]
+#[doc = r""]
+#[doc = r" <details><summary>JSON schema</summary>"]
+#[doc = r""]
+#[doc = r" ```json"]
+#[doc = "{"]
+#[doc = "  \"type\": \"string\","]
+#[doc = "  \"pattern\": \".*\""]
+#[doc = "}"]
+#[doc = r" ```"]
+#[doc = r" </details>"]
+#[derive(:: serde :: Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct ParameterValueValueKey(::std::string::String);
+impl ::std::ops::Deref for ParameterValueValueKey {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
     }
 }
-impl ::std::convert::From<f64> for ParameterValue {
-    fn from(value: f64) -> Self {
-        Self::Number(value)
+impl ::std::convert::From<ParameterValueValueKey> for ::std::string::String {
+    fn from(value: ParameterValueValueKey) -> Self {
+        value.0
+    }
+}
+impl ::std::convert::From<&ParameterValueValueKey> for ParameterValueValueKey {
+    fn from(value: &ParameterValueValueKey) -> Self {
+        value.clone()
+    }
+}
+impl ::std::str::FromStr for ParameterValueValueKey {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+            ::std::sync::LazyLock::new(|| ::regress::Regex::new(".*").unwrap());
+        if (&*PATTERN).find(value).is_none() {
+            return Err("doesn't match pattern \".*\"".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for ParameterValueValueKey {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<&::std::string::String> for ParameterValueValueKey {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: &::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for ParameterValueValueKey {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for ParameterValueValueKey {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
+#[doc = "Selects a sub-sequence of values from an array.  If the 'count' or 'end' fields are not given, then it defaults to the end of the list.  If the 'start' field is not given, then it defaults to 0."]
+#[doc = r""]
+#[doc = r" <details><summary>JSON schema</summary>"]
+#[doc = r""]
+#[doc = r" ```json"]
+#[doc = "{"]
+#[doc = "  \"title\": \"Range Boolean List Value\","]
+#[doc = "  \"description\": \"Selects a sub-sequence of values from an array.  If the 'count' or 'end' fields are not given, then it defaults to the end of the list.  If the 'start' field is not given, then it defaults to 0.\","]
+#[doc = "  \"type\": \"object\","]
+#[doc = "  \"required\": ["]
+#[doc = "    \"list\","]
+#[doc = "    \"source\","]
+#[doc = "    \"type\""]
+#[doc = "  ],"]
+#[doc = "  \"properties\": {"]
+#[doc = "    \"count\": {"]
+#[doc = "      \"$ref\": \"#/$defs/ComputedNumberValue\""]
+#[doc = "    },"]
+#[doc = "    \"end\": {"]
+#[doc = "      \"$ref\": \"#/$defs/ComputedNumberValue\""]
+#[doc = "    },"]
+#[doc = "    \"list\": {"]
+#[doc = "      \"$ref\": \"#/$defs/ComputedBooleanListValue\""]
+#[doc = "    },"]
+#[doc = "    \"source\": {"]
+#[doc = "      \"$ref\": \"#/$defs/Source\""]
+#[doc = "    },"]
+#[doc = "    \"start\": {"]
+#[doc = "      \"$ref\": \"#/$defs/ComputedNumberValue\""]
+#[doc = "    },"]
+#[doc = "    \"type\": {"]
+#[doc = "      \"const\": \"range-boolean-list\""]
+#[doc = "    }"]
+#[doc = "  },"]
+#[doc = "  \"additionalProperties\": false"]
+#[doc = "}"]
+#[doc = r" ```"]
+#[doc = r" </details>"]
+#[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
+#[serde(deny_unknown_fields)]
+pub struct RangeBooleanListValue {
+    #[serde(default)]
+    pub count: ::std::boxed::Box<::std::option::Option<ComputedNumberValue>>,
+    #[serde(default)]
+    pub end: ::std::boxed::Box<::std::option::Option<ComputedNumberValue>>,
+    pub list: ::std::boxed::Box<ComputedBooleanListValue>,
+    pub source: Source,
+    #[serde(default)]
+    pub start: ::std::boxed::Box<::std::option::Option<ComputedNumberValue>>,
+    #[serde(rename = "type")]
+    pub type_: ::serde_json::Value,
+}
+impl ::std::convert::From<&RangeBooleanListValue> for RangeBooleanListValue {
+    fn from(value: &RangeBooleanListValue) -> Self {
+        value.clone()
+    }
+}
+impl RangeBooleanListValue {
+    pub fn builder() -> builder::RangeBooleanListValue {
+        Default::default()
+    }
+}
+#[doc = "Selects a sub-sequence of values from an array.  If the 'count' or 'end' fields are not given, then it defaults to the end of the list.  If the 'start' field is not given, then it defaults to 0."]
+#[doc = r""]
+#[doc = r" <details><summary>JSON schema</summary>"]
+#[doc = r""]
+#[doc = r" ```json"]
+#[doc = "{"]
+#[doc = "  \"title\": \"Range Number List Value\","]
+#[doc = "  \"description\": \"Selects a sub-sequence of values from an array.  If the 'count' or 'end' fields are not given, then it defaults to the end of the list.  If the 'start' field is not given, then it defaults to 0.\","]
+#[doc = "  \"type\": \"object\","]
+#[doc = "  \"required\": ["]
+#[doc = "    \"list\","]
+#[doc = "    \"source\","]
+#[doc = "    \"type\""]
+#[doc = "  ],"]
+#[doc = "  \"properties\": {"]
+#[doc = "    \"count\": {"]
+#[doc = "      \"$ref\": \"#/$defs/ComputedNumberValue\""]
+#[doc = "    },"]
+#[doc = "    \"end\": {"]
+#[doc = "      \"$ref\": \"#/$defs/ComputedNumberValue\""]
+#[doc = "    },"]
+#[doc = "    \"list\": {"]
+#[doc = "      \"$ref\": \"#/$defs/ComputedNumberListValue\""]
+#[doc = "    },"]
+#[doc = "    \"source\": {"]
+#[doc = "      \"$ref\": \"#/$defs/Source\""]
+#[doc = "    },"]
+#[doc = "    \"start\": {"]
+#[doc = "      \"$ref\": \"#/$defs/ComputedNumberValue\""]
+#[doc = "    },"]
+#[doc = "    \"type\": {"]
+#[doc = "      \"const\": \"range-number-list\""]
+#[doc = "    }"]
+#[doc = "  },"]
+#[doc = "  \"additionalProperties\": false"]
+#[doc = "}"]
+#[doc = r" ```"]
+#[doc = r" </details>"]
+#[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
+#[serde(deny_unknown_fields)]
+pub struct RangeNumberListValue {
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub count: ::std::option::Option<ComputedNumberValue>,
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub end: ::std::option::Option<ComputedNumberValue>,
+    pub list: ::std::boxed::Box<ComputedNumberListValue>,
+    pub source: Source,
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub start: ::std::option::Option<ComputedNumberValue>,
+    #[serde(rename = "type")]
+    pub type_: ::serde_json::Value,
+}
+impl ::std::convert::From<&RangeNumberListValue> for RangeNumberListValue {
+    fn from(value: &RangeNumberListValue) -> Self {
+        value.clone()
+    }
+}
+impl RangeNumberListValue {
+    pub fn builder() -> builder::RangeNumberListValue {
+        Default::default()
+    }
+}
+#[doc = "Selects a sub-sequence of values from an array.  If the 'count' or 'end' fields are not given, then it defaults to the end of the list.  If the 'start' field is not given, then it defaults to 0."]
+#[doc = r""]
+#[doc = r" <details><summary>JSON schema</summary>"]
+#[doc = r""]
+#[doc = r" ```json"]
+#[doc = "{"]
+#[doc = "  \"title\": \"Range String List Value\","]
+#[doc = "  \"description\": \"Selects a sub-sequence of values from an array.  If the 'count' or 'end' fields are not given, then it defaults to the end of the list.  If the 'start' field is not given, then it defaults to 0.\","]
+#[doc = "  \"type\": \"object\","]
+#[doc = "  \"required\": ["]
+#[doc = "    \"list\","]
+#[doc = "    \"source\","]
+#[doc = "    \"type\""]
+#[doc = "  ],"]
+#[doc = "  \"properties\": {"]
+#[doc = "    \"count\": {"]
+#[doc = "      \"$ref\": \"#/$defs/ComputedNumberValue\""]
+#[doc = "    },"]
+#[doc = "    \"end\": {"]
+#[doc = "      \"$ref\": \"#/$defs/ComputedNumberValue\""]
+#[doc = "    },"]
+#[doc = "    \"list\": {"]
+#[doc = "      \"$ref\": \"#/$defs/ComputedStringListValue\""]
+#[doc = "    },"]
+#[doc = "    \"source\": {"]
+#[doc = "      \"$ref\": \"#/$defs/Source\""]
+#[doc = "    },"]
+#[doc = "    \"start\": {"]
+#[doc = "      \"$ref\": \"#/$defs/ComputedNumberValue\""]
+#[doc = "    },"]
+#[doc = "    \"type\": {"]
+#[doc = "      \"const\": \"range-string-list\""]
+#[doc = "    }"]
+#[doc = "  },"]
+#[doc = "  \"additionalProperties\": false"]
+#[doc = "}"]
+#[doc = r" ```"]
+#[doc = r" </details>"]
+#[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
+#[serde(deny_unknown_fields)]
+pub struct RangeStringListValue {
+    #[serde(default)]
+    pub count: ::std::boxed::Box<::std::option::Option<ComputedNumberValue>>,
+    #[serde(default)]
+    pub end: ::std::boxed::Box<::std::option::Option<ComputedNumberValue>>,
+    pub list: ::std::boxed::Box<ComputedStringListValue>,
+    pub source: Source,
+    #[serde(default)]
+    pub start: ::std::boxed::Box<::std::option::Option<ComputedNumberValue>>,
+    #[serde(rename = "type")]
+    pub type_: ::serde_json::Value,
+}
+impl ::std::convert::From<&RangeStringListValue> for RangeStringListValue {
+    fn from(value: &RangeStringListValue) -> Self {
+        value.clone()
+    }
+}
+impl RangeStringListValue {
+    pub fn builder() -> builder::RangeStringListValue {
+        Default::default()
     }
 }
 #[doc = "The source from the script."]
@@ -4253,6 +5529,58 @@ impl ::std::convert::From<&Source> for Source {
 }
 impl Source {
     pub fn builder() -> builder::Source {
+        Default::default()
+    }
+}
+#[doc = "Turns a string into a string array, splitting items by a specific string."]
+#[doc = r""]
+#[doc = r" <details><summary>JSON schema</summary>"]
+#[doc = r""]
+#[doc = r" ```json"]
+#[doc = "{"]
+#[doc = "  \"title\": \"Split-String Value\","]
+#[doc = "  \"description\": \"Turns a string into a string array, splitting items by a specific string.\","]
+#[doc = "  \"type\": \"object\","]
+#[doc = "  \"required\": ["]
+#[doc = "    \"separator\","]
+#[doc = "    \"source\","]
+#[doc = "    \"type\","]
+#[doc = "    \"value\""]
+#[doc = "  ],"]
+#[doc = "  \"properties\": {"]
+#[doc = "    \"separator\": {"]
+#[doc = "      \"$ref\": \"#/$defs/ComputedStringValue\""]
+#[doc = "    },"]
+#[doc = "    \"source\": {"]
+#[doc = "      \"$ref\": \"#/$defs/Source\""]
+#[doc = "    },"]
+#[doc = "    \"type\": {"]
+#[doc = "      \"const\": \"split-string\""]
+#[doc = "    },"]
+#[doc = "    \"value\": {"]
+#[doc = "      \"$ref\": \"#/$defs/ComputedStringValue\""]
+#[doc = "    }"]
+#[doc = "  },"]
+#[doc = "  \"additionalProperties\": false"]
+#[doc = "}"]
+#[doc = r" ```"]
+#[doc = r" </details>"]
+#[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
+#[serde(deny_unknown_fields)]
+pub struct SplitStringValue {
+    pub separator: ::std::boxed::Box<ComputedStringValue>,
+    pub source: Source,
+    #[serde(rename = "type")]
+    pub type_: ::serde_json::Value,
+    pub value: ::std::boxed::Box<ComputedStringValue>,
+}
+impl ::std::convert::From<&SplitStringValue> for SplitStringValue {
+    fn from(value: &SplitStringValue) -> Self {
+        value.clone()
+    }
+}
+impl SplitStringValue {
+    pub fn builder() -> builder::SplitStringValue {
         Default::default()
     }
 }
@@ -4484,6 +5812,68 @@ impl ::std::fmt::Display for StreamToStream {
 impl ::std::convert::From<i64> for StreamToStream {
     fn from(value: i64) -> Self {
         Self::Integer(value)
+    }
+}
+#[doc = "Extract an internal part of another string.  The 'count' field cannot be used with 'end'.  If 'start' is not given, then it defaults to 0, and if 'end' or 'count' are not given, then it defaults to the end of the string."]
+#[doc = r""]
+#[doc = r" <details><summary>JSON schema</summary>"]
+#[doc = r""]
+#[doc = r" ```json"]
+#[doc = "{"]
+#[doc = "  \"title\": \"Sub-String Value\","]
+#[doc = "  \"description\": \"Extract an internal part of another string.  The 'count' field cannot be used with 'end'.  If 'start' is not given, then it defaults to 0, and if 'end' or 'count' are not given, then it defaults to the end of the string.\","]
+#[doc = "  \"type\": \"object\","]
+#[doc = "  \"required\": ["]
+#[doc = "    \"source\","]
+#[doc = "    \"type\","]
+#[doc = "    \"value\""]
+#[doc = "  ],"]
+#[doc = "  \"properties\": {"]
+#[doc = "    \"count\": {"]
+#[doc = "      \"$ref\": \"#/$defs/ComputedNumberValue\""]
+#[doc = "    },"]
+#[doc = "    \"end\": {"]
+#[doc = "      \"$ref\": \"#/$defs/ComputedNumberValue\""]
+#[doc = "    },"]
+#[doc = "    \"source\": {"]
+#[doc = "      \"$ref\": \"#/$defs/Source\""]
+#[doc = "    },"]
+#[doc = "    \"start\": {"]
+#[doc = "      \"$ref\": \"#/$defs/ComputedNumberValue\""]
+#[doc = "    },"]
+#[doc = "    \"type\": {"]
+#[doc = "      \"const\": \"substring\""]
+#[doc = "    },"]
+#[doc = "    \"value\": {"]
+#[doc = "      \"$ref\": \"#/$defs/ComputedStringValue\""]
+#[doc = "    }"]
+#[doc = "  },"]
+#[doc = "  \"additionalProperties\": false"]
+#[doc = "}"]
+#[doc = r" ```"]
+#[doc = r" </details>"]
+#[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
+#[serde(deny_unknown_fields)]
+pub struct SubStringValue {
+    #[serde(default)]
+    pub count: ::std::boxed::Box<::std::option::Option<ComputedNumberValue>>,
+    #[serde(default)]
+    pub end: ::std::boxed::Box<::std::option::Option<ComputedNumberValue>>,
+    pub source: Source,
+    #[serde(default)]
+    pub start: ::std::boxed::Box<::std::option::Option<ComputedNumberValue>>,
+    #[serde(rename = "type")]
+    pub type_: ::serde_json::Value,
+    pub value: ::std::boxed::Box<ComputedStringValue>,
+}
+impl ::std::convert::From<&SubStringValue> for SubStringValue {
+    fn from(value: &SubStringValue) -> Self {
+        value.clone()
+    }
+}
+impl SubStringValue {
+    pub fn builder() -> builder::SubStringValue {
+        Default::default()
     }
 }
 #[doc = "A boolean map value that is the union of multiple boolean map values."]
@@ -5115,7 +6505,7 @@ pub mod builder {
         value: ::std::result::Result<
             ::std::collections::HashMap<
                 super::ConstantBooleanMapValueValueKey,
-                super::ComputedBooleanValue,
+                ::std::option::Option<super::ComputedBooleanValue>,
             >,
             ::std::string::String,
         >,
@@ -5155,7 +6545,7 @@ pub mod builder {
             T: ::std::convert::TryInto<
                 ::std::collections::HashMap<
                     super::ConstantBooleanMapValueValueKey,
-                    super::ComputedBooleanValue,
+                    ::std::option::Option<super::ComputedBooleanValue>,
                 >,
             >,
             T::Error: ::std::fmt::Display,
@@ -5333,7 +6723,7 @@ pub mod builder {
         value: ::std::result::Result<
             ::std::collections::HashMap<
                 super::ConstantNumberMapValueValueKey,
-                super::ComputedNumberValue,
+                ::std::option::Option<super::ComputedNumberValue>,
             >,
             ::std::string::String,
         >,
@@ -5373,7 +6763,7 @@ pub mod builder {
             T: ::std::convert::TryInto<
                 ::std::collections::HashMap<
                     super::ConstantNumberMapValueValueKey,
-                    super::ComputedNumberValue,
+                    ::std::option::Option<super::ComputedNumberValue>,
                 >,
             >,
             T::Error: ::std::fmt::Display,
@@ -5551,7 +6941,7 @@ pub mod builder {
         value: ::std::result::Result<
             ::std::collections::HashMap<
                 super::ConstantStringMapValueValueKey,
-                super::ComputedStringValue,
+                ::std::option::Option<::std::boxed::Box<super::ComputedStringValue>>,
             >,
             ::std::string::String,
         >,
@@ -5591,7 +6981,7 @@ pub mod builder {
             T: ::std::convert::TryInto<
                 ::std::collections::HashMap<
                     super::ConstantStringMapValueValueKey,
-                    super::ComputedStringValue,
+                    ::std::option::Option<::std::boxed::Box<super::ComputedStringValue>>,
                 >,
             >,
             T::Error: ::std::fmt::Display,
@@ -5687,74 +7077,6 @@ pub mod builder {
             Self {
                 source: Ok(value.source),
                 type_: Ok(value.type_),
-                value: Ok(value.value),
-            }
-        }
-    }
-    #[derive(Clone, Debug)]
-    pub struct EnvironmentVariable {
-        name: ::std::result::Result<super::ComputedValue, ::std::string::String>,
-        source: ::std::result::Result<super::Source, ::std::string::String>,
-        value: ::std::result::Result<super::ComputedValue, ::std::string::String>,
-    }
-    impl ::std::default::Default for EnvironmentVariable {
-        fn default() -> Self {
-            Self {
-                name: Err("no value supplied for name".to_string()),
-                source: Err("no value supplied for source".to_string()),
-                value: Err("no value supplied for value".to_string()),
-            }
-        }
-    }
-    impl EnvironmentVariable {
-        pub fn name<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<super::ComputedValue>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.name = value
-                .try_into()
-                .map_err(|e| format!("error converting supplied value for name: {}", e));
-            self
-        }
-        pub fn source<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<super::Source>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.source = value
-                .try_into()
-                .map_err(|e| format!("error converting supplied value for source: {}", e));
-            self
-        }
-        pub fn value<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<super::ComputedValue>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.value = value
-                .try_into()
-                .map_err(|e| format!("error converting supplied value for value: {}", e));
-            self
-        }
-    }
-    impl ::std::convert::TryFrom<EnvironmentVariable> for super::EnvironmentVariable {
-        type Error = super::error::ConversionError;
-        fn try_from(
-            value: EnvironmentVariable,
-        ) -> ::std::result::Result<Self, super::error::ConversionError> {
-            Ok(Self {
-                name: value.name?,
-                source: value.source?,
-                value: value.value?,
-            })
-        }
-    }
-    impl ::std::convert::From<super::EnvironmentVariable> for EnvironmentVariable {
-        fn from(value: super::EnvironmentVariable) -> Self {
-            Self {
-                name: Ok(value.name),
-                source: Ok(value.source),
                 value: Ok(value.value),
             }
         }
@@ -6060,6 +7382,315 @@ pub mod builder {
         }
     }
     #[derive(Clone, Debug)]
+    pub struct ListIndexBooleanValue {
+        default: ::std::result::Result<
+            ::std::boxed::Box<super::ComputedBooleanValue>,
+            ::std::string::String,
+        >,
+        index: ::std::result::Result<
+            ::std::boxed::Box<super::ComputedNumberValue>,
+            ::std::string::String,
+        >,
+        list: ::std::result::Result<super::ComputedBooleanListValue, ::std::string::String>,
+        source: ::std::result::Result<super::Source, ::std::string::String>,
+        type_: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+    }
+    impl ::std::default::Default for ListIndexBooleanValue {
+        fn default() -> Self {
+            Self {
+                default: Err("no value supplied for default".to_string()),
+                index: Err("no value supplied for index".to_string()),
+                list: Err("no value supplied for list".to_string()),
+                source: Err("no value supplied for source".to_string()),
+                type_: Err("no value supplied for type_".to_string()),
+            }
+        }
+    }
+    impl ListIndexBooleanValue {
+        pub fn default<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::boxed::Box<super::ComputedBooleanValue>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.default = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for default: {}", e));
+            self
+        }
+        pub fn index<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::boxed::Box<super::ComputedNumberValue>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.index = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for index: {}", e));
+            self
+        }
+        pub fn list<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<super::ComputedBooleanListValue>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.list = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for list: {}", e));
+            self
+        }
+        pub fn source<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<super::Source>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.source = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for source: {}", e));
+            self
+        }
+        pub fn type_<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::serde_json::Value>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.type_ = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for type_: {}", e));
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<ListIndexBooleanValue> for super::ListIndexBooleanValue {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: ListIndexBooleanValue,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                default: value.default?,
+                index: value.index?,
+                list: value.list?,
+                source: value.source?,
+                type_: value.type_?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::ListIndexBooleanValue> for ListIndexBooleanValue {
+        fn from(value: super::ListIndexBooleanValue) -> Self {
+            Self {
+                default: Ok(value.default),
+                index: Ok(value.index),
+                list: Ok(value.list),
+                source: Ok(value.source),
+                type_: Ok(value.type_),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
+    pub struct ListIndexNumberValue {
+        default: ::std::result::Result<
+            ::std::boxed::Box<super::ComputedNumberValue>,
+            ::std::string::String,
+        >,
+        index: ::std::result::Result<
+            ::std::boxed::Box<super::ComputedNumberValue>,
+            ::std::string::String,
+        >,
+        list: ::std::result::Result<
+            ::std::boxed::Box<super::ComputedNumberListValue>,
+            ::std::string::String,
+        >,
+        source: ::std::result::Result<super::Source, ::std::string::String>,
+        type_: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+    }
+    impl ::std::default::Default for ListIndexNumberValue {
+        fn default() -> Self {
+            Self {
+                default: Err("no value supplied for default".to_string()),
+                index: Err("no value supplied for index".to_string()),
+                list: Err("no value supplied for list".to_string()),
+                source: Err("no value supplied for source".to_string()),
+                type_: Err("no value supplied for type_".to_string()),
+            }
+        }
+    }
+    impl ListIndexNumberValue {
+        pub fn default<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::boxed::Box<super::ComputedNumberValue>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.default = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for default: {}", e));
+            self
+        }
+        pub fn index<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::boxed::Box<super::ComputedNumberValue>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.index = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for index: {}", e));
+            self
+        }
+        pub fn list<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::boxed::Box<super::ComputedNumberListValue>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.list = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for list: {}", e));
+            self
+        }
+        pub fn source<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<super::Source>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.source = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for source: {}", e));
+            self
+        }
+        pub fn type_<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::serde_json::Value>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.type_ = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for type_: {}", e));
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<ListIndexNumberValue> for super::ListIndexNumberValue {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: ListIndexNumberValue,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                default: value.default?,
+                index: value.index?,
+                list: value.list?,
+                source: value.source?,
+                type_: value.type_?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::ListIndexNumberValue> for ListIndexNumberValue {
+        fn from(value: super::ListIndexNumberValue) -> Self {
+            Self {
+                default: Ok(value.default),
+                index: Ok(value.index),
+                list: Ok(value.list),
+                source: Ok(value.source),
+                type_: Ok(value.type_),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
+    pub struct ListIndexStringValue {
+        default: ::std::result::Result<
+            ::std::boxed::Box<super::ComputedStringValue>,
+            ::std::string::String,
+        >,
+        index: ::std::result::Result<
+            ::std::boxed::Box<super::ComputedNumberValue>,
+            ::std::string::String,
+        >,
+        list: ::std::result::Result<super::ComputedStringListValue, ::std::string::String>,
+        source: ::std::result::Result<super::Source, ::std::string::String>,
+        type_: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+    }
+    impl ::std::default::Default for ListIndexStringValue {
+        fn default() -> Self {
+            Self {
+                default: Err("no value supplied for default".to_string()),
+                index: Err("no value supplied for index".to_string()),
+                list: Err("no value supplied for list".to_string()),
+                source: Err("no value supplied for source".to_string()),
+                type_: Err("no value supplied for type_".to_string()),
+            }
+        }
+    }
+    impl ListIndexStringValue {
+        pub fn default<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::boxed::Box<super::ComputedStringValue>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.default = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for default: {}", e));
+            self
+        }
+        pub fn index<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::boxed::Box<super::ComputedNumberValue>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.index = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for index: {}", e));
+            self
+        }
+        pub fn list<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<super::ComputedStringListValue>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.list = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for list: {}", e));
+            self
+        }
+        pub fn source<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<super::Source>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.source = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for source: {}", e));
+            self
+        }
+        pub fn type_<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::serde_json::Value>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.type_ = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for type_: {}", e));
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<ListIndexStringValue> for super::ListIndexStringValue {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: ListIndexStringValue,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                default: value.default?,
+                index: value.index?,
+                list: value.list?,
+                source: value.source?,
+                type_: value.type_?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::ListIndexStringValue> for ListIndexStringValue {
+        fn from(value: super::ListIndexStringValue) -> Self {
+            Self {
+                default: Ok(value.default),
+                index: Ok(value.index),
+                list: Ok(value.list),
+                source: Ok(value.source),
+                type_: Ok(value.type_),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
     pub struct ListToStringValue {
         separator: ::std::result::Result<
             ::std::option::Option<::std::boxed::Box<super::ComputedStringValue>>,
@@ -6319,8 +7950,14 @@ pub mod builder {
     }
     #[derive(Clone, Debug)]
     pub struct LookupBooleanMapValue {
-        name: ::std::result::Result<super::ComputedStringValue, ::std::string::String>,
-        node: ::std::result::Result<super::ComputedStringValue, ::std::string::String>,
+        name: ::std::result::Result<
+            ::std::boxed::Box<super::ComputedStringValue>,
+            ::std::string::String,
+        >,
+        node: ::std::result::Result<
+            ::std::boxed::Box<super::ComputedStringValue>,
+            ::std::string::String,
+        >,
         source: ::std::result::Result<super::Source, ::std::string::String>,
         type_: ::std::result::Result<::serde_json::Value, ::std::string::String>,
     }
@@ -6337,7 +7974,7 @@ pub mod builder {
     impl LookupBooleanMapValue {
         pub fn name<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<super::ComputedStringValue>,
+            T: ::std::convert::TryInto<::std::boxed::Box<super::ComputedStringValue>>,
             T::Error: ::std::fmt::Display,
         {
             self.name = value
@@ -6347,7 +7984,7 @@ pub mod builder {
         }
         pub fn node<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<super::ComputedStringValue>,
+            T: ::std::convert::TryInto<::std::boxed::Box<super::ComputedStringValue>>,
             T::Error: ::std::fmt::Display,
         {
             self.node = value
@@ -6479,94 +8116,6 @@ pub mod builder {
     }
     impl ::std::convert::From<super::LookupBooleanValue> for LookupBooleanValue {
         fn from(value: super::LookupBooleanValue) -> Self {
-            Self {
-                name: Ok(value.name),
-                node: Ok(value.node),
-                source: Ok(value.source),
-                type_: Ok(value.type_),
-            }
-        }
-    }
-    #[derive(Clone, Debug)]
-    pub struct LookupEnvStringValue {
-        name: ::std::result::Result<
-            ::std::boxed::Box<super::ComputedStringValue>,
-            ::std::string::String,
-        >,
-        node: ::std::result::Result<
-            ::std::boxed::Box<super::ComputedStringValue>,
-            ::std::string::String,
-        >,
-        source: ::std::result::Result<super::Source, ::std::string::String>,
-        type_: ::std::result::Result<::serde_json::Value, ::std::string::String>,
-    }
-    impl ::std::default::Default for LookupEnvStringValue {
-        fn default() -> Self {
-            Self {
-                name: Err("no value supplied for name".to_string()),
-                node: Err("no value supplied for node".to_string()),
-                source: Err("no value supplied for source".to_string()),
-                type_: Err("no value supplied for type_".to_string()),
-            }
-        }
-    }
-    impl LookupEnvStringValue {
-        pub fn name<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<::std::boxed::Box<super::ComputedStringValue>>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.name = value
-                .try_into()
-                .map_err(|e| format!("error converting supplied value for name: {}", e));
-            self
-        }
-        pub fn node<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<::std::boxed::Box<super::ComputedStringValue>>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.node = value
-                .try_into()
-                .map_err(|e| format!("error converting supplied value for node: {}", e));
-            self
-        }
-        pub fn source<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<super::Source>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.source = value
-                .try_into()
-                .map_err(|e| format!("error converting supplied value for source: {}", e));
-            self
-        }
-        pub fn type_<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<::serde_json::Value>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.type_ = value
-                .try_into()
-                .map_err(|e| format!("error converting supplied value for type_: {}", e));
-            self
-        }
-    }
-    impl ::std::convert::TryFrom<LookupEnvStringValue> for super::LookupEnvStringValue {
-        type Error = super::error::ConversionError;
-        fn try_from(
-            value: LookupEnvStringValue,
-        ) -> ::std::result::Result<Self, super::error::ConversionError> {
-            Ok(Self {
-                name: value.name?,
-                node: value.node?,
-                source: value.source?,
-                type_: value.type_?,
-            })
-        }
-    }
-    impl ::std::convert::From<super::LookupEnvStringValue> for LookupEnvStringValue {
-        fn from(value: super::LookupEnvStringValue) -> Self {
             Self {
                 name: Ok(value.name),
                 node: Ok(value.node),
@@ -6741,14 +8290,8 @@ pub mod builder {
     }
     #[derive(Clone, Debug)]
     pub struct LookupNumberValue {
-        name: ::std::result::Result<
-            ::std::boxed::Box<super::ComputedStringValue>,
-            ::std::string::String,
-        >,
-        node: ::std::result::Result<
-            ::std::boxed::Box<super::ComputedStringValue>,
-            ::std::string::String,
-        >,
+        name: ::std::result::Result<super::ComputedStringValue, ::std::string::String>,
+        node: ::std::result::Result<super::ComputedStringValue, ::std::string::String>,
         source: ::std::result::Result<super::Source, ::std::string::String>,
         type_: ::std::result::Result<::serde_json::Value, ::std::string::String>,
     }
@@ -6765,7 +8308,7 @@ pub mod builder {
     impl LookupNumberValue {
         pub fn name<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::std::boxed::Box<super::ComputedStringValue>>,
+            T: ::std::convert::TryInto<super::ComputedStringValue>,
             T::Error: ::std::fmt::Display,
         {
             self.name = value
@@ -6775,7 +8318,7 @@ pub mod builder {
         }
         pub fn node<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::std::boxed::Box<super::ComputedStringValue>>,
+            T: ::std::convert::TryInto<super::ComputedStringValue>,
             T::Error: ::std::fmt::Display,
         {
             self.node = value
@@ -6819,94 +8362,6 @@ pub mod builder {
     }
     impl ::std::convert::From<super::LookupNumberValue> for LookupNumberValue {
         fn from(value: super::LookupNumberValue) -> Self {
-            Self {
-                name: Ok(value.name),
-                node: Ok(value.node),
-                source: Ok(value.source),
-                type_: Ok(value.type_),
-            }
-        }
-    }
-    #[derive(Clone, Debug)]
-    pub struct LookupStateStringValue {
-        name: ::std::result::Result<
-            ::std::boxed::Box<super::ComputedStringValue>,
-            ::std::string::String,
-        >,
-        node: ::std::result::Result<
-            ::std::boxed::Box<super::ComputedStringValue>,
-            ::std::string::String,
-        >,
-        source: ::std::result::Result<super::Source, ::std::string::String>,
-        type_: ::std::result::Result<::serde_json::Value, ::std::string::String>,
-    }
-    impl ::std::default::Default for LookupStateStringValue {
-        fn default() -> Self {
-            Self {
-                name: Err("no value supplied for name".to_string()),
-                node: Err("no value supplied for node".to_string()),
-                source: Err("no value supplied for source".to_string()),
-                type_: Err("no value supplied for type_".to_string()),
-            }
-        }
-    }
-    impl LookupStateStringValue {
-        pub fn name<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<::std::boxed::Box<super::ComputedStringValue>>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.name = value
-                .try_into()
-                .map_err(|e| format!("error converting supplied value for name: {}", e));
-            self
-        }
-        pub fn node<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<::std::boxed::Box<super::ComputedStringValue>>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.node = value
-                .try_into()
-                .map_err(|e| format!("error converting supplied value for node: {}", e));
-            self
-        }
-        pub fn source<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<super::Source>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.source = value
-                .try_into()
-                .map_err(|e| format!("error converting supplied value for source: {}", e));
-            self
-        }
-        pub fn type_<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<::serde_json::Value>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.type_ = value
-                .try_into()
-                .map_err(|e| format!("error converting supplied value for type_: {}", e));
-            self
-        }
-    }
-    impl ::std::convert::TryFrom<LookupStateStringValue> for super::LookupStateStringValue {
-        type Error = super::error::ConversionError;
-        fn try_from(
-            value: LookupStateStringValue,
-        ) -> ::std::result::Result<Self, super::error::ConversionError> {
-            Ok(Self {
-                name: value.name?,
-                node: value.node?,
-                source: value.source?,
-                type_: value.type_?,
-            })
-        }
-    }
-    impl ::std::convert::From<super::LookupStateStringValue> for LookupStateStringValue {
-        fn from(value: super::LookupStateStringValue) -> Self {
             Self {
                 name: Ok(value.name),
                 node: Ok(value.node),
@@ -7086,6 +8541,397 @@ pub mod builder {
             Self {
                 name: Ok(value.name),
                 node: Ok(value.node),
+                source: Ok(value.source),
+                type_: Ok(value.type_),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
+    pub struct LookupStringValue {
+        name: ::std::result::Result<
+            ::std::boxed::Box<super::ComputedStringValue>,
+            ::std::string::String,
+        >,
+        node: ::std::result::Result<
+            ::std::boxed::Box<super::ComputedStringValue>,
+            ::std::string::String,
+        >,
+        source: ::std::result::Result<super::Source, ::std::string::String>,
+        type_: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+    }
+    impl ::std::default::Default for LookupStringValue {
+        fn default() -> Self {
+            Self {
+                name: Err("no value supplied for name".to_string()),
+                node: Err("no value supplied for node".to_string()),
+                source: Err("no value supplied for source".to_string()),
+                type_: Err("no value supplied for type_".to_string()),
+            }
+        }
+    }
+    impl LookupStringValue {
+        pub fn name<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::boxed::Box<super::ComputedStringValue>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.name = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for name: {}", e));
+            self
+        }
+        pub fn node<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::boxed::Box<super::ComputedStringValue>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.node = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for node: {}", e));
+            self
+        }
+        pub fn source<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<super::Source>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.source = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for source: {}", e));
+            self
+        }
+        pub fn type_<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::serde_json::Value>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.type_ = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for type_: {}", e));
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<LookupStringValue> for super::LookupStringValue {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: LookupStringValue,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                name: value.name?,
+                node: value.node?,
+                source: value.source?,
+                type_: value.type_?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::LookupStringValue> for LookupStringValue {
+        fn from(value: super::LookupStringValue) -> Self {
+            Self {
+                name: Ok(value.name),
+                node: Ok(value.node),
+                source: Ok(value.source),
+                type_: Ok(value.type_),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
+    pub struct MapKeyBooleanValue {
+        default: ::std::result::Result<
+            ::std::boxed::Box<super::ComputedBooleanValue>,
+            ::std::string::String,
+        >,
+        key: ::std::result::Result<
+            ::std::boxed::Box<super::ComputedStringValue>,
+            ::std::string::String,
+        >,
+        map: ::std::result::Result<super::ComputedBooleanMapValue, ::std::string::String>,
+        source: ::std::result::Result<super::Source, ::std::string::String>,
+        type_: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+    }
+    impl ::std::default::Default for MapKeyBooleanValue {
+        fn default() -> Self {
+            Self {
+                default: Err("no value supplied for default".to_string()),
+                key: Err("no value supplied for key".to_string()),
+                map: Err("no value supplied for map".to_string()),
+                source: Err("no value supplied for source".to_string()),
+                type_: Err("no value supplied for type_".to_string()),
+            }
+        }
+    }
+    impl MapKeyBooleanValue {
+        pub fn default<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::boxed::Box<super::ComputedBooleanValue>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.default = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for default: {}", e));
+            self
+        }
+        pub fn key<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::boxed::Box<super::ComputedStringValue>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.key = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for key: {}", e));
+            self
+        }
+        pub fn map<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<super::ComputedBooleanMapValue>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.map = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for map: {}", e));
+            self
+        }
+        pub fn source<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<super::Source>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.source = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for source: {}", e));
+            self
+        }
+        pub fn type_<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::serde_json::Value>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.type_ = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for type_: {}", e));
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<MapKeyBooleanValue> for super::MapKeyBooleanValue {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: MapKeyBooleanValue,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                default: value.default?,
+                key: value.key?,
+                map: value.map?,
+                source: value.source?,
+                type_: value.type_?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::MapKeyBooleanValue> for MapKeyBooleanValue {
+        fn from(value: super::MapKeyBooleanValue) -> Self {
+            Self {
+                default: Ok(value.default),
+                key: Ok(value.key),
+                map: Ok(value.map),
+                source: Ok(value.source),
+                type_: Ok(value.type_),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
+    pub struct MapKeyNumberValue {
+        default: ::std::result::Result<
+            ::std::boxed::Box<super::ComputedNumberValue>,
+            ::std::string::String,
+        >,
+        key: ::std::result::Result<super::ComputedStringValue, ::std::string::String>,
+        map: ::std::result::Result<super::ComputedNumberMapValue, ::std::string::String>,
+        source: ::std::result::Result<super::Source, ::std::string::String>,
+        type_: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+    }
+    impl ::std::default::Default for MapKeyNumberValue {
+        fn default() -> Self {
+            Self {
+                default: Err("no value supplied for default".to_string()),
+                key: Err("no value supplied for key".to_string()),
+                map: Err("no value supplied for map".to_string()),
+                source: Err("no value supplied for source".to_string()),
+                type_: Err("no value supplied for type_".to_string()),
+            }
+        }
+    }
+    impl MapKeyNumberValue {
+        pub fn default<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::boxed::Box<super::ComputedNumberValue>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.default = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for default: {}", e));
+            self
+        }
+        pub fn key<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<super::ComputedStringValue>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.key = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for key: {}", e));
+            self
+        }
+        pub fn map<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<super::ComputedNumberMapValue>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.map = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for map: {}", e));
+            self
+        }
+        pub fn source<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<super::Source>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.source = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for source: {}", e));
+            self
+        }
+        pub fn type_<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::serde_json::Value>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.type_ = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for type_: {}", e));
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<MapKeyNumberValue> for super::MapKeyNumberValue {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: MapKeyNumberValue,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                default: value.default?,
+                key: value.key?,
+                map: value.map?,
+                source: value.source?,
+                type_: value.type_?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::MapKeyNumberValue> for MapKeyNumberValue {
+        fn from(value: super::MapKeyNumberValue) -> Self {
+            Self {
+                default: Ok(value.default),
+                key: Ok(value.key),
+                map: Ok(value.map),
+                source: Ok(value.source),
+                type_: Ok(value.type_),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
+    pub struct MapKeyStringValue {
+        default: ::std::result::Result<
+            ::std::boxed::Box<super::ComputedStringValue>,
+            ::std::string::String,
+        >,
+        key: ::std::result::Result<
+            ::std::boxed::Box<super::ComputedStringValue>,
+            ::std::string::String,
+        >,
+        map: ::std::result::Result<super::ComputedStringMapValue, ::std::string::String>,
+        source: ::std::result::Result<super::Source, ::std::string::String>,
+        type_: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+    }
+    impl ::std::default::Default for MapKeyStringValue {
+        fn default() -> Self {
+            Self {
+                default: Err("no value supplied for default".to_string()),
+                key: Err("no value supplied for key".to_string()),
+                map: Err("no value supplied for map".to_string()),
+                source: Err("no value supplied for source".to_string()),
+                type_: Err("no value supplied for type_".to_string()),
+            }
+        }
+    }
+    impl MapKeyStringValue {
+        pub fn default<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::boxed::Box<super::ComputedStringValue>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.default = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for default: {}", e));
+            self
+        }
+        pub fn key<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::boxed::Box<super::ComputedStringValue>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.key = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for key: {}", e));
+            self
+        }
+        pub fn map<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<super::ComputedStringMapValue>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.map = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for map: {}", e));
+            self
+        }
+        pub fn source<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<super::Source>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.source = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for source: {}", e));
+            self
+        }
+        pub fn type_<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::serde_json::Value>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.type_ = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for type_: {}", e));
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<MapKeyStringValue> for super::MapKeyStringValue {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: MapKeyStringValue,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                default: value.default?,
+                key: value.key?,
+                map: value.map?,
+                source: value.source?,
+                type_: value.type_?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::MapKeyStringValue> for MapKeyStringValue {
+        fn from(value: super::MapKeyStringValue) -> Self {
+            Self {
+                default: Ok(value.default),
+                key: Ok(value.key),
+                map: Ok(value.map),
                 source: Ok(value.source),
                 type_: Ok(value.type_),
             }
@@ -7309,7 +9155,6 @@ pub mod builder {
     }
     #[derive(Clone, Debug)]
     pub struct Node {
-        environment: ::std::result::Result<super::NodeEnvironment, ::std::string::String>,
         event_listeners:
             ::std::result::Result<::std::vec::Vec<super::EventListener>, ::std::string::String>,
         exit_actions:
@@ -7327,7 +9172,6 @@ pub mod builder {
     impl ::std::default::Default for Node {
         fn default() -> Self {
             Self {
-                environment: Err("no value supplied for environment".to_string()),
                 event_listeners: Err("no value supplied for event_listeners".to_string()),
                 exit_actions: Err("no value supplied for exit_actions".to_string()),
                 initial_parameters: Err("no value supplied for initial_parameters".to_string()),
@@ -7340,16 +9184,6 @@ pub mod builder {
         }
     }
     impl Node {
-        pub fn environment<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<super::NodeEnvironment>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.environment = value
-                .try_into()
-                .map_err(|e| format!("error converting supplied value for environment: {}", e));
-            self
-        }
         pub fn event_listeners<T>(mut self, value: T) -> Self
         where
             T: ::std::convert::TryInto<::std::vec::Vec<super::EventListener>>,
@@ -7443,7 +9277,6 @@ pub mod builder {
         type Error = super::error::ConversionError;
         fn try_from(value: Node) -> ::std::result::Result<Self, super::error::ConversionError> {
             Ok(Self {
-                environment: value.environment?,
                 event_listeners: value.event_listeners?,
                 exit_actions: value.exit_actions?,
                 initial_parameters: value.initial_parameters?,
@@ -7458,7 +9291,6 @@ pub mod builder {
     impl ::std::convert::From<super::Node> for Node {
         fn from(value: super::Node) -> Self {
             Self {
-                environment: Ok(value.environment),
                 event_listeners: Ok(value.event_listeners),
                 exit_actions: Ok(value.exit_actions),
                 initial_parameters: Ok(value.initial_parameters),
@@ -7471,114 +9303,6 @@ pub mod builder {
         }
     }
     #[derive(Clone, Debug)]
-    pub struct NodeEnvironment {
-        cwd: ::std::result::Result<
-            ::std::option::Option<super::ComputedValue>,
-            ::std::string::String,
-        >,
-        environment_variables: ::std::result::Result<
-            ::std::vec::Vec<super::EnvironmentVariable>,
-            ::std::string::String,
-        >,
-        parent: ::std::result::Result<
-            ::std::option::Option<::std::string::String>,
-            ::std::string::String,
-        >,
-        source: ::std::result::Result<super::Source, ::std::string::String>,
-        umode: ::std::result::Result<::std::option::Option<i64>, ::std::string::String>,
-    }
-    impl ::std::default::Default for NodeEnvironment {
-        fn default() -> Self {
-            Self {
-                cwd: Ok(Default::default()),
-                environment_variables: Ok(Default::default()),
-                parent: Ok(Default::default()),
-                source: Err("no value supplied for source".to_string()),
-                umode: Ok(Default::default()),
-            }
-        }
-    }
-    impl NodeEnvironment {
-        pub fn cwd<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<::std::option::Option<super::ComputedValue>>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.cwd = value
-                .try_into()
-                .map_err(|e| format!("error converting supplied value for cwd: {}", e));
-            self
-        }
-        pub fn environment_variables<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<::std::vec::Vec<super::EnvironmentVariable>>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.environment_variables = value.try_into().map_err(|e| {
-                format!(
-                    "error converting supplied value for environment_variables: {}",
-                    e
-                )
-            });
-            self
-        }
-        pub fn parent<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.parent = value
-                .try_into()
-                .map_err(|e| format!("error converting supplied value for parent: {}", e));
-            self
-        }
-        pub fn source<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<super::Source>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.source = value
-                .try_into()
-                .map_err(|e| format!("error converting supplied value for source: {}", e));
-            self
-        }
-        pub fn umode<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<::std::option::Option<i64>>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.umode = value
-                .try_into()
-                .map_err(|e| format!("error converting supplied value for umode: {}", e));
-            self
-        }
-    }
-    impl ::std::convert::TryFrom<NodeEnvironment> for super::NodeEnvironment {
-        type Error = super::error::ConversionError;
-        fn try_from(
-            value: NodeEnvironment,
-        ) -> ::std::result::Result<Self, super::error::ConversionError> {
-            Ok(Self {
-                cwd: value.cwd?,
-                environment_variables: value.environment_variables?,
-                parent: value.parent?,
-                source: value.source?,
-                umode: value.umode?,
-            })
-        }
-    }
-    impl ::std::convert::From<super::NodeEnvironment> for NodeEnvironment {
-        fn from(value: super::NodeEnvironment) -> Self {
-            Self {
-                cwd: Ok(value.cwd),
-                environment_variables: Ok(value.environment_variables),
-                parent: Ok(value.parent),
-                source: Ok(value.source),
-                umode: Ok(value.umode),
-            }
-        }
-    }
-    #[derive(Clone, Debug)]
     pub struct NumberToStringValue {
         format: ::std::result::Result<
             ::std::option::Option<::std::boxed::Box<super::ComputedStringValue>>,
@@ -7586,7 +9310,10 @@ pub mod builder {
         >,
         source: ::std::result::Result<super::Source, ::std::string::String>,
         type_: ::std::result::Result<::serde_json::Value, ::std::string::String>,
-        value: ::std::result::Result<super::ComputedNumberValue, ::std::string::String>,
+        value: ::std::result::Result<
+            ::std::boxed::Box<super::ComputedNumberValue>,
+            ::std::string::String,
+        >,
     }
     impl ::std::default::Default for NumberToStringValue {
         fn default() -> Self {
@@ -7633,7 +9360,7 @@ pub mod builder {
         }
         pub fn value<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<super::ComputedNumberValue>,
+            T: ::std::convert::TryInto<::std::boxed::Box<super::ComputedNumberValue>>,
             T::Error: ::std::fmt::Display,
         {
             self.value = value
@@ -7720,6 +9447,384 @@ pub mod builder {
         }
     }
     #[derive(Clone, Debug)]
+    pub struct RangeBooleanListValue {
+        count: ::std::result::Result<
+            ::std::boxed::Box<::std::option::Option<super::ComputedNumberValue>>,
+            ::std::string::String,
+        >,
+        end: ::std::result::Result<
+            ::std::boxed::Box<::std::option::Option<super::ComputedNumberValue>>,
+            ::std::string::String,
+        >,
+        list: ::std::result::Result<
+            ::std::boxed::Box<super::ComputedBooleanListValue>,
+            ::std::string::String,
+        >,
+        source: ::std::result::Result<super::Source, ::std::string::String>,
+        start: ::std::result::Result<
+            ::std::boxed::Box<::std::option::Option<super::ComputedNumberValue>>,
+            ::std::string::String,
+        >,
+        type_: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+    }
+    impl ::std::default::Default for RangeBooleanListValue {
+        fn default() -> Self {
+            Self {
+                count: Ok(Default::default()),
+                end: Ok(Default::default()),
+                list: Err("no value supplied for list".to_string()),
+                source: Err("no value supplied for source".to_string()),
+                start: Ok(Default::default()),
+                type_: Err("no value supplied for type_".to_string()),
+            }
+        }
+    }
+    impl RangeBooleanListValue {
+        pub fn count<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<
+                ::std::boxed::Box<::std::option::Option<super::ComputedNumberValue>>,
+            >,
+            T::Error: ::std::fmt::Display,
+        {
+            self.count = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for count: {}", e));
+            self
+        }
+        pub fn end<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<
+                ::std::boxed::Box<::std::option::Option<super::ComputedNumberValue>>,
+            >,
+            T::Error: ::std::fmt::Display,
+        {
+            self.end = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for end: {}", e));
+            self
+        }
+        pub fn list<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::boxed::Box<super::ComputedBooleanListValue>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.list = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for list: {}", e));
+            self
+        }
+        pub fn source<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<super::Source>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.source = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for source: {}", e));
+            self
+        }
+        pub fn start<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<
+                ::std::boxed::Box<::std::option::Option<super::ComputedNumberValue>>,
+            >,
+            T::Error: ::std::fmt::Display,
+        {
+            self.start = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for start: {}", e));
+            self
+        }
+        pub fn type_<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::serde_json::Value>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.type_ = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for type_: {}", e));
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<RangeBooleanListValue> for super::RangeBooleanListValue {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: RangeBooleanListValue,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                count: value.count?,
+                end: value.end?,
+                list: value.list?,
+                source: value.source?,
+                start: value.start?,
+                type_: value.type_?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::RangeBooleanListValue> for RangeBooleanListValue {
+        fn from(value: super::RangeBooleanListValue) -> Self {
+            Self {
+                count: Ok(value.count),
+                end: Ok(value.end),
+                list: Ok(value.list),
+                source: Ok(value.source),
+                start: Ok(value.start),
+                type_: Ok(value.type_),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
+    pub struct RangeNumberListValue {
+        count: ::std::result::Result<
+            ::std::option::Option<super::ComputedNumberValue>,
+            ::std::string::String,
+        >,
+        end: ::std::result::Result<
+            ::std::option::Option<super::ComputedNumberValue>,
+            ::std::string::String,
+        >,
+        list: ::std::result::Result<
+            ::std::boxed::Box<super::ComputedNumberListValue>,
+            ::std::string::String,
+        >,
+        source: ::std::result::Result<super::Source, ::std::string::String>,
+        start: ::std::result::Result<
+            ::std::option::Option<super::ComputedNumberValue>,
+            ::std::string::String,
+        >,
+        type_: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+    }
+    impl ::std::default::Default for RangeNumberListValue {
+        fn default() -> Self {
+            Self {
+                count: Ok(Default::default()),
+                end: Ok(Default::default()),
+                list: Err("no value supplied for list".to_string()),
+                source: Err("no value supplied for source".to_string()),
+                start: Ok(Default::default()),
+                type_: Err("no value supplied for type_".to_string()),
+            }
+        }
+    }
+    impl RangeNumberListValue {
+        pub fn count<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::option::Option<super::ComputedNumberValue>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.count = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for count: {}", e));
+            self
+        }
+        pub fn end<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::option::Option<super::ComputedNumberValue>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.end = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for end: {}", e));
+            self
+        }
+        pub fn list<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::boxed::Box<super::ComputedNumberListValue>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.list = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for list: {}", e));
+            self
+        }
+        pub fn source<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<super::Source>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.source = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for source: {}", e));
+            self
+        }
+        pub fn start<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::option::Option<super::ComputedNumberValue>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.start = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for start: {}", e));
+            self
+        }
+        pub fn type_<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::serde_json::Value>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.type_ = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for type_: {}", e));
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<RangeNumberListValue> for super::RangeNumberListValue {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: RangeNumberListValue,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                count: value.count?,
+                end: value.end?,
+                list: value.list?,
+                source: value.source?,
+                start: value.start?,
+                type_: value.type_?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::RangeNumberListValue> for RangeNumberListValue {
+        fn from(value: super::RangeNumberListValue) -> Self {
+            Self {
+                count: Ok(value.count),
+                end: Ok(value.end),
+                list: Ok(value.list),
+                source: Ok(value.source),
+                start: Ok(value.start),
+                type_: Ok(value.type_),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
+    pub struct RangeStringListValue {
+        count: ::std::result::Result<
+            ::std::boxed::Box<::std::option::Option<super::ComputedNumberValue>>,
+            ::std::string::String,
+        >,
+        end: ::std::result::Result<
+            ::std::boxed::Box<::std::option::Option<super::ComputedNumberValue>>,
+            ::std::string::String,
+        >,
+        list: ::std::result::Result<
+            ::std::boxed::Box<super::ComputedStringListValue>,
+            ::std::string::String,
+        >,
+        source: ::std::result::Result<super::Source, ::std::string::String>,
+        start: ::std::result::Result<
+            ::std::boxed::Box<::std::option::Option<super::ComputedNumberValue>>,
+            ::std::string::String,
+        >,
+        type_: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+    }
+    impl ::std::default::Default for RangeStringListValue {
+        fn default() -> Self {
+            Self {
+                count: Ok(Default::default()),
+                end: Ok(Default::default()),
+                list: Err("no value supplied for list".to_string()),
+                source: Err("no value supplied for source".to_string()),
+                start: Ok(Default::default()),
+                type_: Err("no value supplied for type_".to_string()),
+            }
+        }
+    }
+    impl RangeStringListValue {
+        pub fn count<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<
+                ::std::boxed::Box<::std::option::Option<super::ComputedNumberValue>>,
+            >,
+            T::Error: ::std::fmt::Display,
+        {
+            self.count = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for count: {}", e));
+            self
+        }
+        pub fn end<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<
+                ::std::boxed::Box<::std::option::Option<super::ComputedNumberValue>>,
+            >,
+            T::Error: ::std::fmt::Display,
+        {
+            self.end = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for end: {}", e));
+            self
+        }
+        pub fn list<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::boxed::Box<super::ComputedStringListValue>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.list = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for list: {}", e));
+            self
+        }
+        pub fn source<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<super::Source>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.source = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for source: {}", e));
+            self
+        }
+        pub fn start<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<
+                ::std::boxed::Box<::std::option::Option<super::ComputedNumberValue>>,
+            >,
+            T::Error: ::std::fmt::Display,
+        {
+            self.start = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for start: {}", e));
+            self
+        }
+        pub fn type_<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::serde_json::Value>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.type_ = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for type_: {}", e));
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<RangeStringListValue> for super::RangeStringListValue {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: RangeStringListValue,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                count: value.count?,
+                end: value.end?,
+                list: value.list?,
+                source: value.source?,
+                start: value.start?,
+                type_: value.type_?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::RangeStringListValue> for RangeStringListValue {
+        fn from(value: super::RangeStringListValue) -> Self {
+            Self {
+                count: Ok(value.count),
+                end: Ok(value.end),
+                list: Ok(value.list),
+                source: Ok(value.source),
+                start: Ok(value.start),
+                type_: Ok(value.type_),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
     pub struct Source {
         column: ::std::result::Result<i64, ::std::string::String>,
         file: ::std::result::Result<::std::string::String, ::std::string::String>,
@@ -7782,6 +9887,94 @@ pub mod builder {
                 column: Ok(value.column),
                 file: Ok(value.file),
                 line: Ok(value.line),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
+    pub struct SplitStringValue {
+        separator: ::std::result::Result<
+            ::std::boxed::Box<super::ComputedStringValue>,
+            ::std::string::String,
+        >,
+        source: ::std::result::Result<super::Source, ::std::string::String>,
+        type_: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+        value: ::std::result::Result<
+            ::std::boxed::Box<super::ComputedStringValue>,
+            ::std::string::String,
+        >,
+    }
+    impl ::std::default::Default for SplitStringValue {
+        fn default() -> Self {
+            Self {
+                separator: Err("no value supplied for separator".to_string()),
+                source: Err("no value supplied for source".to_string()),
+                type_: Err("no value supplied for type_".to_string()),
+                value: Err("no value supplied for value".to_string()),
+            }
+        }
+    }
+    impl SplitStringValue {
+        pub fn separator<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::boxed::Box<super::ComputedStringValue>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.separator = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for separator: {}", e));
+            self
+        }
+        pub fn source<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<super::Source>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.source = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for source: {}", e));
+            self
+        }
+        pub fn type_<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::serde_json::Value>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.type_ = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for type_: {}", e));
+            self
+        }
+        pub fn value<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::boxed::Box<super::ComputedStringValue>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.value = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for value: {}", e));
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<SplitStringValue> for super::SplitStringValue {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: SplitStringValue,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                separator: value.separator?,
+                source: value.source?,
+                type_: value.type_?,
+                value: value.value?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::SplitStringValue> for SplitStringValue {
+        fn from(value: super::SplitStringValue) -> Self {
+            Self {
+                separator: Ok(value.separator),
+                source: Ok(value.source),
+                type_: Ok(value.type_),
+                value: Ok(value.value),
             }
         }
     }
@@ -7893,6 +10086,134 @@ pub mod builder {
                 source: Ok(value.source),
                 to_node: Ok(value.to_node),
                 to_stream: Ok(value.to_stream),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
+    pub struct SubStringValue {
+        count: ::std::result::Result<
+            ::std::boxed::Box<::std::option::Option<super::ComputedNumberValue>>,
+            ::std::string::String,
+        >,
+        end: ::std::result::Result<
+            ::std::boxed::Box<::std::option::Option<super::ComputedNumberValue>>,
+            ::std::string::String,
+        >,
+        source: ::std::result::Result<super::Source, ::std::string::String>,
+        start: ::std::result::Result<
+            ::std::boxed::Box<::std::option::Option<super::ComputedNumberValue>>,
+            ::std::string::String,
+        >,
+        type_: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+        value: ::std::result::Result<
+            ::std::boxed::Box<super::ComputedStringValue>,
+            ::std::string::String,
+        >,
+    }
+    impl ::std::default::Default for SubStringValue {
+        fn default() -> Self {
+            Self {
+                count: Ok(Default::default()),
+                end: Ok(Default::default()),
+                source: Err("no value supplied for source".to_string()),
+                start: Ok(Default::default()),
+                type_: Err("no value supplied for type_".to_string()),
+                value: Err("no value supplied for value".to_string()),
+            }
+        }
+    }
+    impl SubStringValue {
+        pub fn count<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<
+                ::std::boxed::Box<::std::option::Option<super::ComputedNumberValue>>,
+            >,
+            T::Error: ::std::fmt::Display,
+        {
+            self.count = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for count: {}", e));
+            self
+        }
+        pub fn end<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<
+                ::std::boxed::Box<::std::option::Option<super::ComputedNumberValue>>,
+            >,
+            T::Error: ::std::fmt::Display,
+        {
+            self.end = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for end: {}", e));
+            self
+        }
+        pub fn source<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<super::Source>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.source = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for source: {}", e));
+            self
+        }
+        pub fn start<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<
+                ::std::boxed::Box<::std::option::Option<super::ComputedNumberValue>>,
+            >,
+            T::Error: ::std::fmt::Display,
+        {
+            self.start = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for start: {}", e));
+            self
+        }
+        pub fn type_<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::serde_json::Value>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.type_ = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for type_: {}", e));
+            self
+        }
+        pub fn value<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::boxed::Box<super::ComputedStringValue>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.value = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for value: {}", e));
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<SubStringValue> for super::SubStringValue {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: SubStringValue,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                count: value.count?,
+                end: value.end?,
+                source: value.source?,
+                start: value.start?,
+                type_: value.type_?,
+                value: value.value?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::SubStringValue> for SubStringValue {
+        fn from(value: super::SubStringValue) -> Self {
+            Self {
+                count: Ok(value.count),
+                end: Ok(value.end),
+                source: Ok(value.source),
+                start: Ok(value.start),
+                type_: Ok(value.type_),
+                value: Ok(value.value),
             }
         }
     }

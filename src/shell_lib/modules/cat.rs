@@ -2,7 +2,7 @@
 
 use std::{fs::File, io::{Read, Write}, os::fd::OwnedFd};
 
-use crate::shell_lib::compile::{job, meta::{FixedStreamDef, ModuleMeta, ModuleStreamStructure, ModuleStructure, NamedValue, StreamInterface, StreamType, ValueType}};
+use crate::shell_lib::{compile::{job, meta::{FixedStreamDef, ModuleMeta, ModuleStreamStructure, ModuleStructure, NamedValue, StreamInterface, StreamType, ValueType}}, helpers::fd::file_from_fd};
 
 const BUFFER_SIZE: usize = 8192;
 const RETRY_TIME: std::time::Duration = std::time::Duration::from_millis(10);
@@ -64,8 +64,8 @@ impl CatModule {
         CatModule {}
     }
 
-    pub fn exec(&self, _context: Box<dyn job::JobRunnerContext>, params: CatModuleRuntimeParams, streams: CatModuleStream) -> Result<job::ExitCode, String> {
-        let mut out = File::from(streams.fd_0);
+    pub fn exec(&self, _context: Box<dyn job::JobRunnerContext>, params: CatModuleRuntimeParams, mut streams: CatModuleStream) -> Result<job::ExitCode, String> {
+        let mut out = file_from_fd(streams.fd_0);
         let mut buf = [0 as u8; BUFFER_SIZE];
         for filename in params.filenames {
             let mut file = std::fs::File::open(filename).map_err(|e| e.to_string())?;

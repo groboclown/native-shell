@@ -74,7 +74,7 @@
       "type": "object",
       "title": "Node",
       "description": "A node in the AST.  Each node has a name, a type, and a list of actions.",
-      "required": ["name", "source", "module", "environment", "streams", "initial-parameters", "runtime-parameters", "exit-actions", "event-listeners"],
+      "required": ["name", "source", "module", "streams", "initial-parameters", "runtime-parameters", "exit-actions", "event-listeners"],
       "properties": {
         "name": {
           "type": "string",
@@ -84,39 +84,6 @@
         "module": {
           "type": "string",
           "description": "The build implementation for the node."
-        },
-        "environment": {
-          "type": "object",
-          "description": "The environment for the node.",
-          "required": ["source"],
-          "additionalProperties": false,
-          "properties": {
-            "parent": {
-              "type": "string",
-              "description": "The parent node of this node.  This is used to construct inherited environments."
-            },
-            "source": { "$ref": "#/$defs/Source" },
-            "environment-variables": {
-              "type": "array",
-              "description": "The environment variables for the node.",
-              "items": {
-                "type": "object",
-                "title": "Environment Variable",
-                "description": "An environment variable for the node.",
-                "required": ["source", "name", "value"],
-                "properties": {
-                  "source": { "$ref": "#/$defs/Source" },
-                  "name": { "$ref": "#/$defs/ComputedValue" },
-                  "value": { "$ref": "#/$defs/ComputedValue" }
-                }
-              }
-            },
-            "cwd": { "$ref": "#/$defs/ComputedValue" },
-            "umode": {
-              "type": "integer",
-              "description": "The user mode for the node.  This is used to set the user and group for the node."
-            }
-          }
         },
         "streams": {
           "type": "array",
@@ -169,7 +136,156 @@
               "required": ["source", "value"],
               "properties": {
                 "source": { "$ref": "#/$defs/Source" },
-                "value": {"type": ["string", "number", "boolean", "null"]}
+                "value": {
+                  "oneOf": [
+                    {
+                      "type": "object",
+                      "title": "Compile-Time String",
+                      "description": "A constant string value.",
+                      "required": ["source", "type", "value"],
+                      "additionalProperties": false,
+                      "properties": {
+                        "source": { "$ref": "#/$defs/Source" },
+                        "type": { "const": "string" },
+                        "value": {
+                          "type": "string",
+                          "description": "The constant string value."
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "title": "Compile-Time Number",
+                      "description": "A constant number value.",
+                      "required": ["source", "type", "value"],
+                      "additionalProperties": false,
+                      "properties": {
+                        "source": { "$ref": "#/$defs/Source" },
+                        "type": { "const": "number" },
+                        "value": {
+                          "type": "number",
+                          "description": "The constant number value."
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "title": "Compile-Time Boolean",
+                      "description": "A constant boolean value.",
+                      "required": ["source", "type", "value"],
+                      "additionalProperties": false,
+                      "properties": {
+                        "source": { "$ref": "#/$defs/Source" },
+                        "type": { "const": "boolean" },
+                        "value": {
+                          "type": "boolean",
+                          "description": "The constant boolean value."
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "title": "Compile-Time Null",
+                      "description": "A constant null value.",
+                      "required": ["source", "type"],
+                      "additionalProperties": false,
+                      "properties": {
+                        "source": { "$ref": "#/$defs/Source" },
+                        "type": { "const": "null" }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "title": "Compile-Time String List",
+                      "description": "A constant string list value.",
+                      "required": ["source", "type", "value"],
+                      "additionalProperties": false,
+                      "properties": {
+                        "source": { "$ref": "#/$defs/Source" },
+                        "type": { "const": "string-list" },
+                        "value": {
+                          "type": "array",
+                          "items": {"type": "array", "items": {"type": "string"}}
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "title": "Compile-Time Number List",
+                      "description": "A constant number list value.",
+                      "required": ["source", "type", "value"],
+                      "additionalProperties": false,
+                      "properties": {
+                        "source": { "$ref": "#/$defs/Source" },
+                        "type": { "const": "number-list" },
+                        "value": {
+                          "type": "array",
+                          "items": {"type": "array", "items": {"type": "number"}}
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "title": "Compile-Time Boolean List",
+                      "description": "A constant boolean list value.",
+                      "required": ["source", "type", "value"],
+                      "additionalProperties": false,
+                      "properties": {
+                        "source": { "$ref": "#/$defs/Source" },
+                        "type": { "const": "boolean-list" },
+                        "value": {
+                          "type": "array",
+                          "items": {"type": "array", "items": {"type": "boolean"}}
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "title": "Compile-Time String Map",
+                      "description": "A constant string map value.",
+                      "required": ["source", "type", "value"],
+                      "additionalProperties": false,
+                      "properties": {
+                        "source": { "$ref": "#/$defs/Source" },
+                        "type": { "const": "string-map" },
+                        "value": {
+                          "type": "object",
+                          "patternProperties": { ".*": {"type": "string"} }
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "title": "Compile-Time Number Map",
+                      "description": "A constant number map value.",
+                      "required": ["source", "type", "value"],
+                      "additionalProperties": false,
+                      "properties": {
+                        "source": { "$ref": "#/$defs/Source" },
+                        "type": { "const": "number-map" },
+                        "value": {
+                          "type": "object",
+                          "patternProperties": { ".*": {"type": "number"} }
+                        }
+                      }
+                    },
+                    {
+                      "type": "object",
+                      "title": "Compile-Time Boolean Map",
+                      "description": "A constant boolean map value.",
+                      "required": ["source", "type", "value"],
+                      "additionalProperties": false,
+                      "properties": {
+                        "source": { "$ref": "#/$defs/Source" },
+                        "type": { "const": "boolean-map" },
+                        "value": {
+                          "type": "object",
+                          "patternProperties": { ".*": {"type": "boolean"} }
+                        }
+                      }
+                    }
+                  ]
+                }
               }
             }
           }
@@ -430,8 +546,10 @@
       "title": "Computed String Value",
       "description": "A computed string value.",
       "oneOf": [
-        {"$ref": "#/$defs/LookupStateStringValue" },
-        {"$ref": "#/$defs/LookupEnvStringValue" },
+        {"$ref": "#/$defs/LookupStringValue" },
+        {"$ref": "#/$defs/ListIndexStringValue" },
+        {"$ref": "#/$defs/MapKeyStringValue" },
+        {"$ref": "#/$defs/SubStringValue" },
         {"$ref": "#/$defs/ConcatenatedStringValue" },
         {"$ref": "#/$defs/NumberToStringValue" },
         {"$ref": "#/$defs/BooleanToStringValue" },
@@ -440,7 +558,7 @@
         {"$ref": "#/$defs/ConstantStringValue" }
       ]
     },
-    "LookupStateStringValue": {
+    "LookupStringValue": {
       "title": "Lookup String Value",
       "description": "A string value that is looked up from a node's state.",
       "type": "object",
@@ -448,22 +566,52 @@
       "additionalProperties": false,
       "properties": {
         "source": { "$ref": "#/$defs/Source" },
-        "type": { "const": "lookup-state-string" },
+        "type": { "const": "lookup-string" },
         "node": { "$ref": "#/$defs/ComputedStringValue" },
         "name": { "$ref": "#/$defs/ComputedStringValue" }
       }
     },
-    "LookupEnvStringValue": {
-      "title": "Lookup String Value",
-      "description": "A string value that is looked up from a node's environment.",
+    "ListIndexStringValue": {
+      "title": "List Indexed String Value",
+      "description": "Extracts a single indexed string from a string list.  A default must be given, in case the index is out of bounds.",
       "type": "object",
-      "required": ["source", "type", "node", "name"],
+      "required": ["source", "type", "list", "index", "default"],
       "additionalProperties": false,
       "properties": {
         "source": { "$ref": "#/$defs/Source" },
-        "type": { "const": "lookup-env-string" },
-        "node": { "$ref": "#/$defs/ComputedStringValue" },
-        "name": { "$ref": "#/$defs/ComputedStringValue" }
+        "type": { "const": "list-index-string" },
+        "list": { "$ref": "#/$defs/ComputedStringListValue" },
+        "index": { "$ref": "#/$defs/ComputedNumberValue" },
+        "default": { "$ref": "#/$defs/ComputedStringValue" }
+      }
+    },
+    "MapKeyStringValue": {
+      "title": "Map Keyed String Value",
+      "description": "A key's string value from a map.  A default must be given, in case the key is not found.",
+      "type": "object",
+      "required": ["source", "type", "map", "key", "default"],
+      "additionalProperties": false,
+      "properties": {
+        "source": { "$ref": "#/$defs/Source" },
+        "type": { "const": "map-key-string" },
+        "map": { "$ref": "#/$defs/ComputedStringMapValue" },
+        "key": { "$ref": "#/$defs/ComputedStringValue" },
+        "default": { "$ref": "#/$defs/ComputedStringValue" }
+      }
+    },
+    "SubStringValue": {
+      "title": "Sub-String Value",
+      "description": "Extract an internal part of another string.  The 'count' field cannot be used with 'end'.  If 'start' is not given, then it defaults to 0, and if 'end' or 'count' are not given, then it defaults to the end of the string.",
+      "type": "object",
+      "required": ["source", "type", "value"],
+      "additionalProperties": false,
+      "properties": {
+        "source": { "$ref": "#/$defs/Source" },
+        "type": { "const": "substring" },
+        "value": { "$ref": "#/$defs/ComputedStringValue" },
+        "start": { "$ref": "#/$defs/ComputedNumberValue" },
+        "count": { "$ref": "#/$defs/ComputedNumberValue" },
+        "end": { "$ref": "#/$defs/ComputedNumberValue" }
       }
     },
     "ConcatenatedStringValue": {
@@ -556,6 +704,8 @@
       "oneOf": [
         {"$ref": "#/$defs/LookupNumberValue" },
         {"$ref": "#/$defs/ArithmeticValue" },
+        {"$ref": "#/$defs/ListIndexNumberValue" },
+        {"$ref": "#/$defs/MapKeyNumberValue" },
         {"$ref": "#/$defs/ConstantNumberValue" }
       ]
     },
@@ -599,6 +749,34 @@
         "value": { "$ref": "#/$defs/ComputedNumberListValue" }
       }
     },
+    "ListIndexNumberValue": {
+      "title": "List Indexed Number Value",
+      "description": "Extracts a single indexed number from a string list.  A default must be given, in case the index is out of bounds.",
+      "type": "object",
+      "required": ["source", "type", "list", "index", "default"],
+      "additionalProperties": false,
+      "properties": {
+        "source": { "$ref": "#/$defs/Source" },
+        "type": { "const": "list-index-number" },
+        "list": { "$ref": "#/$defs/ComputedNumberListValue" },
+        "index": { "$ref": "#/$defs/ComputedNumberValue" },
+        "default": { "$ref": "#/$defs/ComputedNumberValue" }
+      }
+    },
+    "MapKeyNumberValue": {
+      "title": "Map Keyed Number Value",
+      "description": "A key's number value from a map.  A default must be given, in case the key is not found.",
+      "type": "object",
+      "required": ["source", "type", "map", "key", "default"],
+      "additionalProperties": false,
+      "properties": {
+        "source": { "$ref": "#/$defs/Source" },
+        "type": { "const": "map-key-number" },
+        "map": { "$ref": "#/$defs/ComputedNumberMapValue" },
+        "key": { "$ref": "#/$defs/ComputedStringValue" },
+        "default": { "$ref": "#/$defs/ComputedNumberValue" }
+      }
+    },
     "ConstantNumberValue": {
       "title": "Constant Number Value",
       "description": "A constant number value.",
@@ -622,6 +800,8 @@
       "oneOf": [
         {"$ref": "#/$defs/LookupBooleanValue" },
         {"$ref": "#/$defs/LogicalBooleanValue" },
+        {"$ref": "#/$defs/ListIndexBooleanValue" },
+        {"$ref": "#/$defs/MapKeyBooleanValue" },
         {"$ref": "#/$defs/ConstantBooleanValue" }
       ]
     },
@@ -663,6 +843,34 @@
         "value": {"$ref": "#/$defs/ComputedBooleanListValue" }
       }
     },
+    "ListIndexBooleanValue": {
+      "title": "List Indexed Boolean Value",
+      "description": "Extracts a single indexed boolean from a string list.  A default must be given, in case the index is out of bounds.",
+      "type": "object",
+      "required": ["source", "type", "list", "index", "default"],
+      "additionalProperties": false,
+      "properties": {
+        "source": { "$ref": "#/$defs/Source" },
+        "type": { "const": "list-index-boolean" },
+        "list": { "$ref": "#/$defs/ComputedBooleanListValue" },
+        "index": { "$ref": "#/$defs/ComputedNumberValue" },
+        "default": { "$ref": "#/$defs/ComputedBooleanValue" }
+      }
+    },
+    "MapKeyBooleanValue": {
+      "title": "Map Keyed Boolean Value",
+      "description": "A key's boolean value from a map.  A default must be given, in case the key is not found.",
+      "type": "object",
+      "required": ["source", "type", "map", "key", "default"],
+      "additionalProperties": false,
+      "properties": {
+        "source": { "$ref": "#/$defs/Source" },
+        "type": { "const": "map-key-boolean" },
+        "map": { "$ref": "#/$defs/ComputedBooleanMapValue" },
+        "key": { "$ref": "#/$defs/ComputedStringValue" },
+        "default": { "$ref": "#/$defs/ComputedBooleanValue" }
+      }
+    },
     "ConstantBooleanValue": {
       "title": "Constant Boolean Value",
       "description": "A constant boolean value.",
@@ -685,6 +893,8 @@
       "description": "A computed list value.",
       "oneOf": [
         {"$ref": "#/$defs/LookupStringListValue" },
+        {"$ref": "#/$defs/SplitStringValue" },
+        {"$ref": "#/$defs/RangeStringListValue" },
         {"$ref": "#/$defs/ConstantStringListValue" }
       ]
     },
@@ -699,6 +909,34 @@
         "type": { "const": "lookup-state-string-list" },
         "node": { "$ref": "#/$defs/ComputedStringValue" },
         "name": { "$ref": "#/$defs/ComputedStringValue" }
+      }
+    },
+    "SplitStringValue": {
+      "title": "Split-String Value",
+      "description": "Turns a string into a string array, splitting items by a specific string.",
+      "type": "object",
+      "required": ["source", "type", "value", "separator"],
+      "additionalProperties": false,
+      "properties": {
+        "source": { "$ref": "#/$defs/Source" },
+        "type": { "const": "split-string" },
+        "value": { "$ref": "#/$defs/ComputedStringValue" },
+        "separator": { "$ref": "#/$defs/ComputedStringValue" }
+      }
+    },
+    "RangeStringListValue": {
+      "title": "Range String List Value",
+      "description": "Selects a sub-sequence of values from an array.  If the 'count' or 'end' fields are not given, then it defaults to the end of the list.  If the 'start' field is not given, then it defaults to 0.",
+      "type": "object",
+      "required": ["source", "type", "list"],
+      "additionalProperties": false,
+      "properties": {
+        "source": { "$ref": "#/$defs/Source" },
+        "type": { "const": "range-string-list" },
+        "list": { "$ref": "#/$defs/ComputedStringListValue" },
+        "start": { "$ref": "#/$defs/ComputedNumberValue" },
+        "count": { "$ref": "#/$defs/ComputedNumberValue" },
+        "end": { "$ref": "#/$defs/ComputedNumberValue" }
       }
     },
     "ConstantStringListValue": {
@@ -729,6 +967,7 @@
       "description": "A computed list value.",
       "oneOf": [
         {"$ref": "#/$defs/LookupNumberListValue" },
+        {"$ref": "#/$defs/RangeNumberListValue" },
         {"$ref": "#/$defs/ConstantNumberListValue" }
       ]
     },
@@ -743,6 +982,21 @@
         "type": { "const": "lookup-state-number-list" },
         "node": { "$ref": "#/$defs/ComputedStringValue" },
         "name": { "$ref": "#/$defs/ComputedStringValue" }
+      }
+    },
+    "RangeNumberListValue": {
+      "title": "Range Number List Value",
+      "description": "Selects a sub-sequence of values from an array.  If the 'count' or 'end' fields are not given, then it defaults to the end of the list.  If the 'start' field is not given, then it defaults to 0.",
+      "type": "object",
+      "required": ["source", "type", "list"],
+      "additionalProperties": false,
+      "properties": {
+        "source": { "$ref": "#/$defs/Source" },
+        "type": { "const": "range-number-list" },
+        "list": { "$ref": "#/$defs/ComputedNumberListValue" },
+        "start": { "$ref": "#/$defs/ComputedNumberValue" },
+        "count": { "$ref": "#/$defs/ComputedNumberValue" },
+        "end": { "$ref": "#/$defs/ComputedNumberValue" }
       }
     },
     "ConstantNumberListValue": {
@@ -773,6 +1027,7 @@
       "description": "A computed list value.",
       "oneOf": [
         {"$ref": "#/$defs/LookupBooleanListValue" },
+        {"$ref": "#/$defs/RangeBooleanListValue" },
         {"$ref": "#/$defs/ConstantBooleanListValue" }
       ]
     },
@@ -787,6 +1042,21 @@
         "type": { "const": "lookup-state-boolean-list" },
         "node": { "$ref": "#/$defs/ComputedStringValue" },
         "name": { "$ref": "#/$defs/ComputedStringValue" }
+      }
+    },
+    "RangeBooleanListValue": {
+      "title": "Range Boolean List Value",
+      "description": "Selects a sub-sequence of values from an array.  If the 'count' or 'end' fields are not given, then it defaults to the end of the list.  If the 'start' field is not given, then it defaults to 0.",
+      "type": "object",
+      "required": ["source", "type", "list"],
+      "additionalProperties": false,
+      "properties": {
+        "source": { "$ref": "#/$defs/Source" },
+        "type": { "const": "range-boolean-list" },
+        "list": { "$ref": "#/$defs/ComputedBooleanListValue" },
+        "start": { "$ref": "#/$defs/ComputedNumberValue" },
+        "count": { "$ref": "#/$defs/ComputedNumberValue" },
+        "end": { "$ref": "#/$defs/ComputedNumberValue" }
       }
     },
     "ConstantBooleanListValue": {
@@ -852,7 +1122,7 @@
     },
     "ConstantStringMapValue": {
       "title": "Constant String Map Value",
-      "description": "A constant string map value.  Can include expanding a sub-map within the map.",
+      "description": "A constant string map value.  Can include expanding a sub-map within the map.  This also includes a 'null' value for the key to allow blanking out values if used in a union.",
       "type": "object",
       "required": ["source", "type", "value"],
       "additionalProperties": false,
@@ -863,7 +1133,7 @@
           "type": "object",
           "description": "The constant string map value.",
           "patternProperties": {
-            ".*": { "$ref": "#/$defs/ComputedStringValue" }
+            ".*": { "oneOf": [ {"$ref": "#/$defs/ComputedStringValue"}, {"type": "null"} ] }
           }
         }
       }
@@ -910,7 +1180,7 @@
     },
     "ConstantNumberMapValue": {
       "title": "Constant Number Map Value",
-      "description": "A constant number map value.  Can include expanding a sub-map within the map.",
+      "description": "A constant number map value.  Can include expanding a sub-map within the map.  This also includes a 'null' value for the key to allow blanking out values if used in a union.",
       "type": "object",
       "required": ["source", "type", "value"],
       "additionalProperties": false,
@@ -921,7 +1191,7 @@
           "type": "object",
           "description": "The constant number map value.",
           "patternProperties": {
-            ".*": { "$ref": "#/$defs/ComputedNumberValue" }
+            ".*": { "oneOf": [ { "$ref": "#/$defs/ComputedNumberValue" }, {"type": "null"} ] }
           }
         }
       }
@@ -968,7 +1238,7 @@
     },
     "ConstantBooleanMapValue": {
       "title": "Constant Boolean Map Value",
-      "description": "A constant boolean map value.  Can include expanding a sub-map within the map.",
+      "description": "A constant boolean map value.  Can include expanding a sub-map within the map.  This also includes a 'null' value for the key to allow blanking out values if used in a union.",
       "type": "object",
       "required": ["source", "type", "value"],
       "additionalProperties": false,
@@ -979,7 +1249,7 @@
           "type": "object",
           "description": "The constant boolean map value.",
           "patternProperties": {
-            ".*": { "$ref": "#/$defs/ComputedBooleanValue" }
+            ".*": { "oneOf": [ { "$ref": "#/$defs/ComputedBooleanValue" }, {"type": "null"} ] }
           }
         }
       }

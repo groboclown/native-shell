@@ -76,7 +76,7 @@ fn run_main(argv: Vec<String>, environ: HashMap<String, String>) -> Result<i32, 
     });
 
     // Construct the job scheduler.
-    // The meat of the AST builder goes here.
+    // This comes from splitting the AST into job groups based on discovering connected graphs.
     // What this will look like:
     //    - The cat node links to the output, so that represents a job sequence.
     //    - A single node kicks off the job sequence by creating the stream between the two,
@@ -193,7 +193,6 @@ struct Nodes {
     output: file_sink::FileSinkModule,
 }
 
-
 /// All the runtime parameters described by the AST.
 struct RuntimeParams {
     // shell defines these as None
@@ -237,14 +236,20 @@ impl job::JobRunner for Seq0Job0 {
 
         // Lookups happen outside the runtime.params.run_mut.
 
-        // lookup-state-string (main, source)
+        // map-key-string:
+        //    map: lookup-string-map (main, value_params)
+        //    key: constant-string (source)
+        //    default: ""
         let main_source = self.runtime.nodes.main.state().value_params.get("source")
-            .expect("No source file specified")
+            .unwrap_or(&"".to_string())
             .clone();
 
-        // lookup-state-string (main, target)
+        // map-key-string:
+        //    map: lookup-string-map (main, value_params)
+        //    key: constant-string (target)
+        //    default: ""
         let main_target = self.runtime.nodes.main.state().value_params.get("target")
-            .expect("No target file specified")
+            .unwrap_or(&"".to_string())
             .clone();
         match self.runtime.params.run_mut(move |params| {
             // Constant construction happens inside the runtime.params.run_mut.

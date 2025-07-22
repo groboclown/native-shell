@@ -83,8 +83,8 @@ pub struct FixedStreamDef {
     /// The fd_index will be referenced in the stream struct as `fd_(index)`; if the name is also
     /// provided, then only the `fd_(index)` should exist.
     /// If the StreamType is `Input(Fd)` or `Output(Fd)`, then the field must be a `std::os::fd::OwnedFd`.
-    /// If the StreamType is `Input(ReadWrite)`, then the field must be a `Box<dyn std::io::Read>`.
-    /// If the StreamType is `Output(ReadWrite)`, then the field must be a `Box<dyn std::io::Write>`.
+    /// If the StreamType is `Input(ReadWrite)`, then the field must be a `Box<dyn std::io::Read + Send>`.
+    /// If the StreamType is `Output(ReadWrite)`, then the field must be a `Box<dyn std::io::Write + Send>`.
     pub fd_index: Option<usize>,
 
     /// The type of the stream.
@@ -110,8 +110,8 @@ pub struct ModuleStructure {
 
 /// Defines a variable stream field for the module's stream structure.
 /// If the StreamInterface is `Fd`, then the field must be a `Vec<std::os::fd::OwnedFd>`.
-/// If the StreamInterface is `ReadWrite` and an input stream, then the field must be a `Vec<Box<dyn std::io::Read>>`.
-/// If the StreamInterface is `ReadWrite` and an output stream, then the field must be a `Vec<Box<dyn std::io::Write>>`.
+/// If the StreamInterface is `ReadWrite` and an input stream, then the field must be a `Vec<Box<dyn std::io::Read + Send>>`.
+/// If the StreamInterface is `ReadWrite` and an output stream, then the field must be a `Vec<Box<dyn std::io::Write + Send>>`.
 pub struct VariableStreamField {
     pub field_name: String,
     pub stream_type: StreamInterface,
