@@ -4,7 +4,7 @@
   "title": "Native Shell AST Schema",
   "description": "An abstract syntax tree (AST) schema for a Native Shell.",
   "type": "object",
-  "required": ["schema-version", "version", "source", "events", "nodes", "default-start"],
+  "required": ["schema-version", "version", "source", "events", "nodes"],
   "additionalProperties": false,
   "properties": {
     "schema-version": {
@@ -205,7 +205,7 @@
                         "type": { "const": "string-list" },
                         "value": {
                           "type": "array",
-                          "items": {"type": "array", "items": {"type": "string"}}
+                          "items": {"type": "string"}
                         }
                       }
                     },
@@ -328,8 +328,8 @@
             "properties": {
               "source": { "$ref": "#/$defs/Source" },
               "name": {
-                "type": "integer",
-                "description": "The event index that triggers this action list."
+                "type": "string",
+                "description": "The event name that triggers this action list."
               },
               "actions": { "$ref": "#/$defs/OrderedActions" }
             }
@@ -513,7 +513,7 @@
         "type": "object",
         "title": "Action Parameter",
         "description": "A parameter for the action. Must provide exactly one of a value or a value-array.",
-        "required": ["source", "name"],
+        "required": ["source", "name", "value"],
         "additionalProperties": false,
         "properties": {
           "source": { "$ref": "#/$defs/Source" },
@@ -1099,7 +1099,7 @@
       "additionalProperties": false,
       "properties": {
         "source": { "$ref": "#/$defs/Source" },
-        "type": { "const": "lookup-state-string-map" },
+        "type": { "const": "lookup-string-map" },
         "node": { "$ref": "#/$defs/ComputedStringValue" },
         "name": { "$ref": "#/$defs/ComputedStringValue" }
       }

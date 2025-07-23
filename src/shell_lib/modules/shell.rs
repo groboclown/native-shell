@@ -124,6 +124,7 @@ pub fn module_meta() -> ModuleMeta {
             ],
         }),
         runtime_param_struct: None,
+
         // The shell module provides streams in a weird way, because
         // the are intended for other modules to read or write, so they look backwards.
         // This puts extra pressure on the builder to have a hard-coded logic for

@@ -13,6 +13,8 @@ pub fn available_modules() -> Vec<super::compile::meta::ModuleMeta> {
         cp::module_meta(),
         echo::module_meta(),
         file_sink::module_meta(),
+        merge::module_meta(),
         shell::module_meta(),
+        tee::module_meta(),
     ]
 }

@@ -11,6 +11,10 @@ source:
 events:
   - name: start
     text: "Start of the shell script execution."
+    source:
+      file: "script.ns"
+      line: 1
+      column: 1
 nodes:
   # The main node.  It must use a module that conforms to the builder's requirements.
   - name: main
@@ -19,24 +23,111 @@ nodes:
       line: 1
       column: 1
     module: shell
-    environment:
-      source:
-        file: "script.ns"
-        line: 1
-        column: 1
     initial-parameters:
-      description: "Sends the contents of a file through a pipe into another file."
-      version: "1.0.0"
-      start_event: "start"
+      description:
+        source:
+          file: "script.ns"
+          line: 1
+          column: 1
+        value:
+          source:
+            file: "script.ns"
+            line: 1
+            column: 1
+          type: string
+          value: "Sends the contents of files and text into stdout."
+      version:
+        source:
+          file: "script.ns"
+          line: 1
+          column: 1
+        value:
+          source:
+            file: "script.ns"
+            line: 1
+            column: 1
+          type: string
+          value: "1.0.0"
+      start_event:
+        source:
+          file: "script.ns"
+          line: 1
+          column: 1
+        value:
+          source:
+            file: "script.ns"
+            line: 1
+            column: 1
+          type: string
+          value: "start"
       required_value_parameters:
-        - source
-        - target
-      usage_line: "--source=SOURCE --target=TARGET"
+        source:
+          file: "script.ns"
+          line: 1
+          column: 1
+        value:
+          source:
+            file: "script.ns"
+            line: 1
+            column: 1
+          type: string-list
+          value: 
+            - file1
+            - file2
+            - text1
+            - text2
+      usage_line:
+        source:
+          file: "script.ns"
+          line: 1
+          column: 1
+        value:
+          source:
+            file: "script.ns"
+            line: 1
+            column: 1
+          type: string
+          value: "--file1=SOURCE --file2=SOURCE --text1=TEXT --text2=TEXT"
       parameter_help:
-        "--source": (required) The file to read from.
-        "--target": (required) The file to write to.
+        source:
+          file: "script.ns"
+          line: 1
+          column: 1
+        value:
+          source:
+            file: "script.ns"
+            line: 1
+            column: 1
+          type: string-map
+          value:
+            "--file1": (required) The file to read from.
+            "--file2": (required) The file to read from.
+            "--text1": (required) Text to use as a source.
+            "--text2": (required) Text to use as a source.
       end_help:
-        - Copies the contents of the source file to the target file.  It does not create directories, but will overwrite the target file if it exists.
+        source:
+          file: "script.ns"
+          line: 1
+          column: 1
+        value:
+          source:
+            file: "script.ns"
+            line: 1
+            column: 1
+          type: string-list
+          value: 
+            - Performs merge of five pieces of data across multiple manipulations (stdin is also read).  Uses '+' as a record separator.
+    runtime-parameters: []
+    exit-actions: []
+    streams:
+      - name: stdin
+        source:
+          file: "script.ns"
+          line: 1
+          column: 1
+        mode: output
+        to-node: merge1
+        to-stream: input
     event-listeners:
       # The CLI action to run, as specified by the start_event field.
       - name: start
@@ -45,7 +136,8 @@ nodes:
           line: 1
           column: 1
         actions:
-          - name: "Script execution"
+          # Performs two parallel entry points.
+          - name: "Data 1"
             source:
               file: "script.ns"
               line: 1
@@ -56,83 +148,393 @@ nodes:
                 line: 1
                 column: 1
               type: spawn-node
-              node: cat
-  - name: cat
+              node: merge1
+          - name: "Data 2"
+            source:
+              file: "script.ns"
+              line: 1
+              column: 1
+            run:
+              source:
+                file: "script.ns"
+                line: 1
+                column: 1
+              type: spawn-node
+              node: merge2
+
+  # The nodes are intentionally built with an "interesting" structure.
+  # Note that main has a single stdout, which means it needs a merge node for all
+  # outputs to it.
+  # Because of the special cases with the main module (such as no exec function), likewise
+  # its streams are carefully handled.  They end up being 'dup2' to simulate the required behavior.
+  # Note that if they share the main's FD, that does not mean they then belong to the same node group.
+  #
+  # The below nodes makes:
+  #
+  #                          +----------------+
+  #                          |                |
+  #   stdout   <- merge3   <-+ merge1   <-+ <-+ tee1   <- file1 (as data_file_1)
+  #                          |            + text1 (as data_text_1)
+  #                          + merge2   <-+ file2 (as data_file_2)
+  #                                       + text2 (as data_text_2)
+  #                                       + stdin
+
+  - name: data_file_1
     source:
       file: "script.ns"
-      line: 1
+      line: 2
       column: 1
     module: cat
+    initial-parameters: {}
     runtime-parameters:
       - name: filenames
         source:
           file: "script.ns"
-          line: 1
+          line: 2
           column: 1
         value:
           type: constant-string-list
           source:
             file: "script.ns"
-            line: 1
+            line: 2
             column: 1
           value:
-            - type: lookup-state-string
+            - type: map-key-string
               source:
                 file: "script.ns"
-                line: 1
+                line: 2
                 column: 1
-              node: main
-              name: source
-
+              map:
+                source:
+                  file: "script.ns"
+                  line: 2
+                  column: 1
+                type: lookup-string-map
+                node:
+                  source:
+                    file: "script.ns"
+                    line: 2
+                    column: 1
+                  type: constant-string
+                  value: main
+                name:
+                  source:
+                    file: "script.ns"
+                    line: 2
+                    column: 1
+                  type: constant-string
+                  value: value_params
+              key:
+                type: constant-string
+                source:
+                  file: "script.ns"
+                  line: 2
+                  column: 1
+                value: "file1"
+              default:
+                type: constant-string
+                source:
+                  file: "script.ns"
+                  line: 2
+                  column: 1
+                value: ""
+    exit-actions: []
     streams:
       - name: output
         source:
           file: "script.ns"
-          line: 1
+          line: 2
           column: 1
         mode: output
-        to-node: output
+        to-node: tee1
         to-stream: input
-    environment:
-      source:
-        file: "script.ns"
-        line: 1
-        column: 1
-  
-  - name: output
+    event-listeners: []
+
+  - name: data_file_2
     source:
       file: "script.ns"
-      line: 1
+      line: 3
       column: 1
-    module: file_sink
+    module: cat
+    initial-parameters: {}
     runtime-parameters:
-      - name: filename
+      - name: filenames
         source:
           file: "script.ns"
-          line: 1
+          line: 3
           column: 1
         value:
-          type: lookup-state-string
+          type: constant-string-list
           source:
             file: "script.ns"
-            line: 1
+            line: 3
             column: 1
-          node: main
-          name: target
-      - name: append
+          value:
+            - type: map-key-string
+              source:
+                file: "script.ns"
+                line: 3
+                column: 1
+              map:
+                source:
+                  file: "script.ns"
+                  line: 3
+                  column: 1
+                type: lookup-string-map
+                node:
+                  source:
+                    file: "script.ns"
+                    line: 3
+                    column: 1
+                  type: constant-string
+                  value: main
+                name:
+                  source:
+                    file: "script.ns"
+                    line: 3
+                    column: 1
+                  type: constant-string
+                  value: value_params
+              key:
+                type: constant-string
+                source:
+                  file: "script.ns"
+                  line: 3
+                  column: 1
+                value: "file2"
+              default:
+                type: constant-string
+                source:
+                  file: "script.ns"
+                  line: 3
+                  column: 1
+                value: ""
+    exit-actions: []
+    streams:
+      - name: output
         source:
           file: "script.ns"
-          line: 1
+          line: 3
+          column: 1
+        mode: output
+        to-node: merge2
+        to-stream: input
+    event-listeners: []
+
+  - name: data_text_1
+    source:
+      file: "script.ns"
+      line: 4
+      column: 1
+    module: echo
+    initial-parameters: {}
+    runtime-parameters:
+      - name: text
+        source:
+          file: "script.ns"
+          line: 4
           column: 1
         value:
-          type: constant-boolean
+          type: map-key-string
           source:
             file: "script.ns"
-            line: 1
+            line: 4
             column: 1
-          value: false
-    environment:
-      source:
-        file: "script.ns"
-        line: 1
-        column: 1
+          map:
+            source:
+              file: "script.ns"
+              line: 4
+              column: 1
+            type: lookup-string-map
+            node:
+              source:
+                file: "script.ns"
+                line: 4
+                column: 1
+              type: constant-string
+              value: main
+            name:
+              source:
+                file: "script.ns"
+                line: 4
+                column: 1
+              type: constant-string
+              value: value_params
+          key:
+            type: constant-string
+            source:
+              file: "script.ns"
+              line: 4
+              column: 1
+            value: "text1"
+          default:
+            type: constant-string
+            source:
+              file: "script.ns"
+              line: 4
+              column: 1
+            value: ""
+    exit-actions: []
+    streams:
+      - name: output
+        source:
+          file: "script.ns"
+          line: 4
+          column: 1
+        mode: output
+        to-node: merge1
+        to-stream: input
+    event-listeners: []
+
+  - name: data_text_2
+    source:
+      file: "script.ns"
+      line: 5
+      column: 1
+    module: echo
+    initial-parameters: {}
+    runtime-parameters:
+      - name: text
+        source:
+          file: "script.ns"
+          line: 5
+          column: 1
+        value:
+          type: map-key-string
+          source:
+            file: "script.ns"
+            line: 5
+            column: 1
+          map:
+            source:
+              file: "script.ns"
+              line: 5
+              column: 1
+            type: lookup-string-map
+            node:
+              source:
+                file: "script.ns"
+                line: 5
+                column: 1
+              type: constant-string
+              value: main
+            name:
+              source:
+                file: "script.ns"
+                line: 5
+                column: 1
+              type: constant-string
+              value: value_params
+          key:
+            type: constant-string
+            source:
+              file: "script.ns"
+              line: 5
+              column: 1
+            value: "text2"
+          default:
+            type: constant-string
+            source:
+              file: "script.ns"
+              line: 5
+              column: 1
+            value: ""
+    exit-actions: []
+    streams:
+      - name: output
+        source:
+          file: "script.ns"
+          line: 5
+          column: 1
+        mode: output
+        to-node: merge2
+        to-stream: input
+    event-listeners: []
+
+  - name: tee1
+    source:
+      file: "script.ns"
+      line: 6
+      column: 1
+    module: tee
+    initial-parameters: {}
+    runtime-parameters: []
+    exit-actions: []
+    event-listeners: []
+    streams:
+      - name: output
+        source:
+          file: "script.ns"
+          line: 6
+          column: 1
+        mode: output
+        to-node: merge1
+        to-stream: input
+      - name: output
+        source:
+          file: "script.ns"
+          line: 6
+          column: 1
+        mode: output
+        to-node: merge3
+        to-stream: input
+
+  - name: merge1
+    source:
+      file: "script.ns"
+      line: 7
+      column: 1
+    module: merge
+    initial-parameters: {}
+    runtime-parameters: []
+    exit-actions: []
+    event-listeners: []
+    streams:
+      - name: output
+        source:
+          file: "script.ns"
+          line: 7
+          column: 1
+        mode: output
+        to-node: merge3
+        to-stream: input
+
+  - name: merge2
+    source:
+      file: "script.ns"
+      line: 8
+      column: 1
+    module: merge
+    initial-parameters: {}
+    runtime-parameters: []
+    exit-actions: []
+    event-listeners: []
+    streams:
+      - name: output
+        source:
+          file: "script.ns"
+          line: 8
+          column: 1
+        mode: output
+        to-node: merge3
+        to-stream: input
+
+  - name: merge3
+    source:
+      file: "script.ns"
+      line: 9
+      column: 1
+    module: merge
+    initial-parameters: {}
+    runtime-parameters: []
+    exit-actions: []
+    event-listeners: []
+    streams:
+      - name: output
+        source:
+          file: "script.ns"
+          line: 9
+          column: 1
+        mode: output
+        to-node: main
+        to-stream: stdout

@@ -64,7 +64,7 @@ fn main() {
                 std::process::exit(2);
             }
         }
-    } else if action == "sample" {
+    } else if action == "cat-sample" {
         // Capture the command line arguments for the sample, skipping over the 'sample' action argument.
         let mut arg_itr = std::env::args().into_iter();
         let mut argv = vec![arg_itr.next().expect("No program name provided")];
@@ -73,6 +73,15 @@ fn main() {
             argv.push(arg);
         }
         crate::samples::cat_cp::main::main(argv, std::env::vars().collect());
+    } else if action == "tee-sample" {
+        // Capture the command line arguments for the sample, skipping over the 'sample' action argument.
+        let mut arg_itr = std::env::args().into_iter();
+        let mut argv = vec![arg_itr.next().expect("No program name provided")];
+        arg_itr.next();
+        for arg in arg_itr {
+            argv.push(arg);
+        }
+        crate::samples::tee_merge::main::main(argv, std::env::vars().collect());
     } else {
         eprintln!("Unknown action: {}", action);
     }

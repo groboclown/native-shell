@@ -379,7 +379,8 @@ impl ::std::convert::TryFrom<::std::string::String> for ActionEndBehavior {
 #[doc = "  \"type\": \"object\","]
 #[doc = "  \"required\": ["]
 #[doc = "    \"name\","]
-#[doc = "    \"source\""]
+#[doc = "    \"source\","]
+#[doc = "    \"value\""]
 #[doc = "  ],"]
 #[doc = "  \"properties\": {"]
 #[doc = "    \"name\": {"]
@@ -403,8 +404,7 @@ pub struct ActionParameter {
     #[doc = "The name of the parameter."]
     pub name: ::std::string::String,
     pub source: Source,
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
-    pub value: ::std::option::Option<ComputedValue>,
+    pub value: ComputedValue,
 }
 impl ::std::convert::From<&ActionParameter> for ActionParameter {
     fn from(value: &ActionParameter) -> Self {
@@ -2521,8 +2521,8 @@ impl ConstantStringValue {
 #[doc = "      \"$ref\": \"#/$defs/OrderedActions\""]
 #[doc = "    },"]
 #[doc = "    \"name\": {"]
-#[doc = "      \"description\": \"The event index that triggers this action list.\","]
-#[doc = "      \"type\": \"integer\""]
+#[doc = "      \"description\": \"The event name that triggers this action list.\","]
+#[doc = "      \"type\": \"string\""]
 #[doc = "    },"]
 #[doc = "    \"source\": {"]
 #[doc = "      \"$ref\": \"#/$defs/Source\""]
@@ -2536,8 +2536,8 @@ impl ConstantStringValue {
 #[serde(deny_unknown_fields)]
 pub struct EventListener {
     pub actions: OrderedActions,
-    #[doc = "The event index that triggers this action list."]
-    pub name: i64,
+    #[doc = "The event name that triggers this action list."]
+    pub name: ::std::string::String,
     pub source: Source,
 }
 impl ::std::convert::From<&EventListener> for EventListener {
@@ -3505,7 +3505,7 @@ impl LookupStringListValue {
 #[doc = "      \"$ref\": \"#/$defs/Source\""]
 #[doc = "    },"]
 #[doc = "    \"type\": {"]
-#[doc = "      \"const\": \"lookup-state-string-map\""]
+#[doc = "      \"const\": \"lookup-string-map\""]
 #[doc = "    }"]
 #[doc = "  },"]
 #[doc = "  \"additionalProperties\": false"]
@@ -3833,7 +3833,8 @@ impl MapToStringValue {
 #[doc = "    \"type\": \"object\","]
 #[doc = "    \"required\": ["]
 #[doc = "      \"name\","]
-#[doc = "      \"source\""]
+#[doc = "      \"source\","]
+#[doc = "      \"value\""]
 #[doc = "    ],"]
 #[doc = "    \"properties\": {"]
 #[doc = "      \"name\": {"]
@@ -3886,7 +3887,6 @@ impl ::std::convert::From<::std::vec::Vec<ActionParameter>> for NamedParameters 
 #[doc = "  \"description\": \"An abstract syntax tree (AST) schema for a Native Shell.\","]
 #[doc = "  \"type\": \"object\","]
 #[doc = "  \"required\": ["]
-#[doc = "    \"default-start\","]
 #[doc = "    \"events\","]
 #[doc = "    \"nodes\","]
 #[doc = "    \"schema-version\","]
@@ -3951,8 +3951,6 @@ impl ::std::convert::From<::std::vec::Vec<ActionParameter>> for NamedParameters 
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
 pub struct NativeShellAstSchema {
-    #[serde(rename = "default-start")]
-    pub default_start: ::serde_json::Value,
     #[doc = "The event names that nodes can trigger.  These construct a named group of event brokers, which are referenced by the nodes through the index.  Eventually, this may have a parameter list, but for the moment, events can carry a message and/or a code."]
     pub events: ::std::vec::Vec<EventName>,
     #[doc = "The nodes in the AST.  Each node is a module with a backing builder."]
@@ -4012,8 +4010,8 @@ impl NativeShellAstSchema {
 #[doc = "            \"$ref\": \"#/$defs/OrderedActions\""]
 #[doc = "          },"]
 #[doc = "          \"name\": {"]
-#[doc = "            \"description\": \"The event index that triggers this action list.\","]
-#[doc = "            \"type\": \"integer\""]
+#[doc = "            \"description\": \"The event name that triggers this action list.\","]
+#[doc = "            \"type\": \"string\""]
 #[doc = "          },"]
 #[doc = "          \"source\": {"]
 #[doc = "            \"$ref\": \"#/$defs/Source\""]
@@ -4178,10 +4176,7 @@ impl NativeShellAstSchema {
 #[doc = "                    \"value\": {"]
 #[doc = "                      \"type\": \"array\","]
 #[doc = "                      \"items\": {"]
-#[doc = "                        \"type\": \"array\","]
-#[doc = "                        \"items\": {"]
-#[doc = "                          \"type\": \"string\""]
-#[doc = "                        }"]
+#[doc = "                        \"type\": \"string\""]
 #[doc = "                      }"]
 #[doc = "                    }"]
 #[doc = "                  },"]
@@ -4722,10 +4717,7 @@ impl ::std::convert::From<::std::vec::Vec<Action>> for OrderedActions {
 #[doc = "            \"value\": {"]
 #[doc = "              \"type\": \"array\","]
 #[doc = "              \"items\": {"]
-#[doc = "                \"type\": \"array\","]
-#[doc = "                \"items\": {"]
-#[doc = "                  \"type\": \"string\""]
-#[doc = "                }"]
+#[doc = "                \"type\": \"string\""]
 #[doc = "              }"]
 #[doc = "            }"]
 #[doc = "          },"]
@@ -5004,10 +4996,7 @@ impl Parameter {
 #[doc = "        \"value\": {"]
 #[doc = "          \"type\": \"array\","]
 #[doc = "          \"items\": {"]
-#[doc = "            \"type\": \"array\","]
-#[doc = "            \"items\": {"]
-#[doc = "              \"type\": \"string\""]
-#[doc = "            }"]
+#[doc = "            \"type\": \"string\""]
 #[doc = "          }"]
 #[doc = "        }"]
 #[doc = "      },"]
@@ -5181,7 +5170,7 @@ pub enum ParameterValue {
     #[serde(rename = "string-list")]
     StringList {
         source: Source,
-        value: ::std::vec::Vec<::std::vec::Vec<::std::string::String>>,
+        value: ::std::vec::Vec<::std::string::String>,
     },
     #[doc = "Compile-Time Number List\n\nA constant number list value."]
     #[serde(rename = "number-list")]
@@ -6104,17 +6093,14 @@ pub mod builder {
     pub struct ActionParameter {
         name: ::std::result::Result<::std::string::String, ::std::string::String>,
         source: ::std::result::Result<super::Source, ::std::string::String>,
-        value: ::std::result::Result<
-            ::std::option::Option<super::ComputedValue>,
-            ::std::string::String,
-        >,
+        value: ::std::result::Result<super::ComputedValue, ::std::string::String>,
     }
     impl ::std::default::Default for ActionParameter {
         fn default() -> Self {
             Self {
                 name: Err("no value supplied for name".to_string()),
                 source: Err("no value supplied for source".to_string()),
-                value: Ok(Default::default()),
+                value: Err("no value supplied for value".to_string()),
             }
         }
     }
@@ -6141,7 +6127,7 @@ pub mod builder {
         }
         pub fn value<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::std::option::Option<super::ComputedValue>>,
+            T: ::std::convert::TryInto<super::ComputedValue>,
             T::Error: ::std::fmt::Display,
         {
             self.value = value
@@ -7084,7 +7070,7 @@ pub mod builder {
     #[derive(Clone, Debug)]
     pub struct EventListener {
         actions: ::std::result::Result<super::OrderedActions, ::std::string::String>,
-        name: ::std::result::Result<i64, ::std::string::String>,
+        name: ::std::result::Result<::std::string::String, ::std::string::String>,
         source: ::std::result::Result<super::Source, ::std::string::String>,
     }
     impl ::std::default::Default for EventListener {
@@ -7109,7 +7095,7 @@ pub mod builder {
         }
         pub fn name<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<i64>,
+            T: ::std::convert::TryInto<::std::string::String>,
             T::Error: ::std::fmt::Display,
         {
             self.name = value
@@ -9045,7 +9031,6 @@ pub mod builder {
     }
     #[derive(Clone, Debug)]
     pub struct NativeShellAstSchema {
-        default_start: ::std::result::Result<::serde_json::Value, ::std::string::String>,
         events: ::std::result::Result<::std::vec::Vec<super::EventName>, ::std::string::String>,
         nodes: ::std::result::Result<::std::vec::Vec<super::Node>, ::std::string::String>,
         schema_version: ::std::result::Result<::serde_json::Value, ::std::string::String>,
@@ -9055,7 +9040,6 @@ pub mod builder {
     impl ::std::default::Default for NativeShellAstSchema {
         fn default() -> Self {
             Self {
-                default_start: Err("no value supplied for default_start".to_string()),
                 events: Err("no value supplied for events".to_string()),
                 nodes: Err("no value supplied for nodes".to_string()),
                 schema_version: Err("no value supplied for schema_version".to_string()),
@@ -9065,16 +9049,6 @@ pub mod builder {
         }
     }
     impl NativeShellAstSchema {
-        pub fn default_start<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<::serde_json::Value>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.default_start = value
-                .try_into()
-                .map_err(|e| format!("error converting supplied value for default_start: {}", e));
-            self
-        }
         pub fn events<T>(mut self, value: T) -> Self
         where
             T: ::std::convert::TryInto<::std::vec::Vec<super::EventName>>,
@@ -9132,7 +9106,6 @@ pub mod builder {
             value: NativeShellAstSchema,
         ) -> ::std::result::Result<Self, super::error::ConversionError> {
             Ok(Self {
-                default_start: value.default_start?,
                 events: value.events?,
                 nodes: value.nodes?,
                 schema_version: value.schema_version?,
@@ -9144,7 +9117,6 @@ pub mod builder {
     impl ::std::convert::From<super::NativeShellAstSchema> for NativeShellAstSchema {
         fn from(value: super::NativeShellAstSchema) -> Self {
             Self {
-                default_start: Ok(value.default_start),
                 events: Ok(value.events),
                 nodes: Ok(value.nodes),
                 schema_version: Ok(value.schema_version),

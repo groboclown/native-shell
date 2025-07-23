@@ -1,11 +1,13 @@
 //! Helps with using file descriptors for the node streams.
 
+use std::io::Write;
 #[cfg(unix)]
 use std::os::fd::OwnedFd;
 #[cfg(unix)]
 use std::os::unix::io::{FromRawFd, IntoRawFd};
 #[cfg(windows)]
 use std::os::windows::io::{FromRawHandle, IntoRawHandle};
+use std::sync::{Arc, RwLock};
 
 
 /// Create a pair of file descriptors that come from OS pipe objects, in the form (read, write).
@@ -57,4 +59,45 @@ pub fn file_from_fd(fd: OwnedFd) -> std::fs::File {
     return unsafe { std::fs::File::from_raw_fd(fd.into_raw_fd()) };
     #[cfg(windows)]
     return unsafe { std::fs::File::from_raw_handle(fd.into_raw_handle()) };
+}
+
+// The following are unit test helpers.
+
+/// Create a FD reader from the given data, which can be used in tests.
+pub fn make_fd_reader(data: &[u8]) -> OwnedFd {
+    let (r, w) = mk_pipe();
+    let mut writer = file_from_fd(w);
+    writer.write_all(data).unwrap();
+    // close writer to send EOF
+    drop(writer);
+    r
+}
+
+/// Writes to a vector, which can be monitored by the tests.
+pub struct VecWriter {
+    data: Arc<RwLock<Vec<u8>>>,
+}
+
+impl VecWriter {
+    /// Create a new VecWriter with the given data, wrapped in a box.
+    pub fn new_box(data: Arc<RwLock<Vec<u8>>>) -> Box<Self> {
+        Box::new(VecWriter { data })
+    }
+
+    /// Create a new Box VecWriter 
+    pub fn new_pair() -> (Box<Self>, Arc<RwLock<Vec<u8>>>) {
+        let data = Arc::new(RwLock::new(Vec::new()));
+        (Self::new_box(data.clone()), data)
+    }
+}
+
+impl Write for VecWriter {
+    fn write(&mut self, buf: &[u8]) -> std::io::Result<usize> {
+        self.data.write().unwrap().extend_from_slice(buf);
+        Ok(buf.len())
+    }
+
+    fn flush(&mut self) -> std::io::Result<()> {
+        Ok(())
+    }
 }

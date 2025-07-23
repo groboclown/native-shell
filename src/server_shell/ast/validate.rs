@@ -38,6 +38,7 @@ pub fn validate(ast: &model::NativeShellAstSchema) -> Vec<ValidationError> {
     let mut errors = Vec::new();
 
     join_validation_vec(&mut errors, validate_nodes(&ast.source, &ast.nodes));
+    join_validation_vec(&mut errors, validate_has_main(&ast.source, &ast.nodes));
 
     // TODO add more validations.
 
@@ -72,6 +73,17 @@ pub fn validate_nodes(root: &model::Source, nodes: &Vec<model::Node>) -> Vec<Opt
     errors
 }
 
+pub fn validate_has_main(root: &model::Source, nodes: &Vec<model::Node>) -> Vec<Option<ValidationError>> {
+    for node in nodes {
+        if node.name == "main" {
+            return vec![None]; // Main node found, no error
+        }
+    }
+    vec![Some(ValidationError::new_error(
+        "AST must have a node named 'main'",
+        root,
+    ))]
+}
 
 fn ensure_is_id(value: &String, source: &model::Source) -> Option<ValidationError> {
     if value.is_empty() {
