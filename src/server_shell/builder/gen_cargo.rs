@@ -1,0 +1,1 @@
+//! Generate the Cargo.toml file for a script.

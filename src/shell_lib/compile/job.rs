@@ -3,6 +3,8 @@
 
 use std::fmt::Display;
 
+use super::source::Source;
+
 pub type ExitCode = i32;
 pub type JobRef = usize;
 pub type JobSequenceRef = usize;
@@ -145,7 +147,7 @@ pub struct JobSequenceDescription {
     pub name: String,
 
     /// The source code or script associated with the job sequence; for debugging.
-    pub source: String,
+    pub source: Source,
 
     /// The list of steps in the job sequence.
     pub steps: Vec<ScheduleStep>,
@@ -192,6 +194,16 @@ pub struct SignalEventHandler {
 }
 
 impl SignalEventHandler {
+    pub fn new(
+        signal_behaviors: Vec<SignalRangeBehavior>,
+        default_behavior: JobSequenceRef,
+    ) -> Self {
+        Self {
+            signal_behaviors,
+            default_behavior,
+        }
+    }
+
     /// Check if the given exit code matches any of the behaviors.
     pub fn behavior_for(&self, code: ExitCode) -> JobSequenceRef {
         for behavior in &self.signal_behaviors {
@@ -247,7 +259,23 @@ impl Display for EventPayload {
 /// If a job needs to handle things like conditions, then use the exit code behavior.
 pub trait JobRunnerContext {
     /// Send an event to the event group.
-    fn send_event(&self, event_ref: EventRef, payload: EventPayload) -> Result<(), String>;
+    fn send_event(&self, event_ref: &EventRef, payload: EventPayload) -> Result<(), String>;
+}
+
+/// Allows registering a message event listener.
+/// These work differently than signal events, and require special string handling.
+pub trait JobSequenceEventRegistrar {
+    fn add_message_event_listener(
+        &self,
+        event_ref: &EventRef,
+        handler: Box<dyn MessageEventHandler + Send + Sync>,
+    ) -> Result<(), String>;
+}
+
+/// Context passed to the main node.
+/// This allows the main node to register special message handlers that otherwise remain unavailable to
+/// the script.
+pub trait MainContext: JobRunnerContext + JobSequenceEventRegistrar {
 }
 
 pub type EventGroupListen = std::collections::HashMap<EventRef, EventHandler>;
@@ -261,7 +289,7 @@ pub struct JobDescription {
     pub name: String,
 
     /// The source code or script associated with the job; for debugging.
-    pub source: String,
+    pub source: Source,
 
     /// The job will listen to these event groups, with the associated sequence, while it runs.
     /// TODO: need to figure out if this should attach to the job or the sequence.
@@ -302,5 +330,5 @@ pub trait JobScheduler {
     fn abort(&self);
 }
 
-
+/// Context for event handlers that allows them to interact with the scheduler.
 pub trait EventHandlerContext: JobScheduler + JobRunnerContext {}

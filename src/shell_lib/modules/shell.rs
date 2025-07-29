@@ -18,6 +18,9 @@ use crate::shell_lib::compile::meta::{
     NamedValue, StreamInterface, StreamType, ValueType, VariableStreamField,
 };
 use crate::shell_lib::compile::job;
+use crate::shell_lib::runtime::event_bus;
+use crate::shell_lib::compile::source::Source;
+
 
 pub fn module_meta() -> ModuleMeta {
     ModuleMeta {
@@ -256,12 +259,13 @@ pub struct ShellModuleState {
 }
 
 pub struct ShellModule {
+    source: Source,
     start: String,
     state: ShellModuleState,
 }
 
 impl ShellModule {
-    pub fn new(compile_params: ShellModuleCompileParams) -> Self {
+    pub fn new(source: Source, compile_params: ShellModuleCompileParams) -> Self {
         let width = termion::terminal_size().map_or(80, |(w, _)| w as usize);
         let start = compile_params.start_event.clone();
         let environ = compile_params.environ.clone().expect("main must set environ");
@@ -280,17 +284,25 @@ impl ShellModule {
             bool_params: params.1,
             position_params: params.2,
         };
-        ShellModule { state, start }
+        ShellModule { state, start, source }
     }
 
     pub fn state(&self) -> ShellModuleState {
         self.state.clone()
     }
 
-    pub fn start(&self, _context: Box<dyn job::JobRunnerContext>, on_exit: Receiver<Vec<Option<job::ExitCode>>>) -> Result<String, String> {
+    pub fn start(&self, context: Box<dyn job::MainContext>, on_exit: Receiver<Vec<Option<job::ExitCode>>>) -> Result<String, String> {
         // The shell module does not have an exec function, but rather a run function.
         // It will return a channel that the main module can use to signal that the script has ended.
         // This allows the shell module to monitor system signals and other events.
+
+        // Add logging event listeners.
+        let registrar = context as Box<dyn job::JobSequenceEventRegistrar>;
+        event_bus::listen_trace_event(&registrar, Box::new(TraceLogger{}));
+        event_bus::listen_debug_event(&registrar, Box::new(DebugLogger{}));
+        event_bus::listen_info_event(&registrar, Box::new(InfoLogger{}));
+        event_bus::listen_warning_event(&registrar, Box::new(WarnLogger{}));
+        event_bus::listen_error_event(&registrar, Box::new(ErrorLogger{}));
 
         thread::Builder::new()
             .name("os_monitor".to_string())
@@ -517,5 +529,50 @@ fn find_max_width(vals: &Option<Vec<String>>) -> usize {
     match vals {
         Some(vals) => vals.iter().map(|v| v.len()).max().unwrap_or(0),
         None => 0,
+    }
+}
+
+struct TraceLogger {}
+
+impl job::MessageEventHandler for TraceLogger {
+    fn handle_message<'a>(&self, message: String, _scheduler: &Box<dyn job::EventHandlerContext + 'a>) -> Result<(), String> {
+        log::trace!("{}", message);
+        Ok(())
+    }
+}
+
+struct DebugLogger {}
+
+impl job::MessageEventHandler for DebugLogger {
+    fn handle_message<'a>(&self, message: String, _scheduler: &Box<dyn job::EventHandlerContext + 'a>) -> Result<(), String> {
+        log::debug!("{}", message);
+        Ok(())
+    }
+}
+
+struct InfoLogger {}
+
+impl job::MessageEventHandler for InfoLogger {
+    fn handle_message<'a>(&self, message: String, _scheduler: &Box<dyn job::EventHandlerContext + 'a>) -> Result<(), String> {
+        log::info!("{}", message);
+        Ok(())
+    }
+}
+
+struct WarnLogger {}
+
+impl job::MessageEventHandler for WarnLogger {
+    fn handle_message<'a>(&self, message: String, _scheduler: &Box<dyn job::EventHandlerContext + 'a>) -> Result<(), String> {
+        log::warn!("{}", message);
+        Ok(())
+    }
+}
+
+struct ErrorLogger {}
+
+impl job::MessageEventHandler for ErrorLogger {
+    fn handle_message<'a>(&self, message: String, _scheduler: &Box<dyn job::EventHandlerContext + 'a>) -> Result<(), String> {
+        log::error!("{}", message);
+        Ok(())
     }
 }

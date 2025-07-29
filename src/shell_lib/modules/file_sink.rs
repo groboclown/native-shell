@@ -3,12 +3,11 @@
 use std::{io::{self, Write}, os::fd::OwnedFd};
 use std::sync::RwLock;
 
-use crate::shell_lib::{compile::job, helpers::abort_handler};
+use crate::shell_lib::{compile::{job, source::Source}, helpers::abort_handler, runtime::event_bus};
 use crate::shell_lib::{
     compile::meta::{
         FixedStreamDef, ModuleMeta, ModuleStreamStructure, ModuleStructure, NamedValue, StreamInterface, StreamType, ValueType
     },
-    runtime::event_bus::ERROR_LOG,
 };
 
 const BUFFER_SIZE: usize = 8192;
@@ -71,6 +70,7 @@ pub fn module_meta() -> ModuleMeta {
 pub struct FileSinkModule {
     state: abort_handler::RunState<abort_handler::FdIn>,
     count: RwLock<f64>,
+    source: Source,
 }
 
 #[derive(Clone, Debug)]
@@ -89,8 +89,8 @@ pub struct FileSinkModuleStream {
 }
 
 impl FileSinkModule {
-    pub fn new() -> Self {
-        FileSinkModule { state: abort_handler::RunState::new(), count: RwLock::new(0.0) }
+    pub fn new(source: Source) -> Self {
+        FileSinkModule { state: abort_handler::RunState::new(), count: RwLock::new(0.0), source }
     }
 
     // The streams must be mut, as per the docs.
@@ -100,14 +100,14 @@ impl FileSinkModule {
 
         let mut ret: job::ExitCode = 0;
         if let Err(e) = self.exec_impl(&params, reader) {
-            let _ = (*context).send_event(ERROR_LOG.to_string(), job::EventPayload::Message(format!("{}: {}", params.filename.clone(), e)));
+            let _ = event_bus::send_error_event(&context, &self.source, format!("{}: {}", params.filename.clone(), e));
             ret = 1;
         }
 
         // The FD close happens in the stop, in order ensure the
         // FD close happen just once.
         if let Err(e) = self.stop() {
-            let _ = (*context).send_event(ERROR_LOG.to_string(), job::EventPayload::Message(format!("Failed to clean up file sink: {}", e)));
+            let _ = event_bus::send_error_event(&context, &self.source, format!("Failed to clean up file sink: {}", e));
         }
         Ok(ret)
     }
@@ -188,9 +188,9 @@ mod tests {
         msgs: RefCell<Vec<(String, job::EventPayload)>>,
     }
     impl job::JobRunnerContext for EventBus {
-        fn send_event(&self, event_ref: job::EventRef, payload: job::EventPayload) -> Result<(), String> {
+        fn send_event(&self, event_ref: &job::EventRef, payload: job::EventPayload) -> Result<(), String> {
             println!("{} {}: {}", self.name, event_ref, payload);
-            self.msgs.borrow_mut().push((event_ref, payload));
+            self.msgs.borrow_mut().push((event_ref.clone(), payload));
             Ok(())
         }
     }
@@ -209,7 +209,7 @@ mod tests {
         // Setup module and streams
         let input_file = fs::File::open(&input_path).unwrap();
         let fd = owned_from_file(input_file);
-        let module = FileSinkModule::new();
+        let module = FileSinkModule::new(Source::default());
         let out_path = dir.join("00_out.txt");
         let _ = fs::remove_file(&out_path);
         let params = FileSinkModuleRuntimeParams { filename: out_path.to_str().unwrap().to_string(), append: Some(false) };
@@ -243,7 +243,7 @@ mod tests {
         }
         let in_file = fs::File::open(&input_path).unwrap();
         let fd = owned_from_file(in_file);
-        let module = FileSinkModule::new();
+        let module = FileSinkModule::new(Source::default());
         let params = FileSinkModuleRuntimeParams { filename: out_file.to_str().unwrap().to_string(), append: Some(true) };
         let streams = FileSinkModuleStream { fd_0: fd };
         let res = module.exec(context, params, streams).unwrap();
@@ -271,7 +271,7 @@ mod tests {
         }
         let in_file = fs::File::open(&input_path).unwrap();
         let fd = owned_from_file(in_file);
-        let module = FileSinkModule::new();
+        let module = FileSinkModule::new(Source::default());
         let params = FileSinkModuleRuntimeParams { filename: out_file.to_str().unwrap().to_string(), append: Some(true) };
         let streams = FileSinkModuleStream { fd_0: fd };
         let res = module.exec(context, params, streams).unwrap();
@@ -296,7 +296,7 @@ mod tests {
 
         let params = FileSinkModuleRuntimeParams { filename: target.to_str().unwrap().to_string(), append: Some(false) };
         let streams = FileSinkModuleStream { fd_0: r };
-        let module_arc = Arc::new(FileSinkModule::new());
+        let module_arc = Arc::new(FileSinkModule::new(Source::default()));
         let spawned = module_arc.clone();
         let handle = thread::spawn(move || {
             spawned.exec(context, params, streams).unwrap()

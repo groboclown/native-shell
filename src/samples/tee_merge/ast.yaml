@@ -11,10 +11,31 @@ source:
 events:
   - name: start
     text: "Start of the shell script execution."
+    type: signal
     source:
       file: "script.ns"
       line: 1
       column: 1
+  # Built-in events used by modules.
+  - name: trace
+    text: "Trace event, used by modules to report debug information."
+    source:
+      file: "built-in"
+      line: 0
+      column: 0
+  - name: debug
+    text: "Debug event, used by modules to report debug information."
+    source:
+      file: "built-in"
+      line: 0
+      column: 0
+  - name: info
+    text: "Informative event, used by modules to report debug information."
+    source:
+      file: "built-in"
+      line: 0
+      column: 0
+
 nodes:
   # The main node.  It must use a module that conforms to the builder's requirements.
   - name: main
@@ -35,7 +56,7 @@ nodes:
             line: 1
             column: 1
           type: string
-          value: "Sends the contents of files and text into stdout."
+          value: "Sends the contents of files and text and stdin into stdout."
       version:
         source:
           file: "script.ns"
@@ -136,7 +157,8 @@ nodes:
           line: 1
           column: 1
         actions:
-          # Performs two parallel entry points.
+          # Runs the data_file_1 node.
+          # This implicitly triggers all nodes in its stream graph.
           - name: "Data 1"
             source:
               file: "script.ns"
@@ -148,19 +170,7 @@ nodes:
                 line: 1
                 column: 1
               type: spawn-node
-              node: merge1
-          - name: "Data 2"
-            source:
-              file: "script.ns"
-              line: 1
-              column: 1
-            run:
-              source:
-                file: "script.ns"
-                line: 1
-                column: 1
-              type: spawn-node
-              node: merge2
+              node: data_file_1
 
   # The nodes are intentionally built with an "interesting" structure.
   # Note that main has a single stdout, which means it needs a merge node for all
@@ -486,7 +496,19 @@ nodes:
       column: 1
     module: merge
     initial-parameters: {}
-    runtime-parameters: []
+    runtime-parameters:
+      - name: separator
+        source:
+          file: "script.ns"
+          line: 7
+          column: 1
+        value:
+          type: constant-string
+          source:
+            file: "script.ns"
+            line: 7
+            column: 1
+          value: "+"
     exit-actions: []
     event-listeners: []
     streams:
@@ -506,7 +528,19 @@ nodes:
       column: 1
     module: merge
     initial-parameters: {}
-    runtime-parameters: []
+    runtime-parameters:
+      - name: separator
+        source:
+          file: "script.ns"
+          line: 8
+          column: 1
+        value:
+          type: constant-string
+          source:
+            file: "script.ns"
+            line: 8
+            column: 1
+          value: "+"
     exit-actions: []
     event-listeners: []
     streams:
@@ -526,7 +560,19 @@ nodes:
       column: 1
     module: merge
     initial-parameters: {}
-    runtime-parameters: []
+    runtime-parameters:
+      - name: separator
+        source:
+          file: "script.ns"
+          line: 9
+          column: 1
+        value:
+          type: constant-string
+          source:
+            file: "script.ns"
+            line: 9
+            column: 1
+          value: "+"
     exit-actions: []
     event-listeners: []
     streams:

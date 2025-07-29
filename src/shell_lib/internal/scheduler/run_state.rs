@@ -1,8 +1,13 @@
 //! Maintain sequence and job state as they execute.
+//!
+//! TODO need to rethink how logging works from this module.
+//!   Logging SHOULD happen through the event bus, so that the main can perform
+//!   correct logging as per how it's configured.  However, that may cause some
+//!   infinite loops as the scheduler handles passing messages through the event bus.
 
 use std::{ops::DerefMut, sync::{mpsc, Arc, RwLock}, thread};
 
-use crate::shell_lib::compile::job;
+use crate::shell_lib::compile::{job, source::Source};
 
 pub enum JobRunState {
     /// The job has not yet started running.
@@ -64,7 +69,7 @@ pub struct JobSequenceState {
     pub name: String,
 
     /// The source code or script associated with the job sequence; for debugging.
-    pub source: String,
+    pub source: Source,
 
     /// The list of steps in the job sequence.
     steps: Arc<Vec<job::ScheduleStep>>,
@@ -204,7 +209,7 @@ impl JobExecutionState {
         }
     }
 
-    fn listener_map<F>(&self, event_ref: job::EventRef, f: F) -> Vec<String>
+    fn listener_map<F>(&self, event_ref: &job::EventRef, f: F) -> Vec<String>
     where
         F: Fn(job::JobRef, &job::EventHandler) -> Result<(), String>,
     {
@@ -240,6 +245,15 @@ impl Scheduler {
         }
     }
 
+    pub fn add_signal_event_listener(
+        &self,
+        job_ref: job::JobRef,
+        event_ref: &job::EventRef,
+        handler: job::SignalEventHandler,
+    ) {
+        self.state.event_groups.add_listener(event_ref, job_ref, job::EventHandler::Signal(handler));
+    }
+
     pub fn add_global_completion_listener(&self, tx: mpsc::Sender<Vec<Option<job::ExitCode>>>) {
         self.state.add_global_completion_listener(tx);
     }
@@ -247,6 +261,11 @@ impl Scheduler {
     pub fn start_job_sequence_named(&self, name: &str) -> Result<(), String> {
         self.context(0).schedule_sequence(self.get_sequence_id_named(name)
             .ok_or_else(|| format!("No job sequence named {}", name))?)
+    }
+
+    pub fn run_signal_event_named(&self, job_ref: job::JobRef, event_ref: &job::EventRef, signal: job::ExitCode) -> Result<(), String> {
+        let context = self.context(job_ref);
+        context.handle_event(event_ref, job::EventPayload::Signal(signal))
     }
 
     fn get_sequence_id_named(&self, name: &str) -> Option<job::JobSequenceRef> {
@@ -270,10 +289,23 @@ pub struct SchedulerContext {
 }
 
 impl job::JobRunnerContext for SchedulerContext {
-    fn send_event(&self, event_ref: job::EventRef, payload: job::EventPayload) -> Result<(), String> {
+    fn send_event(&self, event_ref: &job::EventRef, payload: job::EventPayload) -> Result<(), String> {
         self.handle_event(event_ref, payload)
     }
 }
+
+impl job::JobSequenceEventRegistrar for SchedulerContext {
+    fn add_message_event_listener(
+        &self,
+        event_ref: &job::EventRef,
+        handler: Box<dyn job::MessageEventHandler + Send + Sync>,
+    ) -> Result<(), String> {
+        self.state.event_groups.add_listener(event_ref, self.job_ref, job::EventHandler::Message(handler));
+        Ok(())
+    }
+}
+
+impl job::MainContext for SchedulerContext {}
 
 impl job::JobScheduler for SchedulerContext {
     fn start_job_sequence(&self, seq_ref: job::JobSequenceRef) -> Result<(), String> {
@@ -346,7 +378,7 @@ impl SchedulerContext {
         }
     }
 
-    fn handle_event(&self, event_ref: job::EventRef, payload: job::EventPayload) -> Result<(), String> {
+    fn handle_event(&self, event_ref: &job::EventRef, payload: job::EventPayload) -> Result<(), String> {
         let errs = match payload {
             job::EventPayload::Message(msg) =>
                 self.state.listener_map(event_ref, |job_ref, handler| {
@@ -574,7 +606,7 @@ impl SchedulerContext {
                 job::ScheduleStep::SendEvent(event_ref, payload) => {
                     // Send the event to the event group.
                     log::debug!("JobSequence {}/{}: sending event {} {}", sequence_ref, index-1, event_ref, payload);
-                    let res = self.handle_event(event_ref.clone(), payload.clone());
+                    let res = self.handle_event(event_ref, payload.clone());
                     // FIXME handle the error properly.
                     if let Err(e) = res {
                         eprintln!("Failed to send event {}: {}", event_ref, e);
@@ -670,7 +702,7 @@ impl SchedulerContext {
                     }
                 }
                 job::ScheduleStep::Abort(msg) => {
-                    // TODO log the message.
+                    log::info!("JobSequence {}/{}: aborting sequence: {}", sequence_ref, index-1, msg);
                     aborted = true;
                     break;
                 }
@@ -741,7 +773,7 @@ impl job::EventHandlerContext for SchedulerContext {}
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::shell_lib::compile::job::{self, JobScheduler};
+    use crate::shell_lib::compile::{job::{self, JobScheduler}, source::Source};
     use std::time::Duration;
 
     struct DelayRunner {
@@ -764,14 +796,14 @@ mod tests {
         let ran = Arc::new(RwLock::new(0));
         let job = job::JobDescription {
             name: "dummy".to_string(),
-            source: "".to_string(),
+            source: Source::default(),
             listen: None,
             runner: Box::new(DelayRunner{ran: ran.clone(), time: Duration::from_millis(0), ret: 42}),
         };
         // Sequence: spawn job 0, then wait for it, using SkipAll to propagate exit code
         let seq_desc = job::JobSequenceDescription {
             name: "seq".to_string(),
-            source: "".to_string(),
+            source: Source::default(),
             steps: vec![
                 job::ScheduleStep::SpawnJob(0),
                 job::ScheduleStep::WaitForJob(
@@ -804,13 +836,13 @@ mod tests {
         let ran = Arc::new(RwLock::new(0));
         let job = job::JobDescription {
             name: "".to_string(),
-            source: "".to_string(),
+            source: Source::default(),
             listen: None,
             runner: Box::new(DelayRunner{ran: ran.clone(), time: Duration::from_millis(0), ret: 99}),
         };
         let seq_desc = job::JobSequenceDescription {
             name: "".to_string(),
-            source: "".to_string(),
+            source: Source::default(),
             steps: vec![],
         };
         let scheduler = Scheduler::new(vec![job], vec![seq_desc], vec![]);
@@ -824,13 +856,13 @@ mod tests {
         let ran = Arc::new(RwLock::new(0));
         let job = job::JobDescription {
             name: "".to_string(),
-            source: "".to_string(),
+            source: Source::default(),
             listen: None,
             runner: Box::new(DelayRunner{ran: ran.clone(), time: Duration::from_secs(1), ret: 0}),
         };
         let seq_desc = job::JobSequenceDescription {
             name: "".to_string(),
-            source: "".to_string(),
+            source: Source::default(),
             steps: vec![
                 job::ScheduleStep::SpawnJob(0),
                 job::ScheduleStep::WaitForJob(

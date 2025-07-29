@@ -80,25 +80,25 @@ impl EventBus {
         Self { group_names, event_groups }
     }
 
-    pub fn add_listener(&self, event_ref: job::EventRef, job_ref: job::JobRef, handler: job::EventHandler) {
-        let idx = self.group_names.get(&event_ref).expect("unknown event group name");
+    pub fn add_listener(&self, event_ref: &job::EventRef, job_ref: job::JobRef, handler: job::EventHandler) {
+        let idx = self.group_names.get(event_ref).expect("unknown event group name");
         self.event_groups
             .get(*idx).expect("event reference out of bounds")
             .add_listener(job_ref, handler);
     }
 
-    pub fn remove_listener(&self, event_ref: job::EventRef, job_ref: &job::JobRef) {
-        let idx = self.group_names.get(&event_ref).expect("unknown event group name");
+    pub fn remove_listener(&self, event_ref: &job::EventRef, job_ref: &job::JobRef) {
+        let idx = self.group_names.get(event_ref).expect("unknown event group name");
         self.event_groups
             .get(*idx).expect("event reference out of bounds")
             .remove_listener(job_ref);
     }
 
-    pub fn listener_map<F>(&self, event_ref: job::EventRef, f: F) -> Vec<String>
+    pub fn listener_map<F>(&self, event_ref: &job::EventRef, f: F) -> Vec<String>
     where
         F: Fn(job::JobRef, &job::EventHandler) -> Result<(), String>,
     {
-        let idx = self.group_names.get(&event_ref).expect("unknown event group name");
+        let idx = self.group_names.get(event_ref).expect("unknown event group name");
         self.event_groups
             .get(*idx).expect("event reference out of bounds")
             .listener_map(f)

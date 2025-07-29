@@ -1,6 +1,6 @@
 //! Perform the equivalent of `cp` in a shell-like environment.
 
-use crate::shell_lib::compile::meta::{ModuleMeta, ModuleStructure, NamedValue, ValueType};
+use crate::shell_lib::{compile::{job, meta::{ModuleMeta, ModuleStructure, NamedValue, ValueType}, source::Source}, runtime::event_bus};
 
 pub fn module_meta() -> ModuleMeta {
     ModuleMeta {
@@ -88,6 +88,7 @@ pub fn module_meta() -> ModuleMeta {
 }
 
 pub struct CpModule {
+    source: Source,
 }
 
 pub struct CpModuleRuntimeParams {
@@ -108,13 +109,14 @@ pub struct CpModuleState {
 }
 
 impl CpModule {
-    pub fn new() -> Self {
-        CpModule {}
+    pub fn new(source: Source) -> Self {
+        CpModule { source }
     }
 
-    pub fn exec(&mut self, _params: CpModuleRuntimeParams) -> Result<i16, String> {
+    pub fn exec(&mut self, context: Box<dyn job::JobRunnerContext>, params: CpModuleRuntimeParams) -> Result<i16, String> {
         // Implementation of the copy logic goes here.
         // This is a placeholder for the actual logic.
+        event_bus::send_debug_event(&context, &self.source, format!("Copying from {} to {}", params.source, params.destination))?;
         
         return Err("Not implemented".to_string());
     }

@@ -153,3 +153,6 @@ dmypy.json
 
 # IDE
 .idea/workspace.xml
+
+# Local play files
+/local-*

@@ -2575,6 +2575,14 @@ impl EventListener {
 #[doc = "    \"text\": {"]
 #[doc = "      \"description\": \"The text description of the event.  This is used for debugging and logging.\","]
 #[doc = "      \"type\": \"string\""]
+#[doc = "    },"]
+#[doc = "    \"type\": {"]
+#[doc = "      \"description\": \"The type of the event.  Each type has a different way to run and takes different arguments.  Note that the 'main' node's starting event will always be a signal with value '0'.\","]
+#[doc = "      \"type\": \"string\","]
+#[doc = "      \"enum\": ["]
+#[doc = "        \"signal\","]
+#[doc = "        \"message\""]
+#[doc = "      ]"]
 #[doc = "    }"]
 #[doc = "  },"]
 #[doc = "  \"additionalProperties\": false"]
@@ -2589,6 +2597,13 @@ pub struct EventName {
     pub source: Source,
     #[doc = "The text description of the event.  This is used for debugging and logging."]
     pub text: ::std::string::String,
+    #[doc = "The type of the event.  Each type has a different way to run and takes different arguments.  Note that the 'main' node's starting event will always be a signal with value '0'."]
+    #[serde(
+        rename = "type",
+        default,
+        skip_serializing_if = "::std::option::Option::is_none"
+    )]
+    pub type_: ::std::option::Option<EventNameType>,
 }
 impl ::std::convert::From<&EventName> for EventName {
     fn from(value: &EventName) -> Self {
@@ -2598,6 +2613,84 @@ impl ::std::convert::From<&EventName> for EventName {
 impl EventName {
     pub fn builder() -> builder::EventName {
         Default::default()
+    }
+}
+#[doc = "The type of the event.  Each type has a different way to run and takes different arguments.  Note that the 'main' node's starting event will always be a signal with value '0'."]
+#[doc = r""]
+#[doc = r" <details><summary>JSON schema</summary>"]
+#[doc = r""]
+#[doc = r" ```json"]
+#[doc = "{"]
+#[doc = "  \"description\": \"The type of the event.  Each type has a different way to run and takes different arguments.  Note that the 'main' node's starting event will always be a signal with value '0'.\","]
+#[doc = "  \"type\": \"string\","]
+#[doc = "  \"enum\": ["]
+#[doc = "    \"signal\","]
+#[doc = "    \"message\""]
+#[doc = "  ]"]
+#[doc = "}"]
+#[doc = r" ```"]
+#[doc = r" </details>"]
+#[derive(
+    :: serde :: Deserialize,
+    :: serde :: Serialize,
+    Clone,
+    Copy,
+    Debug,
+    Eq,
+    Hash,
+    Ord,
+    PartialEq,
+    PartialOrd,
+)]
+pub enum EventNameType {
+    #[serde(rename = "signal")]
+    Signal,
+    #[serde(rename = "message")]
+    Message,
+}
+impl ::std::convert::From<&Self> for EventNameType {
+    fn from(value: &EventNameType) -> Self {
+        value.clone()
+    }
+}
+impl ::std::fmt::Display for EventNameType {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        match *self {
+            Self::Signal => write!(f, "signal"),
+            Self::Message => write!(f, "message"),
+        }
+    }
+}
+impl ::std::str::FromStr for EventNameType {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        match value {
+            "signal" => Ok(Self::Signal),
+            "message" => Ok(Self::Message),
+            _ => Err("invalid value".into()),
+        }
+    }
+}
+impl ::std::convert::TryFrom<&str> for EventNameType {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<&::std::string::String> for EventNameType {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: &::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for EventNameType {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
     }
 }
 #[doc = "An action that is triggered when the node exits."]
@@ -3918,6 +4011,14 @@ impl ::std::convert::From<::std::vec::Vec<ActionParameter>> for NamedParameters 
 #[doc = "          \"text\": {"]
 #[doc = "            \"description\": \"The text description of the event.  This is used for debugging and logging.\","]
 #[doc = "            \"type\": \"string\""]
+#[doc = "          },"]
+#[doc = "          \"type\": {"]
+#[doc = "            \"description\": \"The type of the event.  Each type has a different way to run and takes different arguments.  Note that the 'main' node's starting event will always be a signal with value '0'.\","]
+#[doc = "            \"type\": \"string\","]
+#[doc = "            \"enum\": ["]
+#[doc = "              \"signal\","]
+#[doc = "              \"message\""]
+#[doc = "            ]"]
 #[doc = "          }"]
 #[doc = "        },"]
 #[doc = "        \"additionalProperties\": false"]
@@ -7140,6 +7241,10 @@ pub mod builder {
         name: ::std::result::Result<::std::string::String, ::std::string::String>,
         source: ::std::result::Result<super::Source, ::std::string::String>,
         text: ::std::result::Result<::std::string::String, ::std::string::String>,
+        type_: ::std::result::Result<
+            ::std::option::Option<super::EventNameType>,
+            ::std::string::String,
+        >,
     }
     impl ::std::default::Default for EventName {
         fn default() -> Self {
@@ -7147,6 +7252,7 @@ pub mod builder {
                 name: Err("no value supplied for name".to_string()),
                 source: Err("no value supplied for source".to_string()),
                 text: Err("no value supplied for text".to_string()),
+                type_: Ok(Default::default()),
             }
         }
     }
@@ -7181,6 +7287,16 @@ pub mod builder {
                 .map_err(|e| format!("error converting supplied value for text: {}", e));
             self
         }
+        pub fn type_<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::option::Option<super::EventNameType>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.type_ = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for type_: {}", e));
+            self
+        }
     }
     impl ::std::convert::TryFrom<EventName> for super::EventName {
         type Error = super::error::ConversionError;
@@ -7191,6 +7307,7 @@ pub mod builder {
                 name: value.name?,
                 source: value.source?,
                 text: value.text?,
+                type_: value.type_?,
             })
         }
     }
@@ -7200,6 +7317,7 @@ pub mod builder {
                 name: Ok(value.name),
                 source: Ok(value.source),
                 text: Ok(value.text),
+                type_: Ok(value.type_),
             }
         }
     }

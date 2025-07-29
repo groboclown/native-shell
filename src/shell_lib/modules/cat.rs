@@ -1,8 +1,8 @@
 //! Provide 'cat' functionality for the shell.
 
-use std::{fs::File, io::{Read, Write}, os::fd::OwnedFd};
+use std::{io::{Read, Write}, os::fd::OwnedFd};
 
-use crate::shell_lib::{compile::{job, meta::{FixedStreamDef, ModuleMeta, ModuleStreamStructure, ModuleStructure, NamedValue, StreamInterface, StreamType, ValueType}}, helpers::fd::file_from_fd};
+use crate::shell_lib::{compile::{job, meta::{FixedStreamDef, ModuleMeta, ModuleStreamStructure, ModuleStructure, NamedValue, StreamInterface, StreamType, ValueType}, source::Source}, helpers::fd::file_from_fd, runtime::event_bus};
 
 const BUFFER_SIZE: usize = 8192;
 const RETRY_TIME: std::time::Duration = std::time::Duration::from_millis(10);
@@ -57,14 +57,16 @@ pub struct CatModuleStream {
 }
 
 pub struct CatModule {
+    source: Source,
 }
 
 impl CatModule {
-    pub fn new() -> Self {
-        CatModule {}
+    pub fn new(source: Source) -> Self {
+        CatModule { source }
     }
 
-    pub fn exec(&self, _context: Box<dyn job::JobRunnerContext>, params: CatModuleRuntimeParams, mut streams: CatModuleStream) -> Result<job::ExitCode, String> {
+    pub fn exec(&self, context: Box<dyn job::JobRunnerContext>, params: CatModuleRuntimeParams, mut streams: CatModuleStream) -> Result<job::ExitCode, String> {
+        event_bus::send_debug_event(&context, &self.source, format!("Executing cat over {:?}", params.filenames))?;
         let mut out = file_from_fd(streams.fd_0);
         let mut buf = [0 as u8; BUFFER_SIZE];
         for filename in params.filenames {

@@ -1,9 +1,12 @@
 //! Manually constructed code to show how the builder might turn the AST into a shell program.
+//! This shows the full connection in a single file.  Real scripts are expected to get very large,
+//! and will be broken into multiple files.
 
 use std::collections::HashMap;
 use std::sync::{mpsc, Arc};
 
-use crate::shell_lib::compile::job;
+use crate::shell_lib::compile::{job, source};
+use crate::shell_lib::compile::source::Source;
 use crate::shell_lib::helpers;
 use crate::shell_lib::helpers::state_guard::StateGuard;
 use crate::shell_lib::modules::{cat, file_sink, shell};
@@ -23,7 +26,7 @@ fn run_main(argv: Vec<String>, environ: HashMap<String, String>) -> Result<i32, 
     // Create the nodes that represent the modules.
     // This includes adding the compile-time / initial parameters.
     let nodes = Nodes {
-        main: shell::ShellModule::new(shell::ShellModuleCompileParams {
+        main: shell::ShellModule::new(source::Source::new("script.ns", 1, 1), shell::ShellModuleCompileParams {
             name: None,
             description: Some("Sends the contents of a file through a pipe into another file.".to_string()),
             version: Some("1.0.0".to_string()),
@@ -44,8 +47,8 @@ fn run_main(argv: Vec<String>, environ: HashMap<String, String>) -> Result<i32, 
             argv: Some(argv),
             environ: Some(environ),
         }),
-        cat: cat::CatModule::new(),
-        output: file_sink::FileSinkModule::new(),
+        cat: cat::CatModule::new(source::Source::new("script.ns", 1, 1)),
+        output: file_sink::FileSinkModule::new(source::Source::new("script.ns", 1, 1)),
     };
 
     // Create the runtime parameters for the modules.
@@ -86,7 +89,7 @@ fn run_main(argv: Vec<String>, environ: HashMap<String, String>) -> Result<i32, 
             // job0: coordinator for the cat -> file sink node group.
             job::JobDescription {
                 name: "@cat-output".to_string(),
-                source: "script.ns@1,1".to_string(),
+                source: Source::new("script.ns", 1, 1),
                 listen: None,
                 runner: Box::new(Seq0Job0 {
                     runtime: runtime.clone(),
@@ -96,7 +99,7 @@ fn run_main(argv: Vec<String>, environ: HashMap<String, String>) -> Result<i32, 
             // job1: cat
             job::JobDescription {
                 name: "cat".to_string(),
-                source: "script.ns@1,1".to_string(),
+                source: Source::new("script.ns", 1, 1),
                 listen: None,
                 runner: Box::new(Seq0Job1 {
                     runtime: runtime.clone(),
@@ -106,7 +109,7 @@ fn run_main(argv: Vec<String>, environ: HashMap<String, String>) -> Result<i32, 
             // job2: file sink
             job::JobDescription {
                 name: "output".to_string(),
-                source: "script.ns@1,1".to_string(),
+                source: Source::new("script.ns", 1, 1),
                 listen: None,
                 runner: Box::new(Seq0Job2 {
                     runtime: runtime.clone(),
@@ -115,12 +118,24 @@ fn run_main(argv: Vec<String>, environ: HashMap<String, String>) -> Result<i32, 
             },
         ],
         vec![
+            // Job sequences represent two distinct types of action lists.
+            // The first is a one-for-one with the OrderedAction type as
+            // defined in the AST.
+            // The second represents a node group, which all connect via
+            // streams (minus shell output streams).  The sequence
+            // has an initial job to construct the streams, then
+            // one job per node execution to construct the runtime
+            // parameters and run the job.
+            // This isn't 100% accurate.  The event listeners must each
+            // have their own sequence, but with no associated jobs.
+
             // seq0: cat -> file sink node group
             job::JobSequenceDescription {
-                name: "start".to_string(),
-                source: "script.ns@1,1".to_string(),
+                name: "@seq0".to_string(),
+                source: Source::new("script.ns", 1, 1),
                 steps: vec![
                     // Start the coordinator job and wait for it to finish.
+                    // Automatically added, and not part of the AST.
                     job::ScheduleStep::SpawnJob(0),
                     job::ScheduleStep::WaitForJob(0, job::ExitCodeBehavior {
                         never_started: job::OnExitBehavior::AbortScript,
@@ -133,8 +148,14 @@ fn run_main(argv: Vec<String>, environ: HashMap<String, String>) -> Result<i32, 
                         default_behavior: job::OnExitBehavior::AbortScript,
                     }),
 
-                    // Start both the cat and output jobs at the same time,
-                    // then wait for them to finish.
+                    // AST defines the sequence as spawning the cat node and waiting for
+                    // the cat node to finish.
+                    // This is where the complex logic of the builder comes into play.
+                    // Because job sequences represent a job group, when an action requests
+                    // starting one job in the group, all jobs in the group are started.
+                    // Likewise, the job sequence waits for all jobs in the group to finish.
+                    // It's possible for a sequence to wait on a job in another group,
+                    // in which case it only waits on that one job.
                     job::ScheduleStep::SpawnJob(1),
                     job::ScheduleStep::SpawnJob(2),
 
@@ -160,9 +181,25 @@ fn run_main(argv: Vec<String>, environ: HashMap<String, String>) -> Result<i32, 
                     }),
                 ],
             },
+
+            // seq1: the 'main' node 'start' pseudo event listener.
+            job::JobSequenceDescription {
+                name: "start".to_string(),
+                source: Source::new("script.ns", 1, 1),
+                steps: vec![
+                    // The start has one action, which starts a single node.
+                    // Starting a node means starting its associated node group,
+                    // which is a job sequence.
+                    // The scheduler will implicitly wait for it to stop async of
+                    // the sequence that started it.
+                    job::ScheduleStep::SpawnJobSequence(0),
+                ],
+            },
         ],
         vec![], // TODO: event groups
     );
+
+    // TODO this should register the main event listeners.
 
     // Start the main node's run function, to start monitoring OS interactions.
     let (completion_tx, on_exit) = mpsc::channel();
@@ -213,7 +250,7 @@ struct Seq0StateInner {
 
 type Seq0State = helpers::state_guard::StateGuard<Seq0StateInner>;
 
-/// The first job sequence, the connector between the nodes.
+/// The first job in the sequence: the connector between the nodes.
 struct Seq0Job0 {
     runtime: Runtime,
     state: Seq0State,

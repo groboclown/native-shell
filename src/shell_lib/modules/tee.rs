@@ -3,8 +3,8 @@
 
 use std::{collections::VecDeque, io::Read, os::fd::OwnedFd};
 
-use crate::shell_lib::{compile::{job, meta}, helpers::abort_handler};
-use crate::shell_lib::runtime::event_bus::ERROR_LOG;
+use crate::shell_lib::{compile::{job, meta, source::Source}, helpers::abort_handler};
+use crate::shell_lib::runtime::event_bus;
 
 const BUFFER_SIZE: usize = 8192;
 
@@ -45,16 +45,17 @@ pub fn module_meta() -> meta::ModuleMeta {
 
 pub struct TeeModuleStream {
     pub fd_0: OwnedFd,
-    pub output: Vec<Box<dyn std::io::Write + Send>>,
+    pub output: Vec<Box<dyn std::io::Write + Send + Sync>>,
 }
 
 pub struct TeeModule {
+    source: Source,
     state: abort_handler::RunState<abort_handler::FdIn>,
 }
 
 impl TeeModule {
-    pub fn new() -> Self {
-        TeeModule { state: abort_handler::RunState::new() }
+    pub fn new(source: Source) -> Self {
+        TeeModule { state: abort_handler::RunState::new(), source }
     }
 
     pub fn exec(&self, context: Box<dyn job::JobRunnerContext>, mut streams: TeeModuleStream) -> Result<job::ExitCode, String> {
@@ -93,7 +94,7 @@ impl TeeModule {
                     return Ok(0);
                 }
                 Err(e) => {
-                    let _ = (*context).send_event(ERROR_LOG.to_string(), job::EventPayload::Message(format!("Failed to read from input stream: {}", e)));
+                    let _ = event_bus::send_error_event(&context, &self.source, format!("Failed to read from input stream: {}", e));
                     let _ = self.stop();
                     return Ok(1);
                 }
@@ -124,7 +125,7 @@ impl TeeModule {
                             break;
                         }
                         Err(e) => {
-                            let _ = (*context).send_event(ERROR_LOG.to_string(), job::EventPayload::Message(format!("Failed to write to output stream: {}", e)));
+                            let _ = event_bus::send_error_event(&context, &self.source, format!("Failed to write to output stream: {}", e));
                             let _ = self.stop();
                             return Ok(1);
                         }
@@ -160,9 +161,9 @@ mod tests {
         msgs: RefCell<Vec<(String, job::EventPayload)>>,
     }
     impl job::JobRunnerContext for EventBus {
-        fn send_event(&self, event_ref: job::EventRef, payload: job::EventPayload) -> Result<(), String> {
+        fn send_event(&self, event_ref: &job::EventRef, payload: job::EventPayload) -> Result<(), String> {
             println!("{} {}: {}", self.name, event_ref, payload);
-            self.msgs.borrow_mut().push((event_ref, payload));
+            self.msgs.borrow_mut().push((event_ref.clone(), payload));
             Ok(())
         }
     }
@@ -170,7 +171,7 @@ mod tests {
     #[test]
     fn test_zero_outputs() {
         let bus = EventBus { name: "test_zero_inputs", msgs: RefCell::new(vec![]) };
-        let module = TeeModule::new();
+        let module = TeeModule::new(Source::default());
         let fd_0 = make_fd_reader(b"hello\nworld\n");
         let streams = TeeModuleStream { fd_0, output: vec![] };
         let code = module.exec(
@@ -183,7 +184,7 @@ mod tests {
     #[test]
     fn test_single_output() {
         let bus = EventBus { name: "test_single_input_default_separator", msgs: RefCell::new(vec![]) };
-        let module = TeeModule::new();
+        let module = TeeModule::new(Source::default());
         let (ov1, out1) = VecWriter::new_pair();
         let fd_0 = make_fd_reader(b"hello\nworld\n");
         let streams = TeeModuleStream { fd_0, output: vec![ov1] };
@@ -198,7 +199,7 @@ mod tests {
     #[test]
     fn test_two_outputs() {
         let bus = EventBus { name: "test_single_input_default_separator", msgs: RefCell::new(vec![]) };
-        let module = TeeModule::new();
+        let module = TeeModule::new(Source::default());
         let data = b"a1\na2\na3";
         let fd_0 = make_fd_reader(data);
         let (ov1, out1) = VecWriter::new_pair();
@@ -216,7 +217,7 @@ mod tests {
     #[test]
     fn test_two_outputs_three_buffer_reads() {
         let bus = EventBus { name: "test_two_inputs_separator_two_chars", msgs: RefCell::new(vec![]) };
-        let module = TeeModule::new();
+        let module = TeeModule::new(Source::default());
         let mut data = [0u8; BUFFER_SIZE * 2 + 3];
         for i in 0..BUFFER_SIZE * 2 + 3 {
             data[i] = (i % 256) as u8;

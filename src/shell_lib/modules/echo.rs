@@ -1,8 +1,8 @@
 //! Sends constructed text into a stream.
 
-use std::{io::Write, os::fd::OwnedFd};
+use std::io::Write;
 
-use crate::shell_lib::{compile::{job, meta}, helpers::fd};
+use crate::shell_lib::{compile::{job, meta, source::Source}, runtime::event_bus};
 
 pub fn module_meta() -> meta::ModuleMeta {
     meta::ModuleMeta {
@@ -50,18 +50,20 @@ pub struct EchoModuleRuntimeParams {
 }
 
 pub struct EchoModuleStream {
-    pub fd_0: Box<dyn Write + Send>,
+    pub fd_0: Box<dyn Write + Send + Sync>,
 }
 
 pub struct EchoModule {
+    source: Source,
 }
 
 impl EchoModule {
-    pub fn new() -> Self {
-        EchoModule {}
+    pub fn new(source: Source) -> Self {
+        EchoModule { source }
     }
 
-    pub fn exec(&self, _context: Box<dyn job::JobRunnerContext>, params: EchoModuleRuntimeParams, mut streams: EchoModuleStream) -> Result<job::ExitCode, String> {
+    pub fn exec(&self, context: Box<dyn job::JobRunnerContext>, params: EchoModuleRuntimeParams, mut streams: EchoModuleStream) -> Result<job::ExitCode, String> {
+        event_bus::send_debug_event(&context, &self.source, format!("Echoing text: {}", params.text))?;
         match streams.fd_0.write_all(params.text.as_bytes()) {
             Ok(_) => Ok(0),
             Err(e) => Err(format!("Failed to write to output stream: {}", e)),

@@ -5,8 +5,8 @@
 
 use std::{collections::VecDeque, io::Read, os::fd::OwnedFd};
 
-use crate::shell_lib::{compile::{job, meta}, helpers::abort_handler};
-use crate::shell_lib::runtime::event_bus::ERROR_LOG;
+use crate::shell_lib::{compile::{job, meta, source::Source}, helpers::abort_handler};
+use crate::shell_lib::runtime::event_bus;
 
 const BUFFER_SIZE: f64 = 8192.0;
 
@@ -73,17 +73,18 @@ pub struct MergeModuleRuntimeParams {
 }
 
 pub struct MergeModuleStream {
-    pub fd_0: Box<dyn std::io::Write + Send>,
+    pub fd_0: Box<dyn std::io::Write + Send + Sync>,
     pub input: Vec<OwnedFd>,
 }
 
 pub struct MergeModule {
+    source: Source,
     state: abort_handler::RunState<Vec<abort_handler::FdIn>>,
 }
 
 impl MergeModule {
-    pub fn new() -> Self {
-        MergeModule { state: abort_handler::RunState::new() }
+    pub fn new(source: Source) -> Self {
+        MergeModule { state: abort_handler::RunState::new(), source }
     }
 
     pub fn exec(&self, context: Box<dyn job::JobRunnerContext>, params: MergeModuleRuntimeParams, mut streams: MergeModuleStream) -> Result<job::ExitCode, String> {
@@ -118,7 +119,7 @@ impl MergeModule {
                 };
 
                 let data = inp.read_until(separator).map_err(|e| {
-                    let _ = (*context).send_event(ERROR_LOG.to_string(), job::EventPayload::Message(format!("Failed to read from input stream: {}", e)));
+                    let _ = event_bus::send_error_event(&context, &self.source, format!("Failed to read from input stream: {}", e));
                     e.to_string()
                 })?;
                 let prefix = inp.prefix.clone();
@@ -140,12 +141,12 @@ impl MergeModule {
                         Err(e) if e.kind() == std::io::ErrorKind::Interrupted || e.kind() == std::io::ErrorKind::WouldBlock => {
                             // This is bad.  It means a retry is needed, which makes this logic more complex.
                             // Not supported at the moment.
-                            let _ = (*context).send_event(ERROR_LOG.to_string(), job::EventPayload::Message(format!("Failed to write to output stream: {}", e)));
+                            let _ = event_bus::send_error_event(&context, &self.source, format!("Failed to write to output stream: {}", e));
                             let _ = self.stop();
                             return Ok(2);
                         }
                         Err(e) => {
-                            let _ = (*context).send_event(ERROR_LOG.to_string(), job::EventPayload::Message(format!("Failed to write to output stream: {}", e)));
+                            let _ = event_bus::send_error_event(&context, &self.source, format!("Failed to write to output stream: {}", e));
                             let _ = self.stop();
                             return Ok(1);
                         }
@@ -162,12 +163,12 @@ impl MergeModule {
                         Err(e) if e.kind() == std::io::ErrorKind::Interrupted || e.kind() == std::io::ErrorKind::WouldBlock => {
                             // This is bad.  It means a retry is needed, which makes this logic more complex.
                             // Not supported at the moment.
-                            let _ = (*context).send_event(ERROR_LOG.to_string(), job::EventPayload::Message(format!("Failed to write to output stream: {}", e)));
+                            let _ = event_bus::send_error_event(&context, &self.source, format!("Failed to write to output stream: {}", e));
                             let _ = self.stop();
                             return Ok(2);
                         }
                         Err(e) => {
-                            let _ = (*context).send_event(ERROR_LOG.to_string(), job::EventPayload::Message(format!("Failed to write to output stream: {}", e)));
+                            let _ = event_bus::send_error_event(&context, &self.source, format!("Failed to write to output stream: {}", e));
                             let _ = self.stop();
                             return Ok(1);
                         }
@@ -180,7 +181,7 @@ impl MergeModule {
         // The FD close happens in the stop, in order ensure the
         // FD close happen just once.
         if let Err(e) = self.stop() {
-            let _ = (*context).send_event(ERROR_LOG.to_string(), job::EventPayload::Message(format!("Failed to clean up file sink: {}", e)));
+            let _ = event_bus::send_error_event(&context, &self.source, format!("Failed to clean up file sink: {}", e));
         }
         Ok(0)
     }
@@ -294,9 +295,9 @@ mod tests {
         msgs: RefCell<Vec<(String, job::EventPayload)>>,
     }
     impl job::JobRunnerContext for EventBus {
-        fn send_event(&self, event_ref: job::EventRef, payload: job::EventPayload) -> Result<(), String> {
+        fn send_event(&self, event_ref: &job::EventRef, payload: job::EventPayload) -> Result<(), String> {
             println!("{} {}: {}", self.name, event_ref, payload);
-            self.msgs.borrow_mut().push((event_ref, payload));
+            self.msgs.borrow_mut().push((event_ref.clone(), payload));
             Ok(())
         }
     }
@@ -304,7 +305,7 @@ mod tests {
     #[test]
     fn test_zero_inputs() {
         let bus = EventBus { name: "test_zero_inputs", msgs: RefCell::new(vec![]) };
-        let module = MergeModule::new();
+        let module = MergeModule::new(Source::default());
         let (fd_0, output) = VecWriter::new_pair();
         let streams = MergeModuleStream { fd_0, input: vec![] };
         let code = module.exec(
@@ -319,7 +320,7 @@ mod tests {
     #[test]
     fn test_single_input_default_separator() {
         let bus = EventBus { name: "test_single_input_default_separator", msgs: RefCell::new(vec![]) };
-        let module = MergeModule::new();
+        let module = MergeModule::new(Source::default());
         let (fd_0, output) = VecWriter::new_pair();
         let reader = make_fd_reader(b"hello\nworld\n");
         let streams = MergeModuleStream { fd_0, input: vec![reader] };
@@ -335,7 +336,7 @@ mod tests {
     #[test]
     fn test_two_inputs_default_separator() {
         let bus = EventBus { name: "test_single_input_default_separator", msgs: RefCell::new(vec![]) };
-        let module = MergeModule::new();
+        let module = MergeModule::new(Source::default());
         let (fd_0, output) = VecWriter::new_pair();
         let a = make_fd_reader(b"a1\na2\na3");
         let b = make_fd_reader(b"b1\nb2\n");
@@ -352,7 +353,7 @@ mod tests {
     #[test]
     fn test_two_inputs_prefix() {
         let bus = EventBus { name: "test_single_input_default_separator", msgs: RefCell::new(vec![]) };
-        let module = MergeModule::new();
+        let module = MergeModule::new(Source::default());
         let (fd_0, output) = VecWriter::new_pair();
         let a = make_fd_reader(b"a1\na2\na3");
         let b = make_fd_reader(b"b1\nb2\n");
@@ -369,7 +370,7 @@ mod tests {
     #[test]
     fn test_two_inputs_separator_two_chars() {
         let bus = EventBus { name: "test_two_inputs_separator_two_chars", msgs: RefCell::new(vec![]) };
-        let module = MergeModule::new();
+        let module = MergeModule::new(Source::default());
         let (fd_0, output) = VecWriter::new_pair();
         let a = make_fd_reader(b"a1||a2||");
         let b = make_fd_reader(b"b1||b2||");
@@ -387,7 +388,7 @@ mod tests {
     #[test]
     fn test_shorter_than_separator() {
         let bus = EventBus { name: "test_shorter_than_separator", msgs: RefCell::new(vec![]) };
-        let module = MergeModule::new();
+        let module = MergeModule::new(Source::default());
         let (fd_0, output) = VecWriter::new_pair();
         let reader = make_fd_reader(b"xyz");
         let streams = MergeModuleStream { fd_0, input: vec![reader] };
@@ -403,7 +404,7 @@ mod tests {
     #[test]
     fn test_longer_than_max_record() {
         let bus = EventBus { name: "test_longer_than_max_record", msgs: RefCell::new(vec![]) };
-        let module = MergeModule::new();
+        let module = MergeModule::new(Source::default());
         let (fd_0, output) = VecWriter::new_pair();
         let data = b"1234567\n";
         let reader = make_fd_reader(data);
@@ -419,7 +420,7 @@ mod tests {
 
     #[test]
     fn test_standalone_abort_method() {
-        let module = MergeModule::new();
+        let module = MergeModule::new(Source::default());
         assert!(module.abort());
     }
 
@@ -427,7 +428,7 @@ mod tests {
     fn test_exec_stops_when_aborted_midstream() {
         // Set up a MergeModule and a pipe reader that will block on read()
         let bus = EventBus { name: "test_abort_mid_exec", msgs: RefCell::new(vec![]) };
-        let module = Arc::new(MergeModule::new());
+        let module = Arc::new(MergeModule::new(Source::default()));
         let (fd_0, output) = VecWriter::new_pair();
         let (reader_fd, writer_fd) = mk_pipe();
         let mut writer = file_from_fd(writer_fd);

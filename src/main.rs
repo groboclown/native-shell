@@ -1,4 +1,4 @@
-use crate::server_shell::{ast, builder::from_ast::ast_to_module_source};
+use crate::server_shell::{ast, builder};
 
 mod shell_lib;
 mod server_shell;
@@ -12,7 +12,7 @@ fn main() {
         println!("Usage: astio <action> <ast file>");
         println!("Actions:");
         println!("  validate - Validate the AST");
-        println!("  build    - Build the script from the AST");
+        println!("  build    - Build the script from the AST.  Takes an extra argument, the output source directory (defaults to 'script-source').");
         println!("  help     - Show this help message");
     } else if action == "validate" {
         match ast::astio::read_file(std::env::args().nth(2).unwrap_or_else(|| "ast.json".to_string())) {
@@ -42,22 +42,22 @@ fn main() {
                     }
                     std::process::exit(1);
                 }
-                let module_file = std::env::args().nth(3).unwrap_or_else(|| "module.rs".to_string());
-                let file = match std::fs::File::create(&module_file) {
+                let script_dir = std::env::args().nth(3).unwrap_or_else(|| "script-source".to_string());
+                let write = match builder::writer::FileSourceWriter::new(&script_dir) {
                     Ok(f) => f,
                     Err(e) => {
-                        eprintln!("Error creating file {}: {}", module_file, e);
+                        eprintln!("Error creating file {}: {}", script_dir, e);
                         std::process::exit(3);
                     }
                 };
-                match ast_to_module_source(&ast, file) {
+                match builder::from_ast::ast_to_module_source(&ast, write) {
                     Ok(_) => (),
                     Err(e) => {
                         eprintln!("Error writing module source: {}", e);
                         std::process::exit(4);
                     }
                 }
-                println!("Module source written to {}", module_file);
+                println!("Module source written to {}", script_dir);
             }
             Err(e) => {
                 eprintln!("Error loading AST: {}", e);
