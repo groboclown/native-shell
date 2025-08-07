@@ -1,11 +1,11 @@
 //! Job sequence 0.
 use std::os::fd::{AsRawFd, FromRawFd, OwnedFd};
 
+use super::runtime;
 use crate::shell_lib::compile::job;
 use crate::shell_lib::compile::source::Source;
-use crate::shell_lib::modules::{cat, echo, merge, tee};
 use crate::shell_lib::helpers;
-use super::runtime;
+use crate::shell_lib::modules::{cat, echo, merge, tee};
 
 pub struct Seq0StateInner {
     // Even though main's streams are used, they are handled via dup2 of the OS file descriptors.
@@ -91,49 +91,48 @@ impl job::JobRunner for Seq0Job0 {
             let (p8r, p8w) = helpers::fd::mk_pipe();
 
             s.streams_data_file_1 = Some(cat::CatModuleStream {
-                fd_0: p1w,  // -> tee1
+                fd_0: p1w, // -> tee1
             });
             s.streams_data_file_2 = Some(cat::CatModuleStream {
-                fd_0: p4w,  // -> merge2
+                fd_0: p4w, // -> merge2
             });
             s.streams_data_text_1 = Some(echo::EchoModuleStream {
-                fd_0: Box::new(helpers::fd::file_from_fd(p3w)),  // -> merge1
+                fd_0: Box::new(helpers::fd::file_from_fd(p3w)), // -> merge1
             });
             s.streams_data_text_2 = Some(echo::EchoModuleStream {
-                fd_0: Box::new(helpers::fd::file_from_fd(p8w)),  // -> merge2
+                fd_0: Box::new(helpers::fd::file_from_fd(p8w)), // -> merge2
             });
             s.streams_tee1 = Some(tee::TeeModuleStream {
-                fd_0: p1r,  // <- file1
+                fd_0: p1r, // <- file1
                 output: vec![
-                    Box::new(helpers::fd::file_from_fd(p2w)),  // -> merge1
-                    Box::new(helpers::fd::file_from_fd(p5w)),  // -> merge3
+                    Box::new(helpers::fd::file_from_fd(p2w)), // -> merge1
+                    Box::new(helpers::fd::file_from_fd(p5w)), // -> merge3
                 ],
             });
             s.streams_merge1 = Some(merge::MergeModuleStream {
-                fd_0: Box::new(helpers::fd::file_from_fd(p6w)),  // -> merge3
+                fd_0: Box::new(helpers::fd::file_from_fd(p6w)), // -> merge3
                 input: vec![
-                    p2r,  // <- tee1
-                    p3r,  // <- text1
+                    p2r, // <- tee1
+                    p3r, // <- text1
                 ],
             });
             s.streams_merge2 = Some(merge::MergeModuleStream {
-                fd_0: Box::new(helpers::fd::file_from_fd(p7w)),  // -> merge3
+                fd_0: Box::new(helpers::fd::file_from_fd(p7w)), // -> merge3
                 input: vec![
-                    p4r,  // <- file2
-                    p8r,  // <- text2
-
+                    p4r, // <- file2
+                    p8r, // <- text2
                     // Unsafe stdio extraction, but supposed to be safe because the Builder should
                     // only allow at most 1 stdin usage.
-                    unsafe { OwnedFd::from_raw_fd(std::io::stdin().as_raw_fd()) },  // <- stdin
+                    unsafe { OwnedFd::from_raw_fd(std::io::stdin().as_raw_fd()) }, // <- stdin
                 ],
             });
 
             s.streams_merge3 = Some(merge::MergeModuleStream {
-                fd_0: Box::new(std::io::stdout()),  // -> stdout
+                fd_0: Box::new(std::io::stdout()), // -> stdout
                 input: vec![
-                    p5r,  // <- tee1
-                    p6r,  // <- merge1
-                    p7r,  // <- merge2
+                    p5r, // <- tee1
+                    p6r, // <- merge1
+                    p7r, // <- merge2
                 ],
             });
 
@@ -148,6 +147,12 @@ impl job::JobRunner for Seq0Job0 {
             }
         };
 
+        // TODO Runtime parameter setup should be done by the job that runs
+        // the node, not here.  Which means that the runtime parameters don't
+        // need to be persisted, but instead are created on demand.
+        // This implies that any references to another node's data must be
+        // done through its state.
+        //
         // Lookups used by runtime parameters happen outside the runtime.params.run_mut.
         // lookup-string-map(
         //    map: {node: constant-string "main", name: constant-string "value_params"},
@@ -176,14 +181,14 @@ impl job::JobRunner for Seq0Job0 {
             params.data_text_1.text = data_text_1_0.to_string();
             params.data_text_2.text = data_text_2_0.to_string();
             params.merge1.separator = Some("+".to_string());
-            params.merge1.stream_prefix = None;  // Not set
-            params.merge1.max_record_length = None;  // Not set
+            params.merge1.stream_prefix = None; // Not set
+            params.merge1.max_record_length = None; // Not set
             params.merge2.separator = Some("+".to_string());
-            params.merge2.stream_prefix = None;  // Not set
-            params.merge2.max_record_length = None;  // Not set
+            params.merge2.stream_prefix = None; // Not set
+            params.merge2.max_record_length = None; // Not set
             params.merge3.separator = Some("+".to_string());
-            params.merge3.stream_prefix = None;  // Not set
-            params.merge3.max_record_length = None;  // Not set
+            params.merge3.stream_prefix = None; // Not set
+            params.merge3.max_record_length = None; // Not set
 
             Ok::<(), String>(())
         }) {
@@ -216,7 +221,6 @@ impl Seq0Job0 {
     }
 }
 
-
 // Sequence 0, job 1.  The data_file_1 node.
 pub struct Seq0Job1 {
     runtime: runtime::Runtime,
@@ -225,23 +229,31 @@ pub struct Seq0Job1 {
 
 impl job::JobRunner for Seq0Job1 {
     fn run(&self, context: Box<dyn job::JobRunnerContext>) -> Result<job::ExitCode, String> {
-        let params = match self.runtime.params.run_mut(|params| Ok::<cat::CatModuleRuntimeParams, String>(params.data_file_1.clone())) {
-            helpers::state_guard::ExecState::LockContention => {
-                return Err("Failed to acquire lock on runtime parameters".to_string());
-            }
-            helpers::state_guard::ExecState::Ran(params) => params?,
-        };
-        let streams = match self.state.run_mut(|state| { Ok::<Option<cat::CatModuleStream>, String>(state.streams_data_file_1.take()) }) {
+        let params =
+            match self.runtime.params.run_mut(|params| {
+                Ok::<cat::CatModuleRuntimeParams, String>(params.data_file_1.clone())
+            }) {
+                helpers::state_guard::ExecState::LockContention => {
+                    return Err("Failed to acquire lock on runtime parameters".to_string());
+                }
+                helpers::state_guard::ExecState::Ran(params) => params?,
+            };
+        let streams = match self.state.run_mut(|state| {
+            Ok::<Option<cat::CatModuleStream>, String>(state.streams_data_file_1.take())
+        }) {
             helpers::state_guard::ExecState::LockContention => {
                 return Err("Failed to acquire lock on state".to_string());
             }
             helpers::state_guard::ExecState::Ran(stream) => stream?.expect("stream not found"),
         };
-        self.runtime.nodes.data_file_1.exec(context, params, streams)
+        self.runtime
+            .nodes
+            .data_file_1
+            .exec(context, params, streams)
     }
 
     fn abort(&self) -> Result<(), String> {
-        if ! self.runtime.nodes.data_file_1.abort() {
+        if !self.runtime.nodes.data_file_1.abort() {
             Err("Failed to abort data_file_1".to_string())
         } else {
             Ok(())
@@ -260,7 +272,6 @@ impl Seq0Job1 {
     }
 }
 
-
 // Sequence 0, job 2.  The data_file_2 node.
 pub struct Seq0Job2 {
     runtime: runtime::Runtime,
@@ -269,23 +280,31 @@ pub struct Seq0Job2 {
 
 impl job::JobRunner for Seq0Job2 {
     fn run(&self, context: Box<dyn job::JobRunnerContext>) -> Result<job::ExitCode, String> {
-        let params = match self.runtime.params.run_mut(|params| Ok::<cat::CatModuleRuntimeParams, String>(params.data_file_2.clone())) {
-            helpers::state_guard::ExecState::LockContention => {
-                return Err("Failed to acquire lock on runtime parameters".to_string());
-            }
-            helpers::state_guard::ExecState::Ran(params) => params?,
-        };
-        let streams = match self.state.run_mut(|state| { Ok::<Option<cat::CatModuleStream>, String>(state.streams_data_file_2.take()) }) {
+        let params =
+            match self.runtime.params.run_mut(|params| {
+                Ok::<cat::CatModuleRuntimeParams, String>(params.data_file_2.clone())
+            }) {
+                helpers::state_guard::ExecState::LockContention => {
+                    return Err("Failed to acquire lock on runtime parameters".to_string());
+                }
+                helpers::state_guard::ExecState::Ran(params) => params?,
+            };
+        let streams = match self.state.run_mut(|state| {
+            Ok::<Option<cat::CatModuleStream>, String>(state.streams_data_file_2.take())
+        }) {
             helpers::state_guard::ExecState::LockContention => {
                 return Err("Failed to acquire lock on state".to_string());
             }
             helpers::state_guard::ExecState::Ran(stream) => stream?.expect("stream not found"),
         };
-        self.runtime.nodes.data_file_2.exec(context, params, streams)
+        self.runtime
+            .nodes
+            .data_file_2
+            .exec(context, params, streams)
     }
 
     fn abort(&self) -> Result<(), String> {
-        if ! self.runtime.nodes.data_file_2.abort() {
+        if !self.runtime.nodes.data_file_2.abort() {
             Err("Failed to abort data_file_2".to_string())
         } else {
             Ok(())
@@ -304,7 +323,6 @@ impl Seq0Job2 {
     }
 }
 
-
 // Sequence 0, job 3.  The data_text_1 node.
 pub struct Seq0Job3 {
     runtime: runtime::Runtime,
@@ -313,23 +331,30 @@ pub struct Seq0Job3 {
 
 impl job::JobRunner for Seq0Job3 {
     fn run(&self, context: Box<dyn job::JobRunnerContext>) -> Result<job::ExitCode, String> {
-        let params = match self.runtime.params.run_mut(|params| Ok::<echo::EchoModuleRuntimeParams, String>(params.data_text_1.clone())) {
+        let params = match self.runtime.params.run_mut(|params| {
+            Ok::<echo::EchoModuleRuntimeParams, String>(params.data_text_1.clone())
+        }) {
             helpers::state_guard::ExecState::LockContention => {
                 return Err("Failed to acquire lock on runtime parameters".to_string());
             }
             helpers::state_guard::ExecState::Ran(params) => params?,
         };
-        let streams = match self.state.run_mut(|state| { Ok::<Option<echo::EchoModuleStream>, String>(state.streams_data_text_1.take()) }) {
+        let streams = match self.state.run_mut(|state| {
+            Ok::<Option<echo::EchoModuleStream>, String>(state.streams_data_text_1.take())
+        }) {
             helpers::state_guard::ExecState::LockContention => {
                 return Err("Failed to acquire lock on state".to_string());
             }
             helpers::state_guard::ExecState::Ran(stream) => stream?.expect("stream not found"),
         };
-        self.runtime.nodes.data_text_1.exec(context, params, streams)
+        self.runtime
+            .nodes
+            .data_text_1
+            .exec(context, params, streams)
     }
 
     fn abort(&self) -> Result<(), String> {
-        if ! self.runtime.nodes.data_text_1.abort() {
+        if !self.runtime.nodes.data_text_1.abort() {
             Err("Failed to abort data_text_1".to_string())
         } else {
             Ok(())
@@ -348,7 +373,6 @@ impl Seq0Job3 {
     }
 }
 
-
 // Sequence 0, job 4.  The data_text_2 node.
 pub struct Seq0Job4 {
     runtime: runtime::Runtime,
@@ -357,23 +381,30 @@ pub struct Seq0Job4 {
 
 impl job::JobRunner for Seq0Job4 {
     fn run(&self, context: Box<dyn job::JobRunnerContext>) -> Result<job::ExitCode, String> {
-        let params = match self.runtime.params.run_mut(|params| Ok::<echo::EchoModuleRuntimeParams, String>(params.data_text_2.clone())) {
+        let params = match self.runtime.params.run_mut(|params| {
+            Ok::<echo::EchoModuleRuntimeParams, String>(params.data_text_2.clone())
+        }) {
             helpers::state_guard::ExecState::LockContention => {
                 return Err("Failed to acquire lock on runtime parameters".to_string());
             }
             helpers::state_guard::ExecState::Ran(params) => params?,
         };
-        let streams = match self.state.run_mut(|state| { Ok::<Option<echo::EchoModuleStream>, String>(state.streams_data_text_2.take()) }) {
+        let streams = match self.state.run_mut(|state| {
+            Ok::<Option<echo::EchoModuleStream>, String>(state.streams_data_text_2.take())
+        }) {
             helpers::state_guard::ExecState::LockContention => {
                 return Err("Failed to acquire lock on state".to_string());
             }
             helpers::state_guard::ExecState::Ran(stream) => stream?.expect("stream not found"),
         };
-        self.runtime.nodes.data_text_2.exec(context, params, streams)
+        self.runtime
+            .nodes
+            .data_text_2
+            .exec(context, params, streams)
     }
 
     fn abort(&self) -> Result<(), String> {
-        if ! self.runtime.nodes.data_text_2.abort() {
+        if !self.runtime.nodes.data_text_2.abort() {
             Err("Failed to abort data_text_2".to_string())
         } else {
             Ok(())
@@ -392,7 +423,6 @@ impl Seq0Job4 {
     }
 }
 
-
 // Sequence 0, job 5.  The tee1 node.
 pub struct Seq0Job5 {
     runtime: runtime::Runtime,
@@ -401,7 +431,10 @@ pub struct Seq0Job5 {
 
 impl job::JobRunner for Seq0Job5 {
     fn run(&self, context: Box<dyn job::JobRunnerContext>) -> Result<job::ExitCode, String> {
-        let streams = match self.state.run_mut(|state| { Ok::<Option<tee::TeeModuleStream>, String>(state.streams_tee1.take()) }) {
+        let streams = match self
+            .state
+            .run_mut(|state| Ok::<Option<tee::TeeModuleStream>, String>(state.streams_tee1.take()))
+        {
             helpers::state_guard::ExecState::LockContention => {
                 return Err("Failed to acquire lock on state".to_string());
             }
@@ -411,7 +444,7 @@ impl job::JobRunner for Seq0Job5 {
     }
 
     fn abort(&self) -> Result<(), String> {
-        if ! self.runtime.nodes.tee1.abort() {
+        if !self.runtime.nodes.tee1.abort() {
             Err("Failed to abort tee1".to_string())
         } else {
             Ok(())
@@ -430,7 +463,6 @@ impl Seq0Job5 {
     }
 }
 
-
 // Sequence 0, job 6.  The merge1 node.
 pub struct Seq0Job6 {
     runtime: runtime::Runtime,
@@ -439,13 +471,18 @@ pub struct Seq0Job6 {
 
 impl job::JobRunner for Seq0Job6 {
     fn run(&self, context: Box<dyn job::JobRunnerContext>) -> Result<job::ExitCode, String> {
-        let params = match self.runtime.params.run_mut(|params| Ok::<merge::MergeModuleRuntimeParams, String>(params.merge1.clone())) {
-            helpers::state_guard::ExecState::LockContention => {
-                return Err("Failed to acquire lock on runtime parameters".to_string());
-            }
-            helpers::state_guard::ExecState::Ran(params) => params?,
-        };
-        let streams = match self.state.run_mut(|state| { Ok::<Option<merge::MergeModuleStream>, String>(state.streams_merge1.take()) }) {
+        let params =
+            match self.runtime.params.run_mut(|params| {
+                Ok::<merge::MergeModuleRuntimeParams, String>(params.merge1.clone())
+            }) {
+                helpers::state_guard::ExecState::LockContention => {
+                    return Err("Failed to acquire lock on runtime parameters".to_string());
+                }
+                helpers::state_guard::ExecState::Ran(params) => params?,
+            };
+        let streams = match self.state.run_mut(|state| {
+            Ok::<Option<merge::MergeModuleStream>, String>(state.streams_merge1.take())
+        }) {
             helpers::state_guard::ExecState::LockContention => {
                 return Err("Failed to acquire lock on state".to_string());
             }
@@ -455,7 +492,7 @@ impl job::JobRunner for Seq0Job6 {
     }
 
     fn abort(&self) -> Result<(), String> {
-        if ! self.runtime.nodes.merge1.abort() {
+        if !self.runtime.nodes.merge1.abort() {
             Err("Failed to abort merge1".to_string())
         } else {
             Ok(())
@@ -474,7 +511,6 @@ impl Seq0Job6 {
     }
 }
 
-
 // Sequence 0, job 7.  The merge1 node.
 pub struct Seq0Job7 {
     runtime: runtime::Runtime,
@@ -483,13 +519,18 @@ pub struct Seq0Job7 {
 
 impl job::JobRunner for Seq0Job7 {
     fn run(&self, context: Box<dyn job::JobRunnerContext>) -> Result<job::ExitCode, String> {
-        let params = match self.runtime.params.run_mut(|params| Ok::<merge::MergeModuleRuntimeParams, String>(params.merge2.clone())) {
-            helpers::state_guard::ExecState::LockContention => {
-                return Err("Failed to acquire lock on runtime parameters".to_string());
-            }
-            helpers::state_guard::ExecState::Ran(params) => params?,
-        };
-        let streams = match self.state.run_mut(|state| { Ok::<Option<merge::MergeModuleStream>, String>(state.streams_merge2.take()) }) {
+        let params =
+            match self.runtime.params.run_mut(|params| {
+                Ok::<merge::MergeModuleRuntimeParams, String>(params.merge2.clone())
+            }) {
+                helpers::state_guard::ExecState::LockContention => {
+                    return Err("Failed to acquire lock on runtime parameters".to_string());
+                }
+                helpers::state_guard::ExecState::Ran(params) => params?,
+            };
+        let streams = match self.state.run_mut(|state| {
+            Ok::<Option<merge::MergeModuleStream>, String>(state.streams_merge2.take())
+        }) {
             helpers::state_guard::ExecState::LockContention => {
                 return Err("Failed to acquire lock on state".to_string());
             }
@@ -499,7 +540,7 @@ impl job::JobRunner for Seq0Job7 {
     }
 
     fn abort(&self) -> Result<(), String> {
-        if ! self.runtime.nodes.merge2.abort() {
+        if !self.runtime.nodes.merge2.abort() {
             Err("Failed to abort merge2".to_string())
         } else {
             Ok(())
@@ -518,7 +559,6 @@ impl Seq0Job7 {
     }
 }
 
-
 // Sequence 0, job 8.  The merge1 node.
 pub struct Seq0Job8 {
     runtime: runtime::Runtime,
@@ -527,13 +567,18 @@ pub struct Seq0Job8 {
 
 impl job::JobRunner for Seq0Job8 {
     fn run(&self, context: Box<dyn job::JobRunnerContext>) -> Result<job::ExitCode, String> {
-        let params = match self.runtime.params.run_mut(|params| Ok::<merge::MergeModuleRuntimeParams, String>(params.merge3.clone())) {
-            helpers::state_guard::ExecState::LockContention => {
-                return Err("Failed to acquire lock on runtime parameters".to_string());
-            }
-            helpers::state_guard::ExecState::Ran(params) => params?,
-        };
-        let streams = match self.state.run_mut(|state| { Ok::<Option<merge::MergeModuleStream>, String>(state.streams_merge3.take()) }) {
+        let params =
+            match self.runtime.params.run_mut(|params| {
+                Ok::<merge::MergeModuleRuntimeParams, String>(params.merge3.clone())
+            }) {
+                helpers::state_guard::ExecState::LockContention => {
+                    return Err("Failed to acquire lock on runtime parameters".to_string());
+                }
+                helpers::state_guard::ExecState::Ran(params) => params?,
+            };
+        let streams = match self.state.run_mut(|state| {
+            Ok::<Option<merge::MergeModuleStream>, String>(state.streams_merge3.take())
+        }) {
             helpers::state_guard::ExecState::LockContention => {
                 return Err("Failed to acquire lock on state".to_string());
             }
@@ -543,7 +588,7 @@ impl job::JobRunner for Seq0Job8 {
     }
 
     fn abort(&self) -> Result<(), String> {
-        if ! self.runtime.nodes.merge3.abort() {
+        if !self.runtime.nodes.merge3.abort() {
             Err("Failed to abort merge3".to_string())
         } else {
             Ok(())

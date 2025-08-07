@@ -4,16 +4,28 @@
   "title": "Native Shell AST Schema",
   "description": "An abstract syntax tree (AST) schema for a Native Shell.",
   "type": "object",
-  "required": ["schema-version", "version", "source", "events", "nodes"],
+  "required": [
+    "schema-version",
+    "name",
+    "version",
+    "source",
+    "events",
+    "nodes"
+  ],
   "additionalProperties": false,
   "properties": {
     "schema-version": {
       "const": "1.0.0",
       "description": "The version of the schema for this AST.  This is used to ensure compatibility with the parser and runtime."
     },
+    "name": {
+      "type": "string",
+      "description": "The script name.",
+      "minLength": 1
+    },
     "version": {
       "type": "string",
-      "description": "The version of the AST schema."
+      "description": "The version of the script."
     },
     "source": { "$ref": "#/$defs/Source" },
     "events": {
@@ -38,10 +50,7 @@
           },
           "type": {
             "type": "string",
-            "enum": [
-              "signal",
-              "message"
-            ],
+            "enum": ["signal", "message"],
             "description": "The type of the event.  Each type has a different way to run and takes different arguments.  Note that the 'main' node's starting event will always be a signal with value '0'."
           }
         }
@@ -75,6 +84,10 @@
         "column": {
           "type": "integer",
           "description": "The column number where the node is defined."
+        },
+        "text": {
+          "type": "string",
+          "description": "The script's code.  If present, allows better error reporting by showing the related script text."
         }
       }
     },
@@ -82,7 +95,16 @@
       "type": "object",
       "title": "Node",
       "description": "A node in the AST.  Each node has a name, a type, and a list of actions.",
-      "required": ["name", "source", "module", "streams", "initial-parameters", "runtime-parameters", "exit-actions", "event-listeners"],
+      "required": [
+        "name",
+        "source",
+        "module",
+        "streams",
+        "initial-parameters",
+        "runtime-parameters",
+        "exit-actions",
+        "event-listeners"
+      ],
       "properties": {
         "name": {
           "type": "string",
@@ -114,10 +136,7 @@
               "source": { "$ref": "#/$defs/Source" },
               "mode": {
                 "type": "string",
-                "enum": [
-                  "input",
-                  "output"
-                ],
+                "enum": ["input", "output"],
                 "description": "The type of the stream.  Even for modules where this maps to a fixed stream, this helps ensure the script's assumptions and the module align."
               },
               "to-node": {
@@ -213,7 +232,7 @@
                         "type": { "const": "string-list" },
                         "value": {
                           "type": "array",
-                          "items": {"type": "string"}
+                          "items": { "type": "string" }
                         }
                       }
                     },
@@ -228,7 +247,10 @@
                         "type": { "const": "number-list" },
                         "value": {
                           "type": "array",
-                          "items": {"type": "array", "items": {"type": "number"}}
+                          "items": {
+                            "type": "array",
+                            "items": { "type": "number" }
+                          }
                         }
                       }
                     },
@@ -243,7 +265,10 @@
                         "type": { "const": "boolean-list" },
                         "value": {
                           "type": "array",
-                          "items": {"type": "array", "items": {"type": "boolean"}}
+                          "items": {
+                            "type": "array",
+                            "items": { "type": "boolean" }
+                          }
                         }
                       }
                     },
@@ -258,7 +283,7 @@
                         "type": { "const": "string-map" },
                         "value": {
                           "type": "object",
-                          "patternProperties": { ".*": {"type": "string"} }
+                          "patternProperties": { ".*": { "type": "string" } }
                         }
                       }
                     },
@@ -273,7 +298,7 @@
                         "type": { "const": "number-map" },
                         "value": {
                           "type": "object",
-                          "patternProperties": { ".*": {"type": "number"} }
+                          "patternProperties": { ".*": { "type": "number" } }
                         }
                       }
                     },
@@ -288,7 +313,7 @@
                         "type": { "const": "boolean-map" },
                         "value": {
                           "type": "object",
-                          "patternProperties": { ".*": {"type": "boolean"} }
+                          "patternProperties": { ".*": { "type": "boolean" } }
                         }
                       }
                     }
@@ -371,7 +396,14 @@
               "type": "object",
               "title": "Run Node Handler",
               "description": "Execute a handler on the current node.",
-              "required": ["source", "type", "handler", "parameters", "on-success", "on-failure"],
+              "required": [
+                "source",
+                "type",
+                "handler",
+                "parameters",
+                "on-success",
+                "on-failure"
+              ],
               "additionalProperties": false,
               "properties": {
                 "source": { "$ref": "#/$defs/Source" },
@@ -419,7 +451,13 @@
               "type": "object",
               "title": "Wait For Node",
               "description": "Wait for a node to finish executing.  This will block until the node's execution exits.  If it has already finished exiting, this will continue without waiting.",
-              "required": ["source", "type", "node", "for-exit", "if-not-started"],
+              "required": [
+                "source",
+                "type",
+                "node",
+                "for-exit",
+                "if-not-started"
+              ],
               "additionalProperties": false,
               "properties": {
                 "source": { "$ref": "#/$defs/Source" },
@@ -505,12 +543,7 @@
     },
     "ActionEndBehavior": {
       "type": "string",
-      "enum": [
-        "run",
-        "skip-next",
-        "skip-all",
-        "abort-script"
-      ],
+      "enum": ["run", "skip-next", "skip-all", "abort-script"],
       "description": "The behavior to take based on the exit code of the node.  'run' means run the next action, 'skip-next' means skip the next action, 'skip-all' means skip all remaining actions, and 'abort-script' means terminate the script."
     },
 
@@ -549,21 +582,20 @@
       ]
     },
 
-
     "ComputedStringValue": {
       "title": "Computed String Value",
       "description": "A computed string value.",
       "oneOf": [
-        {"$ref": "#/$defs/LookupStringValue" },
-        {"$ref": "#/$defs/ListIndexStringValue" },
-        {"$ref": "#/$defs/MapKeyStringValue" },
-        {"$ref": "#/$defs/SubStringValue" },
-        {"$ref": "#/$defs/ConcatenatedStringValue" },
-        {"$ref": "#/$defs/NumberToStringValue" },
-        {"$ref": "#/$defs/BooleanToStringValue" },
-        {"$ref": "#/$defs/ListToStringValue" },
-        {"$ref": "#/$defs/MapToStringValue" },
-        {"$ref": "#/$defs/ConstantStringValue" }
+        { "$ref": "#/$defs/LookupStringValue" },
+        { "$ref": "#/$defs/ListIndexStringValue" },
+        { "$ref": "#/$defs/MapKeyStringValue" },
+        { "$ref": "#/$defs/SubStringValue" },
+        { "$ref": "#/$defs/ConcatenatedStringValue" },
+        { "$ref": "#/$defs/NumberToStringValue" },
+        { "$ref": "#/$defs/BooleanToStringValue" },
+        { "$ref": "#/$defs/ListToStringValue" },
+        { "$ref": "#/$defs/MapToStringValue" },
+        { "$ref": "#/$defs/ConstantStringValue" }
       ]
     },
     "LookupStringValue": {
@@ -705,16 +737,15 @@
       }
     },
 
-
     "ComputedNumberValue": {
       "title": "Computed Number Value",
       "description": "A computed number value.",
       "oneOf": [
-        {"$ref": "#/$defs/LookupNumberValue" },
-        {"$ref": "#/$defs/ArithmeticValue" },
-        {"$ref": "#/$defs/ListIndexNumberValue" },
-        {"$ref": "#/$defs/MapKeyNumberValue" },
-        {"$ref": "#/$defs/ConstantNumberValue" }
+        { "$ref": "#/$defs/LookupNumberValue" },
+        { "$ref": "#/$defs/ArithmeticValue" },
+        { "$ref": "#/$defs/ListIndexNumberValue" },
+        { "$ref": "#/$defs/MapKeyNumberValue" },
+        { "$ref": "#/$defs/ConstantNumberValue" }
       ]
     },
     "LookupNumberValue": {
@@ -801,16 +832,15 @@
       }
     },
 
-
     "ComputedBooleanValue": {
       "title": "Computed Boolean Value",
       "description": "A computed boolean value.",
       "oneOf": [
-        {"$ref": "#/$defs/LookupBooleanValue" },
-        {"$ref": "#/$defs/LogicalBooleanValue" },
-        {"$ref": "#/$defs/ListIndexBooleanValue" },
-        {"$ref": "#/$defs/MapKeyBooleanValue" },
-        {"$ref": "#/$defs/ConstantBooleanValue" }
+        { "$ref": "#/$defs/LookupBooleanValue" },
+        { "$ref": "#/$defs/LogicalBooleanValue" },
+        { "$ref": "#/$defs/ListIndexBooleanValue" },
+        { "$ref": "#/$defs/MapKeyBooleanValue" },
+        { "$ref": "#/$defs/ConstantBooleanValue" }
       ]
     },
     "LookupBooleanValue": {
@@ -837,18 +867,10 @@
         "type": { "const": "logical" },
         "operation": {
           "type": "string",
-          "enum": [
-            "and",
-            "or",
-            "not",
-            "xor",
-            "nand",
-            "nor",
-            "xnor"
-          ],
+          "enum": ["and", "or", "not", "xor", "nand", "nor", "xnor"],
           "description": "The logical operation to perform."
         },
-        "value": {"$ref": "#/$defs/ComputedBooleanListValue" }
+        "value": { "$ref": "#/$defs/ComputedBooleanListValue" }
       }
     },
     "ListIndexBooleanValue": {
@@ -895,15 +917,14 @@
       }
     },
 
-
     "ComputedStringListValue": {
       "title": "Computed List Value",
       "description": "A computed list value.",
       "oneOf": [
-        {"$ref": "#/$defs/LookupStringListValue" },
-        {"$ref": "#/$defs/SplitStringValue" },
-        {"$ref": "#/$defs/RangeStringListValue" },
-        {"$ref": "#/$defs/ConstantStringListValue" }
+        { "$ref": "#/$defs/LookupStringListValue" },
+        { "$ref": "#/$defs/SplitStringValue" },
+        { "$ref": "#/$defs/RangeStringListValue" },
+        { "$ref": "#/$defs/ConstantStringListValue" }
       ]
     },
     "LookupStringListValue": {
@@ -969,14 +990,13 @@
       }
     },
 
-
     "ComputedNumberListValue": {
       "title": "Computed List Value",
       "description": "A computed list value.",
       "oneOf": [
-        {"$ref": "#/$defs/LookupNumberListValue" },
-        {"$ref": "#/$defs/RangeNumberListValue" },
-        {"$ref": "#/$defs/ConstantNumberListValue" }
+        { "$ref": "#/$defs/LookupNumberListValue" },
+        { "$ref": "#/$defs/RangeNumberListValue" },
+        { "$ref": "#/$defs/ConstantNumberListValue" }
       ]
     },
     "LookupNumberListValue": {
@@ -1029,14 +1049,13 @@
       }
     },
 
-
     "ComputedBooleanListValue": {
       "title": "Computed List Value",
       "description": "A computed list value.",
       "oneOf": [
-        {"$ref": "#/$defs/LookupBooleanListValue" },
-        {"$ref": "#/$defs/RangeBooleanListValue" },
-        {"$ref": "#/$defs/ConstantBooleanListValue" }
+        { "$ref": "#/$defs/LookupBooleanListValue" },
+        { "$ref": "#/$defs/RangeBooleanListValue" },
+        { "$ref": "#/$defs/ConstantBooleanListValue" }
       ]
     },
     "LookupBooleanListValue": {
@@ -1089,14 +1108,13 @@
       }
     },
 
-
     "ComputedStringMapValue": {
       "title": "Computed Map Value",
       "description": "A computed map value.",
       "oneOf": [
-        {"$ref": "#/$defs/LookupStringMapValue" },
-        {"$ref": "#/$defs/UnionStringMapValue" },
-        {"$ref": "#/$defs/ConstantStringMapValue" }
+        { "$ref": "#/$defs/LookupStringMapValue" },
+        { "$ref": "#/$defs/UnionStringMapValue" },
+        { "$ref": "#/$defs/ConstantStringMapValue" }
       ]
     },
     "LookupStringMapValue": {
@@ -1141,20 +1159,24 @@
           "type": "object",
           "description": "The constant string map value.",
           "patternProperties": {
-            ".*": { "oneOf": [ {"$ref": "#/$defs/ComputedStringValue"}, {"type": "null"} ] }
+            ".*": {
+              "oneOf": [
+                { "$ref": "#/$defs/ComputedStringValue" },
+                { "type": "null" }
+              ]
+            }
           }
         }
       }
     },
 
-
     "ComputedNumberMapValue": {
       "title": "Computed Map Value",
       "description": "A computed map value.",
       "oneOf": [
-        {"$ref": "#/$defs/LookupNumberMapValue" },
-        {"$ref": "#/$defs/UnionNumberMapValue" },
-        {"$ref": "#/$defs/ConstantNumberMapValue" }
+        { "$ref": "#/$defs/LookupNumberMapValue" },
+        { "$ref": "#/$defs/UnionNumberMapValue" },
+        { "$ref": "#/$defs/ConstantNumberMapValue" }
       ]
     },
     "LookupNumberMapValue": {
@@ -1199,20 +1221,24 @@
           "type": "object",
           "description": "The constant number map value.",
           "patternProperties": {
-            ".*": { "oneOf": [ { "$ref": "#/$defs/ComputedNumberValue" }, {"type": "null"} ] }
+            ".*": {
+              "oneOf": [
+                { "$ref": "#/$defs/ComputedNumberValue" },
+                { "type": "null" }
+              ]
+            }
           }
         }
       }
     },
 
-
     "ComputedBooleanMapValue": {
       "title": "Computed Map Value",
       "description": "A computed map value.",
       "oneOf": [
-        {"$ref": "#/$defs/LookupBooleanMapValue" },
-        {"$ref": "#/$defs/UnionBooleanMapValue" },
-        {"$ref": "#/$defs/ConstantBooleanMapValue" }
+        { "$ref": "#/$defs/LookupBooleanMapValue" },
+        { "$ref": "#/$defs/UnionBooleanMapValue" },
+        { "$ref": "#/$defs/ConstantBooleanMapValue" }
       ]
     },
     "LookupBooleanMapValue": {
@@ -1257,11 +1283,15 @@
           "type": "object",
           "description": "The constant boolean map value.",
           "patternProperties": {
-            ".*": { "oneOf": [ { "$ref": "#/$defs/ComputedBooleanValue" }, {"type": "null"} ] }
+            ".*": {
+              "oneOf": [
+                { "$ref": "#/$defs/ComputedBooleanValue" },
+                { "type": "null" }
+              ]
+            }
           }
         }
       }
     }
-
   }
 }

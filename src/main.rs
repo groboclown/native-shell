@@ -1,21 +1,28 @@
 use crate::server_shell::{ast, builder};
 
-mod shell_lib;
-mod server_shell;
 mod samples;
-
+mod server_shell;
+mod shell_lib;
 
 fn main() {
     // TODO add real arg parsing.
-    let action = std::env::args().nth(1).unwrap_or_else(|| "help".to_string());
+    let action = std::env::args()
+        .nth(1)
+        .unwrap_or_else(|| "help".to_string());
     if action == "help" {
         println!("Usage: astio <action> <ast file>");
         println!("Actions:");
         println!("  validate - Validate the AST");
-        println!("  build    - Build the script from the AST.  Takes an extra argument, the output source directory (defaults to 'script-source').");
+        println!(
+            "  build    - Build the script from the AST.  Takes an extra argument, the output source directory (defaults to 'script-source')."
+        );
         println!("  help     - Show this help message");
     } else if action == "validate" {
-        match ast::astio::read_file(std::env::args().nth(2).unwrap_or_else(|| "ast.json".to_string())) {
+        match ast::astio::read_file(
+            std::env::args()
+                .nth(2)
+                .unwrap_or_else(|| "ast.json".to_string()),
+        ) {
             Ok(ast) => {
                 let errors = ast::validate::validate(&ast);
                 if errors.is_empty() {
@@ -33,7 +40,11 @@ fn main() {
             }
         }
     } else if action == "build" {
-        match ast::astio::read_file(std::env::args().nth(2).unwrap_or_else(|| "ast.json".to_string())) {
+        match ast::astio::read_file(
+            std::env::args()
+                .nth(2)
+                .unwrap_or_else(|| "ast.json".to_string()),
+        ) {
             Ok(ast) => {
                 let errors = ast::validate::validate(&ast);
                 if !errors.is_empty() {
@@ -42,7 +53,9 @@ fn main() {
                     }
                     std::process::exit(1);
                 }
-                let script_dir = std::env::args().nth(3).unwrap_or_else(|| "script-source".to_string());
+                let script_dir = std::env::args()
+                    .nth(3)
+                    .unwrap_or_else(|| "script-source".to_string());
                 let write = match builder::writer::FileSourceWriter::new(&script_dir) {
                     Ok(f) => f,
                     Err(e) => {
@@ -53,7 +66,8 @@ fn main() {
                 match builder::from_ast::ast_to_module_source(&ast, write) {
                     Ok(_) => (),
                     Err(e) => {
-                        eprintln!("Error writing module source: {}", e);
+                        eprintln!("Error encountered with script");
+                        builder::errors::report_errors(&e);
                         std::process::exit(4);
                     }
                 }

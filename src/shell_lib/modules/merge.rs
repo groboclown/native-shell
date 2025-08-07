@@ -5,8 +5,11 @@
 
 use std::{collections::VecDeque, io::Read, os::fd::OwnedFd};
 
-use crate::shell_lib::{compile::{job, meta, source::Source}, helpers::abort_handler};
 use crate::shell_lib::runtime::event_bus;
+use crate::shell_lib::{
+    compile::{job, meta, source::Source},
+    helpers::abort_handler,
+};
 
 const BUFFER_SIZE: f64 = 8192.0;
 
@@ -16,7 +19,11 @@ pub fn module_meta() -> meta::ModuleMeta {
         description: "Merge multiple input streams into one output stream".to_string(),
         version: "0.1.0".to_string(),
         authors: vec!["Native Shell Developers".to_string()],
-        mod_name: vec!["shell_lib".to_string(), "modules".to_string(), "merge".to_string()],
+        mod_name: vec![
+            "shell_lib".to_string(),
+            "modules".to_string(),
+            "merge".to_string(),
+        ],
         dependencies: vec![],
         os_dependencies: vec![],
         instance_struct: "MergeModule".to_string(),
@@ -45,14 +52,12 @@ pub fn module_meta() -> meta::ModuleMeta {
         state_struct: None,
         stream_struct: Some(meta::ModuleStreamStructure {
             name: "MergeModuleStream".to_string(),
-            fixed_streams: vec![
-                meta::FixedStreamDef {
-                    name: Some("output".to_string()),
-                    fd_index: Some(0),
-                    stream_type: meta::StreamType::Output(meta::StreamInterface::ReadWrite),
-                    required: true,
-                },
-            ],
+            fixed_streams: vec![meta::FixedStreamDef {
+                name: Some("output".to_string()),
+                fd_index: Some(0),
+                stream_type: meta::StreamType::Output(meta::StreamInterface::ReadWrite),
+                required: true,
+            }],
             input_variable: Some(meta::VariableStreamField {
                 field_name: "input".to_string(),
                 stream_type: meta::StreamInterface::Fd,
@@ -84,10 +89,18 @@ pub struct MergeModule {
 
 impl MergeModule {
     pub fn new(source: Source) -> Self {
-        MergeModule { state: abort_handler::RunState::new(), source }
+        MergeModule {
+            state: abort_handler::RunState::new(),
+            source,
+        }
     }
 
-    pub fn exec(&self, context: Box<dyn job::JobRunnerContext>, params: MergeModuleRuntimeParams, mut streams: MergeModuleStream) -> Result<job::ExitCode, String> {
+    pub fn exec(
+        &self,
+        context: Box<dyn job::JobRunnerContext>,
+        params: MergeModuleRuntimeParams,
+        mut streams: MergeModuleStream,
+    ) -> Result<job::ExitCode, String> {
         let separator = match params.separator {
             Some(s) => s,
             None => "\n".to_string(),
@@ -101,7 +114,11 @@ impl MergeModule {
             let mut state = Vec::with_capacity(streams.input.len());
             for fd in streams.input {
                 let (inp, reader) = abort_handler::FdIn::new(fd);
-                active.push_back(BuffFd::new(reader, max_record_length, stream_prefix.next().unwrap_or(&String::new()).clone()));
+                active.push_back(BuffFd::new(
+                    reader,
+                    max_record_length,
+                    stream_prefix.next().unwrap_or(&String::new()).clone(),
+                ));
                 state.push(inp);
             }
             self.state.start(state);
@@ -119,7 +136,11 @@ impl MergeModule {
                 };
 
                 let data = inp.read_until(separator).map_err(|e| {
-                    let _ = event_bus::send_error_event(&context, &self.source, format!("Failed to read from input stream: {}", e));
+                    let _ = event_bus::send_error_event(
+                        &context,
+                        &self.source,
+                        format!("Failed to read from input stream: {}", e),
+                    );
                     e.to_string()
                 })?;
                 let prefix = inp.prefix.clone();
@@ -138,15 +159,26 @@ impl MergeModule {
                             let _ = self.stop();
                             return Ok(0);
                         }
-                        Err(e) if e.kind() == std::io::ErrorKind::Interrupted || e.kind() == std::io::ErrorKind::WouldBlock => {
+                        Err(e)
+                            if e.kind() == std::io::ErrorKind::Interrupted
+                                || e.kind() == std::io::ErrorKind::WouldBlock =>
+                        {
                             // This is bad.  It means a retry is needed, which makes this logic more complex.
                             // Not supported at the moment.
-                            let _ = event_bus::send_error_event(&context, &self.source, format!("Failed to write to output stream: {}", e));
+                            let _ = event_bus::send_error_event(
+                                &context,
+                                &self.source,
+                                format!("Failed to write to output stream: {}", e),
+                            );
                             let _ = self.stop();
                             return Ok(2);
                         }
                         Err(e) => {
-                            let _ = event_bus::send_error_event(&context, &self.source, format!("Failed to write to output stream: {}", e));
+                            let _ = event_bus::send_error_event(
+                                &context,
+                                &self.source,
+                                format!("Failed to write to output stream: {}", e),
+                            );
                             let _ = self.stop();
                             return Ok(1);
                         }
@@ -160,15 +192,26 @@ impl MergeModule {
                             let _ = self.stop();
                             return Ok(0);
                         }
-                        Err(e) if e.kind() == std::io::ErrorKind::Interrupted || e.kind() == std::io::ErrorKind::WouldBlock => {
+                        Err(e)
+                            if e.kind() == std::io::ErrorKind::Interrupted
+                                || e.kind() == std::io::ErrorKind::WouldBlock =>
+                        {
                             // This is bad.  It means a retry is needed, which makes this logic more complex.
                             // Not supported at the moment.
-                            let _ = event_bus::send_error_event(&context, &self.source, format!("Failed to write to output stream: {}", e));
+                            let _ = event_bus::send_error_event(
+                                &context,
+                                &self.source,
+                                format!("Failed to write to output stream: {}", e),
+                            );
                             let _ = self.stop();
                             return Ok(2);
                         }
                         Err(e) => {
-                            let _ = event_bus::send_error_event(&context, &self.source, format!("Failed to write to output stream: {}", e));
+                            let _ = event_bus::send_error_event(
+                                &context,
+                                &self.source,
+                                format!("Failed to write to output stream: {}", e),
+                            );
                             let _ = self.stop();
                             return Ok(1);
                         }
@@ -181,11 +224,14 @@ impl MergeModule {
         // The FD close happens in the stop, in order ensure the
         // FD close happen just once.
         if let Err(e) = self.stop() {
-            let _ = event_bus::send_error_event(&context, &self.source, format!("Failed to clean up file sink: {}", e));
+            let _ = event_bus::send_error_event(
+                &context,
+                &self.source,
+                format!("Failed to clean up file sink: {}", e),
+            );
         }
         Ok(0)
     }
-
 
     /// Required module abort handler.
     pub fn abort(&self) -> bool {
@@ -196,7 +242,9 @@ impl MergeModule {
     /// Stop the stream reading.
     fn stop(&self) -> Result<(), String> {
         self.state.on_stop(|e| {
-            e.iter().for_each(|e| { let _ = e.stop(); });
+            e.iter().for_each(|e| {
+                let _ = e.stop();
+            });
             Ok(())
         })
     }
@@ -215,7 +263,14 @@ impl BuffFd {
     pub fn new(reader: abort_handler::FdReader, capacity: usize, prefix: String) -> Self {
         let mut buf = Vec::with_capacity(capacity);
         buf.resize(capacity, 0);
-        Self { buf, filled: 0, capacity, inp: reader, open: true, prefix }
+        Self {
+            buf,
+            filled: 0,
+            capacity,
+            inp: reader,
+            open: true,
+            prefix,
+        }
     }
 
     pub fn is_open(&self) -> bool {
@@ -224,14 +279,22 @@ impl BuffFd {
 
     pub fn read_until(&mut self, delim: &str) -> Result<Vec<u8>, std::io::Error> {
         if self.open {
-            let count = match self.inp.read(&mut self.buf.as_mut_slice()[self.filled..self.capacity]) {
+            let count = match self
+                .inp
+                .read(&mut self.buf.as_mut_slice()[self.filled..self.capacity])
+            {
                 Ok(0) => {
                     // EOF reached, return the data read so far.
+                    // If the deliminator wasn't reached, it may need to be appended to the
+                    // end of the file.
                     self.open = false;
                     0
                 }
                 Ok(count) => count,
-                Err(e) if e.kind() == std::io::ErrorKind::Interrupted || e.kind() == std::io::ErrorKind::WouldBlock => {
+                Err(e)
+                    if e.kind() == std::io::ErrorKind::Interrupted
+                        || e.kind() == std::io::ErrorKind::WouldBlock =>
+                {
                     // Skip this read, as it would block.
                     0
                 }
@@ -284,18 +347,22 @@ impl BuffFd {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::{cell::RefCell, sync::Arc};
+    use crate::shell_lib::helpers::fd::{VecWriter, file_from_fd, make_fd_reader, mk_pipe};
     use std::io::Write;
     use std::thread;
     use std::time::Duration;
-    use crate::shell_lib::helpers::fd::{file_from_fd, mk_pipe, make_fd_reader, VecWriter};
+    use std::{cell::RefCell, sync::Arc};
 
     struct EventBus {
         name: &'static str,
         msgs: RefCell<Vec<(String, job::EventPayload)>>,
     }
     impl job::JobRunnerContext for EventBus {
-        fn send_event(&self, event_ref: &job::EventRef, payload: job::EventPayload) -> Result<(), String> {
+        fn send_event(
+            &self,
+            event_ref: &job::EventRef,
+            payload: job::EventPayload,
+        ) -> Result<(), String> {
             println!("{} {}: {}", self.name, event_ref, payload);
             self.msgs.borrow_mut().push((event_ref.clone(), payload));
             Ok(())
@@ -304,82 +371,142 @@ mod tests {
 
     #[test]
     fn test_zero_inputs() {
-        let bus = EventBus { name: "test_zero_inputs", msgs: RefCell::new(vec![]) };
+        let bus = EventBus {
+            name: "test_zero_inputs",
+            msgs: RefCell::new(vec![]),
+        };
         let module = MergeModule::new(Source::default());
         let (fd_0, output) = VecWriter::new_pair();
-        let streams = MergeModuleStream { fd_0, input: vec![] };
-        let code = module.exec(
-            Box::new(bus),
-            MergeModuleRuntimeParams { separator: None, max_record_length: None, stream_prefix: None },
-            streams,
-        ).unwrap();
+        let streams = MergeModuleStream {
+            fd_0,
+            input: vec![],
+        };
+        let code = module
+            .exec(
+                Box::new(bus),
+                MergeModuleRuntimeParams {
+                    separator: None,
+                    max_record_length: None,
+                    stream_prefix: None,
+                },
+                streams,
+            )
+            .unwrap();
         assert_eq!(code, 0);
         assert!(output.read().unwrap().is_empty());
     }
 
     #[test]
     fn test_single_input_default_separator() {
-        let bus = EventBus { name: "test_single_input_default_separator", msgs: RefCell::new(vec![]) };
+        let bus = EventBus {
+            name: "test_single_input_default_separator",
+            msgs: RefCell::new(vec![]),
+        };
         let module = MergeModule::new(Source::default());
         let (fd_0, output) = VecWriter::new_pair();
         let reader = make_fd_reader(b"hello\nworld\n");
-        let streams = MergeModuleStream { fd_0, input: vec![reader] };
-        let code = module.exec(
-            Box::new(bus),
-            MergeModuleRuntimeParams { separator: None, max_record_length: None, stream_prefix: None },
-            streams,
-        ).unwrap();
+        let streams = MergeModuleStream {
+            fd_0,
+            input: vec![reader],
+        };
+        let code = module
+            .exec(
+                Box::new(bus),
+                MergeModuleRuntimeParams {
+                    separator: None,
+                    max_record_length: None,
+                    stream_prefix: None,
+                },
+                streams,
+            )
+            .unwrap();
         assert_eq!(code, 0);
         assert_eq!(*output.read().unwrap(), b"hello\nworld\n");
     }
 
     #[test]
     fn test_two_inputs_default_separator() {
-        let bus = EventBus { name: "test_single_input_default_separator", msgs: RefCell::new(vec![]) };
+        let bus = EventBus {
+            name: "test_single_input_default_separator",
+            msgs: RefCell::new(vec![]),
+        };
         let module = MergeModule::new(Source::default());
         let (fd_0, output) = VecWriter::new_pair();
         let a = make_fd_reader(b"a1\na2\na3");
         let b = make_fd_reader(b"b1\nb2\n");
-        let streams = MergeModuleStream { fd_0, input: vec![a, b] };
-        let code = module.exec(
-            Box::new(bus),
-            MergeModuleRuntimeParams { separator: None, max_record_length: None, stream_prefix: None },
-            streams,
-        ).unwrap();
+        let streams = MergeModuleStream {
+            fd_0,
+            input: vec![a, b],
+        };
+        let code = module
+            .exec(
+                Box::new(bus),
+                MergeModuleRuntimeParams {
+                    separator: None,
+                    max_record_length: None,
+                    stream_prefix: None,
+                },
+                streams,
+            )
+            .unwrap();
         assert_eq!(code, 0);
         assert_eq!(*output.read().unwrap(), b"a1\nb1\na2\nb2\na3");
     }
 
     #[test]
     fn test_two_inputs_prefix() {
-        let bus = EventBus { name: "test_single_input_default_separator", msgs: RefCell::new(vec![]) };
+        let bus = EventBus {
+            name: "test_single_input_default_separator",
+            msgs: RefCell::new(vec![]),
+        };
         let module = MergeModule::new(Source::default());
         let (fd_0, output) = VecWriter::new_pair();
         let a = make_fd_reader(b"a1\na2\na3");
         let b = make_fd_reader(b"b1\nb2\n");
-        let streams = MergeModuleStream { fd_0, input: vec![a, b] };
-        let code = module.exec(
-            Box::new(bus),
-            MergeModuleRuntimeParams { separator: None, max_record_length: None, stream_prefix: Some(vec!["1:".to_string(), "2:".to_string()]) },
-            streams,
-        ).unwrap();
+        let streams = MergeModuleStream {
+            fd_0,
+            input: vec![a, b],
+        };
+        let code = module
+            .exec(
+                Box::new(bus),
+                MergeModuleRuntimeParams {
+                    separator: None,
+                    max_record_length: None,
+                    stream_prefix: Some(vec!["1:".to_string(), "2:".to_string()]),
+                },
+                streams,
+            )
+            .unwrap();
         assert_eq!(code, 0);
         assert_eq!(*output.read().unwrap(), b"1:a1\n2:b1\n1:a2\n2:b2\n1:a3");
     }
 
     #[test]
     fn test_two_inputs_separator_two_chars() {
-        let bus = EventBus { name: "test_two_inputs_separator_two_chars", msgs: RefCell::new(vec![]) };
+        let bus = EventBus {
+            name: "test_two_inputs_separator_two_chars",
+            msgs: RefCell::new(vec![]),
+        };
         let module = MergeModule::new(Source::default());
         let (fd_0, output) = VecWriter::new_pair();
         let a = make_fd_reader(b"a1||a2||");
         let b = make_fd_reader(b"b1||b2||");
-        let streams = MergeModuleStream { fd_0, input: vec![a, b] };
-        let code = module.exec(
-            Box::new(bus),
-            MergeModuleRuntimeParams { separator: Some("||".to_string()), max_record_length: None, stream_prefix: None },
-            streams,
-        ).unwrap();
+        let streams = MergeModuleStream {
+            fd_0,
+            input: vec![a, b],
+        };
+        let code = module
+            .exec(
+                Box::new(bus),
+                MergeModuleRuntimeParams {
+                    separator: Some("||".to_string()),
+                    max_record_length: None,
+                    stream_prefix: None,
+                },
+                streams,
+            )
+            .unwrap();
         assert_eq!(code, 0);
         // Expect interleaved reads: a1, b1, a2, b2
         assert_eq!(*output.read().unwrap(), b"a1||b1||a2||b2||");
@@ -387,33 +514,57 @@ mod tests {
 
     #[test]
     fn test_shorter_than_separator() {
-        let bus = EventBus { name: "test_shorter_than_separator", msgs: RefCell::new(vec![]) };
+        let bus = EventBus {
+            name: "test_shorter_than_separator",
+            msgs: RefCell::new(vec![]),
+        };
         let module = MergeModule::new(Source::default());
         let (fd_0, output) = VecWriter::new_pair();
         let reader = make_fd_reader(b"xyz");
-        let streams = MergeModuleStream { fd_0, input: vec![reader] };
-        let code = module.exec(
-            Box::new(bus),
-            MergeModuleRuntimeParams { separator: Some("abcd".to_string()), max_record_length: None, stream_prefix: None },
-            streams,
-        ).unwrap();
+        let streams = MergeModuleStream {
+            fd_0,
+            input: vec![reader],
+        };
+        let code = module
+            .exec(
+                Box::new(bus),
+                MergeModuleRuntimeParams {
+                    separator: Some("abcd".to_string()),
+                    max_record_length: None,
+                    stream_prefix: None,
+                },
+                streams,
+            )
+            .unwrap();
         assert_eq!(code, 0);
         assert_eq!(*output.read().unwrap(), b"xyz");
     }
 
     #[test]
     fn test_longer_than_max_record() {
-        let bus = EventBus { name: "test_longer_than_max_record", msgs: RefCell::new(vec![]) };
+        let bus = EventBus {
+            name: "test_longer_than_max_record",
+            msgs: RefCell::new(vec![]),
+        };
         let module = MergeModule::new(Source::default());
         let (fd_0, output) = VecWriter::new_pair();
         let data = b"1234567\n";
         let reader = make_fd_reader(data);
-        let streams = MergeModuleStream { fd_0, input: vec![reader] };
-        let code = module.exec(
-            Box::new(bus),
-            MergeModuleRuntimeParams { separator: Some("\n".to_string()), max_record_length: Some(3.0), stream_prefix: None },
-            streams,
-        ).unwrap();
+        let streams = MergeModuleStream {
+            fd_0,
+            input: vec![reader],
+        };
+        let code = module
+            .exec(
+                Box::new(bus),
+                MergeModuleRuntimeParams {
+                    separator: Some("\n".to_string()),
+                    max_record_length: Some(3.0),
+                    stream_prefix: None,
+                },
+                streams,
+            )
+            .unwrap();
         assert_eq!(code, 0);
         assert_eq!(*output.read().unwrap(), b"1234567\n");
     }
@@ -427,23 +578,35 @@ mod tests {
     #[test]
     fn test_exec_stops_when_aborted_midstream() {
         // Set up a MergeModule and a pipe reader that will block on read()
-        let bus = EventBus { name: "test_abort_mid_exec", msgs: RefCell::new(vec![]) };
+        let bus = EventBus {
+            name: "test_abort_mid_exec",
+            msgs: RefCell::new(vec![]),
+        };
         let module = Arc::new(MergeModule::new(Source::default()));
         let (fd_0, output) = VecWriter::new_pair();
         let (reader_fd, writer_fd) = mk_pipe();
         let mut writer = file_from_fd(writer_fd);
         let data = b"abc\ndef";
         writer.write_all(data).unwrap();
-        let streams = MergeModuleStream { fd_0, input: vec![reader_fd] };
+        let streams = MergeModuleStream {
+            fd_0,
+            input: vec![reader_fd],
+        };
 
         // Spawn the exec in a separate thread; it will block waiting for input
         let module_clone = module.clone();
         let handle = thread::spawn(move || {
-            module_clone.exec(
-                Box::new(bus),
-                MergeModuleRuntimeParams { separator: None, max_record_length: None, stream_prefix: None },
-                streams
-            ).unwrap()
+            module_clone
+                .exec(
+                    Box::new(bus),
+                    MergeModuleRuntimeParams {
+                        separator: None,
+                        max_record_length: None,
+                        stream_prefix: None,
+                    },
+                    streams,
+                )
+                .unwrap()
         });
 
         // Give exec time to start and block on read

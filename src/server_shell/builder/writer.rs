@@ -1,19 +1,27 @@
 //! Abstraction and implementation of writing sources.
 
-pub trait SourceWriter {
-    fn writer_for(&self, file_name: &str) -> Box<dyn std::io::Write>;
-}
+use std::path::Path;
 
+pub trait SourceWriter {
+    fn writer_for(&self, file_name: &str) -> Result<Box<dyn std::io::Write>, std::io::Error>;
+}
 
 pub struct FileSourceWriter {
     pub base_path: String,
 }
 
 impl SourceWriter for FileSourceWriter {
-    fn writer_for(&self, file_name: &str) -> Box<dyn std::io::Write> {
+    fn writer_for(&self, file_name: &str) -> Result<Box<dyn std::io::Write>, std::io::Error> {
         let full_path = format!("{}/{}", self.base_path, file_name);
-        let file = std::fs::File::create(full_path).expect("Failed to create file");
-        Box::new(file)
+        let full_path = Path::new(full_path.as_str());
+        if let Some(parent) = full_path.parent() {
+            if !parent.exists() {
+                std::fs::create_dir(parent)?;
+            }
+        }
+
+        let file = std::fs::File::create(full_path)?;
+        Ok(Box::new(file))
     }
 }
 

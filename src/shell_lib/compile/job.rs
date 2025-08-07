@@ -78,7 +78,9 @@ impl ExitCodeRange {
             (Some(_), Some(_)) => panic!("Invalid exit code range: min > max"),
             (Some(min), None) => ExitCodeRange::AtOrAbove(min),
             (None, Some(max)) => ExitCodeRange::AtOrBelow(max),
-            (None, None) => panic!("Cannot create an exit code range with no bounds; use default in behavior instead"),
+            (None, None) => panic!(
+                "Cannot create an exit code range with no bounds; use default in behavior instead"
+            ),
         }
     }
 
@@ -159,10 +161,14 @@ pub trait JobRunner {
 }
 
 /// An event handler specializing in string messages.
-/// 
+///
 /// These generally come from the compiler creating special handlers, such as for logging.
 pub trait MessageEventHandler {
-    fn handle_message<'a>(&self, message: String, scheduler: &Box<dyn EventHandlerContext + 'a>) -> Result<(), String>;
+    fn handle_message<'a>(
+        &self,
+        message: String,
+        scheduler: &Box<dyn EventHandlerContext + 'a>,
+    ) -> Result<(), String>;
 }
 
 #[derive(Clone, Debug)]
@@ -220,6 +226,9 @@ impl SignalEventHandler {
 pub enum EventHandler {
     Message(Box<dyn MessageEventHandler + Send + Sync>),
     Signal(SignalEventHandler),
+
+    /// Ignores whether the event came from a message or a signal.
+    Sequence(JobSequenceRef),
 }
 
 #[derive(Clone, Debug)]
@@ -275,8 +284,7 @@ pub trait JobSequenceEventRegistrar {
 /// Context passed to the main node.
 /// This allows the main node to register special message handlers that otherwise remain unavailable to
 /// the script.
-pub trait MainContext: JobRunnerContext + JobSequenceEventRegistrar {
-}
+pub trait MainContext: JobRunnerContext + JobSequenceEventRegistrar {}
 
 pub type EventGroupListen = std::collections::HashMap<EventRef, EventHandler>;
 
@@ -324,7 +332,11 @@ pub trait JobScheduler {
 
     /// Wait for a job sequence to finish executing.
     /// Returns immediately if the sequence has not started.
-    fn wait_for_job_sequence(&self, seq_ref: JobSequenceRef, timeout: Option<std::time::Duration>) -> Result<Option<ExitCode>, String>;
+    fn wait_for_job_sequence(
+        &self,
+        seq_ref: JobSequenceRef,
+        timeout: Option<std::time::Duration>,
+    ) -> Result<Option<ExitCode>, String>;
 
     /// Send a signal to stop all jobs in progress.
     fn abort(&self);

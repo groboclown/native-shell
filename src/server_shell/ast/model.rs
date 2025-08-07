@@ -3981,6 +3981,7 @@ impl ::std::convert::From<::std::vec::Vec<ActionParameter>> for NamedParameters 
 #[doc = "  \"type\": \"object\","]
 #[doc = "  \"required\": ["]
 #[doc = "    \"events\","]
+#[doc = "    \"name\","]
 #[doc = "    \"nodes\","]
 #[doc = "    \"schema-version\","]
 #[doc = "    \"source\","]
@@ -4024,6 +4025,11 @@ impl ::std::convert::From<::std::vec::Vec<ActionParameter>> for NamedParameters 
 #[doc = "        \"additionalProperties\": false"]
 #[doc = "      }"]
 #[doc = "    },"]
+#[doc = "    \"name\": {"]
+#[doc = "      \"description\": \"The script name.\","]
+#[doc = "      \"type\": \"string\","]
+#[doc = "      \"minLength\": 1"]
+#[doc = "    },"]
 #[doc = "    \"nodes\": {"]
 #[doc = "      \"title\": \"Node List\","]
 #[doc = "      \"description\": \"The nodes in the AST.  Each node is a module with a backing builder.\","]
@@ -4040,7 +4046,7 @@ impl ::std::convert::From<::std::vec::Vec<ActionParameter>> for NamedParameters 
 #[doc = "      \"$ref\": \"#/$defs/Source\""]
 #[doc = "    },"]
 #[doc = "    \"version\": {"]
-#[doc = "      \"description\": \"The version of the AST schema.\","]
+#[doc = "      \"description\": \"The version of the script.\","]
 #[doc = "      \"type\": \"string\""]
 #[doc = "    }"]
 #[doc = "  },"]
@@ -4054,13 +4060,15 @@ impl ::std::convert::From<::std::vec::Vec<ActionParameter>> for NamedParameters 
 pub struct NativeShellAstSchema {
     #[doc = "The event names that nodes can trigger.  These construct a named group of event brokers, which are referenced by the nodes through the index.  Eventually, this may have a parameter list, but for the moment, events can carry a message and/or a code."]
     pub events: ::std::vec::Vec<EventName>,
+    #[doc = "The script name."]
+    pub name: NativeShellAstSchemaName,
     #[doc = "The nodes in the AST.  Each node is a module with a backing builder."]
     pub nodes: ::std::vec::Vec<Node>,
     #[doc = "The version of the schema for this AST.  This is used to ensure compatibility with the parser and runtime."]
     #[serde(rename = "schema-version")]
     pub schema_version: ::serde_json::Value,
     pub source: Source,
-    #[doc = "The version of the AST schema."]
+    #[doc = "The version of the script."]
     pub version: ::std::string::String,
 }
 impl ::std::convert::From<&NativeShellAstSchema> for NativeShellAstSchema {
@@ -4071,6 +4079,80 @@ impl ::std::convert::From<&NativeShellAstSchema> for NativeShellAstSchema {
 impl NativeShellAstSchema {
     pub fn builder() -> builder::NativeShellAstSchema {
         Default::default()
+    }
+}
+#[doc = "The script name."]
+#[doc = r""]
+#[doc = r" <details><summary>JSON schema</summary>"]
+#[doc = r""]
+#[doc = r" ```json"]
+#[doc = "{"]
+#[doc = "  \"description\": \"The script name.\","]
+#[doc = "  \"type\": \"string\","]
+#[doc = "  \"minLength\": 1"]
+#[doc = "}"]
+#[doc = r" ```"]
+#[doc = r" </details>"]
+#[derive(:: serde :: Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct NativeShellAstSchemaName(::std::string::String);
+impl ::std::ops::Deref for NativeShellAstSchemaName {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<NativeShellAstSchemaName> for ::std::string::String {
+    fn from(value: NativeShellAstSchemaName) -> Self {
+        value.0
+    }
+}
+impl ::std::convert::From<&NativeShellAstSchemaName> for NativeShellAstSchemaName {
+    fn from(value: &NativeShellAstSchemaName) -> Self {
+        value.clone()
+    }
+}
+impl ::std::str::FromStr for NativeShellAstSchemaName {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() < 1usize {
+            return Err("shorter than 1 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for NativeShellAstSchemaName {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<&::std::string::String> for NativeShellAstSchemaName {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: &::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for NativeShellAstSchemaName {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for NativeShellAstSchemaName {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
     }
 }
 #[doc = "A node in the AST.  Each node has a name, a type, and a list of actions."]
@@ -5596,6 +5678,10 @@ impl RangeStringListValue {
 #[doc = "    \"line\": {"]
 #[doc = "      \"description\": \"The line number where the node is defined.\","]
 #[doc = "      \"type\": \"integer\""]
+#[doc = "    },"]
+#[doc = "    \"text\": {"]
+#[doc = "      \"description\": \"The script's code.  If present, allows better error reporting by showing the related script text.\","]
+#[doc = "      \"type\": \"string\""]
 #[doc = "    }"]
 #[doc = "  },"]
 #[doc = "  \"additionalProperties\": false"]
@@ -5611,6 +5697,9 @@ pub struct Source {
     pub file: ::std::string::String,
     #[doc = "The line number where the node is defined."]
     pub line: i64,
+    #[doc = "The script's code.  If present, allows better error reporting by showing the related script text."]
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub text: ::std::option::Option<::std::string::String>,
 }
 impl ::std::convert::From<&Source> for Source {
     fn from(value: &Source) -> Self {
@@ -9150,6 +9239,7 @@ pub mod builder {
     #[derive(Clone, Debug)]
     pub struct NativeShellAstSchema {
         events: ::std::result::Result<::std::vec::Vec<super::EventName>, ::std::string::String>,
+        name: ::std::result::Result<super::NativeShellAstSchemaName, ::std::string::String>,
         nodes: ::std::result::Result<::std::vec::Vec<super::Node>, ::std::string::String>,
         schema_version: ::std::result::Result<::serde_json::Value, ::std::string::String>,
         source: ::std::result::Result<super::Source, ::std::string::String>,
@@ -9159,6 +9249,7 @@ pub mod builder {
         fn default() -> Self {
             Self {
                 events: Err("no value supplied for events".to_string()),
+                name: Err("no value supplied for name".to_string()),
                 nodes: Err("no value supplied for nodes".to_string()),
                 schema_version: Err("no value supplied for schema_version".to_string()),
                 source: Err("no value supplied for source".to_string()),
@@ -9175,6 +9266,16 @@ pub mod builder {
             self.events = value
                 .try_into()
                 .map_err(|e| format!("error converting supplied value for events: {}", e));
+            self
+        }
+        pub fn name<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<super::NativeShellAstSchemaName>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.name = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for name: {}", e));
             self
         }
         pub fn nodes<T>(mut self, value: T) -> Self
@@ -9225,6 +9326,7 @@ pub mod builder {
         ) -> ::std::result::Result<Self, super::error::ConversionError> {
             Ok(Self {
                 events: value.events?,
+                name: value.name?,
                 nodes: value.nodes?,
                 schema_version: value.schema_version?,
                 source: value.source?,
@@ -9236,6 +9338,7 @@ pub mod builder {
         fn from(value: super::NativeShellAstSchema) -> Self {
             Self {
                 events: Ok(value.events),
+                name: Ok(value.name),
                 nodes: Ok(value.nodes),
                 schema_version: Ok(value.schema_version),
                 source: Ok(value.source),
@@ -9919,6 +10022,10 @@ pub mod builder {
         column: ::std::result::Result<i64, ::std::string::String>,
         file: ::std::result::Result<::std::string::String, ::std::string::String>,
         line: ::std::result::Result<i64, ::std::string::String>,
+        text: ::std::result::Result<
+            ::std::option::Option<::std::string::String>,
+            ::std::string::String,
+        >,
     }
     impl ::std::default::Default for Source {
         fn default() -> Self {
@@ -9926,6 +10033,7 @@ pub mod builder {
                 column: Err("no value supplied for column".to_string()),
                 file: Err("no value supplied for file".to_string()),
                 line: Err("no value supplied for line".to_string()),
+                text: Ok(Default::default()),
             }
         }
     }
@@ -9960,6 +10068,16 @@ pub mod builder {
                 .map_err(|e| format!("error converting supplied value for line: {}", e));
             self
         }
+        pub fn text<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.text = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for text: {}", e));
+            self
+        }
     }
     impl ::std::convert::TryFrom<Source> for super::Source {
         type Error = super::error::ConversionError;
@@ -9968,6 +10086,7 @@ pub mod builder {
                 column: value.column?,
                 file: value.file?,
                 line: value.line?,
+                text: value.text?,
             })
         }
     }
@@ -9977,6 +10096,7 @@ pub mod builder {
                 column: Ok(value.column),
                 file: Ok(value.file),
                 line: Ok(value.line),
+                text: Ok(value.text),
             }
         }
     }

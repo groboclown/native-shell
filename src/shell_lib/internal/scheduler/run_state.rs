@@ -5,7 +5,11 @@
 //!   correct logging as per how it's configured.  However, that may cause some
 //!   infinite loops as the scheduler handles passing messages through the event bus.
 
-use std::{ops::DerefMut, sync::{mpsc, Arc, RwLock}, thread};
+use std::{
+    ops::DerefMut,
+    sync::{Arc, RwLock, mpsc},
+    thread,
+};
 
 use crate::shell_lib::compile::{job, source::Source};
 
@@ -35,7 +39,10 @@ pub struct JobState {
 
     /// Listeners for the job completion.
     /// Will be cleared when the job completes or aborts.
-    completion: Vec<(job::JobSequenceRef, mpsc::Sender<(job::JobSequenceRef, job::ExitCode)>)>,
+    completion: Vec<(
+        job::JobSequenceRef,
+        mpsc::Sender<(job::JobSequenceRef, job::ExitCode)>,
+    )>,
 }
 
 #[derive(Clone, Debug)]
@@ -64,7 +71,6 @@ pub struct JobSequenceState {
 
     // Rather than embedding the job sequence description object,
     // this copies it so it can share the steps without copying it.
-
     /// The name of the job sequence; for debugging.
     pub name: String,
 
@@ -85,7 +91,7 @@ struct GlobalJobState {
 /// It's intended to be shared, as the raw data is read-only.  However, the
 /// data within the vectors are wrapped in a lock, as the whole
 /// state object must be managed as a whole for correct thread safety.
-/// 
+///
 /// Outside functions can only directly access the sequences.  As such,
 /// the channels on the sequences are owned by the outside functions,
 /// and the channels on the jobs are owned by the sequences.
@@ -102,24 +108,30 @@ impl JobExecutionState {
         sequences: Vec<job::JobSequenceDescription>,
         event_groups: Vec<job::EventGroup>,
     ) -> Self {
-        let jobs = jobs.into_iter()
-            .map(|desc| RwLock::new(JobState {
-                state: JobRunState::NeverStarted,
-                exit_code: None,
-                desc,
-                completion: Vec::new(),
-            }))
+        let jobs = jobs
+            .into_iter()
+            .map(|desc| {
+                RwLock::new(JobState {
+                    state: JobRunState::NeverStarted,
+                    exit_code: None,
+                    desc,
+                    completion: Vec::new(),
+                })
+            })
             .collect();
-        let sequences = sequences.into_iter()
-            .map(|desc| RwLock::new(JobSequenceState {
-                state: JobSequenceRunState::NeverStarted,
-                exit_code: None,
-                active_action_index: 0,
-                name: desc.name,
-                source: desc.source,
-                steps: Arc::new(desc.steps),
-                completion: Vec::new(),
-            }))
+        let sequences = sequences
+            .into_iter()
+            .map(|desc| {
+                RwLock::new(JobSequenceState {
+                    state: JobSequenceRunState::NeverStarted,
+                    exit_code: None,
+                    active_action_index: 0,
+                    name: desc.name,
+                    source: desc.source,
+                    steps: Arc::new(desc.steps),
+                    completion: Vec::new(),
+                })
+            })
             .collect();
         Self {
             jobs,
@@ -140,7 +152,9 @@ impl JobExecutionState {
     /// Get the state of the job sequence.
     /// Note: to use the lock on this sequence requires gaining a lock on the global state first.
     fn get_sequence_state(&self, seq_ref: job::JobSequenceRef) -> &RwLock<JobSequenceState> {
-        self.sequences.get(seq_ref).expect("invalid sequence reference")
+        self.sequences
+            .get(seq_ref)
+            .expect("invalid sequence reference")
     }
 
     /// Receive the job's exit code through a channel.
@@ -148,9 +162,15 @@ impl JobExecutionState {
     /// If the job has stopped, then this will return the exit code immediately.
     /// If the job aborts, then this will receive an exit code of MIN, but testing for that
     /// specific value is not a guarantee of the job being aborted.
-    fn job_exit_channel(&self, parent: job::JobSequenceRef, job_ref: job::JobRef) -> Option<mpsc::Receiver<(job::JobSequenceRef, job::ExitCode)>> {
-        let mut state = self.get_job_state(job_ref)
-            .write().expect("failed locking job state");
+    fn job_exit_channel(
+        &self,
+        parent: job::JobSequenceRef,
+        job_ref: job::JobRef,
+    ) -> Option<mpsc::Receiver<(job::JobSequenceRef, job::ExitCode)>> {
+        let mut state = self
+            .get_job_state(job_ref)
+            .write()
+            .expect("failed locking job state");
         match state.state {
             JobRunState::Running => {
                 let (tx, rx) = mpsc::channel();
@@ -170,7 +190,8 @@ impl JobExecutionState {
             JobRunState::Aborted => {
                 // If the job has been aborted, we can return the exit code immediately.
                 let (tx, rx) = mpsc::channel();
-                tx.send((parent, job::ExitCode::MIN)).expect("failed sending exit code");
+                tx.send((parent, job::ExitCode::MIN))
+                    .expect("failed sending exit code");
                 Some(rx)
             }
             JobRunState::NeverStarted => {
@@ -180,12 +201,16 @@ impl JobExecutionState {
         }
     }
 
-    fn job_sequence_exit_channel(&self, seq_ref: job::JobSequenceRef) -> Option<mpsc::Receiver<job::ExitCode>> {
+    fn job_sequence_exit_channel(
+        &self,
+        seq_ref: job::JobSequenceRef,
+    ) -> Option<mpsc::Receiver<job::ExitCode>> {
         // Must obtain the global lock first, as the sequence state is dependent on it.
-        let _unused = self.global
-            .read().expect("failed locking global state");
-        let mut state = self.get_sequence_state(seq_ref)
-            .write().expect("failed locking job state");
+        let _unused = self.global.read().expect("failed locking global state");
+        let mut state = self
+            .get_sequence_state(seq_ref)
+            .write()
+            .expect("failed locking job state");
         match state.state {
             JobSequenceRunState::Running => {
                 let (tx, rx) = mpsc::channel();
@@ -218,11 +243,12 @@ impl JobExecutionState {
 
     fn add_global_completion_listener(&self, tx: mpsc::Sender<Vec<Option<job::ExitCode>>>) {
         self.global
-            .write().expect("failed locking global completion listeners")
-            .completion_listeners.push(tx);
+            .write()
+            .expect("failed locking global completion listeners")
+            .completion_listeners
+            .push(tx);
     }
 }
-
 
 pub struct Scheduler {
     state: Arc<JobExecutionState>,
@@ -235,7 +261,9 @@ impl Scheduler {
         event_groups: Vec<job::EventGroup>,
     ) -> Self {
         let state = JobExecutionState::new(jobs, sequences, event_groups);
-        Self {state: Arc::new(state)}
+        Self {
+            state: Arc::new(state),
+        }
     }
 
     pub fn context(&self, job_ref: job::JobRef) -> SchedulerContext {
@@ -251,7 +279,11 @@ impl Scheduler {
         event_ref: &job::EventRef,
         handler: job::SignalEventHandler,
     ) {
-        self.state.event_groups.add_listener(event_ref, job_ref, job::EventHandler::Signal(handler));
+        self.state.event_groups.add_listener(
+            event_ref,
+            job_ref,
+            job::EventHandler::Signal(handler),
+        );
     }
 
     pub fn add_global_completion_listener(&self, tx: mpsc::Sender<Vec<Option<job::ExitCode>>>) {
@@ -259,11 +291,18 @@ impl Scheduler {
     }
 
     pub fn start_job_sequence_named(&self, name: &str) -> Result<(), String> {
-        self.context(0).schedule_sequence(self.get_sequence_id_named(name)
-            .ok_or_else(|| format!("No job sequence named {}", name))?)
+        self.context(0).schedule_sequence(
+            self.get_sequence_id_named(name)
+                .ok_or_else(|| format!("No job sequence named {}", name))?,
+        )
     }
 
-    pub fn run_signal_event_named(&self, job_ref: job::JobRef, event_ref: &job::EventRef, signal: job::ExitCode) -> Result<(), String> {
+    pub fn run_signal_event_named(
+        &self,
+        job_ref: job::JobRef,
+        event_ref: &job::EventRef,
+        signal: job::ExitCode,
+    ) -> Result<(), String> {
         let context = self.context(job_ref);
         context.handle_event(event_ref, job::EventPayload::Signal(signal))
     }
@@ -272,8 +311,11 @@ impl Scheduler {
         // Find the sequence by name.
         for (i, seq) in self.state.sequences.iter().enumerate() {
             // Requires global lock to read the sequence state.
-            let _unused = self.state.global
-                .read().expect("failed locking global state");
+            let _unused = self
+                .state
+                .global
+                .read()
+                .expect("failed locking global state");
             let seq = seq.read().expect("failed locking sequence state");
             if seq.name == name {
                 return Some(i);
@@ -289,7 +331,11 @@ pub struct SchedulerContext {
 }
 
 impl job::JobRunnerContext for SchedulerContext {
-    fn send_event(&self, event_ref: &job::EventRef, payload: job::EventPayload) -> Result<(), String> {
+    fn send_event(
+        &self,
+        event_ref: &job::EventRef,
+        payload: job::EventPayload,
+    ) -> Result<(), String> {
         self.handle_event(event_ref, payload)
     }
 }
@@ -300,7 +346,11 @@ impl job::JobSequenceEventRegistrar for SchedulerContext {
         event_ref: &job::EventRef,
         handler: Box<dyn job::MessageEventHandler + Send + Sync>,
     ) -> Result<(), String> {
-        self.state.event_groups.add_listener(event_ref, self.job_ref, job::EventHandler::Message(handler));
+        self.state.event_groups.add_listener(
+            event_ref,
+            self.job_ref,
+            job::EventHandler::Message(handler),
+        );
         Ok(())
     }
 }
@@ -315,32 +365,46 @@ impl job::JobScheduler for SchedulerContext {
     /// Checks if the job sequence has ever or is currently running.
     fn get_job_sequence_state(&self, seq_ref: job::JobSequenceRef) -> job::JobSequenceRunState {
         // Must obtain the global lock first, as the sequence state is dependent on it.
-        let _unused = self.state.global
-            .read().expect("failed locking global state");
-        let state = self.state.get_sequence_state(seq_ref)
-            .read().expect("failed locking job sequence state");
+        let _unused = self
+            .state
+            .global
+            .read()
+            .expect("failed locking global state");
+        let state = self
+            .state
+            .get_sequence_state(seq_ref)
+            .read()
+            .expect("failed locking job sequence state");
         match state.state {
             JobSequenceRunState::Running => job::JobSequenceRunState::Running,
-            JobSequenceRunState::Stopped => job::JobSequenceRunState::Finished(state.exit_code.expect("bad state: stopped sequence has no exit code")),
+            JobSequenceRunState::Stopped => job::JobSequenceRunState::Finished(
+                state
+                    .exit_code
+                    .expect("bad state: stopped sequence has no exit code"),
+            ),
             JobSequenceRunState::NeverStarted => job::JobSequenceRunState::NeverStarted,
         }
     }
 
     /// Wait for a job sequence to finish executing.
     /// Returns immediately if the sequence has not started.
-    fn wait_for_job_sequence(&self, seq_ref: job::JobSequenceRef, timeout: Option<std::time::Duration>) -> Result<Option<job::ExitCode>, String> {
+    fn wait_for_job_sequence(
+        &self,
+        seq_ref: job::JobSequenceRef,
+        timeout: Option<std::time::Duration>,
+    ) -> Result<Option<job::ExitCode>, String> {
         let rx = self.state.job_sequence_exit_channel(seq_ref);
         match rx {
             Some(rx) => match timeout {
                 Some(duration) => match rx.recv_timeout(duration) {
                     Ok(code) => Ok(Some(code)),
                     Err(_) => Err("Timeout waiting for job sequence".to_string()),
-                }
+                },
                 None => match rx.recv() {
                     Ok(code) => Ok(Some(code)),
                     Err(_) => Err("Failed receiving job sequence exit code".to_string()),
-                }
-            }
+                },
+            },
             None => Ok(None),
         }
     }
@@ -349,24 +413,31 @@ impl job::JobScheduler for SchedulerContext {
     fn abort(&self) {
         todo!()
     }
-
 }
 
 impl SchedulerContext {
     fn schedule_sequence(&self, seq_ref: job::JobSequenceRef) -> Result<(), String> {
         // Need to first capture the global lock before anything else,
         // and maintain it through the whole function.
-        let mut global = self.state
-            .global.write().expect("failed locking global state");
+        let mut global = self
+            .state
+            .global
+            .write()
+            .expect("failed locking global state");
         if global.aborted {
             return Err("Cannot start job sequence after abort".to_string());
         }
-        let mut state = self.state.get_sequence_state(seq_ref)
-            .write().expect("failed locking sequence state");
+        let mut state = self
+            .state
+            .get_sequence_state(seq_ref)
+            .write()
+            .expect("failed locking sequence state");
         match state.state {
             JobSequenceRunState::Running =>
-                // This condition acts like a no-op.
-                Ok(()),
+            // This condition acts like a no-op.
+            {
+                Ok(())
+            }
             JobSequenceRunState::NeverStarted | JobSequenceRunState::Stopped => {
                 // Start the sequence.
                 let state = state.deref_mut();
@@ -378,24 +449,36 @@ impl SchedulerContext {
         }
     }
 
-    fn handle_event(&self, event_ref: &job::EventRef, payload: job::EventPayload) -> Result<(), String> {
+    fn handle_event(
+        &self,
+        event_ref: &job::EventRef,
+        payload: job::EventPayload,
+    ) -> Result<(), String> {
         let errs = match payload {
-            job::EventPayload::Message(msg) =>
-                self.state.listener_map(event_ref, |job_ref, handler| {
-                    if let job::EventHandler::Message(handler) = handler {
-                        self.handle_message_listener(job_ref, msg.clone(), handler)
-                    } else {
-                        panic!("Attached signal handler to message event")
-                    }
-                }),
-            job::EventPayload::Signal(code) =>
-                self.state.listener_map(event_ref, |_, handler| {
-                    if let job::EventHandler::Signal(signal_handler) = handler {
-                        self.schedule_sequence(signal_handler.behavior_for(code))
-                    } else {
-                        panic!("Attached message handler to signal event")
-                    }
-                }),
+            job::EventPayload::Message(msg) => {
+                self.state
+                    .listener_map(event_ref, |job_ref, handler| match handler {
+                        job::EventHandler::Message(handler) => {
+                            self.handle_message_listener(job_ref, msg.clone(), handler)
+                        }
+                        job::EventHandler::Sequence(seq) => self.schedule_sequence(*seq),
+                        job::EventHandler::Signal(_) => {
+                            panic!("Attached signal handler to message event")
+                        }
+                    })
+            }
+            job::EventPayload::Signal(code) => {
+                self.state
+                    .listener_map(event_ref, |_, handler| match handler {
+                        job::EventHandler::Signal(handler) => {
+                            self.schedule_sequence(handler.behavior_for(code))
+                        }
+                        job::EventHandler::Sequence(seq) => self.schedule_sequence(*seq),
+                        job::EventHandler::Message(_) => {
+                            panic!("Attached message handler to signal event")
+                        }
+                    })
+            }
         };
         if errs.len() > 0 {
             return Err(errs.join(", "));
@@ -403,7 +486,12 @@ impl SchedulerContext {
         Ok(())
     }
 
-    fn handle_message_listener<'a>(&self, job_ref: job::JobRef, msg: String, handler: &'a Box<dyn job::MessageEventHandler + Sync + Send>) -> Result<(), String> {
+    fn handle_message_listener<'a>(
+        &self,
+        job_ref: job::JobRef,
+        msg: String,
+        handler: &'a Box<dyn job::MessageEventHandler + Sync + Send>,
+    ) -> Result<(), String> {
         // Note: called directly in-thread during the sequence walk.
         // So this might block the thread.  The caller must take care to not block the thread for too long.
         let context: Box<dyn job::EventHandlerContext> = self.context(job_ref);
@@ -411,10 +499,13 @@ impl SchedulerContext {
     }
 
     /// Wait for all the job sequences to complete.
-    /// 
+    ///
     /// This can include an abort causing the job sequences to stop prematurely.
     /// Each job sequence reference has its exit code in that index of the returned vector.
-    fn wait_for_completion(&self, timeout: Option<std::time::Duration>) -> Result<Vec<Option<job::ExitCode>>, String> {
+    fn wait_for_completion(
+        &self,
+        timeout: Option<std::time::Duration>,
+    ) -> Result<Vec<Option<job::ExitCode>>, String> {
         let (tx, rx) = mpsc::channel();
         self.state.add_global_completion_listener(tx);
 
@@ -426,19 +517,26 @@ impl SchedulerContext {
             Some(duration) => match rx.recv_timeout(duration) {
                 Ok(codes) => Ok(codes),
                 Err(_) => Err("Timeout waiting for job sequences".to_string()),
-            }
+            },
             None => match rx.recv() {
                 Ok(codes) => Ok(codes),
                 Err(_) => Err("Failed receiving job sequence exit codes".to_string()),
-            }
+            },
         }
     }
-    
+
     /// Internal handler for running a job.
     /// Must be here, rather than in the state, as it needs access to the Arc.
-    fn schedule_job(&self, parent: job::JobSequenceRef, job_ref: job::JobRef) -> Result<mpsc::Receiver<(job::JobSequenceRef, job::ExitCode)>, String> {
-        let mut state = self.state.get_job_state(job_ref)
-            .write().expect("failed locking job state");
+    fn schedule_job(
+        &self,
+        parent: job::JobSequenceRef,
+        job_ref: job::JobRef,
+    ) -> Result<mpsc::Receiver<(job::JobSequenceRef, job::ExitCode)>, String> {
+        let mut state = self
+            .state
+            .get_job_state(job_ref)
+            .write()
+            .expect("failed locking job state");
         match state.state {
             JobRunState::Running => {
                 // This condition acts like a no-op.
@@ -447,8 +545,10 @@ impl SchedulerContext {
                 Ok(rx)
             }
             JobRunState::Aborted =>
-                // Aborted jobs can never be restarted.
-                Err(format!("Job {} has been aborted", job_ref)),
+            // Aborted jobs can never be restarted.
+            {
+                Err(format!("Job {} has been aborted", job_ref))
+            }
             JobRunState::Stopped | JobRunState::NeverStarted => {
                 let (tx, rx) = mpsc::channel();
                 state.completion.push((parent, tx));
@@ -481,12 +581,20 @@ impl SchedulerContext {
     fn run_job(&self, job_ref: job::JobRef) {
         let ret;
         {
-            ret = self.state.get_job_state(job_ref)
-                .read().expect("failed locking job state")
-                .desc.runner.run(self.context(job_ref));
+            ret = self
+                .state
+                .get_job_state(job_ref)
+                .read()
+                .expect("failed locking job state")
+                .desc
+                .runner
+                .run(self.context(job_ref));
         }
-        let mut state = self.state.get_job_state(job_ref)
-            .write().expect("failed locking job state");
+        let mut state = self
+            .state
+            .get_job_state(job_ref)
+            .write()
+            .expect("failed locking job state");
         match ret {
             Ok(code) => {
                 // Job ran to completion.
@@ -516,8 +624,11 @@ impl SchedulerContext {
     }
 
     fn abort_job(&self, job_ref: job::JobRef) {
-        let mut state = self.state.get_job_state(job_ref)
-            .write().expect("failed locking job state");
+        let mut state = self
+            .state
+            .get_job_state(job_ref)
+            .write()
+            .expect("failed locking job state");
         match state.state {
             JobRunState::Running => {
                 // Abort the job.
@@ -562,12 +673,23 @@ impl SchedulerContext {
         let steps;
         {
             // Getting the sequence state requires the global lock.
-            let _unused = self.state.global
-                .read().expect("failed locking global state");
-            let seq = self.state.get_sequence_state(sequence_ref)
-                .read().expect("failed locking sequence state");
+            let _unused = self
+                .state
+                .global
+                .read()
+                .expect("failed locking global state");
+            let seq = self
+                .state
+                .get_sequence_state(sequence_ref)
+                .read()
+                .expect("failed locking sequence state");
             steps = seq.steps.clone();
-            log::info!("JobSequence {}: \"{}\" from {}", sequence_ref, seq.name, seq.source);
+            log::info!(
+                "JobSequence {}: \"{}\" from {}",
+                sequence_ref,
+                seq.name,
+                seq.source
+            );
         }
         let mut final_code = job::ExitCode::MIN;
         let mut skip_step = false;
@@ -581,15 +703,21 @@ impl SchedulerContext {
             {
                 // Set the current state.
                 // Getting the sequence state requires the global lock.
-                let global = self.state.global
-                    .read().expect("failed locking global state");
+                let global = self
+                    .state
+                    .global
+                    .read()
+                    .expect("failed locking global state");
                 if global.aborted {
                     // Something else aborted the script.  Do not change global abort state.
                     log::debug!("JobSequence {}: Aborted due to global abort", sequence_ref);
                     break;
                 }
-                let mut state = self.state.get_sequence_state(sequence_ref)
-                    .write().expect("failed locking sequence state");
+                let mut state = self
+                    .state
+                    .get_sequence_state(sequence_ref)
+                    .write()
+                    .expect("failed locking sequence state");
                 state.active_action_index = index;
             }
             index += 1;
@@ -605,7 +733,13 @@ impl SchedulerContext {
             match step {
                 job::ScheduleStep::SendEvent(event_ref, payload) => {
                     // Send the event to the event group.
-                    log::debug!("JobSequence {}/{}: sending event {} {}", sequence_ref, index-1, event_ref, payload);
+                    log::debug!(
+                        "JobSequence {}/{}: sending event {} {}",
+                        sequence_ref,
+                        index - 1,
+                        event_ref,
+                        payload
+                    );
                     let res = self.handle_event(event_ref, payload.clone());
                     // FIXME handle the error properly.
                     if let Err(e) = res {
@@ -614,7 +748,12 @@ impl SchedulerContext {
                 }
                 job::ScheduleStep::SpawnJob(job_ref) => {
                     // Schedule the job to run.
-                    log::debug!("JobSequence {}/{}: spawn job {}", sequence_ref, index-1, *job_ref);
+                    log::debug!(
+                        "JobSequence {}/{}: spawn job {}",
+                        sequence_ref,
+                        index - 1,
+                        *job_ref
+                    );
                     let res = self.schedule_job(sequence_ref, *job_ref);
                     if res.is_err() {
                         // Currently only means that the job is aborted.
@@ -625,20 +764,41 @@ impl SchedulerContext {
                 }
                 job::ScheduleStep::WaitForJob(job_ref, exit_behavior) => {
                     // Wait for the job to complete.
-                    log::debug!("JobSequence {}/{}: wait for job {}", sequence_ref, index-1, *job_ref);
+                    log::debug!(
+                        "JobSequence {}/{}: wait for job {}",
+                        sequence_ref,
+                        index - 1,
+                        *job_ref
+                    );
                     let mut job_code = job::ExitCode::MIN;
                     let res = self.state.job_exit_channel(sequence_ref, *job_ref);
                     let mut on_exit = exit_behavior.default_behavior.clone();
                     if let Some(rx) = res {
                         if let Ok((_, code)) = rx.recv() {
-                            log::debug!("JobSequence {}/{}: wait for job {}: exited with {}", sequence_ref, index-1, *job_ref, code);
+                            log::debug!(
+                                "JobSequence {}/{}: wait for job {}: exited with {}",
+                                sequence_ref,
+                                index - 1,
+                                *job_ref,
+                                code
+                            );
                             job_code = code;
                             on_exit = exit_behavior.behavior_for(code);
                         } else {
-                            log::debug!("JobSequence {}/{}: wait for job {}: exit channel already closed", sequence_ref, index-1, *job_ref);
+                            log::debug!(
+                                "JobSequence {}/{}: wait for job {}: exit channel already closed",
+                                sequence_ref,
+                                index - 1,
+                                *job_ref
+                            );
                         }
                     } else {
-                        log::debug!("JobSequence {}/{}: wait for job {}: no exit channel available", sequence_ref, index-1, *job_ref);
+                        log::debug!(
+                            "JobSequence {}/{}: wait for job {}: no exit channel available",
+                            sequence_ref,
+                            index - 1,
+                            *job_ref
+                        );
                     }
                     // Else the job was never started.
                     match on_exit {
@@ -702,7 +862,12 @@ impl SchedulerContext {
                     }
                 }
                 job::ScheduleStep::Abort(msg) => {
-                    log::info!("JobSequence {}/{}: aborting sequence: {}", sequence_ref, index-1, msg);
+                    log::info!(
+                        "JobSequence {}/{}: aborting sequence: {}",
+                        sequence_ref,
+                        index - 1,
+                        msg
+                    );
                     aborted = true;
                     break;
                 }
@@ -713,12 +878,18 @@ impl SchedulerContext {
         let mut is_complete = false;
         {
             log::debug!("JobSequence {} ending", sequence_ref);
-            let mut global = self.state.global
-                .write().expect("failed locking global state");
+            let mut global = self
+                .state
+                .global
+                .write()
+                .expect("failed locking global state");
             global.aborted |= aborted;
             global.active_sequences -= 1;
-            let mut state = self.state.get_sequence_state(sequence_ref)
-                .write().expect("failed locking sequence state");
+            let mut state = self
+                .state
+                .get_sequence_state(sequence_ref)
+                .write()
+                .expect("failed locking sequence state");
             state.state = JobSequenceRunState::Stopped;
             state.exit_code = Some(final_code);
 
@@ -740,10 +911,15 @@ impl SchedulerContext {
 
     fn send_global_completion(&self) {
         // Notify all global completion listeners.
-        let mut global = self.state.global
-            .write().expect("failed locking global state");
+        let mut global = self
+            .state
+            .global
+            .write()
+            .expect("failed locking global state");
         if global.active_sequences > 0 || global.completion_listeners.is_empty() {
-            log::debug!("send_global_completion: still have active sequences or no completion listeners");
+            log::debug!(
+                "send_global_completion: still have active sequences or no completion listeners"
+            );
             // Early exit.
         }
 
@@ -773,7 +949,10 @@ impl job::EventHandlerContext for SchedulerContext {}
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::shell_lib::compile::{job::{self, JobScheduler}, source::Source};
+    use crate::shell_lib::compile::{
+        job::{self, JobScheduler},
+        source::Source,
+    };
     use std::time::Duration;
 
     struct DelayRunner {
@@ -787,7 +966,9 @@ mod tests {
             thread::sleep(self.time);
             Ok(self.ret)
         }
-        fn abort(&self) -> Result<(), String> { Ok(()) }
+        fn abort(&self) -> Result<(), String> {
+            Ok(())
+        }
     }
 
     #[test]
@@ -798,7 +979,11 @@ mod tests {
             name: "dummy".to_string(),
             source: Source::default(),
             listen: None,
-            runner: Box::new(DelayRunner{ran: ran.clone(), time: Duration::from_millis(0), ret: 42}),
+            runner: Box::new(DelayRunner {
+                ran: ran.clone(),
+                time: Duration::from_millis(0),
+                ret: 42,
+            }),
         };
         // Sequence: spawn job 0, then wait for it, using SkipAll to propagate exit code
         let seq_desc = job::JobSequenceDescription {
@@ -812,21 +997,30 @@ mod tests {
                         never_started: job::OnExitBehavior::AbortScript,
                         exit_code_behaviors: vec![],
                         default_behavior: job::OnExitBehavior::SkipAll,
-                    }
+                    },
                 ),
             ],
         };
         let scheduler = Scheduler::new(vec![job], vec![seq_desc], vec![]);
         // Before start: NeverStarted
-        assert_eq!(scheduler.context(0).get_job_sequence_state(0), job::JobSequenceRunState::NeverStarted);
+        assert_eq!(
+            scheduler.context(0).get_job_sequence_state(0),
+            job::JobSequenceRunState::NeverStarted
+        );
         // Start the sequence
         scheduler.context(0).start_job_sequence(0).unwrap();
-        assert_eq!(scheduler.context(0).get_job_sequence_state(0), job::JobSequenceRunState::Running);
+        assert_eq!(
+            scheduler.context(0).get_job_sequence_state(0),
+            job::JobSequenceRunState::Running
+        );
         // Wait with no timeout
         let code = scheduler.context(0).wait_for_job_sequence(0, None).unwrap();
         assert_eq!(code, Some(42));
         // After completion: Finished(42)
-        assert_eq!(scheduler.context(0).get_job_sequence_state(0), job::JobSequenceRunState::Finished(42));
+        assert_eq!(
+            scheduler.context(0).get_job_sequence_state(0),
+            job::JobSequenceRunState::Finished(42)
+        );
         assert_eq!(*ran.read().expect("failed to get dummy lock"), 1);
     }
 
@@ -838,7 +1032,11 @@ mod tests {
             name: "".to_string(),
             source: Source::default(),
             listen: None,
-            runner: Box::new(DelayRunner{ran: ran.clone(), time: Duration::from_millis(0), ret: 99}),
+            runner: Box::new(DelayRunner {
+                ran: ran.clone(),
+                time: Duration::from_millis(0),
+                ret: 99,
+            }),
         };
         let seq_desc = job::JobSequenceDescription {
             name: "".to_string(),
@@ -846,11 +1044,13 @@ mod tests {
             steps: vec![],
         };
         let scheduler = Scheduler::new(vec![job], vec![seq_desc], vec![]);
-        let result = scheduler.context(0).wait_for_job_sequence(0, Some(Duration::from_millis(1)));
+        let result = scheduler
+            .context(0)
+            .wait_for_job_sequence(0, Some(Duration::from_millis(1)));
         assert_eq!(result.unwrap(), None);
         assert_eq!(*ran.read().expect("failed to get dummy lock"), 0);
     }
-    
+
     #[test]
     fn test_scheduler_wait_timeout() {
         let ran = Arc::new(RwLock::new(0));
@@ -858,7 +1058,11 @@ mod tests {
             name: "".to_string(),
             source: Source::default(),
             listen: None,
-            runner: Box::new(DelayRunner{ran: ran.clone(), time: Duration::from_secs(1), ret: 0}),
+            runner: Box::new(DelayRunner {
+                ran: ran.clone(),
+                time: Duration::from_secs(1),
+                ret: 0,
+            }),
         };
         let seq_desc = job::JobSequenceDescription {
             name: "".to_string(),
@@ -871,13 +1075,15 @@ mod tests {
                         never_started: job::OnExitBehavior::AbortScript,
                         exit_code_behaviors: vec![],
                         default_behavior: job::OnExitBehavior::RunNext,
-                    }
+                    },
                 ),
             ],
         };
         let scheduler = Scheduler::new(vec![job], vec![seq_desc], vec![]);
         scheduler.context(0).start_job_sequence(0).unwrap();
-        let result = scheduler.context(0).wait_for_job_sequence(0, Some(Duration::from_millis(1)));
+        let result = scheduler
+            .context(0)
+            .wait_for_job_sequence(0, Some(Duration::from_millis(1)));
         assert_eq!(result.unwrap_err(), "Timeout waiting for job sequence");
         // Should have triggered the job to run.
         assert_eq!(*ran.read().expect("failed to get dummy lock"), 1);

@@ -1,4 +1,11 @@
 pub mod errors;
 pub mod from_ast;
+pub mod gen_cargo;
+pub mod gen_main;
+pub mod gen_runtime;
+pub mod gen_seq;
+pub mod helpers;
+pub mod node_graph;
 pub mod parse_node;
+pub mod sequence;
 pub mod writer;
