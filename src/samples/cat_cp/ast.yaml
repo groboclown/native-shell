@@ -14,7 +14,7 @@ events:
     text: "Start of the shell script execution."
     source:
       file: "script.ns"
-      line: 1
+      line: 2
       column: 1
 nodes:
   # The main node.  It must use a module that conforms to the builder's requirements.
@@ -141,7 +141,7 @@ nodes:
   - name: cat
     source:
       file: "script.ns"
-      line: 1
+      line: 3
       column: 1
     module: cat
     initial-parameters: {}
@@ -202,7 +202,7 @@ nodes:
       - name: output
         source:
           file: "script.ns"
-          line: 1
+          line: 4
           column: 1
         mode: output
         to-node: output
@@ -212,7 +212,7 @@ nodes:
   - name: output
     source:
       file: "script.ns"
-      line: 1
+      line: 5
       column: 1
     module: file_sink
     initial-parameters: {}
@@ -220,31 +220,31 @@ nodes:
       - name: filename
         source:
           file: "script.ns"
-          line: 1
+          line: 6
           column: 1
         value:
           type: map-key-string
           source:
             file: "script.ns"
-            line: 1
+            line: 7
             column: 1
           map:
             source:
               file: "script.ns"
-              line: 1
+              line: 8
               column: 1
             type: lookup-string-map
             node:
               source:
                 file: "script.ns"
-                line: 1
+                line: 9
                 column: 1
               type: constant-string
               value: main
             name:
               source:
                 file: "script.ns"
-                line: 1
+                line: 10
                 column: 1
               type: constant-string
               value: value_params
@@ -252,26 +252,26 @@ nodes:
             type: constant-string
             source:
               file: "script.ns"
-              line: 1
+              line: 11
               column: 1
             value: "target"
           default:
             type: constant-string
             source:
               file: "script.ns"
-              line: 1
+              line: 12
               column: 1
             value: ""
       - name: append
         source:
           file: "script.ns"
-          line: 1
+          line: 13
           column: 1
         value:
           type: constant-boolean
           source:
             file: "script.ns"
-            line: 1
+            line: 14
             column: 1
           value: false
     exit-actions: []

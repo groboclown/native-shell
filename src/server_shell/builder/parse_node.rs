@@ -104,7 +104,7 @@ pub fn convert_nodes(
         let node = node;
         let streams = &node.borrow().node.streams.clone();
         for stream in streams {
-            setup_node_stream(node, &stream, &nodes_by_name);
+            errors.append(&mut setup_node_stream(node, &stream, &nodes_by_name));
         }
     }
 
@@ -310,10 +310,10 @@ fn setup_node_stream(
         }
     };
 
-    if let meta::StreamType::Output(_) = source_stream_type {
+    if let meta::StreamType::Input(_) = source_stream_type {
         errs.push(errors::BuilderError::InvalidAst(errors::ErrorDetails {
             // TODO add more description on the module + node
-            message: format!("Source stream {} is not an Input stream", stream.to_node),
+            message: format!("Source stream {} is not an Output stream", stream.to_node),
             source: stream.source.clone(),
             related: vec![errors::RelatedSource {
                 relation: errors::Relationship::StreamSource,
@@ -321,10 +321,10 @@ fn setup_node_stream(
             }],
         }));
     }
-    if let meta::StreamType::Input(_) = target_stream_type {
+    if let meta::StreamType::Output(_) = target_stream_type {
         errs.push(errors::BuilderError::InvalidAst(errors::ErrorDetails {
             // TODO add more description on the module + node
-            message: format!("Target stream {} is not an Output stream", stream.to_node),
+            message: format!("Target stream {} is not an Input stream", stream.to_node),
             source: stream.source.clone(),
             related: vec![errors::RelatedSource {
                 relation: errors::Relationship::StreamTarget,

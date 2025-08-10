@@ -88,7 +88,8 @@ impl ScriptGraph {
 }
 
 enum TopoItem {
-    Enter(parse_node::NodeIndex),
+    Input(parse_node::NodeIndex),
+    Output(parse_node::NodeIndex),
     Exit(parse_node::NodeIndex),
 }
 
@@ -98,19 +99,23 @@ fn stream_topo_sort(
     visited: &mut Vec<bool>,
 ) -> Result<Vec<parse_node::NodeIndex>, errors::BuilderError> {
     // Non-recursive topo sort.  The implicit call stack is made explicit.
+    // This first has a visiting node visit its source streams,
+    // then it visits the destination streams, and finally it marks the node as visited.
+    // This is done in a depth-first manner, so the source streams are visited first,
+
     let count = visited.len();
     let mut ret = Vec::new();
-    let mut visiting = vec![false; count];
+    let mut visiting = vec![0; count];
     let mut depth = Vec::with_capacity(count);
-    depth.push(TopoItem::Enter(root.node_idx));
+    depth.push(TopoItem::Input(root.node_idx));
     while depth.len() > 0 {
         match depth.pop().expect("depth wasn't empty") {
-            TopoItem::Enter(current) => {
+            TopoItem::Input(current) => {
                 if *visited.get(current).expect("wrong counts") {
                     // Already visited
                     continue;
                 }
-                if *visiting.get(current).expect("wrong counts") {
+                if 1 == *visiting.get(current).expect("wrong counts") {
                     // If we were really good, we'd also report how
                     // the cycle happened in the 'related' field.
                     let node = nodes.get(current).expect("wrong counts");
