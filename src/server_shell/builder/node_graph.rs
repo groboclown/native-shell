@@ -8,12 +8,18 @@
 //! exit-code steps require conditional execution, then this means the ordering
 //! must be preserved and not run in parallel.
 
+use std::cell::RefCell;
 use std::collections::HashMap;
+use std::rc::Rc;
+use std::sync::Arc;
+use std::sync::RwLock;
+use std::vec;
 
 use super::errors;
 use super::parse_node;
 use crate::server_shell::ast::model;
 
+#[derive(Debug, Clone)]
 pub struct NodeGraph {
     /// Topological sort of the nodes within the graph based on streams.
     pub stream_order: Vec<parse_node::NodeIndex>,
@@ -23,6 +29,7 @@ pub struct NodeGraph {
 
 /// A forest of node graphs parsed for easier translation into generated code.
 /// It references the ModuleNode list via the indices.
+#[derive(Debug, Clone)]
 pub struct ScriptGraph {
     node_graphs: Vec<NodeGraph>,
     node_name_indicies: HashMap<String, parse_node::NodeIndex>,
@@ -38,29 +45,15 @@ impl ScriptGraph {
         let count = nodes.len();
         debug_assert_eq!(0, nodes.first().unwrap().node_idx);
         debug_assert_eq!(count - 1, nodes.last().unwrap().node_idx);
-        let node_map = map_node_index(nodes);
-
-        let mut ret = vec![];
-        let mut visited = vec![false; count];
-        for node in nodes {
-            // Build up the graph forest.
-            if *visited.get(node.node_idx).unwrap() {
-                continue;
-            }
-            let stream_order = stream_topo_sort(node, nodes, &mut visited)?;
-            let initial_exec = find_initial_spawned_group(&stream_order, nodes, &node_map)?;
-            ret.push(NodeGraph {
-                stream_order,
-                initial_exec,
-            });
-        }
+        let node_name_indicies = map_node_index(nodes);
+        let node_graphs = stream_topo_sort(nodes, &node_name_indicies)?;
 
         // In the far future, this could also inspect inter-dependencies between
         // graphs.  That would only affect compile-time race condition checks.
 
         Ok(ScriptGraph {
-            node_graphs: ret,
-            node_name_indicies: node_map,
+            node_graphs,
+            node_name_indicies,
         })
     }
 
@@ -88,68 +81,74 @@ impl ScriptGraph {
 }
 
 enum TopoItem {
-    Input(parse_node::NodeIndex),
-    Output(parse_node::NodeIndex),
-    Exit(parse_node::NodeIndex),
+    // node index, cluster index
+    Enter((parse_node::NodeIndex, parse_node::NodeIndex)),
+    Exit((parse_node::NodeIndex, parse_node::NodeIndex)),
 }
 
 fn stream_topo_sort(
-    root: &parse_node::ModuleNode,
     nodes: &Vec<parse_node::ModuleNode>,
-    visited: &mut Vec<bool>,
-) -> Result<Vec<parse_node::NodeIndex>, errors::BuilderError> {
+    node_map: &HashMap<String, parse_node::NodeIndex>,
+) -> Result<Vec<NodeGraph>, errors::BuilderError> {
     // Non-recursive topo sort.  The implicit call stack is made explicit.
     // This first has a visiting node visit its source streams,
     // then it visits the destination streams, and finally it marks the node as visited.
-    // This is done in a depth-first manner, so the source streams are visited first,
+    // This is done in a depth-first manner, so the source streams are visited first.
 
-    let count = visited.len();
-    let mut ret = Vec::new();
-    let mut visiting = vec![0; count];
+    let count = nodes.len();
+    let mut clusters = StreamClusters::new(count);
+    let mut visited = vec![None; count];
+    let mut visiting = vec![false; count];
     let mut depth = Vec::with_capacity(count);
-    depth.push(TopoItem::Input(root.node_idx));
+    // This will visit every node, to ensure all spanning trees are visited.
+    for node_idx in 0..count {
+        depth.push(TopoItem::Enter((node_idx, clusters.next_cluster())));
+    }
+    
     while depth.len() > 0 {
         match depth.pop().expect("depth wasn't empty") {
-            TopoItem::Input(current) => {
-                if *visited.get(current).expect("wrong counts") {
-                    // Already visited
+            TopoItem::Enter((current_node, current_cluster)) => {
+                if let Some(descendant_cluster) = *visited.get(current_node).expect("wrong counts") {
+                    // Already visited.
+                    // This means we need to change the current cluster to point to the visited cluster.
+                    clusters.join_clusters(current_cluster, descendant_cluster);
                     continue;
                 }
-                if 1 == *visiting.get(current).expect("wrong counts") {
-                    // If we were really good, we'd also report how
-                    // the cycle happened in the 'related' field.
-                    let node = nodes.get(current).expect("wrong counts");
+                if *visiting.get(current_node).expect("wrong counts") {
+                    // If this implementation was really good, it would also report how
+                    // the cycle happened in the 'related' field.  It's in the cluster's topo sort.
+                    let node = nodes.get(current_node).expect("wrong counts");
                     return Err(errors::BuilderError::StreamCycle(errors::ErrorDetails {
                         message: "streams reference back on each other".to_string(),
                         source: node.node.source.clone(),
                         related: vec![],
                     }));
                 }
-                visiting[current] = true;
-                let node = nodes.get(current).expect("wrong counts");
+                visiting[current_node] = true;
+                let node = nodes.get(current_node).expect("wrong counts");
 
                 // After destination streams, re-visit the parent to mark it as visited.
                 // Because it's pushed first, it's visited last.
                 // The alternative approach reverses the returned list
                 // before return.
-                depth.push(TopoItem::Exit(current));
+                depth.push(TopoItem::Exit((current_node, current_cluster)));
 
                 // Note that, because this visits from a node to its destination streams,
                 // it means that the source stream must be added to the returned list before
                 // the destination streams.
-                ret.push(current);
+                clusters.push(current_cluster, current_node);
 
                 // Visit destination streams.
                 for stream in &node.dest_streams {
-                    depth.push(TopoItem::Enter(stream.dest_idx));
+                    depth.push(TopoItem::Enter((stream.dest_idx, current_cluster)));
                 }
             }
-            TopoItem::Exit(current) => {
-                visited[current] = true;
+            TopoItem::Exit((current_node, current_cluster)) => {
+                visited[current_node] = Some(current_cluster);
             }
         }
     }
-    Ok(ret)
+    clusters.streams(nodes, node_map)
 }
 
 fn find_initial_spawned_group(
@@ -243,6 +242,220 @@ fn map_node_index(nodes: &Vec<parse_node::ModuleNode>) -> HashMap<String, parse_
         ret.insert(node.node.name.clone(), node.node_idx);
     }
     ret
+}
+
+struct LinkedEl {
+    node_idx: parse_node::NodeIndex,
+    next: Option<Rc<RefCell<LinkedEl>>>,
+}
+
+struct SingleLinkedList {
+    head: LinkedEl,
+    tail: Option<Rc<RefCell<LinkedEl>>>,
+    count: usize,
+}
+
+impl SingleLinkedList {
+    fn new() -> Self {
+        SingleLinkedList {
+            head: LinkedEl { node_idx: 0, next: None },
+            tail: None,
+            count: 0,
+        }
+    }
+
+    fn is_empty(&self) -> bool {
+        self.count == 0
+    }
+
+    fn as_vec(&self) -> Vec<parse_node::NodeIndex> {
+        let mut ret = Vec::with_capacity(self.count);
+        let mut next = self.head.next.clone();
+        while let Some(el) = next {
+            let el = el.borrow();
+            ret.push(el.node_idx);
+            next = el.next.clone();
+        }
+        ret
+    }
+
+    fn push(&mut self, node_idx: parse_node::NodeIndex) {
+        let new_el = Rc::new(RefCell::new(LinkedEl {
+            node_idx,
+            next: None,
+        }));
+        match &self.tail {
+            Some(tail) => {
+                // If the tail exists, we can link the new element to it.
+                // This is safe because we hold a read lock on the tail.
+                let mut tail_ptr = tail.borrow_mut();
+                tail_ptr.next = Some(new_el.clone());
+            },
+            None => {
+                // If the tail doesn't exist, this is the first element.
+                self.head.next = Some(new_el.clone());
+            }
+        }
+        self.tail = Some(new_el);
+        self.count += 1;
+    }
+
+    fn prepend(&mut self, other: &SingleLinkedList) {
+        if let Some(other_head) = &other.head.next {
+            let other_tail = other.tail.clone().expect("list with head must have tail");
+            if let Some(head) = self.head.next.clone() {
+                // If self has a head, link the other tail to it.
+                other_tail.borrow_mut().next = Some(head);
+            } else {
+                // If self doesn't have a head, then it doesn't have a tail.
+                self.tail = Some(other_tail.clone());
+            }
+            self.head.next = Some(other_head.clone());
+            self.count += other.count;
+        }
+    }
+
+    fn clear(&mut self) {
+        self.head = LinkedEl { node_idx: 0, next: None };
+        self.tail = None;
+        self.count = 0;
+    }
+}
+
+/// Each possible stream group's topological sort is stored as an index in a vector.
+/// Uses thread safe structures.
+struct StreamTopoSet {
+    streams: Vec<Arc<RwLock<SingleLinkedList>>>,
+}
+
+impl StreamTopoSet {
+    fn new(count: usize) -> Self {
+        let mut streams = Vec::with_capacity(count);
+        for _ in 0..count {
+            streams.push(Arc::new(RwLock::new(SingleLinkedList::new())));
+        }
+        StreamTopoSet {
+            streams,
+        }
+    }
+
+    /// Add a node to the end of a stream graph.
+    fn push(&mut self, stream_idx: parse_node::NodeIndex, node_idx: parse_node::NodeIndex) {
+        assert!(stream_idx < self.streams.len(), "stream index out of bounds");
+        let mut list = self.streams[stream_idx as usize].write().expect("failed to lock stream list");
+        list.push(node_idx);
+    }
+
+    /// Prepends a source stream on a stream, and clears out the source.
+    fn prepend(&mut self, src_stream: parse_node::NodeIndex, dest_stream: parse_node::NodeIndex) {
+        assert!(src_stream < self.streams.len(), "source stream index out of bounds");
+        assert!(dest_stream < self.streams.len(), "destination stream index out of bounds");
+        let mut dest = self.streams[dest_stream as usize].write().expect("failed to lock stream list");
+        let mut src = self.streams[src_stream as usize].write().expect("failed to lock stream list");
+        dest.prepend(&src);
+        src.clear();
+    }
+}
+
+/// A two-jump reference to a stream topo index.
+struct StreamClusters {
+    streams: StreamTopoSet,
+    clusters: Vec<RwLock<parse_node::NodeIndex>>,
+    node_to_cluster: RwLock<Vec<parse_node::NodeIndex>>,
+    next: RwLock<parse_node::NodeIndex>,
+}
+
+const CLUSTER_UNASSIGNED: parse_node::NodeIndex = parse_node::NodeIndex::MAX;
+
+impl StreamClusters {
+    fn new(count: usize) -> Self {
+        let mut clusters = Vec::with_capacity(count);
+        for _ in 0..count {
+            clusters.push(RwLock::new(CLUSTER_UNASSIGNED));
+        }
+        StreamClusters {
+            streams: StreamTopoSet::new(count),
+            clusters,
+            node_to_cluster: RwLock::new(vec![CLUSTER_UNASSIGNED; count]),
+            next: RwLock::new(0),
+        }
+    }
+
+    /// Get the next cluster index, which will also associate it with the next, unused stream.
+    fn next_cluster(&mut self) -> parse_node::NodeIndex {
+        // Cluster and stream always start as the same index.  As clusters join with others, they switch their
+        // streams always to a lower index.
+        let mut next = self.next.write().expect("failed to lock next cluster index");
+        let cluster_idx = *next;
+        *next += 1; 
+        assert!(cluster_idx < self.clusters.len(), "cluster index out of bounds");
+        let mut cluster = self.clusters[cluster_idx].write().expect("failed to lock cluster");
+        *cluster = cluster_idx;
+        cluster_idx
+    }
+
+    /// Add a node to the end of a cluster's stream.
+    fn push(&mut self, cluster_idx: parse_node::NodeIndex, node_idx: parse_node::NodeIndex) {
+        assert!(cluster_idx < self.clusters.len(), "cluster index out of bounds");
+
+        // First, lock the cluster.
+        {
+            let cluster = self.clusters[cluster_idx].write().expect("failed to lock cluster");
+            // Then, add the node to the cluster's stream.
+            let stream_idx = *cluster;
+            self.streams.push(stream_idx, node_idx);
+        }
+
+        // Assign the node to the cluster.
+        // As the node is always assigned to the same cluster, and only the cluster can change, this node lock
+        // can happen outside the cluster lock.
+        let mut node_to_cluster = self.node_to_cluster.write().expect("failed to lock node to cluster");
+        assert!(node_idx < node_to_cluster.len(), "node index out of bounds");
+        node_to_cluster[node_idx] = cluster_idx;
+    }
+
+    /// Join two clusters.
+    /// A cluster joined to another will always happen as the second is a dependency of the first.
+    /// In order to avoid updating all clusters referencing a stream, the ancestor cluster will reference the
+    /// the descendant cluster, ans the descendant cluster should have already been populated.
+    fn join_clusters(&mut self, ancestor_cluster: parse_node::NodeIndex, descendant_cluster: parse_node::NodeIndex) {
+        // Lock both clusters.
+        assert!(ancestor_cluster < self.clusters.len(), "ancestor cluster index out of bounds");
+        assert!(descendant_cluster < self.clusters.len(), "descendant cluster index out of bounds");
+        let mut ancestor = self.clusters[ancestor_cluster].write().expect("failed to lock ancestor cluster");
+        let descendant = self.clusters[descendant_cluster].read().expect("failed to lock descendant cluster");
+
+        let src_stream = *ancestor;
+        let dest_stream = *descendant;
+
+        // Now that they're locked, we can prepend the descendant's stream to the ancestor's stream.
+        self.streams.prepend(src_stream, dest_stream);
+
+        // Finally, we can update the ancestor to point to the descendant to join the clusters.
+        *ancestor = *descendant;
+    }
+
+    /// Get the underlying stream's topological ordering of the nodes.
+    fn streams(
+        &self,
+        nodes: &Vec<parse_node::ModuleNode>,
+        node_map: &HashMap<String, parse_node::NodeIndex>,
+    ) -> Result<Vec<NodeGraph>, errors::BuilderError> {
+        let mut ret = Vec::with_capacity(self.streams.streams.len());
+        for stream in &self.streams.streams {
+            let list = stream.read().expect("failed to lock stream list");
+            if ! list.is_empty() {
+                // Only add non-empty streams.
+                let stream_order = list.as_vec();
+                let initial_exec = find_initial_spawned_group(&stream_order, nodes, &node_map)?;
+                ret.push(NodeGraph {
+                    stream_order,
+                    initial_exec,
+                });
+            }
+        }
+        Ok(ret)
+    }
 }
 
 fn get_node_index(

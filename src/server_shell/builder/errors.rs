@@ -41,6 +41,12 @@ pub enum BuilderError {
     IOError(std::io::Error),
     /// Many errors.
     Collection(Vec<BuilderError>),
+    /// The node's module does not have a state struct.
+    NoStateForModule(ErrorDetails),
+    /// The node's module's state field type does not match the expected type.
+    StateFieldTypeMismatch(ErrorDetails),
+    /// The node's module does not have a state field with the given name.
+    NoSuchStateField(ErrorDetails),
 }
 
 impl From<std::io::Error> for BuilderError {
@@ -83,6 +89,21 @@ pub fn report_errors(err: &BuilderError) {
         }
         BuilderError::IOError(e) => {
             eprintln!("I/O error: {}", e);
+        }
+        BuilderError::NoStateForModule(error_details) => {
+            eprintln!("No state for module: {}", error_details.message);
+            show_source(&error_details.source);
+            show_related(error_details);
+        },
+        BuilderError::StateFieldTypeMismatch(error_details) => {
+            eprintln!("State field type mismatch: {}", error_details.message);
+            show_source(&error_details.source);
+            show_related(error_details);
+        }
+        BuilderError::NoSuchStateField(error_details) => {
+            eprintln!("No such state field: {}", error_details.message);
+            show_source(&error_details.source);
+            show_related(error_details);
         }
         BuilderError::Collection(errs) => {
             for err in errs {

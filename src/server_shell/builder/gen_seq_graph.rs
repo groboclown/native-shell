@@ -2,11 +2,11 @@
 
 use super::helpers::{as_mod_expr, rust_file_header};
 use super::node_graph::NodeGraph;
-use super::parse_node::{ModuleNode, NodeIndex};
+use super::parse_node::ModuleNode;
 use super::sequence::{SeqIndex, SequenceGen};
 use super::writer::SourceWriter;
-use crate::server_shell::ast::model;
 use crate::server_shell::builder::errors::BuilderError;
+use crate::shell_lib::compile::meta;
 
 pub fn write_graph_seq<'a, SW: SourceWriter, SG: SequenceGen<'a>>(
     seq_idx: SeqIndex,
@@ -54,22 +54,21 @@ use crate::runtime;
     }
     out.write_all(b"    })\n}\n\n")?;
 
-    write_job0(seq_idx, graph, sgen, &mut out)?;
+    write_job0(seq_idx, graph, &mut out)?;
     let mut job_idx = 0;
     for node_idx in &graph.stream_order {
         job_idx += 1;
         let node = sgen.node_at(*node_idx);
-        write_job_n(seq_idx, job_idx, *node_idx, node, sgen, &mut out)?;
+        write_job_n(seq_idx, job_idx, node, sgen, &mut out)?;
     }
 
     Ok(())
 }
 
 /// Job 0: constructs all the streams.
-fn write_job0<'a, SG: SequenceGen<'a>>(
+fn write_job0(
     seq_idx: usize,
     graph: &NodeGraph,
-    sgen: &'a SG,
     out: &mut Box<dyn std::io::Write>,
 ) -> Result<(), BuilderError> {
     out.write_fmt(format_args!(
@@ -86,7 +85,7 @@ impl job::JobRunner for Seq{}Job0 {{
         seq_idx, seq_idx, seq_idx
     ))?;
 
-    write_stream_creation(graph, sgen, out)?;
+    write_stream_creation(graph, out)?;
 
     out.write_all(
         b"        }) {
@@ -113,20 +112,9 @@ impl job::JobRunner for Seq{}Job0 {{
     Ok(())
 }
 
-fn write_stream_creation<'a, SG: SequenceGen<'a>>(
-    graph: &NodeGraph,
-    sgen: &'a SG,
-    out: &mut Box<dyn std::io::Write>,
-) -> Result<(), BuilderError> {
-    // todo!("generate stream creation")
-    println!("TODO: generate stream creation.");
-    Ok(())
-}
-
 fn write_job_n<'a, SG: SequenceGen<'a>>(
     seq_idx: usize,
     job_idx: usize,
-    node_idx: NodeIndex,
     node: &ModuleNode,
     sgen: &'a SG,
     out: &mut Box<dyn std::io::Write>,
@@ -145,16 +133,13 @@ impl job::JobRunner for Seq{}Job{} {{
     ))?;
 
     if let Some(rps) = &node.module.runtime_param_struct {
-        out.write_fmt(format_args!(
-            "        let params = {}{} {{\n",
-            as_mod_expr(node),
-            &rps.name
-        ))?;
-
-        // TODO add in the fields with their values.
-        println!("TODO: add field assignments for node {}", node.node.name);
-
-        out.write_all(b"        };\n")?;
+        write_params(
+            out,
+            node,
+            rps,
+            sgen,
+            "        ",
+        )?;
     }
     if node.module.stream_struct.is_some() {
         out.write_fmt(format_args!(
@@ -243,14 +228,45 @@ impl Seq{}Job{} {{
     Ok(())
 }
 
-/// Create a sequence file based on ordered actions.
-pub fn write_ordered_seq<SW: SourceWriter>(
-    seq_idx: SeqIndex,
-    actions: &model::OrderedActions,
-    out: &SW,
+fn write_stream_creation(
+    graph: &NodeGraph,
+    out: &mut Box<dyn std::io::Write>,
 ) -> Result<(), BuilderError> {
-    let mut out = out.writer_for(&format!("src/seq{}.rs", seq_idx))?;
-    out.write_all(rust_file_header().as_bytes())?;
-    println!("TODO: write ordered sequence file {}", seq_idx);
+    // todo!("generate stream creation")
+    println!("TODO: generate stream creation.");
+    Ok(())
+}
+
+fn write_params<'a, SG: SequenceGen<'a>>(
+    out: &mut Box<dyn std::io::Write>,
+    node: &ModuleNode,
+    rps: &meta::ModuleStructure,
+    sgen: &'a SG,
+    indent: &str,
+) -> Result<(), BuilderError> {
+    // Lookup parameters should happen outside the fetching, in case of reuse.
+    // All lookup parameters are assigned to a local variable named "lookup_(node_id)_(state.field)".
+    // These look up states, which are called "state_(node_id)".
+    let mut value_state = super::values::ConstructValueState::new(sgen, indent);
+    let mut values = std::collections::HashMap::new();
+    for field in &node.node.runtime_parameters.0 {
+        // TODO ensure the runtime parameters has this field, and that it aligns with the value type.
+        values.insert(field.name.clone(), value_state.construct_value(&field.value)?);
+    }
+
+    out.write_all(value_state.state_values().as_bytes())?;
+    out.write_fmt(format_args!(
+        "{}let params = {}{} {{\n",
+        indent, as_mod_expr(node), &rps.name
+    ))?;
+
+    for (param, value) in values {
+        out.write_fmt(format_args!(
+            "{}    {}: {},\n",
+            indent, param, value
+        ))?;
+    }
+
+    out.write_all(b"        };\n")?;
     Ok(())
 }

@@ -36,10 +36,10 @@ pub fn ast_to_module_source<SW: SourceWriter>(
     //   and the ordered action based ones.  Initially, generate the
     //   graph based ones.
     for (idx, graph) in seq.graphs().iter().enumerate() {
-        super::gen_seq::write_graph_seq(idx, graph, &seq, &out)?;
+        super::gen_seq_graph::write_graph_seq(idx, graph, &seq, &out)?;
     }
     for (idx, actions) in seq.ordered_sequences() {
-        super::gen_seq::write_ordered_seq(idx, &actions, &out)?;
+        super::gen_seq_ordered::write_ordered_seq(idx, &actions, &out)?;
     }
 
     // Step 6: Write the main.rs file.

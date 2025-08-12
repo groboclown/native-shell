@@ -4,6 +4,7 @@
 //! this from the code.
 
 /// Allowed types for module input parameters and output states.
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub enum ValueType {
     String,
     Float,

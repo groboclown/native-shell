@@ -24,6 +24,53 @@ pub mod error {
         }
     }
 }
+#[doc = "A number value that is the absolute value of another number."]
+#[doc = r""]
+#[doc = r" <details><summary>JSON schema</summary>"]
+#[doc = r""]
+#[doc = r" ```json"]
+#[doc = "{"]
+#[doc = "  \"title\": \"Absolute Value\","]
+#[doc = "  \"description\": \"A number value that is the absolute value of another number.\","]
+#[doc = "  \"type\": \"object\","]
+#[doc = "  \"required\": ["]
+#[doc = "    \"source\","]
+#[doc = "    \"type\","]
+#[doc = "    \"value\""]
+#[doc = "  ],"]
+#[doc = "  \"properties\": {"]
+#[doc = "    \"source\": {"]
+#[doc = "      \"$ref\": \"#/$defs/Source\""]
+#[doc = "    },"]
+#[doc = "    \"type\": {"]
+#[doc = "      \"const\": \"abs-number\""]
+#[doc = "    },"]
+#[doc = "    \"value\": {"]
+#[doc = "      \"$ref\": \"#/$defs/ComputedNumberValue\""]
+#[doc = "    }"]
+#[doc = "  },"]
+#[doc = "  \"additionalProperties\": false"]
+#[doc = "}"]
+#[doc = r" ```"]
+#[doc = r" </details>"]
+#[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
+#[serde(deny_unknown_fields)]
+pub struct AbsValue {
+    pub source: Source,
+    #[serde(rename = "type")]
+    pub type_: ::serde_json::Value,
+    pub value: ComputedNumberValue,
+}
+impl ::std::convert::From<&AbsValue> for AbsValue {
+    fn from(value: &AbsValue) -> Self {
+        value.clone()
+    }
+}
+impl AbsValue {
+    pub fn builder() -> builder::AbsValue {
+        Default::default()
+    }
+}
 #[doc = "An action that can be triggered by a node.  This is a named group of event brokers."]
 #[doc = r""]
 #[doc = r" <details><summary>JSON schema</summary>"]
@@ -706,42 +753,130 @@ impl ::std::convert::From<&Self> for ActionRun {
         value.clone()
     }
 }
-#[doc = "A number value that is the result of an arithmetic operation on two or more number values."]
+#[doc = "A number value that is the sum of two other number values."]
 #[doc = r""]
 #[doc = r" <details><summary>JSON schema</summary>"]
 #[doc = r""]
 #[doc = r" ```json"]
 #[doc = "{"]
-#[doc = "  \"title\": \"Arithmetic Value\","]
-#[doc = "  \"description\": \"A number value that is the result of an arithmetic operation on two or more number values.\","]
+#[doc = "  \"title\": \"Add Two Values\","]
+#[doc = "  \"description\": \"A number value that is the sum of two other number values.\","]
 #[doc = "  \"type\": \"object\","]
 #[doc = "  \"required\": ["]
-#[doc = "    \"operation\","]
+#[doc = "    \"left\","]
+#[doc = "    \"right\","]
 #[doc = "    \"source\","]
-#[doc = "    \"type\","]
-#[doc = "    \"value\""]
+#[doc = "    \"type\""]
 #[doc = "  ],"]
 #[doc = "  \"properties\": {"]
-#[doc = "    \"operation\": {"]
-#[doc = "      \"description\": \"The arithmetic operation to perform.\","]
-#[doc = "      \"type\": \"string\","]
-#[doc = "      \"enum\": ["]
-#[doc = "        \"add\","]
-#[doc = "        \"subtract\","]
-#[doc = "        \"multiply\","]
-#[doc = "        \"divide\","]
-#[doc = "        \"modulus\","]
-#[doc = "        \"power\","]
-#[doc = "        \"round\","]
-#[doc = "        \"floor\","]
-#[doc = "        \"ceil\""]
-#[doc = "      ]"]
+#[doc = "    \"left\": {"]
+#[doc = "      \"$ref\": \"#/$defs/ComputedNumberValue\""]
+#[doc = "    },"]
+#[doc = "    \"right\": {"]
+#[doc = "      \"$ref\": \"#/$defs/ComputedNumberValue\""]
 #[doc = "    },"]
 #[doc = "    \"source\": {"]
 #[doc = "      \"$ref\": \"#/$defs/Source\""]
 #[doc = "    },"]
 #[doc = "    \"type\": {"]
-#[doc = "      \"const\": \"arithmetic\""]
+#[doc = "      \"const\": \"add-number\""]
+#[doc = "    }"]
+#[doc = "  },"]
+#[doc = "  \"additionalProperties\": false"]
+#[doc = "}"]
+#[doc = r" ```"]
+#[doc = r" </details>"]
+#[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
+#[serde(deny_unknown_fields)]
+pub struct AddTwoValues {
+    pub left: ::std::boxed::Box<ComputedNumberValue>,
+    pub right: ::std::boxed::Box<ComputedNumberValue>,
+    pub source: Source,
+    #[serde(rename = "type")]
+    pub type_: ::serde_json::Value,
+}
+impl ::std::convert::From<&AddTwoValues> for AddTwoValues {
+    fn from(value: &AddTwoValues) -> Self {
+        value.clone()
+    }
+}
+impl AddTwoValues {
+    pub fn builder() -> builder::AddTwoValues {
+        Default::default()
+    }
+}
+#[doc = "A boolean value that is the result of a logical AND operation on two boolean values."]
+#[doc = r""]
+#[doc = r" <details><summary>JSON schema</summary>"]
+#[doc = r""]
+#[doc = r" ```json"]
+#[doc = "{"]
+#[doc = "  \"title\": \"And Boolean Value\","]
+#[doc = "  \"description\": \"A boolean value that is the result of a logical AND operation on two boolean values.\","]
+#[doc = "  \"type\": \"object\","]
+#[doc = "  \"required\": ["]
+#[doc = "    \"left\","]
+#[doc = "    \"right\","]
+#[doc = "    \"source\","]
+#[doc = "    \"type\""]
+#[doc = "  ],"]
+#[doc = "  \"properties\": {"]
+#[doc = "    \"left\": {"]
+#[doc = "      \"$ref\": \"#/$defs/ComputedBooleanValue\""]
+#[doc = "    },"]
+#[doc = "    \"right\": {"]
+#[doc = "      \"$ref\": \"#/$defs/ComputedBooleanValue\""]
+#[doc = "    },"]
+#[doc = "    \"source\": {"]
+#[doc = "      \"$ref\": \"#/$defs/Source\""]
+#[doc = "    },"]
+#[doc = "    \"type\": {"]
+#[doc = "      \"const\": \"and-boolean\""]
+#[doc = "    }"]
+#[doc = "  },"]
+#[doc = "  \"additionalProperties\": false"]
+#[doc = "}"]
+#[doc = r" ```"]
+#[doc = r" </details>"]
+#[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
+#[serde(deny_unknown_fields)]
+pub struct AndTwoBooleanValues {
+    pub left: ::std::boxed::Box<ComputedBooleanValue>,
+    pub right: ::std::boxed::Box<ComputedBooleanValue>,
+    pub source: Source,
+    #[serde(rename = "type")]
+    pub type_: ::serde_json::Value,
+}
+impl ::std::convert::From<&AndTwoBooleanValues> for AndTwoBooleanValues {
+    fn from(value: &AndTwoBooleanValues) -> Self {
+        value.clone()
+    }
+}
+impl AndTwoBooleanValues {
+    pub fn builder() -> builder::AndTwoBooleanValues {
+        Default::default()
+    }
+}
+#[doc = "A number value that is the average of all numbers in a list."]
+#[doc = r""]
+#[doc = r" <details><summary>JSON schema</summary>"]
+#[doc = r""]
+#[doc = r" ```json"]
+#[doc = "{"]
+#[doc = "  \"title\": \"Average Number List Value\","]
+#[doc = "  \"description\": \"A number value that is the average of all numbers in a list.\","]
+#[doc = "  \"type\": \"object\","]
+#[doc = "  \"required\": ["]
+#[doc = "    \"source\","]
+#[doc = "    \"type\","]
+#[doc = "    \"value\""]
+#[doc = "  ],"]
+#[doc = "  \"properties\": {"]
+#[doc = "    \"source\": {"]
+#[doc = "      \"$ref\": \"#/$defs/Source\""]
+#[doc = "    },"]
+#[doc = "    \"type\": {"]
+#[doc = "      \"const\": \"average-number-list\""]
 #[doc = "    },"]
 #[doc = "    \"value\": {"]
 #[doc = "      \"$ref\": \"#/$defs/ComputedNumberListValue\""]
@@ -753,135 +888,20 @@ impl ::std::convert::From<&Self> for ActionRun {
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
-pub struct ArithmeticValue {
-    #[doc = "The arithmetic operation to perform."]
-    pub operation: ArithmeticValueOperation,
+pub struct AverageNumberListValue {
     pub source: Source,
     #[serde(rename = "type")]
     pub type_: ::serde_json::Value,
     pub value: ComputedNumberListValue,
 }
-impl ::std::convert::From<&ArithmeticValue> for ArithmeticValue {
-    fn from(value: &ArithmeticValue) -> Self {
+impl ::std::convert::From<&AverageNumberListValue> for AverageNumberListValue {
+    fn from(value: &AverageNumberListValue) -> Self {
         value.clone()
     }
 }
-impl ArithmeticValue {
-    pub fn builder() -> builder::ArithmeticValue {
+impl AverageNumberListValue {
+    pub fn builder() -> builder::AverageNumberListValue {
         Default::default()
-    }
-}
-#[doc = "The arithmetic operation to perform."]
-#[doc = r""]
-#[doc = r" <details><summary>JSON schema</summary>"]
-#[doc = r""]
-#[doc = r" ```json"]
-#[doc = "{"]
-#[doc = "  \"description\": \"The arithmetic operation to perform.\","]
-#[doc = "  \"type\": \"string\","]
-#[doc = "  \"enum\": ["]
-#[doc = "    \"add\","]
-#[doc = "    \"subtract\","]
-#[doc = "    \"multiply\","]
-#[doc = "    \"divide\","]
-#[doc = "    \"modulus\","]
-#[doc = "    \"power\","]
-#[doc = "    \"round\","]
-#[doc = "    \"floor\","]
-#[doc = "    \"ceil\""]
-#[doc = "  ]"]
-#[doc = "}"]
-#[doc = r" ```"]
-#[doc = r" </details>"]
-#[derive(
-    :: serde :: Deserialize,
-    :: serde :: Serialize,
-    Clone,
-    Copy,
-    Debug,
-    Eq,
-    Hash,
-    Ord,
-    PartialEq,
-    PartialOrd,
-)]
-pub enum ArithmeticValueOperation {
-    #[serde(rename = "add")]
-    Add,
-    #[serde(rename = "subtract")]
-    Subtract,
-    #[serde(rename = "multiply")]
-    Multiply,
-    #[serde(rename = "divide")]
-    Divide,
-    #[serde(rename = "modulus")]
-    Modulus,
-    #[serde(rename = "power")]
-    Power,
-    #[serde(rename = "round")]
-    Round,
-    #[serde(rename = "floor")]
-    Floor,
-    #[serde(rename = "ceil")]
-    Ceil,
-}
-impl ::std::convert::From<&Self> for ArithmeticValueOperation {
-    fn from(value: &ArithmeticValueOperation) -> Self {
-        value.clone()
-    }
-}
-impl ::std::fmt::Display for ArithmeticValueOperation {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        match *self {
-            Self::Add => write!(f, "add"),
-            Self::Subtract => write!(f, "subtract"),
-            Self::Multiply => write!(f, "multiply"),
-            Self::Divide => write!(f, "divide"),
-            Self::Modulus => write!(f, "modulus"),
-            Self::Power => write!(f, "power"),
-            Self::Round => write!(f, "round"),
-            Self::Floor => write!(f, "floor"),
-            Self::Ceil => write!(f, "ceil"),
-        }
-    }
-}
-impl ::std::str::FromStr for ArithmeticValueOperation {
-    type Err = self::error::ConversionError;
-    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
-        match value {
-            "add" => Ok(Self::Add),
-            "subtract" => Ok(Self::Subtract),
-            "multiply" => Ok(Self::Multiply),
-            "divide" => Ok(Self::Divide),
-            "modulus" => Ok(Self::Modulus),
-            "power" => Ok(Self::Power),
-            "round" => Ok(Self::Round),
-            "floor" => Ok(Self::Floor),
-            "ceil" => Ok(Self::Ceil),
-            _ => Err("invalid value".into()),
-        }
-    }
-}
-impl ::std::convert::TryFrom<&str> for ArithmeticValueOperation {
-    type Error = self::error::ConversionError;
-    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
-        value.parse()
-    }
-}
-impl ::std::convert::TryFrom<&::std::string::String> for ArithmeticValueOperation {
-    type Error = self::error::ConversionError;
-    fn try_from(
-        value: &::std::string::String,
-    ) -> ::std::result::Result<Self, self::error::ConversionError> {
-        value.parse()
-    }
-}
-impl ::std::convert::TryFrom<::std::string::String> for ArithmeticValueOperation {
-    type Error = self::error::ConversionError;
-    fn try_from(
-        value: ::std::string::String,
-    ) -> ::std::result::Result<Self, self::error::ConversionError> {
-        value.parse()
     }
 }
 #[doc = "A string value that is the string representation of a boolean."]
@@ -946,6 +966,53 @@ impl ::std::convert::From<&BooleanToStringValue> for BooleanToStringValue {
 }
 impl BooleanToStringValue {
     pub fn builder() -> builder::BooleanToStringValue {
+        Default::default()
+    }
+}
+#[doc = "A number value that is the result of rounding another number up to the nearest integer."]
+#[doc = r""]
+#[doc = r" <details><summary>JSON schema</summary>"]
+#[doc = r""]
+#[doc = r" ```json"]
+#[doc = "{"]
+#[doc = "  \"title\": \"Ceil Value\","]
+#[doc = "  \"description\": \"A number value that is the result of rounding another number up to the nearest integer.\","]
+#[doc = "  \"type\": \"object\","]
+#[doc = "  \"required\": ["]
+#[doc = "    \"source\","]
+#[doc = "    \"type\","]
+#[doc = "    \"value\""]
+#[doc = "  ],"]
+#[doc = "  \"properties\": {"]
+#[doc = "    \"source\": {"]
+#[doc = "      \"$ref\": \"#/$defs/Source\""]
+#[doc = "    },"]
+#[doc = "    \"type\": {"]
+#[doc = "      \"const\": \"ceil-number\""]
+#[doc = "    },"]
+#[doc = "    \"value\": {"]
+#[doc = "      \"$ref\": \"#/$defs/ComputedNumberValue\""]
+#[doc = "    }"]
+#[doc = "  },"]
+#[doc = "  \"additionalProperties\": false"]
+#[doc = "}"]
+#[doc = r" ```"]
+#[doc = r" </details>"]
+#[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
+#[serde(deny_unknown_fields)]
+pub struct CeilValue {
+    pub source: Source,
+    #[serde(rename = "type")]
+    pub type_: ::serde_json::Value,
+    pub value: ::std::boxed::Box<ComputedNumberValue>,
+}
+impl ::std::convert::From<&CeilValue> for CeilValue {
+    fn from(value: &CeilValue) -> Self {
+        value.clone()
+    }
+}
+impl CeilValue {
+    pub fn builder() -> builder::CeilValue {
         Default::default()
     }
 }
@@ -1060,7 +1127,25 @@ impl ::std::convert::From<ConstantBooleanMapValue> for ComputedBooleanMapValue {
 #[doc = "      \"$ref\": \"#/$defs/LookupBooleanValue\""]
 #[doc = "    },"]
 #[doc = "    {"]
-#[doc = "      \"$ref\": \"#/$defs/LogicalBooleanValue\""]
+#[doc = "      \"$ref\": \"#/$defs/AndTwoBooleanValues\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/OrTwoBooleanValues\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/NotBooleanValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/XorTwoBooleanValues\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/NandTwoBooleanValues\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/NorTwoBooleanValues\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/XnorTwoBooleanValues\""]
 #[doc = "    },"]
 #[doc = "    {"]
 #[doc = "      \"$ref\": \"#/$defs/ListIndexBooleanValue\""]
@@ -1079,7 +1164,13 @@ impl ::std::convert::From<ConstantBooleanMapValue> for ComputedBooleanMapValue {
 #[serde(untagged)]
 pub enum ComputedBooleanValue {
     LookupBooleanValue(LookupBooleanValue),
-    LogicalBooleanValue(LogicalBooleanValue),
+    AndTwoBooleanValues(AndTwoBooleanValues),
+    OrTwoBooleanValues(OrTwoBooleanValues),
+    NotBooleanValue(NotBooleanValue),
+    XorTwoBooleanValues(XorTwoBooleanValues),
+    NandTwoBooleanValues(NandTwoBooleanValues),
+    NorTwoBooleanValues(NorTwoBooleanValues),
+    XnorTwoBooleanValues(XnorTwoBooleanValues),
     ListIndexBooleanValue(ListIndexBooleanValue),
     MapKeyBooleanValue(MapKeyBooleanValue),
     ConstantBooleanValue(ConstantBooleanValue),
@@ -1094,9 +1185,39 @@ impl ::std::convert::From<LookupBooleanValue> for ComputedBooleanValue {
         Self::LookupBooleanValue(value)
     }
 }
-impl ::std::convert::From<LogicalBooleanValue> for ComputedBooleanValue {
-    fn from(value: LogicalBooleanValue) -> Self {
-        Self::LogicalBooleanValue(value)
+impl ::std::convert::From<AndTwoBooleanValues> for ComputedBooleanValue {
+    fn from(value: AndTwoBooleanValues) -> Self {
+        Self::AndTwoBooleanValues(value)
+    }
+}
+impl ::std::convert::From<OrTwoBooleanValues> for ComputedBooleanValue {
+    fn from(value: OrTwoBooleanValues) -> Self {
+        Self::OrTwoBooleanValues(value)
+    }
+}
+impl ::std::convert::From<NotBooleanValue> for ComputedBooleanValue {
+    fn from(value: NotBooleanValue) -> Self {
+        Self::NotBooleanValue(value)
+    }
+}
+impl ::std::convert::From<XorTwoBooleanValues> for ComputedBooleanValue {
+    fn from(value: XorTwoBooleanValues) -> Self {
+        Self::XorTwoBooleanValues(value)
+    }
+}
+impl ::std::convert::From<NandTwoBooleanValues> for ComputedBooleanValue {
+    fn from(value: NandTwoBooleanValues) -> Self {
+        Self::NandTwoBooleanValues(value)
+    }
+}
+impl ::std::convert::From<NorTwoBooleanValues> for ComputedBooleanValue {
+    fn from(value: NorTwoBooleanValues) -> Self {
+        Self::NorTwoBooleanValues(value)
+    }
+}
+impl ::std::convert::From<XnorTwoBooleanValues> for ComputedBooleanValue {
+    fn from(value: XnorTwoBooleanValues) -> Self {
+        Self::XnorTwoBooleanValues(value)
     }
 }
 impl ::std::convert::From<ListIndexBooleanValue> for ComputedBooleanValue {
@@ -1225,7 +1346,49 @@ impl ::std::convert::From<ConstantNumberMapValue> for ComputedNumberMapValue {
 #[doc = "      \"$ref\": \"#/$defs/LookupNumberValue\""]
 #[doc = "    },"]
 #[doc = "    {"]
-#[doc = "      \"$ref\": \"#/$defs/ArithmeticValue\""]
+#[doc = "      \"$ref\": \"#/$defs/AddTwoValues\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/SubtractTwoValues\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/MultiplyTwoValues\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/DivideTwoValues\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/ModulusTwoValues\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/PowerTwoValues\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/RoundValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/FloorValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/CeilValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/AbsValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/SumNumberListValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/ProductNumberListValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/AverageNumberListValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/MinNumberListValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/MaxNumberListValue\""]
 #[doc = "    },"]
 #[doc = "    {"]
 #[doc = "      \"$ref\": \"#/$defs/ListIndexNumberValue\""]
@@ -1244,7 +1407,21 @@ impl ::std::convert::From<ConstantNumberMapValue> for ComputedNumberMapValue {
 #[serde(untagged)]
 pub enum ComputedNumberValue {
     LookupNumberValue(LookupNumberValue),
-    ArithmeticValue(::std::boxed::Box<ArithmeticValue>),
+    AddTwoValues(AddTwoValues),
+    SubtractTwoValues(SubtractTwoValues),
+    MultiplyTwoValues(MultiplyTwoValues),
+    DivideTwoValues(DivideTwoValues),
+    ModulusTwoValues(ModulusTwoValues),
+    PowerTwoValues(PowerTwoValues),
+    RoundValue(RoundValue),
+    FloorValue(FloorValue),
+    CeilValue(CeilValue),
+    AbsValue(::std::boxed::Box<AbsValue>),
+    SumNumberListValue(SumNumberListValue),
+    ProductNumberListValue(ProductNumberListValue),
+    AverageNumberListValue(AverageNumberListValue),
+    MinNumberListValue(MinNumberListValue),
+    MaxNumberListValue(MaxNumberListValue),
     ListIndexNumberValue(ListIndexNumberValue),
     MapKeyNumberValue(MapKeyNumberValue),
     ConstantNumberValue(ConstantNumberValue),
@@ -1259,9 +1436,79 @@ impl ::std::convert::From<LookupNumberValue> for ComputedNumberValue {
         Self::LookupNumberValue(value)
     }
 }
-impl ::std::convert::From<::std::boxed::Box<ArithmeticValue>> for ComputedNumberValue {
-    fn from(value: ::std::boxed::Box<ArithmeticValue>) -> Self {
-        Self::ArithmeticValue(value)
+impl ::std::convert::From<AddTwoValues> for ComputedNumberValue {
+    fn from(value: AddTwoValues) -> Self {
+        Self::AddTwoValues(value)
+    }
+}
+impl ::std::convert::From<SubtractTwoValues> for ComputedNumberValue {
+    fn from(value: SubtractTwoValues) -> Self {
+        Self::SubtractTwoValues(value)
+    }
+}
+impl ::std::convert::From<MultiplyTwoValues> for ComputedNumberValue {
+    fn from(value: MultiplyTwoValues) -> Self {
+        Self::MultiplyTwoValues(value)
+    }
+}
+impl ::std::convert::From<DivideTwoValues> for ComputedNumberValue {
+    fn from(value: DivideTwoValues) -> Self {
+        Self::DivideTwoValues(value)
+    }
+}
+impl ::std::convert::From<ModulusTwoValues> for ComputedNumberValue {
+    fn from(value: ModulusTwoValues) -> Self {
+        Self::ModulusTwoValues(value)
+    }
+}
+impl ::std::convert::From<PowerTwoValues> for ComputedNumberValue {
+    fn from(value: PowerTwoValues) -> Self {
+        Self::PowerTwoValues(value)
+    }
+}
+impl ::std::convert::From<RoundValue> for ComputedNumberValue {
+    fn from(value: RoundValue) -> Self {
+        Self::RoundValue(value)
+    }
+}
+impl ::std::convert::From<FloorValue> for ComputedNumberValue {
+    fn from(value: FloorValue) -> Self {
+        Self::FloorValue(value)
+    }
+}
+impl ::std::convert::From<CeilValue> for ComputedNumberValue {
+    fn from(value: CeilValue) -> Self {
+        Self::CeilValue(value)
+    }
+}
+impl ::std::convert::From<::std::boxed::Box<AbsValue>> for ComputedNumberValue {
+    fn from(value: ::std::boxed::Box<AbsValue>) -> Self {
+        Self::AbsValue(value)
+    }
+}
+impl ::std::convert::From<SumNumberListValue> for ComputedNumberValue {
+    fn from(value: SumNumberListValue) -> Self {
+        Self::SumNumberListValue(value)
+    }
+}
+impl ::std::convert::From<ProductNumberListValue> for ComputedNumberValue {
+    fn from(value: ProductNumberListValue) -> Self {
+        Self::ProductNumberListValue(value)
+    }
+}
+impl ::std::convert::From<AverageNumberListValue> for ComputedNumberValue {
+    fn from(value: AverageNumberListValue) -> Self {
+        Self::AverageNumberListValue(value)
+    }
+}
+impl ::std::convert::From<MinNumberListValue> for ComputedNumberValue {
+    fn from(value: MinNumberListValue) -> Self {
+        Self::MinNumberListValue(value)
+    }
+}
+impl ::std::convert::From<MaxNumberListValue> for ComputedNumberValue {
+    fn from(value: MaxNumberListValue) -> Self {
+        Self::MaxNumberListValue(value)
     }
 }
 impl ::std::convert::From<ListIndexNumberValue> for ComputedNumberValue {
@@ -1408,9 +1655,6 @@ impl ::std::convert::From<ConstantStringMapValue> for ComputedStringMapValue {
 #[doc = "      \"$ref\": \"#/$defs/SubStringValue\""]
 #[doc = "    },"]
 #[doc = "    {"]
-#[doc = "      \"$ref\": \"#/$defs/ConcatenatedStringValue\""]
-#[doc = "    },"]
-#[doc = "    {"]
 #[doc = "      \"$ref\": \"#/$defs/NumberToStringValue\""]
 #[doc = "    },"]
 #[doc = "    {"]
@@ -1436,7 +1680,6 @@ pub enum ComputedStringValue {
     ListIndexStringValue(ListIndexStringValue),
     MapKeyStringValue(MapKeyStringValue),
     SubStringValue(SubStringValue),
-    ConcatenatedStringValue(ConcatenatedStringValue),
     NumberToStringValue(NumberToStringValue),
     BooleanToStringValue(BooleanToStringValue),
     ListToStringValue(ListToStringValue),
@@ -1466,11 +1709,6 @@ impl ::std::convert::From<MapKeyStringValue> for ComputedStringValue {
 impl ::std::convert::From<SubStringValue> for ComputedStringValue {
     fn from(value: SubStringValue) -> Self {
         Self::SubStringValue(value)
-    }
-}
-impl ::std::convert::From<ConcatenatedStringValue> for ComputedStringValue {
-    fn from(value: ConcatenatedStringValue) -> Self {
-        Self::ConcatenatedStringValue(value)
     }
 }
 impl ::std::convert::From<NumberToStringValue> for ComputedStringValue {
@@ -1599,53 +1837,6 @@ impl ::std::convert::From<ComputedNumberMapValue> for ComputedValue {
 impl ::std::convert::From<ComputedBooleanMapValue> for ComputedValue {
     fn from(value: ComputedBooleanMapValue) -> Self {
         Self::BooleanMapValue(value)
-    }
-}
-#[doc = "A string value that is the concatenation of multiple string values."]
-#[doc = r""]
-#[doc = r" <details><summary>JSON schema</summary>"]
-#[doc = r""]
-#[doc = r" ```json"]
-#[doc = "{"]
-#[doc = "  \"title\": \"Concatenated String Value\","]
-#[doc = "  \"description\": \"A string value that is the concatenation of multiple string values.\","]
-#[doc = "  \"type\": \"object\","]
-#[doc = "  \"required\": ["]
-#[doc = "    \"source\","]
-#[doc = "    \"type\","]
-#[doc = "    \"value\""]
-#[doc = "  ],"]
-#[doc = "  \"properties\": {"]
-#[doc = "    \"source\": {"]
-#[doc = "      \"$ref\": \"#/$defs/Source\""]
-#[doc = "    },"]
-#[doc = "    \"type\": {"]
-#[doc = "      \"const\": \"concatenated-string\""]
-#[doc = "    },"]
-#[doc = "    \"value\": {"]
-#[doc = "      \"$ref\": \"#/$defs/ComputedStringListValue\""]
-#[doc = "    }"]
-#[doc = "  },"]
-#[doc = "  \"additionalProperties\": false"]
-#[doc = "}"]
-#[doc = r" ```"]
-#[doc = r" </details>"]
-#[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
-#[serde(deny_unknown_fields)]
-pub struct ConcatenatedStringValue {
-    pub source: Source,
-    #[serde(rename = "type")]
-    pub type_: ::serde_json::Value,
-    pub value: ComputedStringListValue,
-}
-impl ::std::convert::From<&ConcatenatedStringValue> for ConcatenatedStringValue {
-    fn from(value: &ConcatenatedStringValue) -> Self {
-        value.clone()
-    }
-}
-impl ConcatenatedStringValue {
-    pub fn builder() -> builder::ConcatenatedStringValue {
-        Default::default()
     }
 }
 #[doc = "A constant boolean list value.  Can include expanding a sub-list within the list."]
@@ -2081,7 +2272,7 @@ pub struct ConstantNumberMapValue {
     #[doc = "The constant number map value."]
     pub value: ::std::collections::HashMap<
         ConstantNumberMapValueValueKey,
-        ::std::option::Option<ComputedNumberValue>,
+        ::std::option::Option<::std::boxed::Box<ComputedNumberValue>>,
     >,
 }
 impl ::std::convert::From<&ConstantNumberMapValue> for ConstantNumberMapValue {
@@ -2502,6 +2693,58 @@ impl ConstantStringValue {
         Default::default()
     }
 }
+#[doc = "A number value that is the quotient of two other number values."]
+#[doc = r""]
+#[doc = r" <details><summary>JSON schema</summary>"]
+#[doc = r""]
+#[doc = r" ```json"]
+#[doc = "{"]
+#[doc = "  \"title\": \"Divide Two Values\","]
+#[doc = "  \"description\": \"A number value that is the quotient of two other number values.\","]
+#[doc = "  \"type\": \"object\","]
+#[doc = "  \"required\": ["]
+#[doc = "    \"left\","]
+#[doc = "    \"right\","]
+#[doc = "    \"source\","]
+#[doc = "    \"type\""]
+#[doc = "  ],"]
+#[doc = "  \"properties\": {"]
+#[doc = "    \"left\": {"]
+#[doc = "      \"$ref\": \"#/$defs/ComputedNumberValue\""]
+#[doc = "    },"]
+#[doc = "    \"right\": {"]
+#[doc = "      \"$ref\": \"#/$defs/ComputedNumberValue\""]
+#[doc = "    },"]
+#[doc = "    \"source\": {"]
+#[doc = "      \"$ref\": \"#/$defs/Source\""]
+#[doc = "    },"]
+#[doc = "    \"type\": {"]
+#[doc = "      \"const\": \"divide-number\""]
+#[doc = "    }"]
+#[doc = "  },"]
+#[doc = "  \"additionalProperties\": false"]
+#[doc = "}"]
+#[doc = r" ```"]
+#[doc = r" </details>"]
+#[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
+#[serde(deny_unknown_fields)]
+pub struct DivideTwoValues {
+    pub left: ::std::boxed::Box<ComputedNumberValue>,
+    pub right: ::std::boxed::Box<ComputedNumberValue>,
+    pub source: Source,
+    #[serde(rename = "type")]
+    pub type_: ::serde_json::Value,
+}
+impl ::std::convert::From<&DivideTwoValues> for DivideTwoValues {
+    fn from(value: &DivideTwoValues) -> Self {
+        value.clone()
+    }
+}
+impl DivideTwoValues {
+    pub fn builder() -> builder::DivideTwoValues {
+        Default::default()
+    }
+}
 #[doc = "An event listener that is triggered by the node."]
 #[doc = r""]
 #[doc = r" <details><summary>JSON schema</summary>"]
@@ -2819,6 +3062,53 @@ impl ExitBehavior {
         Default::default()
     }
 }
+#[doc = "A number value that is the result of rounding another number down to the nearest integer."]
+#[doc = r""]
+#[doc = r" <details><summary>JSON schema</summary>"]
+#[doc = r""]
+#[doc = r" ```json"]
+#[doc = "{"]
+#[doc = "  \"title\": \"Floor Value\","]
+#[doc = "  \"description\": \"A number value that is the result of rounding another number down to the nearest integer.\","]
+#[doc = "  \"type\": \"object\","]
+#[doc = "  \"required\": ["]
+#[doc = "    \"source\","]
+#[doc = "    \"type\","]
+#[doc = "    \"value\""]
+#[doc = "  ],"]
+#[doc = "  \"properties\": {"]
+#[doc = "    \"source\": {"]
+#[doc = "      \"$ref\": \"#/$defs/Source\""]
+#[doc = "    },"]
+#[doc = "    \"type\": {"]
+#[doc = "      \"const\": \"floor-number\""]
+#[doc = "    },"]
+#[doc = "    \"value\": {"]
+#[doc = "      \"$ref\": \"#/$defs/ComputedNumberValue\""]
+#[doc = "    }"]
+#[doc = "  },"]
+#[doc = "  \"additionalProperties\": false"]
+#[doc = "}"]
+#[doc = r" ```"]
+#[doc = r" </details>"]
+#[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
+#[serde(deny_unknown_fields)]
+pub struct FloorValue {
+    pub source: Source,
+    #[serde(rename = "type")]
+    pub type_: ::serde_json::Value,
+    pub value: ::std::boxed::Box<ComputedNumberValue>,
+}
+impl ::std::convert::From<&FloorValue> for FloorValue {
+    fn from(value: &FloorValue) -> Self {
+        value.clone()
+    }
+}
+impl FloorValue {
+    pub fn builder() -> builder::FloorValue {
+        Default::default()
+    }
+}
 #[doc = "Extracts a single indexed boolean from a string list.  A default must be given, in case the index is out of bounds."]
 #[doc = r""]
 #[doc = r" <details><summary>JSON schema</summary>"]
@@ -2918,7 +3208,7 @@ impl ListIndexBooleanValue {
 pub struct ListIndexNumberValue {
     pub default: ::std::boxed::Box<ComputedNumberValue>,
     pub index: ::std::boxed::Box<ComputedNumberValue>,
-    pub list: ::std::boxed::Box<ComputedNumberListValue>,
+    pub list: ComputedNumberListValue,
     pub source: Source,
     #[serde(rename = "type")]
     pub type_: ::serde_json::Value,
@@ -3042,172 +3332,6 @@ impl ListToStringValue {
         Default::default()
     }
 }
-#[doc = "A boolean value that is the result of a logical operation on two or more boolean values."]
-#[doc = r""]
-#[doc = r" <details><summary>JSON schema</summary>"]
-#[doc = r""]
-#[doc = r" ```json"]
-#[doc = "{"]
-#[doc = "  \"title\": \"Logical Boolean Value\","]
-#[doc = "  \"description\": \"A boolean value that is the result of a logical operation on two or more boolean values.\","]
-#[doc = "  \"type\": \"object\","]
-#[doc = "  \"required\": ["]
-#[doc = "    \"operation\","]
-#[doc = "    \"source\","]
-#[doc = "    \"type\","]
-#[doc = "    \"value\""]
-#[doc = "  ],"]
-#[doc = "  \"properties\": {"]
-#[doc = "    \"operation\": {"]
-#[doc = "      \"description\": \"The logical operation to perform.\","]
-#[doc = "      \"type\": \"string\","]
-#[doc = "      \"enum\": ["]
-#[doc = "        \"and\","]
-#[doc = "        \"or\","]
-#[doc = "        \"not\","]
-#[doc = "        \"xor\","]
-#[doc = "        \"nand\","]
-#[doc = "        \"nor\","]
-#[doc = "        \"xnor\""]
-#[doc = "      ]"]
-#[doc = "    },"]
-#[doc = "    \"source\": {"]
-#[doc = "      \"$ref\": \"#/$defs/Source\""]
-#[doc = "    },"]
-#[doc = "    \"type\": {"]
-#[doc = "      \"const\": \"logical\""]
-#[doc = "    },"]
-#[doc = "    \"value\": {"]
-#[doc = "      \"$ref\": \"#/$defs/ComputedBooleanListValue\""]
-#[doc = "    }"]
-#[doc = "  },"]
-#[doc = "  \"additionalProperties\": false"]
-#[doc = "}"]
-#[doc = r" ```"]
-#[doc = r" </details>"]
-#[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
-#[serde(deny_unknown_fields)]
-pub struct LogicalBooleanValue {
-    #[doc = "The logical operation to perform."]
-    pub operation: LogicalBooleanValueOperation,
-    pub source: Source,
-    #[serde(rename = "type")]
-    pub type_: ::serde_json::Value,
-    pub value: ComputedBooleanListValue,
-}
-impl ::std::convert::From<&LogicalBooleanValue> for LogicalBooleanValue {
-    fn from(value: &LogicalBooleanValue) -> Self {
-        value.clone()
-    }
-}
-impl LogicalBooleanValue {
-    pub fn builder() -> builder::LogicalBooleanValue {
-        Default::default()
-    }
-}
-#[doc = "The logical operation to perform."]
-#[doc = r""]
-#[doc = r" <details><summary>JSON schema</summary>"]
-#[doc = r""]
-#[doc = r" ```json"]
-#[doc = "{"]
-#[doc = "  \"description\": \"The logical operation to perform.\","]
-#[doc = "  \"type\": \"string\","]
-#[doc = "  \"enum\": ["]
-#[doc = "    \"and\","]
-#[doc = "    \"or\","]
-#[doc = "    \"not\","]
-#[doc = "    \"xor\","]
-#[doc = "    \"nand\","]
-#[doc = "    \"nor\","]
-#[doc = "    \"xnor\""]
-#[doc = "  ]"]
-#[doc = "}"]
-#[doc = r" ```"]
-#[doc = r" </details>"]
-#[derive(
-    :: serde :: Deserialize,
-    :: serde :: Serialize,
-    Clone,
-    Copy,
-    Debug,
-    Eq,
-    Hash,
-    Ord,
-    PartialEq,
-    PartialOrd,
-)]
-pub enum LogicalBooleanValueOperation {
-    #[serde(rename = "and")]
-    And,
-    #[serde(rename = "or")]
-    Or,
-    #[serde(rename = "not")]
-    Not,
-    #[serde(rename = "xor")]
-    Xor,
-    #[serde(rename = "nand")]
-    Nand,
-    #[serde(rename = "nor")]
-    Nor,
-    #[serde(rename = "xnor")]
-    Xnor,
-}
-impl ::std::convert::From<&Self> for LogicalBooleanValueOperation {
-    fn from(value: &LogicalBooleanValueOperation) -> Self {
-        value.clone()
-    }
-}
-impl ::std::fmt::Display for LogicalBooleanValueOperation {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        match *self {
-            Self::And => write!(f, "and"),
-            Self::Or => write!(f, "or"),
-            Self::Not => write!(f, "not"),
-            Self::Xor => write!(f, "xor"),
-            Self::Nand => write!(f, "nand"),
-            Self::Nor => write!(f, "nor"),
-            Self::Xnor => write!(f, "xnor"),
-        }
-    }
-}
-impl ::std::str::FromStr for LogicalBooleanValueOperation {
-    type Err = self::error::ConversionError;
-    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
-        match value {
-            "and" => Ok(Self::And),
-            "or" => Ok(Self::Or),
-            "not" => Ok(Self::Not),
-            "xor" => Ok(Self::Xor),
-            "nand" => Ok(Self::Nand),
-            "nor" => Ok(Self::Nor),
-            "xnor" => Ok(Self::Xnor),
-            _ => Err("invalid value".into()),
-        }
-    }
-}
-impl ::std::convert::TryFrom<&str> for LogicalBooleanValueOperation {
-    type Error = self::error::ConversionError;
-    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
-        value.parse()
-    }
-}
-impl ::std::convert::TryFrom<&::std::string::String> for LogicalBooleanValueOperation {
-    type Error = self::error::ConversionError;
-    fn try_from(
-        value: &::std::string::String,
-    ) -> ::std::result::Result<Self, self::error::ConversionError> {
-        value.parse()
-    }
-}
-impl ::std::convert::TryFrom<::std::string::String> for LogicalBooleanValueOperation {
-    type Error = self::error::ConversionError;
-    fn try_from(
-        value: ::std::string::String,
-    ) -> ::std::result::Result<Self, self::error::ConversionError> {
-        value.parse()
-    }
-}
 #[doc = "A boolean list value that is looked up from a node's state."]
 #[doc = r""]
 #[doc = r" <details><summary>JSON schema</summary>"]
@@ -3225,10 +3349,12 @@ impl ::std::convert::TryFrom<::std::string::String> for LogicalBooleanValueOpera
 #[doc = "  ],"]
 #[doc = "  \"properties\": {"]
 #[doc = "    \"name\": {"]
-#[doc = "      \"$ref\": \"#/$defs/ComputedStringValue\""]
+#[doc = "      \"type\": \"string\","]
+#[doc = "      \"minLength\": 1"]
 #[doc = "    },"]
 #[doc = "    \"node\": {"]
-#[doc = "      \"$ref\": \"#/$defs/ComputedStringValue\""]
+#[doc = "      \"type\": \"string\","]
+#[doc = "      \"minLength\": 1"]
 #[doc = "    },"]
 #[doc = "    \"source\": {"]
 #[doc = "      \"$ref\": \"#/$defs/Source\""]
@@ -3244,8 +3370,8 @@ impl ::std::convert::TryFrom<::std::string::String> for LogicalBooleanValueOpera
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
 pub struct LookupBooleanListValue {
-    pub name: ::std::boxed::Box<ComputedStringValue>,
-    pub node: ::std::boxed::Box<ComputedStringValue>,
+    pub name: LookupBooleanListValueName,
+    pub node: LookupBooleanListValueNode,
     pub source: Source,
     #[serde(rename = "type")]
     pub type_: ::serde_json::Value,
@@ -3258,6 +3384,152 @@ impl ::std::convert::From<&LookupBooleanListValue> for LookupBooleanListValue {
 impl LookupBooleanListValue {
     pub fn builder() -> builder::LookupBooleanListValue {
         Default::default()
+    }
+}
+#[doc = "`LookupBooleanListValueName`"]
+#[doc = r""]
+#[doc = r" <details><summary>JSON schema</summary>"]
+#[doc = r""]
+#[doc = r" ```json"]
+#[doc = "{"]
+#[doc = "  \"type\": \"string\","]
+#[doc = "  \"minLength\": 1"]
+#[doc = "}"]
+#[doc = r" ```"]
+#[doc = r" </details>"]
+#[derive(:: serde :: Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct LookupBooleanListValueName(::std::string::String);
+impl ::std::ops::Deref for LookupBooleanListValueName {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<LookupBooleanListValueName> for ::std::string::String {
+    fn from(value: LookupBooleanListValueName) -> Self {
+        value.0
+    }
+}
+impl ::std::convert::From<&LookupBooleanListValueName> for LookupBooleanListValueName {
+    fn from(value: &LookupBooleanListValueName) -> Self {
+        value.clone()
+    }
+}
+impl ::std::str::FromStr for LookupBooleanListValueName {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() < 1usize {
+            return Err("shorter than 1 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for LookupBooleanListValueName {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<&::std::string::String> for LookupBooleanListValueName {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: &::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for LookupBooleanListValueName {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for LookupBooleanListValueName {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
+#[doc = "`LookupBooleanListValueNode`"]
+#[doc = r""]
+#[doc = r" <details><summary>JSON schema</summary>"]
+#[doc = r""]
+#[doc = r" ```json"]
+#[doc = "{"]
+#[doc = "  \"type\": \"string\","]
+#[doc = "  \"minLength\": 1"]
+#[doc = "}"]
+#[doc = r" ```"]
+#[doc = r" </details>"]
+#[derive(:: serde :: Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct LookupBooleanListValueNode(::std::string::String);
+impl ::std::ops::Deref for LookupBooleanListValueNode {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<LookupBooleanListValueNode> for ::std::string::String {
+    fn from(value: LookupBooleanListValueNode) -> Self {
+        value.0
+    }
+}
+impl ::std::convert::From<&LookupBooleanListValueNode> for LookupBooleanListValueNode {
+    fn from(value: &LookupBooleanListValueNode) -> Self {
+        value.clone()
+    }
+}
+impl ::std::str::FromStr for LookupBooleanListValueNode {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() < 1usize {
+            return Err("shorter than 1 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for LookupBooleanListValueNode {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<&::std::string::String> for LookupBooleanListValueNode {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: &::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for LookupBooleanListValueNode {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for LookupBooleanListValueNode {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
     }
 }
 #[doc = "A boolean map value that is looked up from a node's state."]
@@ -3277,10 +3549,12 @@ impl LookupBooleanListValue {
 #[doc = "  ],"]
 #[doc = "  \"properties\": {"]
 #[doc = "    \"name\": {"]
-#[doc = "      \"$ref\": \"#/$defs/ComputedStringValue\""]
+#[doc = "      \"type\": \"string\","]
+#[doc = "      \"minLength\": 1"]
 #[doc = "    },"]
 #[doc = "    \"node\": {"]
-#[doc = "      \"$ref\": \"#/$defs/ComputedStringValue\""]
+#[doc = "      \"type\": \"string\","]
+#[doc = "      \"minLength\": 1"]
 #[doc = "    },"]
 #[doc = "    \"source\": {"]
 #[doc = "      \"$ref\": \"#/$defs/Source\""]
@@ -3296,8 +3570,8 @@ impl LookupBooleanListValue {
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
 pub struct LookupBooleanMapValue {
-    pub name: ::std::boxed::Box<ComputedStringValue>,
-    pub node: ::std::boxed::Box<ComputedStringValue>,
+    pub name: LookupBooleanMapValueName,
+    pub node: LookupBooleanMapValueNode,
     pub source: Source,
     #[serde(rename = "type")]
     pub type_: ::serde_json::Value,
@@ -3310,6 +3584,152 @@ impl ::std::convert::From<&LookupBooleanMapValue> for LookupBooleanMapValue {
 impl LookupBooleanMapValue {
     pub fn builder() -> builder::LookupBooleanMapValue {
         Default::default()
+    }
+}
+#[doc = "`LookupBooleanMapValueName`"]
+#[doc = r""]
+#[doc = r" <details><summary>JSON schema</summary>"]
+#[doc = r""]
+#[doc = r" ```json"]
+#[doc = "{"]
+#[doc = "  \"type\": \"string\","]
+#[doc = "  \"minLength\": 1"]
+#[doc = "}"]
+#[doc = r" ```"]
+#[doc = r" </details>"]
+#[derive(:: serde :: Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct LookupBooleanMapValueName(::std::string::String);
+impl ::std::ops::Deref for LookupBooleanMapValueName {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<LookupBooleanMapValueName> for ::std::string::String {
+    fn from(value: LookupBooleanMapValueName) -> Self {
+        value.0
+    }
+}
+impl ::std::convert::From<&LookupBooleanMapValueName> for LookupBooleanMapValueName {
+    fn from(value: &LookupBooleanMapValueName) -> Self {
+        value.clone()
+    }
+}
+impl ::std::str::FromStr for LookupBooleanMapValueName {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() < 1usize {
+            return Err("shorter than 1 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for LookupBooleanMapValueName {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<&::std::string::String> for LookupBooleanMapValueName {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: &::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for LookupBooleanMapValueName {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for LookupBooleanMapValueName {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
+#[doc = "`LookupBooleanMapValueNode`"]
+#[doc = r""]
+#[doc = r" <details><summary>JSON schema</summary>"]
+#[doc = r""]
+#[doc = r" ```json"]
+#[doc = "{"]
+#[doc = "  \"type\": \"string\","]
+#[doc = "  \"minLength\": 1"]
+#[doc = "}"]
+#[doc = r" ```"]
+#[doc = r" </details>"]
+#[derive(:: serde :: Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct LookupBooleanMapValueNode(::std::string::String);
+impl ::std::ops::Deref for LookupBooleanMapValueNode {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<LookupBooleanMapValueNode> for ::std::string::String {
+    fn from(value: LookupBooleanMapValueNode) -> Self {
+        value.0
+    }
+}
+impl ::std::convert::From<&LookupBooleanMapValueNode> for LookupBooleanMapValueNode {
+    fn from(value: &LookupBooleanMapValueNode) -> Self {
+        value.clone()
+    }
+}
+impl ::std::str::FromStr for LookupBooleanMapValueNode {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() < 1usize {
+            return Err("shorter than 1 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for LookupBooleanMapValueNode {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<&::std::string::String> for LookupBooleanMapValueNode {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: &::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for LookupBooleanMapValueNode {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for LookupBooleanMapValueNode {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
     }
 }
 #[doc = "A boolean value that is looked up from a node's state."]
@@ -3329,10 +3749,12 @@ impl LookupBooleanMapValue {
 #[doc = "  ],"]
 #[doc = "  \"properties\": {"]
 #[doc = "    \"name\": {"]
-#[doc = "      \"$ref\": \"#/$defs/ComputedStringValue\""]
+#[doc = "      \"type\": \"string\","]
+#[doc = "      \"minLength\": 1"]
 #[doc = "    },"]
 #[doc = "    \"node\": {"]
-#[doc = "      \"$ref\": \"#/$defs/ComputedStringValue\""]
+#[doc = "      \"type\": \"string\","]
+#[doc = "      \"minLength\": 1"]
 #[doc = "    },"]
 #[doc = "    \"source\": {"]
 #[doc = "      \"$ref\": \"#/$defs/Source\""]
@@ -3348,8 +3770,8 @@ impl LookupBooleanMapValue {
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
 pub struct LookupBooleanValue {
-    pub name: ::std::boxed::Box<ComputedStringValue>,
-    pub node: ::std::boxed::Box<ComputedStringValue>,
+    pub name: LookupBooleanValueName,
+    pub node: LookupBooleanValueNode,
     pub source: Source,
     #[serde(rename = "type")]
     pub type_: ::serde_json::Value,
@@ -3362,6 +3784,152 @@ impl ::std::convert::From<&LookupBooleanValue> for LookupBooleanValue {
 impl LookupBooleanValue {
     pub fn builder() -> builder::LookupBooleanValue {
         Default::default()
+    }
+}
+#[doc = "`LookupBooleanValueName`"]
+#[doc = r""]
+#[doc = r" <details><summary>JSON schema</summary>"]
+#[doc = r""]
+#[doc = r" ```json"]
+#[doc = "{"]
+#[doc = "  \"type\": \"string\","]
+#[doc = "  \"minLength\": 1"]
+#[doc = "}"]
+#[doc = r" ```"]
+#[doc = r" </details>"]
+#[derive(:: serde :: Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct LookupBooleanValueName(::std::string::String);
+impl ::std::ops::Deref for LookupBooleanValueName {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<LookupBooleanValueName> for ::std::string::String {
+    fn from(value: LookupBooleanValueName) -> Self {
+        value.0
+    }
+}
+impl ::std::convert::From<&LookupBooleanValueName> for LookupBooleanValueName {
+    fn from(value: &LookupBooleanValueName) -> Self {
+        value.clone()
+    }
+}
+impl ::std::str::FromStr for LookupBooleanValueName {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() < 1usize {
+            return Err("shorter than 1 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for LookupBooleanValueName {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<&::std::string::String> for LookupBooleanValueName {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: &::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for LookupBooleanValueName {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for LookupBooleanValueName {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
+#[doc = "`LookupBooleanValueNode`"]
+#[doc = r""]
+#[doc = r" <details><summary>JSON schema</summary>"]
+#[doc = r""]
+#[doc = r" ```json"]
+#[doc = "{"]
+#[doc = "  \"type\": \"string\","]
+#[doc = "  \"minLength\": 1"]
+#[doc = "}"]
+#[doc = r" ```"]
+#[doc = r" </details>"]
+#[derive(:: serde :: Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct LookupBooleanValueNode(::std::string::String);
+impl ::std::ops::Deref for LookupBooleanValueNode {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<LookupBooleanValueNode> for ::std::string::String {
+    fn from(value: LookupBooleanValueNode) -> Self {
+        value.0
+    }
+}
+impl ::std::convert::From<&LookupBooleanValueNode> for LookupBooleanValueNode {
+    fn from(value: &LookupBooleanValueNode) -> Self {
+        value.clone()
+    }
+}
+impl ::std::str::FromStr for LookupBooleanValueNode {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() < 1usize {
+            return Err("shorter than 1 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for LookupBooleanValueNode {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<&::std::string::String> for LookupBooleanValueNode {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: &::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for LookupBooleanValueNode {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for LookupBooleanValueNode {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
     }
 }
 #[doc = "A number list value that is looked up from a node's state."]
@@ -3381,10 +3949,12 @@ impl LookupBooleanValue {
 #[doc = "  ],"]
 #[doc = "  \"properties\": {"]
 #[doc = "    \"name\": {"]
-#[doc = "      \"$ref\": \"#/$defs/ComputedStringValue\""]
+#[doc = "      \"type\": \"string\","]
+#[doc = "      \"minLength\": 1"]
 #[doc = "    },"]
 #[doc = "    \"node\": {"]
-#[doc = "      \"$ref\": \"#/$defs/ComputedStringValue\""]
+#[doc = "      \"type\": \"string\","]
+#[doc = "      \"minLength\": 1"]
 #[doc = "    },"]
 #[doc = "    \"source\": {"]
 #[doc = "      \"$ref\": \"#/$defs/Source\""]
@@ -3400,8 +3970,8 @@ impl LookupBooleanValue {
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
 pub struct LookupNumberListValue {
-    pub name: ComputedStringValue,
-    pub node: ComputedStringValue,
+    pub name: LookupNumberListValueName,
+    pub node: LookupNumberListValueNode,
     pub source: Source,
     #[serde(rename = "type")]
     pub type_: ::serde_json::Value,
@@ -3414,6 +3984,152 @@ impl ::std::convert::From<&LookupNumberListValue> for LookupNumberListValue {
 impl LookupNumberListValue {
     pub fn builder() -> builder::LookupNumberListValue {
         Default::default()
+    }
+}
+#[doc = "`LookupNumberListValueName`"]
+#[doc = r""]
+#[doc = r" <details><summary>JSON schema</summary>"]
+#[doc = r""]
+#[doc = r" ```json"]
+#[doc = "{"]
+#[doc = "  \"type\": \"string\","]
+#[doc = "  \"minLength\": 1"]
+#[doc = "}"]
+#[doc = r" ```"]
+#[doc = r" </details>"]
+#[derive(:: serde :: Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct LookupNumberListValueName(::std::string::String);
+impl ::std::ops::Deref for LookupNumberListValueName {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<LookupNumberListValueName> for ::std::string::String {
+    fn from(value: LookupNumberListValueName) -> Self {
+        value.0
+    }
+}
+impl ::std::convert::From<&LookupNumberListValueName> for LookupNumberListValueName {
+    fn from(value: &LookupNumberListValueName) -> Self {
+        value.clone()
+    }
+}
+impl ::std::str::FromStr for LookupNumberListValueName {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() < 1usize {
+            return Err("shorter than 1 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for LookupNumberListValueName {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<&::std::string::String> for LookupNumberListValueName {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: &::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for LookupNumberListValueName {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for LookupNumberListValueName {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
+#[doc = "`LookupNumberListValueNode`"]
+#[doc = r""]
+#[doc = r" <details><summary>JSON schema</summary>"]
+#[doc = r""]
+#[doc = r" ```json"]
+#[doc = "{"]
+#[doc = "  \"type\": \"string\","]
+#[doc = "  \"minLength\": 1"]
+#[doc = "}"]
+#[doc = r" ```"]
+#[doc = r" </details>"]
+#[derive(:: serde :: Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct LookupNumberListValueNode(::std::string::String);
+impl ::std::ops::Deref for LookupNumberListValueNode {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<LookupNumberListValueNode> for ::std::string::String {
+    fn from(value: LookupNumberListValueNode) -> Self {
+        value.0
+    }
+}
+impl ::std::convert::From<&LookupNumberListValueNode> for LookupNumberListValueNode {
+    fn from(value: &LookupNumberListValueNode) -> Self {
+        value.clone()
+    }
+}
+impl ::std::str::FromStr for LookupNumberListValueNode {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() < 1usize {
+            return Err("shorter than 1 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for LookupNumberListValueNode {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<&::std::string::String> for LookupNumberListValueNode {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: &::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for LookupNumberListValueNode {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for LookupNumberListValueNode {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
     }
 }
 #[doc = "A number map value that is looked up from a node's state."]
@@ -3433,10 +4149,12 @@ impl LookupNumberListValue {
 #[doc = "  ],"]
 #[doc = "  \"properties\": {"]
 #[doc = "    \"name\": {"]
-#[doc = "      \"$ref\": \"#/$defs/ComputedStringValue\""]
+#[doc = "      \"type\": \"string\","]
+#[doc = "      \"minLength\": 1"]
 #[doc = "    },"]
 #[doc = "    \"node\": {"]
-#[doc = "      \"$ref\": \"#/$defs/ComputedStringValue\""]
+#[doc = "      \"type\": \"string\","]
+#[doc = "      \"minLength\": 1"]
 #[doc = "    },"]
 #[doc = "    \"source\": {"]
 #[doc = "      \"$ref\": \"#/$defs/Source\""]
@@ -3452,8 +4170,8 @@ impl LookupNumberListValue {
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
 pub struct LookupNumberMapValue {
-    pub name: ComputedStringValue,
-    pub node: ComputedStringValue,
+    pub name: LookupNumberMapValueName,
+    pub node: LookupNumberMapValueNode,
     pub source: Source,
     #[serde(rename = "type")]
     pub type_: ::serde_json::Value,
@@ -3466,6 +4184,152 @@ impl ::std::convert::From<&LookupNumberMapValue> for LookupNumberMapValue {
 impl LookupNumberMapValue {
     pub fn builder() -> builder::LookupNumberMapValue {
         Default::default()
+    }
+}
+#[doc = "`LookupNumberMapValueName`"]
+#[doc = r""]
+#[doc = r" <details><summary>JSON schema</summary>"]
+#[doc = r""]
+#[doc = r" ```json"]
+#[doc = "{"]
+#[doc = "  \"type\": \"string\","]
+#[doc = "  \"minLength\": 1"]
+#[doc = "}"]
+#[doc = r" ```"]
+#[doc = r" </details>"]
+#[derive(:: serde :: Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct LookupNumberMapValueName(::std::string::String);
+impl ::std::ops::Deref for LookupNumberMapValueName {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<LookupNumberMapValueName> for ::std::string::String {
+    fn from(value: LookupNumberMapValueName) -> Self {
+        value.0
+    }
+}
+impl ::std::convert::From<&LookupNumberMapValueName> for LookupNumberMapValueName {
+    fn from(value: &LookupNumberMapValueName) -> Self {
+        value.clone()
+    }
+}
+impl ::std::str::FromStr for LookupNumberMapValueName {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() < 1usize {
+            return Err("shorter than 1 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for LookupNumberMapValueName {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<&::std::string::String> for LookupNumberMapValueName {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: &::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for LookupNumberMapValueName {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for LookupNumberMapValueName {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
+#[doc = "`LookupNumberMapValueNode`"]
+#[doc = r""]
+#[doc = r" <details><summary>JSON schema</summary>"]
+#[doc = r""]
+#[doc = r" ```json"]
+#[doc = "{"]
+#[doc = "  \"type\": \"string\","]
+#[doc = "  \"minLength\": 1"]
+#[doc = "}"]
+#[doc = r" ```"]
+#[doc = r" </details>"]
+#[derive(:: serde :: Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct LookupNumberMapValueNode(::std::string::String);
+impl ::std::ops::Deref for LookupNumberMapValueNode {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<LookupNumberMapValueNode> for ::std::string::String {
+    fn from(value: LookupNumberMapValueNode) -> Self {
+        value.0
+    }
+}
+impl ::std::convert::From<&LookupNumberMapValueNode> for LookupNumberMapValueNode {
+    fn from(value: &LookupNumberMapValueNode) -> Self {
+        value.clone()
+    }
+}
+impl ::std::str::FromStr for LookupNumberMapValueNode {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() < 1usize {
+            return Err("shorter than 1 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for LookupNumberMapValueNode {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<&::std::string::String> for LookupNumberMapValueNode {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: &::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for LookupNumberMapValueNode {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for LookupNumberMapValueNode {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
     }
 }
 #[doc = "A number value that is looked up from a node's state."]
@@ -3485,10 +4349,12 @@ impl LookupNumberMapValue {
 #[doc = "  ],"]
 #[doc = "  \"properties\": {"]
 #[doc = "    \"name\": {"]
-#[doc = "      \"$ref\": \"#/$defs/ComputedStringValue\""]
+#[doc = "      \"type\": \"string\","]
+#[doc = "      \"minLength\": 1"]
 #[doc = "    },"]
 #[doc = "    \"node\": {"]
-#[doc = "      \"$ref\": \"#/$defs/ComputedStringValue\""]
+#[doc = "      \"type\": \"string\","]
+#[doc = "      \"minLength\": 1"]
 #[doc = "    },"]
 #[doc = "    \"source\": {"]
 #[doc = "      \"$ref\": \"#/$defs/Source\""]
@@ -3504,8 +4370,8 @@ impl LookupNumberMapValue {
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
 pub struct LookupNumberValue {
-    pub name: ComputedStringValue,
-    pub node: ComputedStringValue,
+    pub name: LookupNumberValueName,
+    pub node: LookupNumberValueNode,
     pub source: Source,
     #[serde(rename = "type")]
     pub type_: ::serde_json::Value,
@@ -3518,6 +4384,152 @@ impl ::std::convert::From<&LookupNumberValue> for LookupNumberValue {
 impl LookupNumberValue {
     pub fn builder() -> builder::LookupNumberValue {
         Default::default()
+    }
+}
+#[doc = "`LookupNumberValueName`"]
+#[doc = r""]
+#[doc = r" <details><summary>JSON schema</summary>"]
+#[doc = r""]
+#[doc = r" ```json"]
+#[doc = "{"]
+#[doc = "  \"type\": \"string\","]
+#[doc = "  \"minLength\": 1"]
+#[doc = "}"]
+#[doc = r" ```"]
+#[doc = r" </details>"]
+#[derive(:: serde :: Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct LookupNumberValueName(::std::string::String);
+impl ::std::ops::Deref for LookupNumberValueName {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<LookupNumberValueName> for ::std::string::String {
+    fn from(value: LookupNumberValueName) -> Self {
+        value.0
+    }
+}
+impl ::std::convert::From<&LookupNumberValueName> for LookupNumberValueName {
+    fn from(value: &LookupNumberValueName) -> Self {
+        value.clone()
+    }
+}
+impl ::std::str::FromStr for LookupNumberValueName {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() < 1usize {
+            return Err("shorter than 1 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for LookupNumberValueName {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<&::std::string::String> for LookupNumberValueName {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: &::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for LookupNumberValueName {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for LookupNumberValueName {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
+#[doc = "`LookupNumberValueNode`"]
+#[doc = r""]
+#[doc = r" <details><summary>JSON schema</summary>"]
+#[doc = r""]
+#[doc = r" ```json"]
+#[doc = "{"]
+#[doc = "  \"type\": \"string\","]
+#[doc = "  \"minLength\": 1"]
+#[doc = "}"]
+#[doc = r" ```"]
+#[doc = r" </details>"]
+#[derive(:: serde :: Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct LookupNumberValueNode(::std::string::String);
+impl ::std::ops::Deref for LookupNumberValueNode {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<LookupNumberValueNode> for ::std::string::String {
+    fn from(value: LookupNumberValueNode) -> Self {
+        value.0
+    }
+}
+impl ::std::convert::From<&LookupNumberValueNode> for LookupNumberValueNode {
+    fn from(value: &LookupNumberValueNode) -> Self {
+        value.clone()
+    }
+}
+impl ::std::str::FromStr for LookupNumberValueNode {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() < 1usize {
+            return Err("shorter than 1 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for LookupNumberValueNode {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<&::std::string::String> for LookupNumberValueNode {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: &::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for LookupNumberValueNode {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for LookupNumberValueNode {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
     }
 }
 #[doc = "A string list value that is looked up from a node's state."]
@@ -3537,10 +4549,12 @@ impl LookupNumberValue {
 #[doc = "  ],"]
 #[doc = "  \"properties\": {"]
 #[doc = "    \"name\": {"]
-#[doc = "      \"$ref\": \"#/$defs/ComputedStringValue\""]
+#[doc = "      \"type\": \"string\","]
+#[doc = "      \"minLength\": 1"]
 #[doc = "    },"]
 #[doc = "    \"node\": {"]
-#[doc = "      \"$ref\": \"#/$defs/ComputedStringValue\""]
+#[doc = "      \"type\": \"string\","]
+#[doc = "      \"minLength\": 1"]
 #[doc = "    },"]
 #[doc = "    \"source\": {"]
 #[doc = "      \"$ref\": \"#/$defs/Source\""]
@@ -3556,8 +4570,8 @@ impl LookupNumberValue {
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
 pub struct LookupStringListValue {
-    pub name: ::std::boxed::Box<ComputedStringValue>,
-    pub node: ::std::boxed::Box<ComputedStringValue>,
+    pub name: LookupStringListValueName,
+    pub node: LookupStringListValueNode,
     pub source: Source,
     #[serde(rename = "type")]
     pub type_: ::serde_json::Value,
@@ -3570,6 +4584,152 @@ impl ::std::convert::From<&LookupStringListValue> for LookupStringListValue {
 impl LookupStringListValue {
     pub fn builder() -> builder::LookupStringListValue {
         Default::default()
+    }
+}
+#[doc = "`LookupStringListValueName`"]
+#[doc = r""]
+#[doc = r" <details><summary>JSON schema</summary>"]
+#[doc = r""]
+#[doc = r" ```json"]
+#[doc = "{"]
+#[doc = "  \"type\": \"string\","]
+#[doc = "  \"minLength\": 1"]
+#[doc = "}"]
+#[doc = r" ```"]
+#[doc = r" </details>"]
+#[derive(:: serde :: Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct LookupStringListValueName(::std::string::String);
+impl ::std::ops::Deref for LookupStringListValueName {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<LookupStringListValueName> for ::std::string::String {
+    fn from(value: LookupStringListValueName) -> Self {
+        value.0
+    }
+}
+impl ::std::convert::From<&LookupStringListValueName> for LookupStringListValueName {
+    fn from(value: &LookupStringListValueName) -> Self {
+        value.clone()
+    }
+}
+impl ::std::str::FromStr for LookupStringListValueName {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() < 1usize {
+            return Err("shorter than 1 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for LookupStringListValueName {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<&::std::string::String> for LookupStringListValueName {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: &::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for LookupStringListValueName {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for LookupStringListValueName {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
+#[doc = "`LookupStringListValueNode`"]
+#[doc = r""]
+#[doc = r" <details><summary>JSON schema</summary>"]
+#[doc = r""]
+#[doc = r" ```json"]
+#[doc = "{"]
+#[doc = "  \"type\": \"string\","]
+#[doc = "  \"minLength\": 1"]
+#[doc = "}"]
+#[doc = r" ```"]
+#[doc = r" </details>"]
+#[derive(:: serde :: Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct LookupStringListValueNode(::std::string::String);
+impl ::std::ops::Deref for LookupStringListValueNode {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<LookupStringListValueNode> for ::std::string::String {
+    fn from(value: LookupStringListValueNode) -> Self {
+        value.0
+    }
+}
+impl ::std::convert::From<&LookupStringListValueNode> for LookupStringListValueNode {
+    fn from(value: &LookupStringListValueNode) -> Self {
+        value.clone()
+    }
+}
+impl ::std::str::FromStr for LookupStringListValueNode {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() < 1usize {
+            return Err("shorter than 1 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for LookupStringListValueNode {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<&::std::string::String> for LookupStringListValueNode {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: &::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for LookupStringListValueNode {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for LookupStringListValueNode {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
     }
 }
 #[doc = "A string map value that is looked up from a node's state."]
@@ -3589,10 +4749,12 @@ impl LookupStringListValue {
 #[doc = "  ],"]
 #[doc = "  \"properties\": {"]
 #[doc = "    \"name\": {"]
-#[doc = "      \"$ref\": \"#/$defs/ComputedStringValue\""]
+#[doc = "      \"type\": \"string\","]
+#[doc = "      \"minLength\": 1"]
 #[doc = "    },"]
 #[doc = "    \"node\": {"]
-#[doc = "      \"$ref\": \"#/$defs/ComputedStringValue\""]
+#[doc = "      \"type\": \"string\","]
+#[doc = "      \"minLength\": 1"]
 #[doc = "    },"]
 #[doc = "    \"source\": {"]
 #[doc = "      \"$ref\": \"#/$defs/Source\""]
@@ -3608,8 +4770,8 @@ impl LookupStringListValue {
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
 pub struct LookupStringMapValue {
-    pub name: ::std::boxed::Box<ComputedStringValue>,
-    pub node: ::std::boxed::Box<ComputedStringValue>,
+    pub name: LookupStringMapValueName,
+    pub node: LookupStringMapValueNode,
     pub source: Source,
     #[serde(rename = "type")]
     pub type_: ::serde_json::Value,
@@ -3622,6 +4784,152 @@ impl ::std::convert::From<&LookupStringMapValue> for LookupStringMapValue {
 impl LookupStringMapValue {
     pub fn builder() -> builder::LookupStringMapValue {
         Default::default()
+    }
+}
+#[doc = "`LookupStringMapValueName`"]
+#[doc = r""]
+#[doc = r" <details><summary>JSON schema</summary>"]
+#[doc = r""]
+#[doc = r" ```json"]
+#[doc = "{"]
+#[doc = "  \"type\": \"string\","]
+#[doc = "  \"minLength\": 1"]
+#[doc = "}"]
+#[doc = r" ```"]
+#[doc = r" </details>"]
+#[derive(:: serde :: Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct LookupStringMapValueName(::std::string::String);
+impl ::std::ops::Deref for LookupStringMapValueName {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<LookupStringMapValueName> for ::std::string::String {
+    fn from(value: LookupStringMapValueName) -> Self {
+        value.0
+    }
+}
+impl ::std::convert::From<&LookupStringMapValueName> for LookupStringMapValueName {
+    fn from(value: &LookupStringMapValueName) -> Self {
+        value.clone()
+    }
+}
+impl ::std::str::FromStr for LookupStringMapValueName {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() < 1usize {
+            return Err("shorter than 1 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for LookupStringMapValueName {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<&::std::string::String> for LookupStringMapValueName {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: &::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for LookupStringMapValueName {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for LookupStringMapValueName {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
+#[doc = "`LookupStringMapValueNode`"]
+#[doc = r""]
+#[doc = r" <details><summary>JSON schema</summary>"]
+#[doc = r""]
+#[doc = r" ```json"]
+#[doc = "{"]
+#[doc = "  \"type\": \"string\","]
+#[doc = "  \"minLength\": 1"]
+#[doc = "}"]
+#[doc = r" ```"]
+#[doc = r" </details>"]
+#[derive(:: serde :: Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct LookupStringMapValueNode(::std::string::String);
+impl ::std::ops::Deref for LookupStringMapValueNode {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<LookupStringMapValueNode> for ::std::string::String {
+    fn from(value: LookupStringMapValueNode) -> Self {
+        value.0
+    }
+}
+impl ::std::convert::From<&LookupStringMapValueNode> for LookupStringMapValueNode {
+    fn from(value: &LookupStringMapValueNode) -> Self {
+        value.clone()
+    }
+}
+impl ::std::str::FromStr for LookupStringMapValueNode {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() < 1usize {
+            return Err("shorter than 1 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for LookupStringMapValueNode {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<&::std::string::String> for LookupStringMapValueNode {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: &::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for LookupStringMapValueNode {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for LookupStringMapValueNode {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
     }
 }
 #[doc = "A string value that is looked up from a node's state."]
@@ -3641,10 +4949,12 @@ impl LookupStringMapValue {
 #[doc = "  ],"]
 #[doc = "  \"properties\": {"]
 #[doc = "    \"name\": {"]
-#[doc = "      \"$ref\": \"#/$defs/ComputedStringValue\""]
+#[doc = "      \"type\": \"string\","]
+#[doc = "      \"minLength\": 1"]
 #[doc = "    },"]
 #[doc = "    \"node\": {"]
-#[doc = "      \"$ref\": \"#/$defs/ComputedStringValue\""]
+#[doc = "      \"type\": \"string\","]
+#[doc = "      \"minLength\": 1"]
 #[doc = "    },"]
 #[doc = "    \"source\": {"]
 #[doc = "      \"$ref\": \"#/$defs/Source\""]
@@ -3660,8 +4970,8 @@ impl LookupStringMapValue {
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
 pub struct LookupStringValue {
-    pub name: ::std::boxed::Box<ComputedStringValue>,
-    pub node: ::std::boxed::Box<ComputedStringValue>,
+    pub name: LookupStringValueName,
+    pub node: LookupStringValueNode,
     pub source: Source,
     #[serde(rename = "type")]
     pub type_: ::serde_json::Value,
@@ -3674,6 +4984,152 @@ impl ::std::convert::From<&LookupStringValue> for LookupStringValue {
 impl LookupStringValue {
     pub fn builder() -> builder::LookupStringValue {
         Default::default()
+    }
+}
+#[doc = "`LookupStringValueName`"]
+#[doc = r""]
+#[doc = r" <details><summary>JSON schema</summary>"]
+#[doc = r""]
+#[doc = r" ```json"]
+#[doc = "{"]
+#[doc = "  \"type\": \"string\","]
+#[doc = "  \"minLength\": 1"]
+#[doc = "}"]
+#[doc = r" ```"]
+#[doc = r" </details>"]
+#[derive(:: serde :: Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct LookupStringValueName(::std::string::String);
+impl ::std::ops::Deref for LookupStringValueName {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<LookupStringValueName> for ::std::string::String {
+    fn from(value: LookupStringValueName) -> Self {
+        value.0
+    }
+}
+impl ::std::convert::From<&LookupStringValueName> for LookupStringValueName {
+    fn from(value: &LookupStringValueName) -> Self {
+        value.clone()
+    }
+}
+impl ::std::str::FromStr for LookupStringValueName {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() < 1usize {
+            return Err("shorter than 1 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for LookupStringValueName {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<&::std::string::String> for LookupStringValueName {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: &::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for LookupStringValueName {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for LookupStringValueName {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
+#[doc = "`LookupStringValueNode`"]
+#[doc = r""]
+#[doc = r" <details><summary>JSON schema</summary>"]
+#[doc = r""]
+#[doc = r" ```json"]
+#[doc = "{"]
+#[doc = "  \"type\": \"string\","]
+#[doc = "  \"minLength\": 1"]
+#[doc = "}"]
+#[doc = r" ```"]
+#[doc = r" </details>"]
+#[derive(:: serde :: Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct LookupStringValueNode(::std::string::String);
+impl ::std::ops::Deref for LookupStringValueNode {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<LookupStringValueNode> for ::std::string::String {
+    fn from(value: LookupStringValueNode) -> Self {
+        value.0
+    }
+}
+impl ::std::convert::From<&LookupStringValueNode> for LookupStringValueNode {
+    fn from(value: &LookupStringValueNode) -> Self {
+        value.clone()
+    }
+}
+impl ::std::str::FromStr for LookupStringValueNode {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() < 1usize {
+            return Err("shorter than 1 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for LookupStringValueNode {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<&::std::string::String> for LookupStringValueNode {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: &::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for LookupStringValueNode {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for LookupStringValueNode {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
     }
 }
 #[doc = "A key's boolean value from a map.  A default must be given, in case the key is not found."]
@@ -3912,6 +5368,204 @@ impl MapToStringValue {
         Default::default()
     }
 }
+#[doc = "A number value that is the maximum of all numbers in a list."]
+#[doc = r""]
+#[doc = r" <details><summary>JSON schema</summary>"]
+#[doc = r""]
+#[doc = r" ```json"]
+#[doc = "{"]
+#[doc = "  \"title\": \"Maximum Number List Value\","]
+#[doc = "  \"description\": \"A number value that is the maximum of all numbers in a list.\","]
+#[doc = "  \"type\": \"object\","]
+#[doc = "  \"required\": ["]
+#[doc = "    \"source\","]
+#[doc = "    \"type\","]
+#[doc = "    \"value\""]
+#[doc = "  ],"]
+#[doc = "  \"properties\": {"]
+#[doc = "    \"source\": {"]
+#[doc = "      \"$ref\": \"#/$defs/Source\""]
+#[doc = "    },"]
+#[doc = "    \"type\": {"]
+#[doc = "      \"const\": \"max-number-list\""]
+#[doc = "    },"]
+#[doc = "    \"value\": {"]
+#[doc = "      \"$ref\": \"#/$defs/ComputedNumberListValue\""]
+#[doc = "    }"]
+#[doc = "  },"]
+#[doc = "  \"additionalProperties\": false"]
+#[doc = "}"]
+#[doc = r" ```"]
+#[doc = r" </details>"]
+#[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
+#[serde(deny_unknown_fields)]
+pub struct MaxNumberListValue {
+    pub source: Source,
+    #[serde(rename = "type")]
+    pub type_: ::serde_json::Value,
+    pub value: ComputedNumberListValue,
+}
+impl ::std::convert::From<&MaxNumberListValue> for MaxNumberListValue {
+    fn from(value: &MaxNumberListValue) -> Self {
+        value.clone()
+    }
+}
+impl MaxNumberListValue {
+    pub fn builder() -> builder::MaxNumberListValue {
+        Default::default()
+    }
+}
+#[doc = "A number value that is the minimum of all numbers in a list."]
+#[doc = r""]
+#[doc = r" <details><summary>JSON schema</summary>"]
+#[doc = r""]
+#[doc = r" ```json"]
+#[doc = "{"]
+#[doc = "  \"title\": \"Minimum Number List Value\","]
+#[doc = "  \"description\": \"A number value that is the minimum of all numbers in a list.\","]
+#[doc = "  \"type\": \"object\","]
+#[doc = "  \"required\": ["]
+#[doc = "    \"source\","]
+#[doc = "    \"type\","]
+#[doc = "    \"value\""]
+#[doc = "  ],"]
+#[doc = "  \"properties\": {"]
+#[doc = "    \"source\": {"]
+#[doc = "      \"$ref\": \"#/$defs/Source\""]
+#[doc = "    },"]
+#[doc = "    \"type\": {"]
+#[doc = "      \"const\": \"min-number-list\""]
+#[doc = "    },"]
+#[doc = "    \"value\": {"]
+#[doc = "      \"$ref\": \"#/$defs/ComputedNumberListValue\""]
+#[doc = "    }"]
+#[doc = "  },"]
+#[doc = "  \"additionalProperties\": false"]
+#[doc = "}"]
+#[doc = r" ```"]
+#[doc = r" </details>"]
+#[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
+#[serde(deny_unknown_fields)]
+pub struct MinNumberListValue {
+    pub source: Source,
+    #[serde(rename = "type")]
+    pub type_: ::serde_json::Value,
+    pub value: ComputedNumberListValue,
+}
+impl ::std::convert::From<&MinNumberListValue> for MinNumberListValue {
+    fn from(value: &MinNumberListValue) -> Self {
+        value.clone()
+    }
+}
+impl MinNumberListValue {
+    pub fn builder() -> builder::MinNumberListValue {
+        Default::default()
+    }
+}
+#[doc = "A number value that is the modulus of two other number values."]
+#[doc = r""]
+#[doc = r" <details><summary>JSON schema</summary>"]
+#[doc = r""]
+#[doc = r" ```json"]
+#[doc = "{"]
+#[doc = "  \"title\": \"Modulus Two Values\","]
+#[doc = "  \"description\": \"A number value that is the modulus of two other number values.\","]
+#[doc = "  \"type\": \"object\","]
+#[doc = "  \"required\": ["]
+#[doc = "    \"left\","]
+#[doc = "    \"right\","]
+#[doc = "    \"source\","]
+#[doc = "    \"type\""]
+#[doc = "  ],"]
+#[doc = "  \"properties\": {"]
+#[doc = "    \"left\": {"]
+#[doc = "      \"$ref\": \"#/$defs/ComputedNumberValue\""]
+#[doc = "    },"]
+#[doc = "    \"right\": {"]
+#[doc = "      \"$ref\": \"#/$defs/ComputedNumberValue\""]
+#[doc = "    },"]
+#[doc = "    \"source\": {"]
+#[doc = "      \"$ref\": \"#/$defs/Source\""]
+#[doc = "    },"]
+#[doc = "    \"type\": {"]
+#[doc = "      \"const\": \"modulus-number\""]
+#[doc = "    }"]
+#[doc = "  },"]
+#[doc = "  \"additionalProperties\": false"]
+#[doc = "}"]
+#[doc = r" ```"]
+#[doc = r" </details>"]
+#[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
+#[serde(deny_unknown_fields)]
+pub struct ModulusTwoValues {
+    pub left: ::std::boxed::Box<ComputedNumberValue>,
+    pub right: ::std::boxed::Box<ComputedNumberValue>,
+    pub source: Source,
+    #[serde(rename = "type")]
+    pub type_: ::serde_json::Value,
+}
+impl ::std::convert::From<&ModulusTwoValues> for ModulusTwoValues {
+    fn from(value: &ModulusTwoValues) -> Self {
+        value.clone()
+    }
+}
+impl ModulusTwoValues {
+    pub fn builder() -> builder::ModulusTwoValues {
+        Default::default()
+    }
+}
+#[doc = "A number value that is the product of two other number values."]
+#[doc = r""]
+#[doc = r" <details><summary>JSON schema</summary>"]
+#[doc = r""]
+#[doc = r" ```json"]
+#[doc = "{"]
+#[doc = "  \"title\": \"Multiply Two Values\","]
+#[doc = "  \"description\": \"A number value that is the product of two other number values.\","]
+#[doc = "  \"type\": \"object\","]
+#[doc = "  \"required\": ["]
+#[doc = "    \"left\","]
+#[doc = "    \"right\","]
+#[doc = "    \"source\","]
+#[doc = "    \"type\""]
+#[doc = "  ],"]
+#[doc = "  \"properties\": {"]
+#[doc = "    \"left\": {"]
+#[doc = "      \"$ref\": \"#/$defs/ComputedNumberValue\""]
+#[doc = "    },"]
+#[doc = "    \"right\": {"]
+#[doc = "      \"$ref\": \"#/$defs/ComputedNumberValue\""]
+#[doc = "    },"]
+#[doc = "    \"source\": {"]
+#[doc = "      \"$ref\": \"#/$defs/Source\""]
+#[doc = "    },"]
+#[doc = "    \"type\": {"]
+#[doc = "      \"const\": \"multiply-number\""]
+#[doc = "    }"]
+#[doc = "  },"]
+#[doc = "  \"additionalProperties\": false"]
+#[doc = "}"]
+#[doc = r" ```"]
+#[doc = r" </details>"]
+#[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
+#[serde(deny_unknown_fields)]
+pub struct MultiplyTwoValues {
+    pub left: ::std::boxed::Box<ComputedNumberValue>,
+    pub right: ::std::boxed::Box<ComputedNumberValue>,
+    pub source: Source,
+    #[serde(rename = "type")]
+    pub type_: ::serde_json::Value,
+}
+impl ::std::convert::From<&MultiplyTwoValues> for MultiplyTwoValues {
+    fn from(value: &MultiplyTwoValues) -> Self {
+        value.clone()
+    }
+}
+impl MultiplyTwoValues {
+    pub fn builder() -> builder::MultiplyTwoValues {
+        Default::default()
+    }
+}
 #[doc = "The parameters for the action."]
 #[doc = r""]
 #[doc = r" <details><summary>JSON schema</summary>"]
@@ -3968,6 +5622,58 @@ impl ::std::convert::From<&NamedParameters> for NamedParameters {
 impl ::std::convert::From<::std::vec::Vec<ActionParameter>> for NamedParameters {
     fn from(value: ::std::vec::Vec<ActionParameter>) -> Self {
         Self(value)
+    }
+}
+#[doc = "A boolean value that is the result of a logical NAND operation on two boolean values."]
+#[doc = r""]
+#[doc = r" <details><summary>JSON schema</summary>"]
+#[doc = r""]
+#[doc = r" ```json"]
+#[doc = "{"]
+#[doc = "  \"title\": \"Nand Boolean Value\","]
+#[doc = "  \"description\": \"A boolean value that is the result of a logical NAND operation on two boolean values.\","]
+#[doc = "  \"type\": \"object\","]
+#[doc = "  \"required\": ["]
+#[doc = "    \"left\","]
+#[doc = "    \"right\","]
+#[doc = "    \"source\","]
+#[doc = "    \"type\""]
+#[doc = "  ],"]
+#[doc = "  \"properties\": {"]
+#[doc = "    \"left\": {"]
+#[doc = "      \"$ref\": \"#/$defs/ComputedBooleanValue\""]
+#[doc = "    },"]
+#[doc = "    \"right\": {"]
+#[doc = "      \"$ref\": \"#/$defs/ComputedBooleanValue\""]
+#[doc = "    },"]
+#[doc = "    \"source\": {"]
+#[doc = "      \"$ref\": \"#/$defs/Source\""]
+#[doc = "    },"]
+#[doc = "    \"type\": {"]
+#[doc = "      \"const\": \"nand-boolean\""]
+#[doc = "    }"]
+#[doc = "  },"]
+#[doc = "  \"additionalProperties\": false"]
+#[doc = "}"]
+#[doc = r" ```"]
+#[doc = r" </details>"]
+#[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
+#[serde(deny_unknown_fields)]
+pub struct NandTwoBooleanValues {
+    pub left: ::std::boxed::Box<ComputedBooleanValue>,
+    pub right: ::std::boxed::Box<ComputedBooleanValue>,
+    pub source: Source,
+    #[serde(rename = "type")]
+    pub type_: ::serde_json::Value,
+}
+impl ::std::convert::From<&NandTwoBooleanValues> for NandTwoBooleanValues {
+    fn from(value: &NandTwoBooleanValues) -> Self {
+        value.clone()
+    }
+}
+impl NandTwoBooleanValues {
+    pub fn builder() -> builder::NandTwoBooleanValues {
+        Default::default()
     }
 }
 #[doc = "An abstract syntax tree (AST) schema for a Native Shell."]
@@ -4683,6 +6389,105 @@ impl<'de> ::serde::Deserialize<'de> for NodeInitialParametersKey {
             })
     }
 }
+#[doc = "A boolean value that is the result of a logical NOR operation on two boolean values."]
+#[doc = r""]
+#[doc = r" <details><summary>JSON schema</summary>"]
+#[doc = r""]
+#[doc = r" ```json"]
+#[doc = "{"]
+#[doc = "  \"title\": \"Nor Boolean Value\","]
+#[doc = "  \"description\": \"A boolean value that is the result of a logical NOR operation on two boolean values.\","]
+#[doc = "  \"type\": \"object\","]
+#[doc = "  \"required\": ["]
+#[doc = "    \"left\","]
+#[doc = "    \"right\","]
+#[doc = "    \"source\","]
+#[doc = "    \"type\""]
+#[doc = "  ],"]
+#[doc = "  \"properties\": {"]
+#[doc = "    \"left\": {"]
+#[doc = "      \"$ref\": \"#/$defs/ComputedBooleanValue\""]
+#[doc = "    },"]
+#[doc = "    \"right\": {"]
+#[doc = "      \"$ref\": \"#/$defs/ComputedBooleanValue\""]
+#[doc = "    },"]
+#[doc = "    \"source\": {"]
+#[doc = "      \"$ref\": \"#/$defs/Source\""]
+#[doc = "    },"]
+#[doc = "    \"type\": {"]
+#[doc = "      \"const\": \"nor-boolean\""]
+#[doc = "    }"]
+#[doc = "  },"]
+#[doc = "  \"additionalProperties\": false"]
+#[doc = "}"]
+#[doc = r" ```"]
+#[doc = r" </details>"]
+#[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
+#[serde(deny_unknown_fields)]
+pub struct NorTwoBooleanValues {
+    pub left: ::std::boxed::Box<ComputedBooleanValue>,
+    pub right: ::std::boxed::Box<ComputedBooleanValue>,
+    pub source: Source,
+    #[serde(rename = "type")]
+    pub type_: ::serde_json::Value,
+}
+impl ::std::convert::From<&NorTwoBooleanValues> for NorTwoBooleanValues {
+    fn from(value: &NorTwoBooleanValues) -> Self {
+        value.clone()
+    }
+}
+impl NorTwoBooleanValues {
+    pub fn builder() -> builder::NorTwoBooleanValues {
+        Default::default()
+    }
+}
+#[doc = "A boolean value that is the negation of another boolean value."]
+#[doc = r""]
+#[doc = r" <details><summary>JSON schema</summary>"]
+#[doc = r""]
+#[doc = r" ```json"]
+#[doc = "{"]
+#[doc = "  \"title\": \"Not Boolean Value\","]
+#[doc = "  \"description\": \"A boolean value that is the negation of another boolean value.\","]
+#[doc = "  \"type\": \"object\","]
+#[doc = "  \"required\": ["]
+#[doc = "    \"source\","]
+#[doc = "    \"type\","]
+#[doc = "    \"value\""]
+#[doc = "  ],"]
+#[doc = "  \"properties\": {"]
+#[doc = "    \"source\": {"]
+#[doc = "      \"$ref\": \"#/$defs/Source\""]
+#[doc = "    },"]
+#[doc = "    \"type\": {"]
+#[doc = "      \"const\": \"not-boolean\""]
+#[doc = "    },"]
+#[doc = "    \"value\": {"]
+#[doc = "      \"$ref\": \"#/$defs/ComputedBooleanValue\""]
+#[doc = "    }"]
+#[doc = "  },"]
+#[doc = "  \"additionalProperties\": false"]
+#[doc = "}"]
+#[doc = r" ```"]
+#[doc = r" </details>"]
+#[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
+#[serde(deny_unknown_fields)]
+pub struct NotBooleanValue {
+    pub source: Source,
+    #[serde(rename = "type")]
+    pub type_: ::serde_json::Value,
+    pub value: ::std::boxed::Box<ComputedBooleanValue>,
+}
+impl ::std::convert::From<&NotBooleanValue> for NotBooleanValue {
+    fn from(value: &NotBooleanValue) -> Self {
+        value.clone()
+    }
+}
+impl NotBooleanValue {
+    pub fn builder() -> builder::NotBooleanValue {
+        Default::default()
+    }
+}
 #[doc = "A string value that is the string representation of a number."]
 #[doc = r""]
 #[doc = r" <details><summary>JSON schema</summary>"]
@@ -4733,6 +6538,58 @@ impl ::std::convert::From<&NumberToStringValue> for NumberToStringValue {
 }
 impl NumberToStringValue {
     pub fn builder() -> builder::NumberToStringValue {
+        Default::default()
+    }
+}
+#[doc = "A boolean value that is the result of a logical OR operation on two boolean values."]
+#[doc = r""]
+#[doc = r" <details><summary>JSON schema</summary>"]
+#[doc = r""]
+#[doc = r" ```json"]
+#[doc = "{"]
+#[doc = "  \"title\": \"Or Boolean Value\","]
+#[doc = "  \"description\": \"A boolean value that is the result of a logical OR operation on two boolean values.\","]
+#[doc = "  \"type\": \"object\","]
+#[doc = "  \"required\": ["]
+#[doc = "    \"left\","]
+#[doc = "    \"right\","]
+#[doc = "    \"source\","]
+#[doc = "    \"type\""]
+#[doc = "  ],"]
+#[doc = "  \"properties\": {"]
+#[doc = "    \"left\": {"]
+#[doc = "      \"$ref\": \"#/$defs/ComputedBooleanValue\""]
+#[doc = "    },"]
+#[doc = "    \"right\": {"]
+#[doc = "      \"$ref\": \"#/$defs/ComputedBooleanValue\""]
+#[doc = "    },"]
+#[doc = "    \"source\": {"]
+#[doc = "      \"$ref\": \"#/$defs/Source\""]
+#[doc = "    },"]
+#[doc = "    \"type\": {"]
+#[doc = "      \"const\": \"or-boolean\""]
+#[doc = "    }"]
+#[doc = "  },"]
+#[doc = "  \"additionalProperties\": false"]
+#[doc = "}"]
+#[doc = r" ```"]
+#[doc = r" </details>"]
+#[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
+#[serde(deny_unknown_fields)]
+pub struct OrTwoBooleanValues {
+    pub left: ::std::boxed::Box<ComputedBooleanValue>,
+    pub right: ::std::boxed::Box<ComputedBooleanValue>,
+    pub source: Source,
+    #[serde(rename = "type")]
+    pub type_: ::serde_json::Value,
+}
+impl ::std::convert::From<&OrTwoBooleanValues> for OrTwoBooleanValues {
+    fn from(value: &OrTwoBooleanValues) -> Self {
+        value.clone()
+    }
+}
+impl OrTwoBooleanValues {
+    pub fn builder() -> builder::OrTwoBooleanValues {
         Default::default()
     }
 }
@@ -5466,6 +7323,105 @@ impl<'de> ::serde::Deserialize<'de> for ParameterValueValueKey {
             })
     }
 }
+#[doc = "A number value that is the result of raising one number to the power of another."]
+#[doc = r""]
+#[doc = r" <details><summary>JSON schema</summary>"]
+#[doc = r""]
+#[doc = r" ```json"]
+#[doc = "{"]
+#[doc = "  \"title\": \"Power Two Values\","]
+#[doc = "  \"description\": \"A number value that is the result of raising one number to the power of another.\","]
+#[doc = "  \"type\": \"object\","]
+#[doc = "  \"required\": ["]
+#[doc = "    \"base\","]
+#[doc = "    \"exponent\","]
+#[doc = "    \"source\","]
+#[doc = "    \"type\""]
+#[doc = "  ],"]
+#[doc = "  \"properties\": {"]
+#[doc = "    \"base\": {"]
+#[doc = "      \"$ref\": \"#/$defs/ComputedNumberValue\""]
+#[doc = "    },"]
+#[doc = "    \"exponent\": {"]
+#[doc = "      \"$ref\": \"#/$defs/ComputedNumberValue\""]
+#[doc = "    },"]
+#[doc = "    \"source\": {"]
+#[doc = "      \"$ref\": \"#/$defs/Source\""]
+#[doc = "    },"]
+#[doc = "    \"type\": {"]
+#[doc = "      \"const\": \"power-number\""]
+#[doc = "    }"]
+#[doc = "  },"]
+#[doc = "  \"additionalProperties\": false"]
+#[doc = "}"]
+#[doc = r" ```"]
+#[doc = r" </details>"]
+#[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
+#[serde(deny_unknown_fields)]
+pub struct PowerTwoValues {
+    pub base: ::std::boxed::Box<ComputedNumberValue>,
+    pub exponent: ::std::boxed::Box<ComputedNumberValue>,
+    pub source: Source,
+    #[serde(rename = "type")]
+    pub type_: ::serde_json::Value,
+}
+impl ::std::convert::From<&PowerTwoValues> for PowerTwoValues {
+    fn from(value: &PowerTwoValues) -> Self {
+        value.clone()
+    }
+}
+impl PowerTwoValues {
+    pub fn builder() -> builder::PowerTwoValues {
+        Default::default()
+    }
+}
+#[doc = "A number value that is the product of all numbers in a list."]
+#[doc = r""]
+#[doc = r" <details><summary>JSON schema</summary>"]
+#[doc = r""]
+#[doc = r" ```json"]
+#[doc = "{"]
+#[doc = "  \"title\": \"Product Number List Value\","]
+#[doc = "  \"description\": \"A number value that is the product of all numbers in a list.\","]
+#[doc = "  \"type\": \"object\","]
+#[doc = "  \"required\": ["]
+#[doc = "    \"source\","]
+#[doc = "    \"type\","]
+#[doc = "    \"value\""]
+#[doc = "  ],"]
+#[doc = "  \"properties\": {"]
+#[doc = "    \"source\": {"]
+#[doc = "      \"$ref\": \"#/$defs/Source\""]
+#[doc = "    },"]
+#[doc = "    \"type\": {"]
+#[doc = "      \"const\": \"product-number-list\""]
+#[doc = "    },"]
+#[doc = "    \"value\": {"]
+#[doc = "      \"$ref\": \"#/$defs/ComputedNumberListValue\""]
+#[doc = "    }"]
+#[doc = "  },"]
+#[doc = "  \"additionalProperties\": false"]
+#[doc = "}"]
+#[doc = r" ```"]
+#[doc = r" </details>"]
+#[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
+#[serde(deny_unknown_fields)]
+pub struct ProductNumberListValue {
+    pub source: Source,
+    #[serde(rename = "type")]
+    pub type_: ::serde_json::Value,
+    pub value: ComputedNumberListValue,
+}
+impl ::std::convert::From<&ProductNumberListValue> for ProductNumberListValue {
+    fn from(value: &ProductNumberListValue) -> Self {
+        value.clone()
+    }
+}
+impl ProductNumberListValue {
+    pub fn builder() -> builder::ProductNumberListValue {
+        Default::default()
+    }
+}
 #[doc = "Selects a sub-sequence of values from an array.  If the 'count' or 'end' fields are not given, then it defaults to the end of the list.  If the 'start' field is not given, then it defaults to 0."]
 #[doc = r""]
 #[doc = r" <details><summary>JSON schema</summary>"]
@@ -5507,14 +7463,14 @@ impl<'de> ::serde::Deserialize<'de> for ParameterValueValueKey {
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
 pub struct RangeBooleanListValue {
-    #[serde(default)]
-    pub count: ::std::boxed::Box<::std::option::Option<ComputedNumberValue>>,
-    #[serde(default)]
-    pub end: ::std::boxed::Box<::std::option::Option<ComputedNumberValue>>,
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub count: ::std::option::Option<::std::boxed::Box<ComputedNumberValue>>,
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub end: ::std::option::Option<::std::boxed::Box<ComputedNumberValue>>,
     pub list: ::std::boxed::Box<ComputedBooleanListValue>,
     pub source: Source,
-    #[serde(default)]
-    pub start: ::std::boxed::Box<::std::option::Option<ComputedNumberValue>>,
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub start: ::std::option::Option<::std::boxed::Box<ComputedNumberValue>>,
     #[serde(rename = "type")]
     pub type_: ::serde_json::Value,
 }
@@ -5570,13 +7526,13 @@ impl RangeBooleanListValue {
 #[serde(deny_unknown_fields)]
 pub struct RangeNumberListValue {
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
-    pub count: ::std::option::Option<ComputedNumberValue>,
+    pub count: ::std::option::Option<::std::boxed::Box<ComputedNumberValue>>,
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
-    pub end: ::std::option::Option<ComputedNumberValue>,
+    pub end: ::std::option::Option<::std::boxed::Box<ComputedNumberValue>>,
     pub list: ::std::boxed::Box<ComputedNumberListValue>,
     pub source: Source,
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
-    pub start: ::std::option::Option<ComputedNumberValue>,
+    pub start: ::std::option::Option<::std::boxed::Box<ComputedNumberValue>>,
     #[serde(rename = "type")]
     pub type_: ::serde_json::Value,
 }
@@ -5631,14 +7587,14 @@ impl RangeNumberListValue {
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
 pub struct RangeStringListValue {
-    #[serde(default)]
-    pub count: ::std::boxed::Box<::std::option::Option<ComputedNumberValue>>,
-    #[serde(default)]
-    pub end: ::std::boxed::Box<::std::option::Option<ComputedNumberValue>>,
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub count: ::std::option::Option<::std::boxed::Box<ComputedNumberValue>>,
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub end: ::std::option::Option<::std::boxed::Box<ComputedNumberValue>>,
     pub list: ::std::boxed::Box<ComputedStringListValue>,
     pub source: Source,
-    #[serde(default)]
-    pub start: ::std::boxed::Box<::std::option::Option<ComputedNumberValue>>,
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub start: ::std::option::Option<::std::boxed::Box<ComputedNumberValue>>,
     #[serde(rename = "type")]
     pub type_: ::serde_json::Value,
 }
@@ -5649,6 +7605,53 @@ impl ::std::convert::From<&RangeStringListValue> for RangeStringListValue {
 }
 impl RangeStringListValue {
     pub fn builder() -> builder::RangeStringListValue {
+        Default::default()
+    }
+}
+#[doc = "A number value that is the result of rounding another number to the nearest integer."]
+#[doc = r""]
+#[doc = r" <details><summary>JSON schema</summary>"]
+#[doc = r""]
+#[doc = r" ```json"]
+#[doc = "{"]
+#[doc = "  \"title\": \"Round Value\","]
+#[doc = "  \"description\": \"A number value that is the result of rounding another number to the nearest integer.\","]
+#[doc = "  \"type\": \"object\","]
+#[doc = "  \"required\": ["]
+#[doc = "    \"source\","]
+#[doc = "    \"type\","]
+#[doc = "    \"value\""]
+#[doc = "  ],"]
+#[doc = "  \"properties\": {"]
+#[doc = "    \"source\": {"]
+#[doc = "      \"$ref\": \"#/$defs/Source\""]
+#[doc = "    },"]
+#[doc = "    \"type\": {"]
+#[doc = "      \"const\": \"round-number\""]
+#[doc = "    },"]
+#[doc = "    \"value\": {"]
+#[doc = "      \"$ref\": \"#/$defs/ComputedNumberValue\""]
+#[doc = "    }"]
+#[doc = "  },"]
+#[doc = "  \"additionalProperties\": false"]
+#[doc = "}"]
+#[doc = r" ```"]
+#[doc = r" </details>"]
+#[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
+#[serde(deny_unknown_fields)]
+pub struct RoundValue {
+    pub source: Source,
+    #[serde(rename = "type")]
+    pub type_: ::serde_json::Value,
+    pub value: ::std::boxed::Box<ComputedNumberValue>,
+}
+impl ::std::convert::From<&RoundValue> for RoundValue {
+    fn from(value: &RoundValue) -> Self {
+        value.clone()
+    }
+}
+impl RoundValue {
+    pub fn builder() -> builder::RoundValue {
         Default::default()
     }
 }
@@ -6034,13 +8037,13 @@ impl ::std::convert::From<i64> for StreamToStream {
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
 pub struct SubStringValue {
-    #[serde(default)]
-    pub count: ::std::boxed::Box<::std::option::Option<ComputedNumberValue>>,
-    #[serde(default)]
-    pub end: ::std::boxed::Box<::std::option::Option<ComputedNumberValue>>,
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub count: ::std::option::Option<::std::boxed::Box<ComputedNumberValue>>,
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub end: ::std::option::Option<::std::boxed::Box<ComputedNumberValue>>,
     pub source: Source,
-    #[serde(default)]
-    pub start: ::std::boxed::Box<::std::option::Option<ComputedNumberValue>>,
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub start: ::std::option::Option<::std::boxed::Box<ComputedNumberValue>>,
     #[serde(rename = "type")]
     pub type_: ::serde_json::Value,
     pub value: ::std::boxed::Box<ComputedStringValue>,
@@ -6052,6 +8055,105 @@ impl ::std::convert::From<&SubStringValue> for SubStringValue {
 }
 impl SubStringValue {
     pub fn builder() -> builder::SubStringValue {
+        Default::default()
+    }
+}
+#[doc = "A number value that is the difference of two other number values."]
+#[doc = r""]
+#[doc = r" <details><summary>JSON schema</summary>"]
+#[doc = r""]
+#[doc = r" ```json"]
+#[doc = "{"]
+#[doc = "  \"title\": \"Subtract Two Values\","]
+#[doc = "  \"description\": \"A number value that is the difference of two other number values.\","]
+#[doc = "  \"type\": \"object\","]
+#[doc = "  \"required\": ["]
+#[doc = "    \"left\","]
+#[doc = "    \"right\","]
+#[doc = "    \"source\","]
+#[doc = "    \"type\""]
+#[doc = "  ],"]
+#[doc = "  \"properties\": {"]
+#[doc = "    \"left\": {"]
+#[doc = "      \"$ref\": \"#/$defs/ComputedNumberValue\""]
+#[doc = "    },"]
+#[doc = "    \"right\": {"]
+#[doc = "      \"$ref\": \"#/$defs/ComputedNumberValue\""]
+#[doc = "    },"]
+#[doc = "    \"source\": {"]
+#[doc = "      \"$ref\": \"#/$defs/Source\""]
+#[doc = "    },"]
+#[doc = "    \"type\": {"]
+#[doc = "      \"const\": \"subtract-number\""]
+#[doc = "    }"]
+#[doc = "  },"]
+#[doc = "  \"additionalProperties\": false"]
+#[doc = "}"]
+#[doc = r" ```"]
+#[doc = r" </details>"]
+#[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
+#[serde(deny_unknown_fields)]
+pub struct SubtractTwoValues {
+    pub left: ::std::boxed::Box<ComputedNumberValue>,
+    pub right: ::std::boxed::Box<ComputedNumberValue>,
+    pub source: Source,
+    #[serde(rename = "type")]
+    pub type_: ::serde_json::Value,
+}
+impl ::std::convert::From<&SubtractTwoValues> for SubtractTwoValues {
+    fn from(value: &SubtractTwoValues) -> Self {
+        value.clone()
+    }
+}
+impl SubtractTwoValues {
+    pub fn builder() -> builder::SubtractTwoValues {
+        Default::default()
+    }
+}
+#[doc = "A number value that is the sum of all numbers in a list."]
+#[doc = r""]
+#[doc = r" <details><summary>JSON schema</summary>"]
+#[doc = r""]
+#[doc = r" ```json"]
+#[doc = "{"]
+#[doc = "  \"title\": \"Sum Number List Value\","]
+#[doc = "  \"description\": \"A number value that is the sum of all numbers in a list.\","]
+#[doc = "  \"type\": \"object\","]
+#[doc = "  \"required\": ["]
+#[doc = "    \"source\","]
+#[doc = "    \"type\","]
+#[doc = "    \"value\""]
+#[doc = "  ],"]
+#[doc = "  \"properties\": {"]
+#[doc = "    \"source\": {"]
+#[doc = "      \"$ref\": \"#/$defs/Source\""]
+#[doc = "    },"]
+#[doc = "    \"type\": {"]
+#[doc = "      \"const\": \"sum-number-list\""]
+#[doc = "    },"]
+#[doc = "    \"value\": {"]
+#[doc = "      \"$ref\": \"#/$defs/ComputedNumberListValue\""]
+#[doc = "    }"]
+#[doc = "  },"]
+#[doc = "  \"additionalProperties\": false"]
+#[doc = "}"]
+#[doc = r" ```"]
+#[doc = r" </details>"]
+#[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
+#[serde(deny_unknown_fields)]
+pub struct SumNumberListValue {
+    pub source: Source,
+    #[serde(rename = "type")]
+    pub type_: ::serde_json::Value,
+    pub value: ComputedNumberListValue,
+}
+impl ::std::convert::From<&SumNumberListValue> for SumNumberListValue {
+    fn from(value: &SumNumberListValue) -> Self {
+        value.clone()
+    }
+}
+impl SumNumberListValue {
+    pub fn builder() -> builder::SumNumberListValue {
         Default::default()
     }
 }
@@ -6211,8 +8313,178 @@ impl UnionStringMapValue {
         Default::default()
     }
 }
+#[doc = "A boolean value that is the result of a logical XNOR operation on two boolean values."]
+#[doc = r""]
+#[doc = r" <details><summary>JSON schema</summary>"]
+#[doc = r""]
+#[doc = r" ```json"]
+#[doc = "{"]
+#[doc = "  \"title\": \"Xnor Boolean Value\","]
+#[doc = "  \"description\": \"A boolean value that is the result of a logical XNOR operation on two boolean values.\","]
+#[doc = "  \"type\": \"object\","]
+#[doc = "  \"required\": ["]
+#[doc = "    \"left\","]
+#[doc = "    \"right\","]
+#[doc = "    \"source\","]
+#[doc = "    \"type\""]
+#[doc = "  ],"]
+#[doc = "  \"properties\": {"]
+#[doc = "    \"left\": {"]
+#[doc = "      \"$ref\": \"#/$defs/ComputedBooleanValue\""]
+#[doc = "    },"]
+#[doc = "    \"right\": {"]
+#[doc = "      \"$ref\": \"#/$defs/ComputedBooleanValue\""]
+#[doc = "    },"]
+#[doc = "    \"source\": {"]
+#[doc = "      \"$ref\": \"#/$defs/Source\""]
+#[doc = "    },"]
+#[doc = "    \"type\": {"]
+#[doc = "      \"const\": \"xnor-boolean\""]
+#[doc = "    }"]
+#[doc = "  },"]
+#[doc = "  \"additionalProperties\": false"]
+#[doc = "}"]
+#[doc = r" ```"]
+#[doc = r" </details>"]
+#[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
+#[serde(deny_unknown_fields)]
+pub struct XnorTwoBooleanValues {
+    pub left: ::std::boxed::Box<ComputedBooleanValue>,
+    pub right: ::std::boxed::Box<ComputedBooleanValue>,
+    pub source: Source,
+    #[serde(rename = "type")]
+    pub type_: ::serde_json::Value,
+}
+impl ::std::convert::From<&XnorTwoBooleanValues> for XnorTwoBooleanValues {
+    fn from(value: &XnorTwoBooleanValues) -> Self {
+        value.clone()
+    }
+}
+impl XnorTwoBooleanValues {
+    pub fn builder() -> builder::XnorTwoBooleanValues {
+        Default::default()
+    }
+}
+#[doc = "A boolean value that is the result of a logical exclusive OR operation on two boolean values."]
+#[doc = r""]
+#[doc = r" <details><summary>JSON schema</summary>"]
+#[doc = r""]
+#[doc = r" ```json"]
+#[doc = "{"]
+#[doc = "  \"title\": \"Xor Boolean Value\","]
+#[doc = "  \"description\": \"A boolean value that is the result of a logical exclusive OR operation on two boolean values.\","]
+#[doc = "  \"type\": \"object\","]
+#[doc = "  \"required\": ["]
+#[doc = "    \"left\","]
+#[doc = "    \"right\","]
+#[doc = "    \"source\","]
+#[doc = "    \"type\""]
+#[doc = "  ],"]
+#[doc = "  \"properties\": {"]
+#[doc = "    \"left\": {"]
+#[doc = "      \"$ref\": \"#/$defs/ComputedBooleanValue\""]
+#[doc = "    },"]
+#[doc = "    \"right\": {"]
+#[doc = "      \"$ref\": \"#/$defs/ComputedBooleanValue\""]
+#[doc = "    },"]
+#[doc = "    \"source\": {"]
+#[doc = "      \"$ref\": \"#/$defs/Source\""]
+#[doc = "    },"]
+#[doc = "    \"type\": {"]
+#[doc = "      \"const\": \"xor-boolean\""]
+#[doc = "    }"]
+#[doc = "  },"]
+#[doc = "  \"additionalProperties\": false"]
+#[doc = "}"]
+#[doc = r" ```"]
+#[doc = r" </details>"]
+#[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
+#[serde(deny_unknown_fields)]
+pub struct XorTwoBooleanValues {
+    pub left: ::std::boxed::Box<ComputedBooleanValue>,
+    pub right: ::std::boxed::Box<ComputedBooleanValue>,
+    pub source: Source,
+    #[serde(rename = "type")]
+    pub type_: ::serde_json::Value,
+}
+impl ::std::convert::From<&XorTwoBooleanValues> for XorTwoBooleanValues {
+    fn from(value: &XorTwoBooleanValues) -> Self {
+        value.clone()
+    }
+}
+impl XorTwoBooleanValues {
+    pub fn builder() -> builder::XorTwoBooleanValues {
+        Default::default()
+    }
+}
 #[doc = r" Types for composing complex structures."]
 pub mod builder {
+    #[derive(Clone, Debug)]
+    pub struct AbsValue {
+        source: ::std::result::Result<super::Source, ::std::string::String>,
+        type_: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+        value: ::std::result::Result<super::ComputedNumberValue, ::std::string::String>,
+    }
+    impl ::std::default::Default for AbsValue {
+        fn default() -> Self {
+            Self {
+                source: Err("no value supplied for source".to_string()),
+                type_: Err("no value supplied for type_".to_string()),
+                value: Err("no value supplied for value".to_string()),
+            }
+        }
+    }
+    impl AbsValue {
+        pub fn source<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<super::Source>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.source = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for source: {}", e));
+            self
+        }
+        pub fn type_<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::serde_json::Value>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.type_ = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for type_: {}", e));
+            self
+        }
+        pub fn value<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<super::ComputedNumberValue>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.value = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for value: {}", e));
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<AbsValue> for super::AbsValue {
+        type Error = super::error::ConversionError;
+        fn try_from(value: AbsValue) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                source: value.source?,
+                type_: value.type_?,
+                value: value.value?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::AbsValue> for AbsValue {
+        fn from(value: super::AbsValue) -> Self {
+            Self {
+                source: Ok(value.source),
+                type_: Ok(value.type_),
+                value: Ok(value.value),
+            }
+        }
+    }
     #[derive(Clone, Debug)]
     pub struct Action {
         name: ::std::result::Result<::std::string::String, ::std::string::String>,
@@ -6348,33 +8620,197 @@ pub mod builder {
         }
     }
     #[derive(Clone, Debug)]
-    pub struct ArithmeticValue {
-        operation: ::std::result::Result<super::ArithmeticValueOperation, ::std::string::String>,
+    pub struct AddTwoValues {
+        left: ::std::result::Result<
+            ::std::boxed::Box<super::ComputedNumberValue>,
+            ::std::string::String,
+        >,
+        right: ::std::result::Result<
+            ::std::boxed::Box<super::ComputedNumberValue>,
+            ::std::string::String,
+        >,
+        source: ::std::result::Result<super::Source, ::std::string::String>,
+        type_: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+    }
+    impl ::std::default::Default for AddTwoValues {
+        fn default() -> Self {
+            Self {
+                left: Err("no value supplied for left".to_string()),
+                right: Err("no value supplied for right".to_string()),
+                source: Err("no value supplied for source".to_string()),
+                type_: Err("no value supplied for type_".to_string()),
+            }
+        }
+    }
+    impl AddTwoValues {
+        pub fn left<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::boxed::Box<super::ComputedNumberValue>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.left = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for left: {}", e));
+            self
+        }
+        pub fn right<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::boxed::Box<super::ComputedNumberValue>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.right = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for right: {}", e));
+            self
+        }
+        pub fn source<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<super::Source>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.source = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for source: {}", e));
+            self
+        }
+        pub fn type_<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::serde_json::Value>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.type_ = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for type_: {}", e));
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<AddTwoValues> for super::AddTwoValues {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: AddTwoValues,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                left: value.left?,
+                right: value.right?,
+                source: value.source?,
+                type_: value.type_?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::AddTwoValues> for AddTwoValues {
+        fn from(value: super::AddTwoValues) -> Self {
+            Self {
+                left: Ok(value.left),
+                right: Ok(value.right),
+                source: Ok(value.source),
+                type_: Ok(value.type_),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
+    pub struct AndTwoBooleanValues {
+        left: ::std::result::Result<
+            ::std::boxed::Box<super::ComputedBooleanValue>,
+            ::std::string::String,
+        >,
+        right: ::std::result::Result<
+            ::std::boxed::Box<super::ComputedBooleanValue>,
+            ::std::string::String,
+        >,
+        source: ::std::result::Result<super::Source, ::std::string::String>,
+        type_: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+    }
+    impl ::std::default::Default for AndTwoBooleanValues {
+        fn default() -> Self {
+            Self {
+                left: Err("no value supplied for left".to_string()),
+                right: Err("no value supplied for right".to_string()),
+                source: Err("no value supplied for source".to_string()),
+                type_: Err("no value supplied for type_".to_string()),
+            }
+        }
+    }
+    impl AndTwoBooleanValues {
+        pub fn left<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::boxed::Box<super::ComputedBooleanValue>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.left = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for left: {}", e));
+            self
+        }
+        pub fn right<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::boxed::Box<super::ComputedBooleanValue>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.right = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for right: {}", e));
+            self
+        }
+        pub fn source<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<super::Source>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.source = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for source: {}", e));
+            self
+        }
+        pub fn type_<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::serde_json::Value>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.type_ = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for type_: {}", e));
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<AndTwoBooleanValues> for super::AndTwoBooleanValues {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: AndTwoBooleanValues,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                left: value.left?,
+                right: value.right?,
+                source: value.source?,
+                type_: value.type_?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::AndTwoBooleanValues> for AndTwoBooleanValues {
+        fn from(value: super::AndTwoBooleanValues) -> Self {
+            Self {
+                left: Ok(value.left),
+                right: Ok(value.right),
+                source: Ok(value.source),
+                type_: Ok(value.type_),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
+    pub struct AverageNumberListValue {
         source: ::std::result::Result<super::Source, ::std::string::String>,
         type_: ::std::result::Result<::serde_json::Value, ::std::string::String>,
         value: ::std::result::Result<super::ComputedNumberListValue, ::std::string::String>,
     }
-    impl ::std::default::Default for ArithmeticValue {
+    impl ::std::default::Default for AverageNumberListValue {
         fn default() -> Self {
             Self {
-                operation: Err("no value supplied for operation".to_string()),
                 source: Err("no value supplied for source".to_string()),
                 type_: Err("no value supplied for type_".to_string()),
                 value: Err("no value supplied for value".to_string()),
             }
         }
     }
-    impl ArithmeticValue {
-        pub fn operation<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<super::ArithmeticValueOperation>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.operation = value
-                .try_into()
-                .map_err(|e| format!("error converting supplied value for operation: {}", e));
-            self
-        }
+    impl AverageNumberListValue {
         pub fn source<T>(mut self, value: T) -> Self
         where
             T: ::std::convert::TryInto<super::Source>,
@@ -6406,23 +8842,21 @@ pub mod builder {
             self
         }
     }
-    impl ::std::convert::TryFrom<ArithmeticValue> for super::ArithmeticValue {
+    impl ::std::convert::TryFrom<AverageNumberListValue> for super::AverageNumberListValue {
         type Error = super::error::ConversionError;
         fn try_from(
-            value: ArithmeticValue,
+            value: AverageNumberListValue,
         ) -> ::std::result::Result<Self, super::error::ConversionError> {
             Ok(Self {
-                operation: value.operation?,
                 source: value.source?,
                 type_: value.type_?,
                 value: value.value?,
             })
         }
     }
-    impl ::std::convert::From<super::ArithmeticValue> for ArithmeticValue {
-        fn from(value: super::ArithmeticValue) -> Self {
+    impl ::std::convert::From<super::AverageNumberListValue> for AverageNumberListValue {
+        fn from(value: super::AverageNumberListValue) -> Self {
             Self {
-                operation: Ok(value.operation),
                 source: Ok(value.source),
                 type_: Ok(value.type_),
                 value: Ok(value.value),
@@ -6536,12 +8970,15 @@ pub mod builder {
         }
     }
     #[derive(Clone, Debug)]
-    pub struct ConcatenatedStringValue {
+    pub struct CeilValue {
         source: ::std::result::Result<super::Source, ::std::string::String>,
         type_: ::std::result::Result<::serde_json::Value, ::std::string::String>,
-        value: ::std::result::Result<super::ComputedStringListValue, ::std::string::String>,
+        value: ::std::result::Result<
+            ::std::boxed::Box<super::ComputedNumberValue>,
+            ::std::string::String,
+        >,
     }
-    impl ::std::default::Default for ConcatenatedStringValue {
+    impl ::std::default::Default for CeilValue {
         fn default() -> Self {
             Self {
                 source: Err("no value supplied for source".to_string()),
@@ -6550,7 +8987,7 @@ pub mod builder {
             }
         }
     }
-    impl ConcatenatedStringValue {
+    impl CeilValue {
         pub fn source<T>(mut self, value: T) -> Self
         where
             T: ::std::convert::TryInto<super::Source>,
@@ -6573,7 +9010,7 @@ pub mod builder {
         }
         pub fn value<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<super::ComputedStringListValue>,
+            T: ::std::convert::TryInto<::std::boxed::Box<super::ComputedNumberValue>>,
             T::Error: ::std::fmt::Display,
         {
             self.value = value
@@ -6582,10 +9019,10 @@ pub mod builder {
             self
         }
     }
-    impl ::std::convert::TryFrom<ConcatenatedStringValue> for super::ConcatenatedStringValue {
+    impl ::std::convert::TryFrom<CeilValue> for super::CeilValue {
         type Error = super::error::ConversionError;
         fn try_from(
-            value: ConcatenatedStringValue,
+            value: CeilValue,
         ) -> ::std::result::Result<Self, super::error::ConversionError> {
             Ok(Self {
                 source: value.source?,
@@ -6594,8 +9031,8 @@ pub mod builder {
             })
         }
     }
-    impl ::std::convert::From<super::ConcatenatedStringValue> for ConcatenatedStringValue {
-        fn from(value: super::ConcatenatedStringValue) -> Self {
+    impl ::std::convert::From<super::CeilValue> for CeilValue {
+        fn from(value: super::CeilValue) -> Self {
             Self {
                 source: Ok(value.source),
                 type_: Ok(value.type_),
@@ -6899,7 +9336,7 @@ pub mod builder {
         value: ::std::result::Result<
             ::std::collections::HashMap<
                 super::ConstantNumberMapValueValueKey,
-                ::std::option::Option<super::ComputedNumberValue>,
+                ::std::option::Option<::std::boxed::Box<super::ComputedNumberValue>>,
             >,
             ::std::string::String,
         >,
@@ -6939,7 +9376,7 @@ pub mod builder {
             T: ::std::convert::TryInto<
                 ::std::collections::HashMap<
                     super::ConstantNumberMapValueValueKey,
-                    ::std::option::Option<super::ComputedNumberValue>,
+                    ::std::option::Option<::std::boxed::Box<super::ComputedNumberValue>>,
                 >,
             >,
             T::Error: ::std::fmt::Display,
@@ -7254,6 +9691,94 @@ pub mod builder {
                 source: Ok(value.source),
                 type_: Ok(value.type_),
                 value: Ok(value.value),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
+    pub struct DivideTwoValues {
+        left: ::std::result::Result<
+            ::std::boxed::Box<super::ComputedNumberValue>,
+            ::std::string::String,
+        >,
+        right: ::std::result::Result<
+            ::std::boxed::Box<super::ComputedNumberValue>,
+            ::std::string::String,
+        >,
+        source: ::std::result::Result<super::Source, ::std::string::String>,
+        type_: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+    }
+    impl ::std::default::Default for DivideTwoValues {
+        fn default() -> Self {
+            Self {
+                left: Err("no value supplied for left".to_string()),
+                right: Err("no value supplied for right".to_string()),
+                source: Err("no value supplied for source".to_string()),
+                type_: Err("no value supplied for type_".to_string()),
+            }
+        }
+    }
+    impl DivideTwoValues {
+        pub fn left<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::boxed::Box<super::ComputedNumberValue>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.left = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for left: {}", e));
+            self
+        }
+        pub fn right<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::boxed::Box<super::ComputedNumberValue>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.right = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for right: {}", e));
+            self
+        }
+        pub fn source<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<super::Source>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.source = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for source: {}", e));
+            self
+        }
+        pub fn type_<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::serde_json::Value>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.type_ = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for type_: {}", e));
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<DivideTwoValues> for super::DivideTwoValues {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: DivideTwoValues,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                left: value.left?,
+                right: value.right?,
+                source: value.source?,
+                type_: value.type_?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::DivideTwoValues> for DivideTwoValues {
+        fn from(value: super::DivideTwoValues) -> Self {
+            Self {
+                left: Ok(value.left),
+                right: Ok(value.right),
+                source: Ok(value.source),
+                type_: Ok(value.type_),
             }
         }
     }
@@ -7575,6 +10100,77 @@ pub mod builder {
         }
     }
     #[derive(Clone, Debug)]
+    pub struct FloorValue {
+        source: ::std::result::Result<super::Source, ::std::string::String>,
+        type_: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+        value: ::std::result::Result<
+            ::std::boxed::Box<super::ComputedNumberValue>,
+            ::std::string::String,
+        >,
+    }
+    impl ::std::default::Default for FloorValue {
+        fn default() -> Self {
+            Self {
+                source: Err("no value supplied for source".to_string()),
+                type_: Err("no value supplied for type_".to_string()),
+                value: Err("no value supplied for value".to_string()),
+            }
+        }
+    }
+    impl FloorValue {
+        pub fn source<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<super::Source>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.source = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for source: {}", e));
+            self
+        }
+        pub fn type_<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::serde_json::Value>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.type_ = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for type_: {}", e));
+            self
+        }
+        pub fn value<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::boxed::Box<super::ComputedNumberValue>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.value = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for value: {}", e));
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<FloorValue> for super::FloorValue {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: FloorValue,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                source: value.source?,
+                type_: value.type_?,
+                value: value.value?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::FloorValue> for FloorValue {
+        fn from(value: super::FloorValue) -> Self {
+            Self {
+                source: Ok(value.source),
+                type_: Ok(value.type_),
+                value: Ok(value.value),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
     pub struct ListIndexBooleanValue {
         default: ::std::result::Result<
             ::std::boxed::Box<super::ComputedBooleanValue>,
@@ -7686,10 +10282,7 @@ pub mod builder {
             ::std::boxed::Box<super::ComputedNumberValue>,
             ::std::string::String,
         >,
-        list: ::std::result::Result<
-            ::std::boxed::Box<super::ComputedNumberListValue>,
-            ::std::string::String,
-        >,
+        list: ::std::result::Result<super::ComputedNumberListValue, ::std::string::String>,
         source: ::std::result::Result<super::Source, ::std::string::String>,
         type_: ::std::result::Result<::serde_json::Value, ::std::string::String>,
     }
@@ -7727,7 +10320,7 @@ pub mod builder {
         }
         pub fn list<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::std::boxed::Box<super::ComputedNumberListValue>>,
+            T: ::std::convert::TryInto<super::ComputedNumberListValue>,
             T::Error: ::std::fmt::Display,
         {
             self.list = value
@@ -7971,98 +10564,9 @@ pub mod builder {
         }
     }
     #[derive(Clone, Debug)]
-    pub struct LogicalBooleanValue {
-        operation:
-            ::std::result::Result<super::LogicalBooleanValueOperation, ::std::string::String>,
-        source: ::std::result::Result<super::Source, ::std::string::String>,
-        type_: ::std::result::Result<::serde_json::Value, ::std::string::String>,
-        value: ::std::result::Result<super::ComputedBooleanListValue, ::std::string::String>,
-    }
-    impl ::std::default::Default for LogicalBooleanValue {
-        fn default() -> Self {
-            Self {
-                operation: Err("no value supplied for operation".to_string()),
-                source: Err("no value supplied for source".to_string()),
-                type_: Err("no value supplied for type_".to_string()),
-                value: Err("no value supplied for value".to_string()),
-            }
-        }
-    }
-    impl LogicalBooleanValue {
-        pub fn operation<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<super::LogicalBooleanValueOperation>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.operation = value
-                .try_into()
-                .map_err(|e| format!("error converting supplied value for operation: {}", e));
-            self
-        }
-        pub fn source<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<super::Source>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.source = value
-                .try_into()
-                .map_err(|e| format!("error converting supplied value for source: {}", e));
-            self
-        }
-        pub fn type_<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<::serde_json::Value>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.type_ = value
-                .try_into()
-                .map_err(|e| format!("error converting supplied value for type_: {}", e));
-            self
-        }
-        pub fn value<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<super::ComputedBooleanListValue>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.value = value
-                .try_into()
-                .map_err(|e| format!("error converting supplied value for value: {}", e));
-            self
-        }
-    }
-    impl ::std::convert::TryFrom<LogicalBooleanValue> for super::LogicalBooleanValue {
-        type Error = super::error::ConversionError;
-        fn try_from(
-            value: LogicalBooleanValue,
-        ) -> ::std::result::Result<Self, super::error::ConversionError> {
-            Ok(Self {
-                operation: value.operation?,
-                source: value.source?,
-                type_: value.type_?,
-                value: value.value?,
-            })
-        }
-    }
-    impl ::std::convert::From<super::LogicalBooleanValue> for LogicalBooleanValue {
-        fn from(value: super::LogicalBooleanValue) -> Self {
-            Self {
-                operation: Ok(value.operation),
-                source: Ok(value.source),
-                type_: Ok(value.type_),
-                value: Ok(value.value),
-            }
-        }
-    }
-    #[derive(Clone, Debug)]
     pub struct LookupBooleanListValue {
-        name: ::std::result::Result<
-            ::std::boxed::Box<super::ComputedStringValue>,
-            ::std::string::String,
-        >,
-        node: ::std::result::Result<
-            ::std::boxed::Box<super::ComputedStringValue>,
-            ::std::string::String,
-        >,
+        name: ::std::result::Result<super::LookupBooleanListValueName, ::std::string::String>,
+        node: ::std::result::Result<super::LookupBooleanListValueNode, ::std::string::String>,
         source: ::std::result::Result<super::Source, ::std::string::String>,
         type_: ::std::result::Result<::serde_json::Value, ::std::string::String>,
     }
@@ -8079,7 +10583,7 @@ pub mod builder {
     impl LookupBooleanListValue {
         pub fn name<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::std::boxed::Box<super::ComputedStringValue>>,
+            T: ::std::convert::TryInto<super::LookupBooleanListValueName>,
             T::Error: ::std::fmt::Display,
         {
             self.name = value
@@ -8089,7 +10593,7 @@ pub mod builder {
         }
         pub fn node<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::std::boxed::Box<super::ComputedStringValue>>,
+            T: ::std::convert::TryInto<super::LookupBooleanListValueNode>,
             T::Error: ::std::fmt::Display,
         {
             self.node = value
@@ -8143,14 +10647,8 @@ pub mod builder {
     }
     #[derive(Clone, Debug)]
     pub struct LookupBooleanMapValue {
-        name: ::std::result::Result<
-            ::std::boxed::Box<super::ComputedStringValue>,
-            ::std::string::String,
-        >,
-        node: ::std::result::Result<
-            ::std::boxed::Box<super::ComputedStringValue>,
-            ::std::string::String,
-        >,
+        name: ::std::result::Result<super::LookupBooleanMapValueName, ::std::string::String>,
+        node: ::std::result::Result<super::LookupBooleanMapValueNode, ::std::string::String>,
         source: ::std::result::Result<super::Source, ::std::string::String>,
         type_: ::std::result::Result<::serde_json::Value, ::std::string::String>,
     }
@@ -8167,7 +10665,7 @@ pub mod builder {
     impl LookupBooleanMapValue {
         pub fn name<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::std::boxed::Box<super::ComputedStringValue>>,
+            T: ::std::convert::TryInto<super::LookupBooleanMapValueName>,
             T::Error: ::std::fmt::Display,
         {
             self.name = value
@@ -8177,7 +10675,7 @@ pub mod builder {
         }
         pub fn node<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::std::boxed::Box<super::ComputedStringValue>>,
+            T: ::std::convert::TryInto<super::LookupBooleanMapValueNode>,
             T::Error: ::std::fmt::Display,
         {
             self.node = value
@@ -8231,14 +10729,8 @@ pub mod builder {
     }
     #[derive(Clone, Debug)]
     pub struct LookupBooleanValue {
-        name: ::std::result::Result<
-            ::std::boxed::Box<super::ComputedStringValue>,
-            ::std::string::String,
-        >,
-        node: ::std::result::Result<
-            ::std::boxed::Box<super::ComputedStringValue>,
-            ::std::string::String,
-        >,
+        name: ::std::result::Result<super::LookupBooleanValueName, ::std::string::String>,
+        node: ::std::result::Result<super::LookupBooleanValueNode, ::std::string::String>,
         source: ::std::result::Result<super::Source, ::std::string::String>,
         type_: ::std::result::Result<::serde_json::Value, ::std::string::String>,
     }
@@ -8255,7 +10747,7 @@ pub mod builder {
     impl LookupBooleanValue {
         pub fn name<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::std::boxed::Box<super::ComputedStringValue>>,
+            T: ::std::convert::TryInto<super::LookupBooleanValueName>,
             T::Error: ::std::fmt::Display,
         {
             self.name = value
@@ -8265,7 +10757,7 @@ pub mod builder {
         }
         pub fn node<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::std::boxed::Box<super::ComputedStringValue>>,
+            T: ::std::convert::TryInto<super::LookupBooleanValueNode>,
             T::Error: ::std::fmt::Display,
         {
             self.node = value
@@ -8319,8 +10811,8 @@ pub mod builder {
     }
     #[derive(Clone, Debug)]
     pub struct LookupNumberListValue {
-        name: ::std::result::Result<super::ComputedStringValue, ::std::string::String>,
-        node: ::std::result::Result<super::ComputedStringValue, ::std::string::String>,
+        name: ::std::result::Result<super::LookupNumberListValueName, ::std::string::String>,
+        node: ::std::result::Result<super::LookupNumberListValueNode, ::std::string::String>,
         source: ::std::result::Result<super::Source, ::std::string::String>,
         type_: ::std::result::Result<::serde_json::Value, ::std::string::String>,
     }
@@ -8337,7 +10829,7 @@ pub mod builder {
     impl LookupNumberListValue {
         pub fn name<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<super::ComputedStringValue>,
+            T: ::std::convert::TryInto<super::LookupNumberListValueName>,
             T::Error: ::std::fmt::Display,
         {
             self.name = value
@@ -8347,7 +10839,7 @@ pub mod builder {
         }
         pub fn node<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<super::ComputedStringValue>,
+            T: ::std::convert::TryInto<super::LookupNumberListValueNode>,
             T::Error: ::std::fmt::Display,
         {
             self.node = value
@@ -8401,8 +10893,8 @@ pub mod builder {
     }
     #[derive(Clone, Debug)]
     pub struct LookupNumberMapValue {
-        name: ::std::result::Result<super::ComputedStringValue, ::std::string::String>,
-        node: ::std::result::Result<super::ComputedStringValue, ::std::string::String>,
+        name: ::std::result::Result<super::LookupNumberMapValueName, ::std::string::String>,
+        node: ::std::result::Result<super::LookupNumberMapValueNode, ::std::string::String>,
         source: ::std::result::Result<super::Source, ::std::string::String>,
         type_: ::std::result::Result<::serde_json::Value, ::std::string::String>,
     }
@@ -8419,7 +10911,7 @@ pub mod builder {
     impl LookupNumberMapValue {
         pub fn name<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<super::ComputedStringValue>,
+            T: ::std::convert::TryInto<super::LookupNumberMapValueName>,
             T::Error: ::std::fmt::Display,
         {
             self.name = value
@@ -8429,7 +10921,7 @@ pub mod builder {
         }
         pub fn node<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<super::ComputedStringValue>,
+            T: ::std::convert::TryInto<super::LookupNumberMapValueNode>,
             T::Error: ::std::fmt::Display,
         {
             self.node = value
@@ -8483,8 +10975,8 @@ pub mod builder {
     }
     #[derive(Clone, Debug)]
     pub struct LookupNumberValue {
-        name: ::std::result::Result<super::ComputedStringValue, ::std::string::String>,
-        node: ::std::result::Result<super::ComputedStringValue, ::std::string::String>,
+        name: ::std::result::Result<super::LookupNumberValueName, ::std::string::String>,
+        node: ::std::result::Result<super::LookupNumberValueNode, ::std::string::String>,
         source: ::std::result::Result<super::Source, ::std::string::String>,
         type_: ::std::result::Result<::serde_json::Value, ::std::string::String>,
     }
@@ -8501,7 +10993,7 @@ pub mod builder {
     impl LookupNumberValue {
         pub fn name<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<super::ComputedStringValue>,
+            T: ::std::convert::TryInto<super::LookupNumberValueName>,
             T::Error: ::std::fmt::Display,
         {
             self.name = value
@@ -8511,7 +11003,7 @@ pub mod builder {
         }
         pub fn node<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<super::ComputedStringValue>,
+            T: ::std::convert::TryInto<super::LookupNumberValueNode>,
             T::Error: ::std::fmt::Display,
         {
             self.node = value
@@ -8565,14 +11057,8 @@ pub mod builder {
     }
     #[derive(Clone, Debug)]
     pub struct LookupStringListValue {
-        name: ::std::result::Result<
-            ::std::boxed::Box<super::ComputedStringValue>,
-            ::std::string::String,
-        >,
-        node: ::std::result::Result<
-            ::std::boxed::Box<super::ComputedStringValue>,
-            ::std::string::String,
-        >,
+        name: ::std::result::Result<super::LookupStringListValueName, ::std::string::String>,
+        node: ::std::result::Result<super::LookupStringListValueNode, ::std::string::String>,
         source: ::std::result::Result<super::Source, ::std::string::String>,
         type_: ::std::result::Result<::serde_json::Value, ::std::string::String>,
     }
@@ -8589,7 +11075,7 @@ pub mod builder {
     impl LookupStringListValue {
         pub fn name<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::std::boxed::Box<super::ComputedStringValue>>,
+            T: ::std::convert::TryInto<super::LookupStringListValueName>,
             T::Error: ::std::fmt::Display,
         {
             self.name = value
@@ -8599,7 +11085,7 @@ pub mod builder {
         }
         pub fn node<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::std::boxed::Box<super::ComputedStringValue>>,
+            T: ::std::convert::TryInto<super::LookupStringListValueNode>,
             T::Error: ::std::fmt::Display,
         {
             self.node = value
@@ -8653,14 +11139,8 @@ pub mod builder {
     }
     #[derive(Clone, Debug)]
     pub struct LookupStringMapValue {
-        name: ::std::result::Result<
-            ::std::boxed::Box<super::ComputedStringValue>,
-            ::std::string::String,
-        >,
-        node: ::std::result::Result<
-            ::std::boxed::Box<super::ComputedStringValue>,
-            ::std::string::String,
-        >,
+        name: ::std::result::Result<super::LookupStringMapValueName, ::std::string::String>,
+        node: ::std::result::Result<super::LookupStringMapValueNode, ::std::string::String>,
         source: ::std::result::Result<super::Source, ::std::string::String>,
         type_: ::std::result::Result<::serde_json::Value, ::std::string::String>,
     }
@@ -8677,7 +11157,7 @@ pub mod builder {
     impl LookupStringMapValue {
         pub fn name<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::std::boxed::Box<super::ComputedStringValue>>,
+            T: ::std::convert::TryInto<super::LookupStringMapValueName>,
             T::Error: ::std::fmt::Display,
         {
             self.name = value
@@ -8687,7 +11167,7 @@ pub mod builder {
         }
         pub fn node<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::std::boxed::Box<super::ComputedStringValue>>,
+            T: ::std::convert::TryInto<super::LookupStringMapValueNode>,
             T::Error: ::std::fmt::Display,
         {
             self.node = value
@@ -8741,14 +11221,8 @@ pub mod builder {
     }
     #[derive(Clone, Debug)]
     pub struct LookupStringValue {
-        name: ::std::result::Result<
-            ::std::boxed::Box<super::ComputedStringValue>,
-            ::std::string::String,
-        >,
-        node: ::std::result::Result<
-            ::std::boxed::Box<super::ComputedStringValue>,
-            ::std::string::String,
-        >,
+        name: ::std::result::Result<super::LookupStringValueName, ::std::string::String>,
+        node: ::std::result::Result<super::LookupStringValueNode, ::std::string::String>,
         source: ::std::result::Result<super::Source, ::std::string::String>,
         type_: ::std::result::Result<::serde_json::Value, ::std::string::String>,
     }
@@ -8765,7 +11239,7 @@ pub mod builder {
     impl LookupStringValue {
         pub fn name<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::std::boxed::Box<super::ComputedStringValue>>,
+            T: ::std::convert::TryInto<super::LookupStringValueName>,
             T::Error: ::std::fmt::Display,
         {
             self.name = value
@@ -8775,7 +11249,7 @@ pub mod builder {
         }
         pub fn node<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::std::boxed::Box<super::ComputedStringValue>>,
+            T: ::std::convert::TryInto<super::LookupStringValueNode>,
             T::Error: ::std::fmt::Display,
         {
             self.node = value
@@ -9237,6 +11711,406 @@ pub mod builder {
         }
     }
     #[derive(Clone, Debug)]
+    pub struct MaxNumberListValue {
+        source: ::std::result::Result<super::Source, ::std::string::String>,
+        type_: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+        value: ::std::result::Result<super::ComputedNumberListValue, ::std::string::String>,
+    }
+    impl ::std::default::Default for MaxNumberListValue {
+        fn default() -> Self {
+            Self {
+                source: Err("no value supplied for source".to_string()),
+                type_: Err("no value supplied for type_".to_string()),
+                value: Err("no value supplied for value".to_string()),
+            }
+        }
+    }
+    impl MaxNumberListValue {
+        pub fn source<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<super::Source>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.source = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for source: {}", e));
+            self
+        }
+        pub fn type_<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::serde_json::Value>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.type_ = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for type_: {}", e));
+            self
+        }
+        pub fn value<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<super::ComputedNumberListValue>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.value = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for value: {}", e));
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<MaxNumberListValue> for super::MaxNumberListValue {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: MaxNumberListValue,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                source: value.source?,
+                type_: value.type_?,
+                value: value.value?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::MaxNumberListValue> for MaxNumberListValue {
+        fn from(value: super::MaxNumberListValue) -> Self {
+            Self {
+                source: Ok(value.source),
+                type_: Ok(value.type_),
+                value: Ok(value.value),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
+    pub struct MinNumberListValue {
+        source: ::std::result::Result<super::Source, ::std::string::String>,
+        type_: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+        value: ::std::result::Result<super::ComputedNumberListValue, ::std::string::String>,
+    }
+    impl ::std::default::Default for MinNumberListValue {
+        fn default() -> Self {
+            Self {
+                source: Err("no value supplied for source".to_string()),
+                type_: Err("no value supplied for type_".to_string()),
+                value: Err("no value supplied for value".to_string()),
+            }
+        }
+    }
+    impl MinNumberListValue {
+        pub fn source<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<super::Source>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.source = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for source: {}", e));
+            self
+        }
+        pub fn type_<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::serde_json::Value>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.type_ = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for type_: {}", e));
+            self
+        }
+        pub fn value<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<super::ComputedNumberListValue>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.value = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for value: {}", e));
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<MinNumberListValue> for super::MinNumberListValue {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: MinNumberListValue,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                source: value.source?,
+                type_: value.type_?,
+                value: value.value?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::MinNumberListValue> for MinNumberListValue {
+        fn from(value: super::MinNumberListValue) -> Self {
+            Self {
+                source: Ok(value.source),
+                type_: Ok(value.type_),
+                value: Ok(value.value),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
+    pub struct ModulusTwoValues {
+        left: ::std::result::Result<
+            ::std::boxed::Box<super::ComputedNumberValue>,
+            ::std::string::String,
+        >,
+        right: ::std::result::Result<
+            ::std::boxed::Box<super::ComputedNumberValue>,
+            ::std::string::String,
+        >,
+        source: ::std::result::Result<super::Source, ::std::string::String>,
+        type_: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+    }
+    impl ::std::default::Default for ModulusTwoValues {
+        fn default() -> Self {
+            Self {
+                left: Err("no value supplied for left".to_string()),
+                right: Err("no value supplied for right".to_string()),
+                source: Err("no value supplied for source".to_string()),
+                type_: Err("no value supplied for type_".to_string()),
+            }
+        }
+    }
+    impl ModulusTwoValues {
+        pub fn left<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::boxed::Box<super::ComputedNumberValue>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.left = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for left: {}", e));
+            self
+        }
+        pub fn right<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::boxed::Box<super::ComputedNumberValue>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.right = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for right: {}", e));
+            self
+        }
+        pub fn source<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<super::Source>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.source = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for source: {}", e));
+            self
+        }
+        pub fn type_<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::serde_json::Value>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.type_ = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for type_: {}", e));
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<ModulusTwoValues> for super::ModulusTwoValues {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: ModulusTwoValues,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                left: value.left?,
+                right: value.right?,
+                source: value.source?,
+                type_: value.type_?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::ModulusTwoValues> for ModulusTwoValues {
+        fn from(value: super::ModulusTwoValues) -> Self {
+            Self {
+                left: Ok(value.left),
+                right: Ok(value.right),
+                source: Ok(value.source),
+                type_: Ok(value.type_),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
+    pub struct MultiplyTwoValues {
+        left: ::std::result::Result<
+            ::std::boxed::Box<super::ComputedNumberValue>,
+            ::std::string::String,
+        >,
+        right: ::std::result::Result<
+            ::std::boxed::Box<super::ComputedNumberValue>,
+            ::std::string::String,
+        >,
+        source: ::std::result::Result<super::Source, ::std::string::String>,
+        type_: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+    }
+    impl ::std::default::Default for MultiplyTwoValues {
+        fn default() -> Self {
+            Self {
+                left: Err("no value supplied for left".to_string()),
+                right: Err("no value supplied for right".to_string()),
+                source: Err("no value supplied for source".to_string()),
+                type_: Err("no value supplied for type_".to_string()),
+            }
+        }
+    }
+    impl MultiplyTwoValues {
+        pub fn left<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::boxed::Box<super::ComputedNumberValue>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.left = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for left: {}", e));
+            self
+        }
+        pub fn right<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::boxed::Box<super::ComputedNumberValue>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.right = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for right: {}", e));
+            self
+        }
+        pub fn source<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<super::Source>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.source = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for source: {}", e));
+            self
+        }
+        pub fn type_<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::serde_json::Value>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.type_ = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for type_: {}", e));
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<MultiplyTwoValues> for super::MultiplyTwoValues {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: MultiplyTwoValues,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                left: value.left?,
+                right: value.right?,
+                source: value.source?,
+                type_: value.type_?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::MultiplyTwoValues> for MultiplyTwoValues {
+        fn from(value: super::MultiplyTwoValues) -> Self {
+            Self {
+                left: Ok(value.left),
+                right: Ok(value.right),
+                source: Ok(value.source),
+                type_: Ok(value.type_),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
+    pub struct NandTwoBooleanValues {
+        left: ::std::result::Result<
+            ::std::boxed::Box<super::ComputedBooleanValue>,
+            ::std::string::String,
+        >,
+        right: ::std::result::Result<
+            ::std::boxed::Box<super::ComputedBooleanValue>,
+            ::std::string::String,
+        >,
+        source: ::std::result::Result<super::Source, ::std::string::String>,
+        type_: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+    }
+    impl ::std::default::Default for NandTwoBooleanValues {
+        fn default() -> Self {
+            Self {
+                left: Err("no value supplied for left".to_string()),
+                right: Err("no value supplied for right".to_string()),
+                source: Err("no value supplied for source".to_string()),
+                type_: Err("no value supplied for type_".to_string()),
+            }
+        }
+    }
+    impl NandTwoBooleanValues {
+        pub fn left<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::boxed::Box<super::ComputedBooleanValue>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.left = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for left: {}", e));
+            self
+        }
+        pub fn right<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::boxed::Box<super::ComputedBooleanValue>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.right = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for right: {}", e));
+            self
+        }
+        pub fn source<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<super::Source>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.source = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for source: {}", e));
+            self
+        }
+        pub fn type_<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::serde_json::Value>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.type_ = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for type_: {}", e));
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<NandTwoBooleanValues> for super::NandTwoBooleanValues {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: NandTwoBooleanValues,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                left: value.left?,
+                right: value.right?,
+                source: value.source?,
+                type_: value.type_?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::NandTwoBooleanValues> for NandTwoBooleanValues {
+        fn from(value: super::NandTwoBooleanValues) -> Self {
+            Self {
+                left: Ok(value.left),
+                right: Ok(value.right),
+                source: Ok(value.source),
+                type_: Ok(value.type_),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
     pub struct NativeShellAstSchema {
         events: ::std::result::Result<::std::vec::Vec<super::EventName>, ::std::string::String>,
         name: ::std::result::Result<super::NativeShellAstSchemaName, ::std::string::String>,
@@ -9496,6 +12370,165 @@ pub mod builder {
         }
     }
     #[derive(Clone, Debug)]
+    pub struct NorTwoBooleanValues {
+        left: ::std::result::Result<
+            ::std::boxed::Box<super::ComputedBooleanValue>,
+            ::std::string::String,
+        >,
+        right: ::std::result::Result<
+            ::std::boxed::Box<super::ComputedBooleanValue>,
+            ::std::string::String,
+        >,
+        source: ::std::result::Result<super::Source, ::std::string::String>,
+        type_: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+    }
+    impl ::std::default::Default for NorTwoBooleanValues {
+        fn default() -> Self {
+            Self {
+                left: Err("no value supplied for left".to_string()),
+                right: Err("no value supplied for right".to_string()),
+                source: Err("no value supplied for source".to_string()),
+                type_: Err("no value supplied for type_".to_string()),
+            }
+        }
+    }
+    impl NorTwoBooleanValues {
+        pub fn left<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::boxed::Box<super::ComputedBooleanValue>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.left = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for left: {}", e));
+            self
+        }
+        pub fn right<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::boxed::Box<super::ComputedBooleanValue>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.right = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for right: {}", e));
+            self
+        }
+        pub fn source<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<super::Source>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.source = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for source: {}", e));
+            self
+        }
+        pub fn type_<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::serde_json::Value>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.type_ = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for type_: {}", e));
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<NorTwoBooleanValues> for super::NorTwoBooleanValues {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: NorTwoBooleanValues,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                left: value.left?,
+                right: value.right?,
+                source: value.source?,
+                type_: value.type_?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::NorTwoBooleanValues> for NorTwoBooleanValues {
+        fn from(value: super::NorTwoBooleanValues) -> Self {
+            Self {
+                left: Ok(value.left),
+                right: Ok(value.right),
+                source: Ok(value.source),
+                type_: Ok(value.type_),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
+    pub struct NotBooleanValue {
+        source: ::std::result::Result<super::Source, ::std::string::String>,
+        type_: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+        value: ::std::result::Result<
+            ::std::boxed::Box<super::ComputedBooleanValue>,
+            ::std::string::String,
+        >,
+    }
+    impl ::std::default::Default for NotBooleanValue {
+        fn default() -> Self {
+            Self {
+                source: Err("no value supplied for source".to_string()),
+                type_: Err("no value supplied for type_".to_string()),
+                value: Err("no value supplied for value".to_string()),
+            }
+        }
+    }
+    impl NotBooleanValue {
+        pub fn source<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<super::Source>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.source = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for source: {}", e));
+            self
+        }
+        pub fn type_<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::serde_json::Value>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.type_ = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for type_: {}", e));
+            self
+        }
+        pub fn value<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::boxed::Box<super::ComputedBooleanValue>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.value = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for value: {}", e));
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<NotBooleanValue> for super::NotBooleanValue {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: NotBooleanValue,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                source: value.source?,
+                type_: value.type_?,
+                value: value.value?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::NotBooleanValue> for NotBooleanValue {
+        fn from(value: super::NotBooleanValue) -> Self {
+            Self {
+                source: Ok(value.source),
+                type_: Ok(value.type_),
+                value: Ok(value.value),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
     pub struct NumberToStringValue {
         format: ::std::result::Result<
             ::std::option::Option<::std::boxed::Box<super::ComputedStringValue>>,
@@ -9586,6 +12619,94 @@ pub mod builder {
         }
     }
     #[derive(Clone, Debug)]
+    pub struct OrTwoBooleanValues {
+        left: ::std::result::Result<
+            ::std::boxed::Box<super::ComputedBooleanValue>,
+            ::std::string::String,
+        >,
+        right: ::std::result::Result<
+            ::std::boxed::Box<super::ComputedBooleanValue>,
+            ::std::string::String,
+        >,
+        source: ::std::result::Result<super::Source, ::std::string::String>,
+        type_: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+    }
+    impl ::std::default::Default for OrTwoBooleanValues {
+        fn default() -> Self {
+            Self {
+                left: Err("no value supplied for left".to_string()),
+                right: Err("no value supplied for right".to_string()),
+                source: Err("no value supplied for source".to_string()),
+                type_: Err("no value supplied for type_".to_string()),
+            }
+        }
+    }
+    impl OrTwoBooleanValues {
+        pub fn left<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::boxed::Box<super::ComputedBooleanValue>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.left = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for left: {}", e));
+            self
+        }
+        pub fn right<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::boxed::Box<super::ComputedBooleanValue>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.right = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for right: {}", e));
+            self
+        }
+        pub fn source<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<super::Source>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.source = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for source: {}", e));
+            self
+        }
+        pub fn type_<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::serde_json::Value>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.type_ = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for type_: {}", e));
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<OrTwoBooleanValues> for super::OrTwoBooleanValues {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: OrTwoBooleanValues,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                left: value.left?,
+                right: value.right?,
+                source: value.source?,
+                type_: value.type_?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::OrTwoBooleanValues> for OrTwoBooleanValues {
+        fn from(value: super::OrTwoBooleanValues) -> Self {
+            Self {
+                left: Ok(value.left),
+                right: Ok(value.right),
+                source: Ok(value.source),
+                type_: Ok(value.type_),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
     pub struct Parameter {
         source: ::std::result::Result<super::Source, ::std::string::String>,
         value: ::std::result::Result<super::ParameterValue, ::std::string::String>,
@@ -9640,13 +12761,169 @@ pub mod builder {
         }
     }
     #[derive(Clone, Debug)]
+    pub struct PowerTwoValues {
+        base: ::std::result::Result<
+            ::std::boxed::Box<super::ComputedNumberValue>,
+            ::std::string::String,
+        >,
+        exponent: ::std::result::Result<
+            ::std::boxed::Box<super::ComputedNumberValue>,
+            ::std::string::String,
+        >,
+        source: ::std::result::Result<super::Source, ::std::string::String>,
+        type_: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+    }
+    impl ::std::default::Default for PowerTwoValues {
+        fn default() -> Self {
+            Self {
+                base: Err("no value supplied for base".to_string()),
+                exponent: Err("no value supplied for exponent".to_string()),
+                source: Err("no value supplied for source".to_string()),
+                type_: Err("no value supplied for type_".to_string()),
+            }
+        }
+    }
+    impl PowerTwoValues {
+        pub fn base<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::boxed::Box<super::ComputedNumberValue>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.base = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for base: {}", e));
+            self
+        }
+        pub fn exponent<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::boxed::Box<super::ComputedNumberValue>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.exponent = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for exponent: {}", e));
+            self
+        }
+        pub fn source<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<super::Source>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.source = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for source: {}", e));
+            self
+        }
+        pub fn type_<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::serde_json::Value>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.type_ = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for type_: {}", e));
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<PowerTwoValues> for super::PowerTwoValues {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: PowerTwoValues,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                base: value.base?,
+                exponent: value.exponent?,
+                source: value.source?,
+                type_: value.type_?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::PowerTwoValues> for PowerTwoValues {
+        fn from(value: super::PowerTwoValues) -> Self {
+            Self {
+                base: Ok(value.base),
+                exponent: Ok(value.exponent),
+                source: Ok(value.source),
+                type_: Ok(value.type_),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
+    pub struct ProductNumberListValue {
+        source: ::std::result::Result<super::Source, ::std::string::String>,
+        type_: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+        value: ::std::result::Result<super::ComputedNumberListValue, ::std::string::String>,
+    }
+    impl ::std::default::Default for ProductNumberListValue {
+        fn default() -> Self {
+            Self {
+                source: Err("no value supplied for source".to_string()),
+                type_: Err("no value supplied for type_".to_string()),
+                value: Err("no value supplied for value".to_string()),
+            }
+        }
+    }
+    impl ProductNumberListValue {
+        pub fn source<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<super::Source>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.source = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for source: {}", e));
+            self
+        }
+        pub fn type_<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::serde_json::Value>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.type_ = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for type_: {}", e));
+            self
+        }
+        pub fn value<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<super::ComputedNumberListValue>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.value = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for value: {}", e));
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<ProductNumberListValue> for super::ProductNumberListValue {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: ProductNumberListValue,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                source: value.source?,
+                type_: value.type_?,
+                value: value.value?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::ProductNumberListValue> for ProductNumberListValue {
+        fn from(value: super::ProductNumberListValue) -> Self {
+            Self {
+                source: Ok(value.source),
+                type_: Ok(value.type_),
+                value: Ok(value.value),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
     pub struct RangeBooleanListValue {
         count: ::std::result::Result<
-            ::std::boxed::Box<::std::option::Option<super::ComputedNumberValue>>,
+            ::std::option::Option<::std::boxed::Box<super::ComputedNumberValue>>,
             ::std::string::String,
         >,
         end: ::std::result::Result<
-            ::std::boxed::Box<::std::option::Option<super::ComputedNumberValue>>,
+            ::std::option::Option<::std::boxed::Box<super::ComputedNumberValue>>,
             ::std::string::String,
         >,
         list: ::std::result::Result<
@@ -9655,7 +12932,7 @@ pub mod builder {
         >,
         source: ::std::result::Result<super::Source, ::std::string::String>,
         start: ::std::result::Result<
-            ::std::boxed::Box<::std::option::Option<super::ComputedNumberValue>>,
+            ::std::option::Option<::std::boxed::Box<super::ComputedNumberValue>>,
             ::std::string::String,
         >,
         type_: ::std::result::Result<::serde_json::Value, ::std::string::String>,
@@ -9676,7 +12953,7 @@ pub mod builder {
         pub fn count<T>(mut self, value: T) -> Self
         where
             T: ::std::convert::TryInto<
-                ::std::boxed::Box<::std::option::Option<super::ComputedNumberValue>>,
+                ::std::option::Option<::std::boxed::Box<super::ComputedNumberValue>>,
             >,
             T::Error: ::std::fmt::Display,
         {
@@ -9688,7 +12965,7 @@ pub mod builder {
         pub fn end<T>(mut self, value: T) -> Self
         where
             T: ::std::convert::TryInto<
-                ::std::boxed::Box<::std::option::Option<super::ComputedNumberValue>>,
+                ::std::option::Option<::std::boxed::Box<super::ComputedNumberValue>>,
             >,
             T::Error: ::std::fmt::Display,
         {
@@ -9720,7 +12997,7 @@ pub mod builder {
         pub fn start<T>(mut self, value: T) -> Self
         where
             T: ::std::convert::TryInto<
-                ::std::boxed::Box<::std::option::Option<super::ComputedNumberValue>>,
+                ::std::option::Option<::std::boxed::Box<super::ComputedNumberValue>>,
             >,
             T::Error: ::std::fmt::Display,
         {
@@ -9770,11 +13047,11 @@ pub mod builder {
     #[derive(Clone, Debug)]
     pub struct RangeNumberListValue {
         count: ::std::result::Result<
-            ::std::option::Option<super::ComputedNumberValue>,
+            ::std::option::Option<::std::boxed::Box<super::ComputedNumberValue>>,
             ::std::string::String,
         >,
         end: ::std::result::Result<
-            ::std::option::Option<super::ComputedNumberValue>,
+            ::std::option::Option<::std::boxed::Box<super::ComputedNumberValue>>,
             ::std::string::String,
         >,
         list: ::std::result::Result<
@@ -9783,7 +13060,7 @@ pub mod builder {
         >,
         source: ::std::result::Result<super::Source, ::std::string::String>,
         start: ::std::result::Result<
-            ::std::option::Option<super::ComputedNumberValue>,
+            ::std::option::Option<::std::boxed::Box<super::ComputedNumberValue>>,
             ::std::string::String,
         >,
         type_: ::std::result::Result<::serde_json::Value, ::std::string::String>,
@@ -9803,7 +13080,9 @@ pub mod builder {
     impl RangeNumberListValue {
         pub fn count<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::std::option::Option<super::ComputedNumberValue>>,
+            T: ::std::convert::TryInto<
+                ::std::option::Option<::std::boxed::Box<super::ComputedNumberValue>>,
+            >,
             T::Error: ::std::fmt::Display,
         {
             self.count = value
@@ -9813,7 +13092,9 @@ pub mod builder {
         }
         pub fn end<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::std::option::Option<super::ComputedNumberValue>>,
+            T: ::std::convert::TryInto<
+                ::std::option::Option<::std::boxed::Box<super::ComputedNumberValue>>,
+            >,
             T::Error: ::std::fmt::Display,
         {
             self.end = value
@@ -9843,7 +13124,9 @@ pub mod builder {
         }
         pub fn start<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::std::option::Option<super::ComputedNumberValue>>,
+            T: ::std::convert::TryInto<
+                ::std::option::Option<::std::boxed::Box<super::ComputedNumberValue>>,
+            >,
             T::Error: ::std::fmt::Display,
         {
             self.start = value
@@ -9892,11 +13175,11 @@ pub mod builder {
     #[derive(Clone, Debug)]
     pub struct RangeStringListValue {
         count: ::std::result::Result<
-            ::std::boxed::Box<::std::option::Option<super::ComputedNumberValue>>,
+            ::std::option::Option<::std::boxed::Box<super::ComputedNumberValue>>,
             ::std::string::String,
         >,
         end: ::std::result::Result<
-            ::std::boxed::Box<::std::option::Option<super::ComputedNumberValue>>,
+            ::std::option::Option<::std::boxed::Box<super::ComputedNumberValue>>,
             ::std::string::String,
         >,
         list: ::std::result::Result<
@@ -9905,7 +13188,7 @@ pub mod builder {
         >,
         source: ::std::result::Result<super::Source, ::std::string::String>,
         start: ::std::result::Result<
-            ::std::boxed::Box<::std::option::Option<super::ComputedNumberValue>>,
+            ::std::option::Option<::std::boxed::Box<super::ComputedNumberValue>>,
             ::std::string::String,
         >,
         type_: ::std::result::Result<::serde_json::Value, ::std::string::String>,
@@ -9926,7 +13209,7 @@ pub mod builder {
         pub fn count<T>(mut self, value: T) -> Self
         where
             T: ::std::convert::TryInto<
-                ::std::boxed::Box<::std::option::Option<super::ComputedNumberValue>>,
+                ::std::option::Option<::std::boxed::Box<super::ComputedNumberValue>>,
             >,
             T::Error: ::std::fmt::Display,
         {
@@ -9938,7 +13221,7 @@ pub mod builder {
         pub fn end<T>(mut self, value: T) -> Self
         where
             T: ::std::convert::TryInto<
-                ::std::boxed::Box<::std::option::Option<super::ComputedNumberValue>>,
+                ::std::option::Option<::std::boxed::Box<super::ComputedNumberValue>>,
             >,
             T::Error: ::std::fmt::Display,
         {
@@ -9970,7 +13253,7 @@ pub mod builder {
         pub fn start<T>(mut self, value: T) -> Self
         where
             T: ::std::convert::TryInto<
-                ::std::boxed::Box<::std::option::Option<super::ComputedNumberValue>>,
+                ::std::option::Option<::std::boxed::Box<super::ComputedNumberValue>>,
             >,
             T::Error: ::std::fmt::Display,
         {
@@ -10014,6 +13297,77 @@ pub mod builder {
                 source: Ok(value.source),
                 start: Ok(value.start),
                 type_: Ok(value.type_),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
+    pub struct RoundValue {
+        source: ::std::result::Result<super::Source, ::std::string::String>,
+        type_: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+        value: ::std::result::Result<
+            ::std::boxed::Box<super::ComputedNumberValue>,
+            ::std::string::String,
+        >,
+    }
+    impl ::std::default::Default for RoundValue {
+        fn default() -> Self {
+            Self {
+                source: Err("no value supplied for source".to_string()),
+                type_: Err("no value supplied for type_".to_string()),
+                value: Err("no value supplied for value".to_string()),
+            }
+        }
+    }
+    impl RoundValue {
+        pub fn source<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<super::Source>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.source = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for source: {}", e));
+            self
+        }
+        pub fn type_<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::serde_json::Value>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.type_ = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for type_: {}", e));
+            self
+        }
+        pub fn value<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::boxed::Box<super::ComputedNumberValue>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.value = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for value: {}", e));
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<RoundValue> for super::RoundValue {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: RoundValue,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                source: value.source?,
+                type_: value.type_?,
+                value: value.value?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::RoundValue> for RoundValue {
+        fn from(value: super::RoundValue) -> Self {
+            Self {
+                source: Ok(value.source),
+                type_: Ok(value.type_),
+                value: Ok(value.value),
             }
         }
     }
@@ -10302,16 +13656,16 @@ pub mod builder {
     #[derive(Clone, Debug)]
     pub struct SubStringValue {
         count: ::std::result::Result<
-            ::std::boxed::Box<::std::option::Option<super::ComputedNumberValue>>,
+            ::std::option::Option<::std::boxed::Box<super::ComputedNumberValue>>,
             ::std::string::String,
         >,
         end: ::std::result::Result<
-            ::std::boxed::Box<::std::option::Option<super::ComputedNumberValue>>,
+            ::std::option::Option<::std::boxed::Box<super::ComputedNumberValue>>,
             ::std::string::String,
         >,
         source: ::std::result::Result<super::Source, ::std::string::String>,
         start: ::std::result::Result<
-            ::std::boxed::Box<::std::option::Option<super::ComputedNumberValue>>,
+            ::std::option::Option<::std::boxed::Box<super::ComputedNumberValue>>,
             ::std::string::String,
         >,
         type_: ::std::result::Result<::serde_json::Value, ::std::string::String>,
@@ -10336,7 +13690,7 @@ pub mod builder {
         pub fn count<T>(mut self, value: T) -> Self
         where
             T: ::std::convert::TryInto<
-                ::std::boxed::Box<::std::option::Option<super::ComputedNumberValue>>,
+                ::std::option::Option<::std::boxed::Box<super::ComputedNumberValue>>,
             >,
             T::Error: ::std::fmt::Display,
         {
@@ -10348,7 +13702,7 @@ pub mod builder {
         pub fn end<T>(mut self, value: T) -> Self
         where
             T: ::std::convert::TryInto<
-                ::std::boxed::Box<::std::option::Option<super::ComputedNumberValue>>,
+                ::std::option::Option<::std::boxed::Box<super::ComputedNumberValue>>,
             >,
             T::Error: ::std::fmt::Display,
         {
@@ -10370,7 +13724,7 @@ pub mod builder {
         pub fn start<T>(mut self, value: T) -> Self
         where
             T: ::std::convert::TryInto<
-                ::std::boxed::Box<::std::option::Option<super::ComputedNumberValue>>,
+                ::std::option::Option<::std::boxed::Box<super::ComputedNumberValue>>,
             >,
             T::Error: ::std::fmt::Display,
         {
@@ -10422,6 +13776,162 @@ pub mod builder {
                 end: Ok(value.end),
                 source: Ok(value.source),
                 start: Ok(value.start),
+                type_: Ok(value.type_),
+                value: Ok(value.value),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
+    pub struct SubtractTwoValues {
+        left: ::std::result::Result<
+            ::std::boxed::Box<super::ComputedNumberValue>,
+            ::std::string::String,
+        >,
+        right: ::std::result::Result<
+            ::std::boxed::Box<super::ComputedNumberValue>,
+            ::std::string::String,
+        >,
+        source: ::std::result::Result<super::Source, ::std::string::String>,
+        type_: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+    }
+    impl ::std::default::Default for SubtractTwoValues {
+        fn default() -> Self {
+            Self {
+                left: Err("no value supplied for left".to_string()),
+                right: Err("no value supplied for right".to_string()),
+                source: Err("no value supplied for source".to_string()),
+                type_: Err("no value supplied for type_".to_string()),
+            }
+        }
+    }
+    impl SubtractTwoValues {
+        pub fn left<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::boxed::Box<super::ComputedNumberValue>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.left = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for left: {}", e));
+            self
+        }
+        pub fn right<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::boxed::Box<super::ComputedNumberValue>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.right = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for right: {}", e));
+            self
+        }
+        pub fn source<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<super::Source>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.source = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for source: {}", e));
+            self
+        }
+        pub fn type_<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::serde_json::Value>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.type_ = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for type_: {}", e));
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<SubtractTwoValues> for super::SubtractTwoValues {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: SubtractTwoValues,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                left: value.left?,
+                right: value.right?,
+                source: value.source?,
+                type_: value.type_?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::SubtractTwoValues> for SubtractTwoValues {
+        fn from(value: super::SubtractTwoValues) -> Self {
+            Self {
+                left: Ok(value.left),
+                right: Ok(value.right),
+                source: Ok(value.source),
+                type_: Ok(value.type_),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
+    pub struct SumNumberListValue {
+        source: ::std::result::Result<super::Source, ::std::string::String>,
+        type_: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+        value: ::std::result::Result<super::ComputedNumberListValue, ::std::string::String>,
+    }
+    impl ::std::default::Default for SumNumberListValue {
+        fn default() -> Self {
+            Self {
+                source: Err("no value supplied for source".to_string()),
+                type_: Err("no value supplied for type_".to_string()),
+                value: Err("no value supplied for value".to_string()),
+            }
+        }
+    }
+    impl SumNumberListValue {
+        pub fn source<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<super::Source>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.source = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for source: {}", e));
+            self
+        }
+        pub fn type_<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::serde_json::Value>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.type_ = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for type_: {}", e));
+            self
+        }
+        pub fn value<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<super::ComputedNumberListValue>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.value = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for value: {}", e));
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<SumNumberListValue> for super::SumNumberListValue {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: SumNumberListValue,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                source: value.source?,
+                type_: value.type_?,
+                value: value.value?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::SumNumberListValue> for SumNumberListValue {
+        fn from(value: super::SumNumberListValue) -> Self {
+            Self {
+                source: Ok(value.source),
                 type_: Ok(value.type_),
                 value: Ok(value.value),
             }
@@ -10637,6 +14147,182 @@ pub mod builder {
                 source: Ok(value.source),
                 type_: Ok(value.type_),
                 values: Ok(value.values),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
+    pub struct XnorTwoBooleanValues {
+        left: ::std::result::Result<
+            ::std::boxed::Box<super::ComputedBooleanValue>,
+            ::std::string::String,
+        >,
+        right: ::std::result::Result<
+            ::std::boxed::Box<super::ComputedBooleanValue>,
+            ::std::string::String,
+        >,
+        source: ::std::result::Result<super::Source, ::std::string::String>,
+        type_: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+    }
+    impl ::std::default::Default for XnorTwoBooleanValues {
+        fn default() -> Self {
+            Self {
+                left: Err("no value supplied for left".to_string()),
+                right: Err("no value supplied for right".to_string()),
+                source: Err("no value supplied for source".to_string()),
+                type_: Err("no value supplied for type_".to_string()),
+            }
+        }
+    }
+    impl XnorTwoBooleanValues {
+        pub fn left<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::boxed::Box<super::ComputedBooleanValue>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.left = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for left: {}", e));
+            self
+        }
+        pub fn right<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::boxed::Box<super::ComputedBooleanValue>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.right = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for right: {}", e));
+            self
+        }
+        pub fn source<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<super::Source>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.source = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for source: {}", e));
+            self
+        }
+        pub fn type_<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::serde_json::Value>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.type_ = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for type_: {}", e));
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<XnorTwoBooleanValues> for super::XnorTwoBooleanValues {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: XnorTwoBooleanValues,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                left: value.left?,
+                right: value.right?,
+                source: value.source?,
+                type_: value.type_?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::XnorTwoBooleanValues> for XnorTwoBooleanValues {
+        fn from(value: super::XnorTwoBooleanValues) -> Self {
+            Self {
+                left: Ok(value.left),
+                right: Ok(value.right),
+                source: Ok(value.source),
+                type_: Ok(value.type_),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
+    pub struct XorTwoBooleanValues {
+        left: ::std::result::Result<
+            ::std::boxed::Box<super::ComputedBooleanValue>,
+            ::std::string::String,
+        >,
+        right: ::std::result::Result<
+            ::std::boxed::Box<super::ComputedBooleanValue>,
+            ::std::string::String,
+        >,
+        source: ::std::result::Result<super::Source, ::std::string::String>,
+        type_: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+    }
+    impl ::std::default::Default for XorTwoBooleanValues {
+        fn default() -> Self {
+            Self {
+                left: Err("no value supplied for left".to_string()),
+                right: Err("no value supplied for right".to_string()),
+                source: Err("no value supplied for source".to_string()),
+                type_: Err("no value supplied for type_".to_string()),
+            }
+        }
+    }
+    impl XorTwoBooleanValues {
+        pub fn left<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::boxed::Box<super::ComputedBooleanValue>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.left = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for left: {}", e));
+            self
+        }
+        pub fn right<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::boxed::Box<super::ComputedBooleanValue>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.right = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for right: {}", e));
+            self
+        }
+        pub fn source<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<super::Source>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.source = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for source: {}", e));
+            self
+        }
+        pub fn type_<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::serde_json::Value>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.type_ = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for type_: {}", e));
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<XorTwoBooleanValues> for super::XorTwoBooleanValues {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: XorTwoBooleanValues,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                left: value.left?,
+                right: value.right?,
+                source: value.source?,
+                type_: value.type_?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::XorTwoBooleanValues> for XorTwoBooleanValues {
+        fn from(value: super::XorTwoBooleanValues) -> Self {
+            Self {
+                left: Ok(value.left),
+                right: Ok(value.right),
+                source: Ok(value.source),
+                type_: Ok(value.type_),
             }
         }
     }

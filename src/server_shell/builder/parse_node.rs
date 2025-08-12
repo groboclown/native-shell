@@ -177,6 +177,7 @@ fn setup_node_stream(
         model::StreamMode::Input => {
             let target = source.borrow_mut();
             let source = other.borrow_mut();
+            println!("Connecting stream from {} to {}", target.node.name, source.node.name);
             let source_streams = match &source.module.stream_struct {
                 Some(streams) => Some(streams),
                 None => {
@@ -244,6 +245,7 @@ fn setup_node_stream(
         model::StreamMode::Output => {
             let target = other.borrow_mut();
             let source = source.borrow_mut();
+            println!("Connecting stream from {} to {}", source.node.name, target.node.name);
             let source_streams = match &source.module.stream_struct {
                 Some(streams) => Some(streams),
                 None => {
@@ -333,6 +335,7 @@ fn setup_node_stream(
         }));
     }
     if errs.is_empty() {
+        println!("Creating node stream from {} ({}) to {} ({})", source.node.name, source.node_idx, target.node.name, target.node_idx);
         let node_stream = Rc::new(NodeStream::new(
             source.node_id.clone(),
             source.node_idx,
@@ -343,8 +346,8 @@ fn setup_node_stream(
             target_stream_type,
             target_stream_decl,
         ));
-        target.add_dest_stream(node_stream.clone());
-        source.add_src_stream(node_stream);
+        source.add_dest_stream(node_stream.clone());
+        target.add_src_stream(node_stream);
     }
 
     errs

@@ -590,7 +590,6 @@
         { "$ref": "#/$defs/ListIndexStringValue" },
         { "$ref": "#/$defs/MapKeyStringValue" },
         { "$ref": "#/$defs/SubStringValue" },
-        { "$ref": "#/$defs/ConcatenatedStringValue" },
         { "$ref": "#/$defs/NumberToStringValue" },
         { "$ref": "#/$defs/BooleanToStringValue" },
         { "$ref": "#/$defs/ListToStringValue" },
@@ -607,8 +606,8 @@
       "properties": {
         "source": { "$ref": "#/$defs/Source" },
         "type": { "const": "lookup-string" },
-        "node": { "$ref": "#/$defs/ComputedStringValue" },
-        "name": { "$ref": "#/$defs/ComputedStringValue" }
+        "node": { "type": "string", "minLength": 1 },
+        "name": { "type": "string", "minLength": 1 }
       }
     },
     "ListIndexStringValue": {
@@ -652,18 +651,6 @@
         "start": { "$ref": "#/$defs/ComputedNumberValue" },
         "count": { "$ref": "#/$defs/ComputedNumberValue" },
         "end": { "$ref": "#/$defs/ComputedNumberValue" }
-      }
-    },
-    "ConcatenatedStringValue": {
-      "title": "Concatenated String Value",
-      "description": "A string value that is the concatenation of multiple string values.",
-      "type": "object",
-      "required": ["source", "type", "value"],
-      "additionalProperties": false,
-      "properties": {
-        "source": { "$ref": "#/$defs/Source" },
-        "type": { "const": "concatenated-string" },
-        "value": { "$ref": "#/$defs/ComputedStringListValue" }
       }
     },
     "NumberToStringValue": {
@@ -742,7 +729,21 @@
       "description": "A computed number value.",
       "oneOf": [
         { "$ref": "#/$defs/LookupNumberValue" },
-        { "$ref": "#/$defs/ArithmeticValue" },
+        { "$ref": "#/$defs/AddTwoValues" },
+        { "$ref": "#/$defs/SubtractTwoValues" },
+        { "$ref": "#/$defs/MultiplyTwoValues" },
+        { "$ref": "#/$defs/DivideTwoValues" },
+        { "$ref": "#/$defs/ModulusTwoValues" },
+        { "$ref": "#/$defs/PowerTwoValues" },
+        { "$ref": "#/$defs/RoundValue" },
+        { "$ref": "#/$defs/FloorValue" },
+        { "$ref": "#/$defs/CeilValue" },
+        { "$ref": "#/$defs/AbsValue" },
+        { "$ref": "#/$defs/SumNumberListValue" },
+        { "$ref": "#/$defs/ProductNumberListValue" },
+        { "$ref": "#/$defs/AverageNumberListValue" },
+        { "$ref": "#/$defs/MinNumberListValue" },
+        { "$ref": "#/$defs/MaxNumberListValue" },
         { "$ref": "#/$defs/ListIndexNumberValue" },
         { "$ref": "#/$defs/MapKeyNumberValue" },
         { "$ref": "#/$defs/ConstantNumberValue" }
@@ -757,34 +758,193 @@
       "properties": {
         "source": { "$ref": "#/$defs/Source" },
         "type": { "const": "lookup-state-number" },
-        "node": { "$ref": "#/$defs/ComputedStringValue" },
-        "name": { "$ref": "#/$defs/ComputedStringValue" }
+        "node": { "type": "string", "minLength": 1 },
+        "name": { "type": "string", "minLength": 1 }
       }
     },
-    "ArithmeticValue": {
-      "title": "Arithmetic Value",
-      "description": "A number value that is the result of an arithmetic operation on two or more number values.",
+    "AddTwoValues": {
+      "title": "Add Two Values",
+      "description": "A number value that is the sum of two other number values.",
       "type": "object",
-      "required": ["source", "type", "operation", "value"],
+      "required": ["source", "type", "left", "right"],
       "additionalProperties": false,
       "properties": {
         "source": { "$ref": "#/$defs/Source" },
-        "type": { "const": "arithmetic" },
-        "operation": {
-          "type": "string",
-          "enum": [
-            "add",
-            "subtract",
-            "multiply",
-            "divide",
-            "modulus",
-            "power",
-            "round",
-            "floor",
-            "ceil"
-          ],
-          "description": "The arithmetic operation to perform."
-        },
+        "type": { "const": "add-number" },
+        "left": { "$ref": "#/$defs/ComputedNumberValue" },
+        "right": { "$ref": "#/$defs/ComputedNumberValue" }
+      }
+    },
+    "SubtractTwoValues": {
+      "title": "Subtract Two Values",
+      "description": "A number value that is the difference of two other number values.",
+      "type": "object",
+      "required": ["source", "type", "left", "right"],
+      "additionalProperties": false,
+      "properties": {
+        "source": { "$ref": "#/$defs/Source" },
+        "type": { "const": "subtract-number" },
+        "left": { "$ref": "#/$defs/ComputedNumberValue" },
+        "right": { "$ref": "#/$defs/ComputedNumberValue" }
+      }
+    },
+    "MultiplyTwoValues": {
+      "title": "Multiply Two Values",
+      "description": "A number value that is the product of two other number values.",
+      "type": "object",
+      "required": ["source", "type", "left", "right"],
+      "additionalProperties": false,
+      "properties": {
+        "source": { "$ref": "#/$defs/Source" },
+        "type": { "const": "multiply-number" },
+        "left": { "$ref": "#/$defs/ComputedNumberValue" },
+        "right": { "$ref": "#/$defs/ComputedNumberValue" }
+      }
+    },
+    "DivideTwoValues": {
+      "title": "Divide Two Values",
+      "description": "A number value that is the quotient of two other number values.",
+      "type": "object",
+      "required": ["source", "type", "left", "right"],
+      "additionalProperties": false,
+      "properties": {
+        "source": { "$ref": "#/$defs/Source" },
+        "type": { "const": "divide-number" },
+        "left": { "$ref": "#/$defs/ComputedNumberValue" },
+        "right": { "$ref": "#/$defs/ComputedNumberValue" }
+      }
+    },
+    "ModulusTwoValues": {
+      "title": "Modulus Two Values",
+      "description": "A number value that is the modulus of two other number values.",
+      "type": "object",
+      "required": ["source", "type", "left", "right"],
+      "additionalProperties": false,
+      "properties": {
+        "source": { "$ref": "#/$defs/Source" },
+        "type": { "const": "modulus-number" },
+        "left": { "$ref": "#/$defs/ComputedNumberValue" },
+        "right": { "$ref": "#/$defs/ComputedNumberValue" }
+      }
+    },
+    "PowerTwoValues": {
+      "title": "Power Two Values",
+      "description": "A number value that is the result of raising one number to the power of another.",
+      "type": "object",
+      "required": ["source", "type", "base", "exponent"],
+      "additionalProperties": false,
+      "properties": {
+        "source": { "$ref": "#/$defs/Source" },
+        "type": { "const": "power-number" },
+        "base": { "$ref": "#/$defs/ComputedNumberValue" },
+        "exponent": { "$ref": "#/$defs/ComputedNumberValue" }
+      }
+    },
+    "RoundValue": {
+      "title": "Round Value",
+      "description": "A number value that is the result of rounding another number to the nearest integer.",
+      "type": "object",
+      "required": ["source", "type", "value"],
+      "additionalProperties": false,
+      "properties": {
+        "source": { "$ref": "#/$defs/Source" },
+        "type": { "const": "round-number" },
+        "value": { "$ref": "#/$defs/ComputedNumberValue" }
+      }
+    },
+    "FloorValue": {
+      "title": "Floor Value",
+      "description": "A number value that is the result of rounding another number down to the nearest integer.",
+      "type": "object",
+      "required": ["source", "type", "value"],
+      "additionalProperties": false,
+      "properties": {
+        "source": { "$ref": "#/$defs/Source" },
+        "type": { "const": "floor-number" },
+        "value": { "$ref": "#/$defs/ComputedNumberValue" }
+      }
+    },
+    "CeilValue": {
+      "title": "Ceil Value",
+      "description": "A number value that is the result of rounding another number up to the nearest integer.",
+      "type": "object",
+      "required": ["source", "type", "value"],
+      "additionalProperties": false,
+      "properties": {
+        "source": { "$ref": "#/$defs/Source" },
+        "type": { "const": "ceil-number" },
+        "value": { "$ref": "#/$defs/ComputedNumberValue" }
+      }
+    },
+    "AbsValue": {
+      "title": "Absolute Value",
+      "description": "A number value that is the absolute value of another number.",
+      "type": "object",
+      "required": ["source", "type", "value"],
+      "additionalProperties": false,
+      "properties": {
+        "source": { "$ref": "#/$defs/Source" },
+        "type": { "const": "abs-number" },
+        "value": { "$ref": "#/$defs/ComputedNumberValue" }
+      }
+    },
+    "SumNumberListValue": {
+      "title": "Sum Number List Value",
+      "description": "A number value that is the sum of all numbers in a list.",
+      "type": "object",
+      "required": ["source", "type", "value"],
+      "additionalProperties": false,
+      "properties": {
+        "source": { "$ref": "#/$defs/Source" },
+        "type": { "const": "sum-number-list" },
+        "value": { "$ref": "#/$defs/ComputedNumberListValue" }
+      }
+    },
+    "ProductNumberListValue": {
+      "title": "Product Number List Value",
+      "description": "A number value that is the product of all numbers in a list.",
+      "type": "object",
+      "required": ["source", "type", "value"],
+      "additionalProperties": false,
+      "properties": {
+        "source": { "$ref": "#/$defs/Source" },
+        "type": { "const": "product-number-list" },
+        "value": { "$ref": "#/$defs/ComputedNumberListValue" }
+      }
+    },
+    "AverageNumberListValue": {
+      "title": "Average Number List Value",
+      "description": "A number value that is the average of all numbers in a list.",
+      "type": "object",
+      "required": ["source", "type", "value"],
+      "additionalProperties": false,
+      "properties": {
+        "source": { "$ref": "#/$defs/Source" },
+        "type": { "const": "average-number-list" },
+        "value": { "$ref": "#/$defs/ComputedNumberListValue" }
+      }
+    },
+    "MinNumberListValue": {
+      "title": "Minimum Number List Value",
+      "description": "A number value that is the minimum of all numbers in a list.",
+      "type": "object",
+      "required": ["source", "type", "value"],
+      "additionalProperties": false,
+      "properties": {
+        "source": { "$ref": "#/$defs/Source" },
+        "type": { "const": "min-number-list" },
+        "value": { "$ref": "#/$defs/ComputedNumberListValue" }
+      }
+    },
+    "MaxNumberListValue": {
+      "title": "Maximum Number List Value",
+      "description": "A number value that is the maximum of all numbers in a list.",
+      "type": "object",
+      "required": ["source", "type", "value"],
+      "additionalProperties": false,
+      "properties": {
+        "source": { "$ref": "#/$defs/Source" },
+        "type": { "const": "max-number-list" },
         "value": { "$ref": "#/$defs/ComputedNumberListValue" }
       }
     },
@@ -837,7 +997,13 @@
       "description": "A computed boolean value.",
       "oneOf": [
         { "$ref": "#/$defs/LookupBooleanValue" },
-        { "$ref": "#/$defs/LogicalBooleanValue" },
+        { "$ref": "#/$defs/AndTwoBooleanValues" },
+        { "$ref": "#/$defs/OrTwoBooleanValues" },
+        { "$ref": "#/$defs/NotBooleanValue" },
+        { "$ref": "#/$defs/XorTwoBooleanValues" },
+        { "$ref": "#/$defs/NandTwoBooleanValues" },
+        { "$ref": "#/$defs/NorTwoBooleanValues" },
+        { "$ref": "#/$defs/XnorTwoBooleanValues" },
         { "$ref": "#/$defs/ListIndexBooleanValue" },
         { "$ref": "#/$defs/MapKeyBooleanValue" },
         { "$ref": "#/$defs/ConstantBooleanValue" }
@@ -852,25 +1018,98 @@
       "properties": {
         "source": { "$ref": "#/$defs/Source" },
         "type": { "const": "lookup-state-boolean" },
-        "node": { "$ref": "#/$defs/ComputedStringValue" },
-        "name": { "$ref": "#/$defs/ComputedStringValue" }
+        "node": { "type": "string", "minLength": 1 },
+        "name": { "type": "string", "minLength": 1 }
       }
     },
-    "LogicalBooleanValue": {
-      "title": "Logical Boolean Value",
-      "description": "A boolean value that is the result of a logical operation on two or more boolean values.",
+    "AndTwoBooleanValues": {
+      "title": "And Boolean Value",
+      "description": "A boolean value that is the result of a logical AND operation on two boolean values.",
       "type": "object",
-      "required": ["source", "type", "operation", "value"],
+      "required": ["source", "type", "left", "right"],
       "additionalProperties": false,
       "properties": {
         "source": { "$ref": "#/$defs/Source" },
-        "type": { "const": "logical" },
-        "operation": {
-          "type": "string",
-          "enum": ["and", "or", "not", "xor", "nand", "nor", "xnor"],
-          "description": "The logical operation to perform."
-        },
-        "value": { "$ref": "#/$defs/ComputedBooleanListValue" }
+        "type": { "const": "and-boolean" },
+        "left": { "$ref": "#/$defs/ComputedBooleanValue" },
+        "right": { "$ref": "#/$defs/ComputedBooleanValue" }
+      }
+    },
+    "OrTwoBooleanValues": {
+      "title": "Or Boolean Value",
+      "description": "A boolean value that is the result of a logical OR operation on two boolean values.",
+      "type": "object",
+      "required": ["source", "type", "left", "right"],
+      "additionalProperties": false,
+      "properties": {
+        "source": { "$ref": "#/$defs/Source" },
+        "type": { "const": "or-boolean" },
+        "left": { "$ref": "#/$defs/ComputedBooleanValue" },
+        "right": { "$ref": "#/$defs/ComputedBooleanValue" }
+      }
+    },
+    "NotBooleanValue": {
+      "title": "Not Boolean Value",
+      "description": "A boolean value that is the negation of another boolean value.",
+      "type": "object",
+      "required": ["source", "type", "value"],
+      "additionalProperties": false,
+      "properties": {
+        "source": { "$ref": "#/$defs/Source" },
+        "type": { "const": "not-boolean" },
+        "value": { "$ref": "#/$defs/ComputedBooleanValue" }
+      }
+    },
+    "XorTwoBooleanValues": {
+      "title": "Xor Boolean Value",
+      "description": "A boolean value that is the result of a logical exclusive OR operation on two boolean values.",
+      "type": "object",
+      "required": ["source", "type", "left", "right"],
+      "additionalProperties": false,
+      "properties": {
+        "source": { "$ref": "#/$defs/Source" },
+        "type": { "const": "xor-boolean" },
+        "left": { "$ref": "#/$defs/ComputedBooleanValue" },
+        "right": { "$ref": "#/$defs/ComputedBooleanValue" }
+      }
+    },
+    "NandTwoBooleanValues": {
+      "title": "Nand Boolean Value",
+      "description": "A boolean value that is the result of a logical NAND operation on two boolean values.",
+      "type": "object",
+      "required": ["source", "type", "left", "right"],
+      "additionalProperties": false,
+      "properties": {
+        "source": { "$ref": "#/$defs/Source" },
+        "type": { "const": "nand-boolean" },
+        "left": { "$ref": "#/$defs/ComputedBooleanValue" },
+        "right": { "$ref": "#/$defs/ComputedBooleanValue" }
+      }
+    },
+    "NorTwoBooleanValues": {
+      "title": "Nor Boolean Value",
+      "description": "A boolean value that is the result of a logical NOR operation on two boolean values.",
+      "type": "object",
+      "required": ["source", "type", "left", "right"],
+      "additionalProperties": false,
+      "properties": {
+        "source": { "$ref": "#/$defs/Source" },
+        "type": { "const": "nor-boolean" },
+        "left": { "$ref": "#/$defs/ComputedBooleanValue" },
+        "right": { "$ref": "#/$defs/ComputedBooleanValue" }
+      }
+    },
+    "XnorTwoBooleanValues": {
+      "title": "Xnor Boolean Value",
+      "description": "A boolean value that is the result of a logical XNOR operation on two boolean values.",
+      "type": "object",
+      "required": ["source", "type", "left", "right"],
+      "additionalProperties": false,
+      "properties": {
+        "source": { "$ref": "#/$defs/Source" },
+        "type": { "const": "xnor-boolean" },
+        "left": { "$ref": "#/$defs/ComputedBooleanValue" },
+        "right": { "$ref": "#/$defs/ComputedBooleanValue" }
       }
     },
     "ListIndexBooleanValue": {
@@ -936,8 +1175,8 @@
       "properties": {
         "source": { "$ref": "#/$defs/Source" },
         "type": { "const": "lookup-state-string-list" },
-        "node": { "$ref": "#/$defs/ComputedStringValue" },
-        "name": { "$ref": "#/$defs/ComputedStringValue" }
+        "node": { "type": "string", "minLength": 1 },
+        "name": { "type": "string", "minLength": 1 }
       }
     },
     "SplitStringValue": {
@@ -1008,8 +1247,8 @@
       "properties": {
         "source": { "$ref": "#/$defs/Source" },
         "type": { "const": "lookup-state-number-list" },
-        "node": { "$ref": "#/$defs/ComputedStringValue" },
-        "name": { "$ref": "#/$defs/ComputedStringValue" }
+        "node": { "type": "string", "minLength": 1 },
+        "name": { "type": "string", "minLength": 1 }
       }
     },
     "RangeNumberListValue": {
@@ -1067,8 +1306,8 @@
       "properties": {
         "source": { "$ref": "#/$defs/Source" },
         "type": { "const": "lookup-state-boolean-list" },
-        "node": { "$ref": "#/$defs/ComputedStringValue" },
-        "name": { "$ref": "#/$defs/ComputedStringValue" }
+        "node": { "type": "string", "minLength": 1 },
+        "name": { "type": "string", "minLength": 1 }
       }
     },
     "RangeBooleanListValue": {
@@ -1126,8 +1365,8 @@
       "properties": {
         "source": { "$ref": "#/$defs/Source" },
         "type": { "const": "lookup-string-map" },
-        "node": { "$ref": "#/$defs/ComputedStringValue" },
-        "name": { "$ref": "#/$defs/ComputedStringValue" }
+        "node": { "type": "string", "minLength": 1 },
+        "name": { "type": "string", "minLength": 1 }
       }
     },
     "UnionStringMapValue": {
@@ -1188,8 +1427,8 @@
       "properties": {
         "source": { "$ref": "#/$defs/Source" },
         "type": { "const": "lookup-state-number-map" },
-        "node": { "$ref": "#/$defs/ComputedStringValue" },
-        "name": { "$ref": "#/$defs/ComputedStringValue" }
+        "node": { "type": "string", "minLength": 1 },
+        "name": { "type": "string", "minLength": 1 }
       }
     },
     "UnionNumberMapValue": {
@@ -1250,8 +1489,8 @@
       "properties": {
         "source": { "$ref": "#/$defs/Source" },
         "type": { "const": "lookup-state-boolean-map" },
-        "node": { "$ref": "#/$defs/ComputedStringValue" },
-        "name": { "$ref": "#/$defs/ComputedStringValue" }
+        "node": { "type": "string", "minLength": 1 },
+        "name": { "type": "string", "minLength": 1 }
       }
     },
     "UnionBooleanMapValue": {
