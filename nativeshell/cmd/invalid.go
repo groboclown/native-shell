@@ -5,7 +5,7 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/groboclown/native-shell/lib/display"
+	"github.com/groboclown/native-shell/nativeshell/display"
 )
 
 // InvalidCmd represents a bad parsing of the arguments.

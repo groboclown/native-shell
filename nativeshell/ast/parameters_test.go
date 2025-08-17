@@ -5,7 +5,7 @@ package ast_test
 import (
 	"testing"
 
-	"github.com/groboclown/native-shell/lib/ast"
+	"github.com/groboclown/native-shell/nativeshell/ast"
 )
 
 func Test_IntParamterValue_str(t *testing.T) {

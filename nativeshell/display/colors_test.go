@@ -7,7 +7,7 @@ import (
 
 	"github.com/TwiN/go-color"
 	"github.com/google/go-cmp/cmp"
-	"github.com/groboclown/native-shell/lib/display"
+	"github.com/groboclown/native-shell/nativeshell/display"
 )
 
 type blockConv struct {

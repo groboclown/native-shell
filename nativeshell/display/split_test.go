@@ -5,7 +5,7 @@ package display_test
 import (
 	"testing"
 
-	"github.com/groboclown/native-shell/lib/display"
+	"github.com/groboclown/native-shell/nativeshell/display"
 )
 
 func Test_WordSplit_Empty(t *testing.T) {

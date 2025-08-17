@@ -5,7 +5,7 @@ package cmd
 import (
 	"strings"
 
-	"github.com/groboclown/native-shell/lib/display"
+	"github.com/groboclown/native-shell/nativeshell/display"
 )
 
 // Command represents a runnable command.

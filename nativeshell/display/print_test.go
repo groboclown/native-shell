@@ -6,7 +6,7 @@ import (
 	"bytes"
 	"testing"
 
-	"github.com/groboclown/native-shell/lib/display"
+	"github.com/groboclown/native-shell/nativeshell/display"
 )
 
 type println struct {
