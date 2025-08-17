@@ -13,7 +13,7 @@ pub fn write_main_rs<'a, SW: SourceWriter, SG: SequenceGen<'a>>(
     let mut out = out.writer_for("src/main.rs")?;
     out.write_all(rust_file_header().as_bytes())?;
 
-    out.write_all(b"\nmod runtime;\n")?;
+    out.write_all(b"\nmod shell_lib;\nmod runtime;\n")?;
     for seq in sgen.seq_range() {
         out.write_fmt(format_args!("mod seq{};\n", seq))?;
     }

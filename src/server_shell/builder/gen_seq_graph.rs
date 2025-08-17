@@ -5,7 +5,7 @@ use super::node_graph::NodeGraph;
 use super::parse_node::ModuleNode;
 use super::sequence::{SeqIndex, SequenceGen};
 use super::writer::SourceWriter;
-use crate::server_shell::builder::errors::BuilderError;
+use crate::server_shell::builder::errors::{BuilderError, ErrorDetails};
 use crate::shell_lib::compile::meta;
 
 pub fn write_graph_seq<'a, SW: SourceWriter, SG: SequenceGen<'a>>(
@@ -14,6 +14,11 @@ pub fn write_graph_seq<'a, SW: SourceWriter, SG: SequenceGen<'a>>(
     sgen: &'a SG,
     out: &SW,
 ) -> Result<(), BuilderError> {
+    if super::special::is_main_seq(graph, sgen) {
+        // The main module is not part of a sequence.
+        return Ok(());
+    }
+
     let mut out = out.writer_for(&format!("src/seq{}.rs", seq_idx))?;
     out.write_all(rust_file_header().as_bytes())?;
     out.write_all(
@@ -28,6 +33,14 @@ use crate::runtime;
     out.write_fmt(format_args!("pub struct Seq{}StateInner {{\n", seq_idx))?;
     for node_idx in &graph.stream_order {
         let node = sgen.node_at(*node_idx);
+        if super::special::is_main_module_node(node) {
+            // The main module must be in its own sequence, not handled here.
+            return Err(BuilderError::MainModuleInSequence(ErrorDetails {
+                message: "The main module cannot be part of a sequence.".to_string(),
+                source: node.node.source.clone(),
+                related: vec![],
+            }));
+        }
         if let Some(ss) = &node.module.stream_struct {
             out.write_fmt(format_args!(
                 "    {}: Option<{}{}>,\n",
@@ -234,6 +247,7 @@ fn write_stream_creation(
 ) -> Result<(), BuilderError> {
     // todo!("generate stream creation")
     println!("TODO: generate stream creation.");
+    out.write_all(b"// TODO generate stream creation\n")?;
     Ok(())
 }
 

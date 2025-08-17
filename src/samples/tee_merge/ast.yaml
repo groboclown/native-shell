@@ -23,19 +23,19 @@ events:
     source:
       file: "built-in"
       line: 0
-      column: 0
+      column: 1
   - name: debug
     text: "Debug event, used by modules to report debug information."
     source:
       file: "built-in"
       line: 0
-      column: 0
+      column: 2
   - name: info
     text: "Informative event, used by modules to report debug information."
     source:
       file: "built-in"
       line: 0
-      column: 0
+      column: 3
 
 nodes:
   # The main node.  It must use a module that conforms to the builder's requirements.
@@ -50,48 +50,48 @@ nodes:
         source:
           file: "script.ns"
           line: 1
-          column: 1
+          column: 2
         value:
           source:
             file: "script.ns"
             line: 1
-            column: 1
+            column: 3
           type: string
           value: "Sends the contents of files and text and stdin into stdout."
       version:
         source:
           file: "script.ns"
           line: 1
-          column: 1
+          column: 4
         value:
           source:
             file: "script.ns"
             line: 1
-            column: 1
+            column: 5
           type: string
           value: "1.0.0"
       start_event:
         source:
           file: "script.ns"
           line: 1
-          column: 1
+          column: 6
         value:
           source:
             file: "script.ns"
             line: 1
-            column: 1
+            column: 7
           type: string
           value: "start"
       required_value_parameters:
         source:
           file: "script.ns"
           line: 1
-          column: 1
+          column: 8
         value:
           source:
             file: "script.ns"
             line: 1
-            column: 1
+            column: 9
           type: string-list
           value:
             - file1
@@ -102,24 +102,24 @@ nodes:
         source:
           file: "script.ns"
           line: 1
-          column: 1
+          column: 10
         value:
           source:
             file: "script.ns"
             line: 1
-            column: 1
+            column: 11
           type: string
           value: "--file1=SOURCE --file2=SOURCE --text1=TEXT --text2=TEXT"
       parameter_help:
         source:
           file: "script.ns"
           line: 1
-          column: 1
+          column: 12
         value:
           source:
             file: "script.ns"
             line: 1
-            column: 1
+            column: 13
           type: string-map
           value:
             "--file1": (required) The file to read from.
@@ -130,12 +130,12 @@ nodes:
         source:
           file: "script.ns"
           line: 1
-          column: 1
+          column: 14
         value:
           source:
             file: "script.ns"
             line: 1
-            column: 1
+            column: 15
           type: string-list
           value:
             - Performs merge of five pieces of data across multiple manipulations (stdin is also read).  Uses '+' as a record separator.
@@ -146,7 +146,7 @@ nodes:
         source:
           file: "script.ns"
           line: 1
-          column: 1
+          column: 16
         mode: output
         to-node: merge1
         to-stream: input
@@ -156,7 +156,7 @@ nodes:
         source:
           file: "script.ns"
           line: 1
-          column: 1
+          column: 17
         actions:
           # Runs the data_file_1 node.
           # This implicitly triggers all nodes in its stream graph.
@@ -164,12 +164,12 @@ nodes:
             source:
               file: "script.ns"
               line: 1
-              column: 1
+              column: 18
             run:
               source:
                 file: "script.ns"
                 line: 1
-                column: 1
+                column: 19
               type: spawn-node
               node: data_file_1
 
@@ -202,52 +202,40 @@ nodes:
         source:
           file: "script.ns"
           line: 2
-          column: 1
+          column: 2
         value:
           type: constant-string-list
           source:
             file: "script.ns"
             line: 2
-            column: 1
+            column: 3
           value:
             - type: map-key-string
               source:
                 file: "script.ns"
                 line: 2
-                column: 1
+                column: 4
               map:
                 source:
                   file: "script.ns"
                   line: 2
-                  column: 1
+                  column: 5
                 type: lookup-string-map
-                node:
-                  source:
-                    file: "script.ns"
-                    line: 2
-                    column: 1
-                  type: constant-string
-                  value: main
-                name:
-                  source:
-                    file: "script.ns"
-                    line: 2
-                    column: 1
-                  type: constant-string
-                  value: value_params
+                node: main
+                name: value_params
               key:
                 type: constant-string
                 source:
                   file: "script.ns"
                   line: 2
-                  column: 1
+                  column: 6
                 value: "file1"
               default:
                 type: constant-string
                 source:
                   file: "script.ns"
                   line: 2
-                  column: 1
+                  column: 7
                 value: ""
     exit-actions: []
     streams:
@@ -255,7 +243,7 @@ nodes:
         source:
           file: "script.ns"
           line: 2
-          column: 1
+          column: 8
         mode: output
         to-node: tee1
         to-stream: input
@@ -273,52 +261,40 @@ nodes:
         source:
           file: "script.ns"
           line: 3
-          column: 1
+          column: 2
         value:
           type: constant-string-list
           source:
             file: "script.ns"
             line: 3
-            column: 1
+            column: 3
           value:
             - type: map-key-string
               source:
                 file: "script.ns"
                 line: 3
-                column: 1
+                column: 4
               map:
                 source:
                   file: "script.ns"
                   line: 3
-                  column: 1
+                  column: 5
                 type: lookup-string-map
-                node:
-                  source:
-                    file: "script.ns"
-                    line: 3
-                    column: 1
-                  type: constant-string
-                  value: main
-                name:
-                  source:
-                    file: "script.ns"
-                    line: 3
-                    column: 1
-                  type: constant-string
-                  value: value_params
+                node: main
+                name: value_params
               key:
                 type: constant-string
                 source:
                   file: "script.ns"
                   line: 3
-                  column: 1
+                  column: 6
                 value: "file2"
               default:
                 type: constant-string
                 source:
                   file: "script.ns"
                   line: 3
-                  column: 1
+                  column: 7
                 value: ""
     exit-actions: []
     streams:
@@ -326,7 +302,7 @@ nodes:
         source:
           file: "script.ns"
           line: 3
-          column: 1
+          column: 8
         mode: output
         to-node: merge2
         to-stream: input
@@ -344,46 +320,34 @@ nodes:
         source:
           file: "script.ns"
           line: 4
-          column: 1
+          column: 2
         value:
           type: map-key-string
           source:
             file: "script.ns"
             line: 4
-            column: 1
+            column: 3
           map:
             source:
               file: "script.ns"
               line: 4
-              column: 1
+              column: 4
             type: lookup-string-map
-            node:
-              source:
-                file: "script.ns"
-                line: 4
-                column: 1
-              type: constant-string
-              value: main
-            name:
-              source:
-                file: "script.ns"
-                line: 4
-                column: 1
-              type: constant-string
-              value: value_params
+            node: main
+            name: value_params
           key:
             type: constant-string
             source:
               file: "script.ns"
               line: 4
-              column: 1
+              column: 5
             value: "text1"
           default:
             type: constant-string
             source:
               file: "script.ns"
               line: 4
-              column: 1
+              column: 6
             value: ""
     exit-actions: []
     streams:
@@ -391,7 +355,7 @@ nodes:
         source:
           file: "script.ns"
           line: 4
-          column: 1
+          column: 7
         mode: output
         to-node: merge1
         to-stream: input
@@ -409,46 +373,34 @@ nodes:
         source:
           file: "script.ns"
           line: 5
-          column: 1
+          column: 2
         value:
           type: map-key-string
           source:
             file: "script.ns"
             line: 5
-            column: 1
+            column: 3
           map:
             source:
               file: "script.ns"
               line: 5
-              column: 1
+              column: 4
             type: lookup-string-map
-            node:
-              source:
-                file: "script.ns"
-                line: 5
-                column: 1
-              type: constant-string
-              value: main
-            name:
-              source:
-                file: "script.ns"
-                line: 5
-                column: 1
-              type: constant-string
-              value: value_params
+            node: main
+            name: value_params
           key:
             type: constant-string
             source:
               file: "script.ns"
               line: 5
-              column: 1
+              column: 5
             value: "text2"
           default:
             type: constant-string
             source:
               file: "script.ns"
               line: 5
-              column: 1
+              column: 6
             value: ""
     exit-actions: []
     streams:
@@ -456,7 +408,7 @@ nodes:
         source:
           file: "script.ns"
           line: 5
-          column: 1
+          column: 7
         mode: output
         to-node: merge2
         to-stream: input
@@ -477,7 +429,7 @@ nodes:
         source:
           file: "script.ns"
           line: 6
-          column: 1
+          column: 2
         mode: output
         to-node: merge1
         to-stream: input
@@ -485,7 +437,7 @@ nodes:
         source:
           file: "script.ns"
           line: 6
-          column: 1
+          column: 3
         mode: output
         to-node: merge3
         to-stream: input
@@ -502,13 +454,13 @@ nodes:
         source:
           file: "script.ns"
           line: 7
-          column: 1
+          column: 2
         value:
           type: constant-string
           source:
             file: "script.ns"
             line: 7
-            column: 1
+            column: 3
           value: "+"
     exit-actions: []
     event-listeners: []
@@ -517,7 +469,7 @@ nodes:
         source:
           file: "script.ns"
           line: 7
-          column: 1
+          column: 4
         mode: output
         to-node: merge3
         to-stream: input
@@ -534,13 +486,13 @@ nodes:
         source:
           file: "script.ns"
           line: 8
-          column: 1
+          column: 2
         value:
           type: constant-string
           source:
             file: "script.ns"
             line: 8
-            column: 1
+            column: 3
           value: "+"
     exit-actions: []
     event-listeners: []
@@ -549,7 +501,7 @@ nodes:
         source:
           file: "script.ns"
           line: 8
-          column: 1
+          column: 4
         mode: output
         to-node: merge3
         to-stream: input
@@ -566,13 +518,13 @@ nodes:
         source:
           file: "script.ns"
           line: 9
-          column: 1
+          column: 2
         value:
           type: constant-string
           source:
             file: "script.ns"
             line: 9
-            column: 1
+            column: 3
           value: "+"
     exit-actions: []
     event-listeners: []
@@ -581,7 +533,7 @@ nodes:
         source:
           file: "script.ns"
           line: 9
-          column: 1
+          column: 4
         mode: output
         to-node: main
         to-stream: stdout

@@ -12,9 +12,10 @@ pub fn write_runtime_rs<SW: SourceWriter>(
 ) -> Result<(), BuilderError> {
     let mut out = out.writer_for("src/runtime.rs")?;
     out.write_all(rust_file_header().as_bytes())?;
-    out.write_all(
-        b"use std::sync::Arc;\n//use crate::shell_lib::helpers;\n\npub struct Nodes {\n",
-    )?;
+    out.write_fmt(format_args!(
+        "use std::sync::Arc;\n//use crate::shell_lib::helpers;\nuse {};\n\npub struct Nodes {{\n",
+        super::helpers::SOURCE_MODULE,
+    ))?;
     for node in nodes {
         out.write_fmt(format_args!(
             "    pub {}: {}{},\n",
@@ -24,21 +25,71 @@ pub fn write_runtime_rs<SW: SourceWriter>(
         ))?;
     }
 
-    /* For the moment, runtime parameters are built by the jobs on-demand.
-    out.write_all(b"}\n\npub struct RuntimeParams {\n")?;
+    out.write_all(
+        b"}\n\n#[derive(Clone)]\npub struct Runtime {\n    pub nodes: Arc<Nodes>,\n}\n\nimpl Nodes {\n    pub fn new(argv: Vec<String>, environ: HashMap<String, String>) -> Self {\n",
+    )?;
     for node in nodes {
-        if let Some(rt) = &node.module.runtime_param_struct {
-            out.write_fmt(format_args!(
-                "    pub {}: {}{},\n",
-                node.node_id,
-                as_mod_expr(node),
-                rt.name,
-            ))?;
+        if let Some(params) = &node.module.compile_param_struct {
+            if let Some(new) = &params.new {
+                out.write_fmt(format_args!(
+                    "        let params_{} = {}{}::{}();\n",
+                    node.node_id, as_mod_expr(node), params.name, new,
+                ))?;
+                let field_values = super::values::construct_parameter_values(
+                    &node.node.source,
+                    &node.node.initial_parameters,
+                    params,
+                )?;
+                for (key, field) in field_values {
+                    out.write_fmt(format_args!(
+                        "        params_{}.{} = {};\n",
+                        node.node_id, key, field,
+                    ))?;
+                }
+            }
         }
     }
-    out.write_all(b"}\n\n#[derive(Clone)]\npub struct Runtime {\n    pub nodes: Arc<Nodes>,\n    pub params: helpers::state_guard::StateGuard<RuntimeParams>,\n}\n")?;
-    */
-    out.write_all(b"}\n\n#[derive(Clone)]\npub struct Runtime {\n    pub nodes: Arc<Nodes>,\n}\n")?;
+
+    out.write_all(
+        b"\n        Nodes {\n",
+    )?;
+    for node in nodes {
+        out.write_fmt(format_args!(
+            "            {}: {}{}::new({}",
+            node.node_id,
+            as_mod_expr(node),
+            node.module.instance_struct,
+            super::helpers::as_rust_source(&node.node.source),
+        ))?;
+        if let Some(params) = &node.module.compile_param_struct {
+            if params.new.is_some() {
+                out.write_fmt(format_args!(
+                    ", params_{}",
+                    node.node_id,
+                ))?;
+            } else {
+                out.write_fmt(format_args!(", {}{} {{\n",
+                    as_mod_expr(node), params.name,
+                ))?;
+                let field_values = super::values::construct_parameter_values(
+                    &node.node.source,
+                    &node.node.initial_parameters,
+                    params,
+                )?;
+                for (key, field) in field_values {
+                    out.write_fmt(format_args!(
+                        "                {}: {},\n",
+                        key, field,
+                    ))?;
+                }
+                out.write_all(b"}\n")?;
+            }
+        }
+        out.write_all(b"),\n")?;
+    }
+    out.write_all(
+        b"        }\n    }\n}\n",
+    )?;
 
     Ok(())
 }

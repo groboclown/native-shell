@@ -1,6 +1,6 @@
 //! Handle turning the model's computed values into Rust code.
 
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 
 use crate::{server_shell::{ast::model, builder::{errors::{BuilderError, ErrorDetails}, parse_node}}, shell_lib::compile::meta};
 
@@ -105,7 +105,7 @@ impl<'a, SG: super::sequence::SequenceGen<'a>> ConstructValueState<'a, SG> {
                 return Ok(());
             }
         }
-        Err(BuilderError::NoSuchStateField(
+        Err(BuilderError::NoSuchField(
             ErrorDetails {
                 message: format!("Node '{}' module '{}' does not have a state field named '{}'.", node_name, node.module.name, field),
                 source: source.clone(),
@@ -185,10 +185,36 @@ impl<'a, SG: super::sequence::SequenceGen<'a>> ConstructValueState<'a, SG> {
                     )?))
                 }
                 model::ComputedStringValue::BooleanToStringValue(boolean_to_string_value) => {
-                    Ok(format!("{}.to_string()",
-                        self.inner_construct_value(&model::ComputedValue::BooleanValue(boolean_to_string_value.value.clone()),
+                    let value = self.inner_construct_value(
+                        &model::ComputedValue::BooleanValue(boolean_to_string_value.value.clone()),
                         visiting,
-                    )?))
+                    )?;
+                    if value == "true" {
+                        if let Some(res) = &boolean_to_string_value.true_string {
+                            self.inner_construct_value(&model::ComputedValue::StringValue(*res.clone()), visiting)
+                        } else {
+                            // Default string value.
+                            Ok("\"true\".to_string()".to_string())
+                        }
+                    } else if value == "false" {
+                        if let Some(res) = &boolean_to_string_value.false_string {
+                            self.inner_construct_value(&model::ComputedValue::StringValue(*res.clone()), visiting)
+                        } else {
+                            // Default string value.
+                            Ok("\"false\".to_string()".to_string())
+                        }
+                    } else {
+                        // It's an evaluated value.
+                        let true_str = boolean_to_string_value.true_string.as_ref()
+                            .map(|s| self.inner_construct_value(&model::ComputedValue::StringValue(*s.clone()), visiting))
+                            .transpose()?
+                            .unwrap_or("&\"true\".to_string()".to_string());
+                        let false_str = boolean_to_string_value.false_string.as_ref()
+                            .map(|s| self.inner_construct_value(&model::ComputedValue::StringValue(*s.clone()), visiting))
+                            .transpose()?
+                            .unwrap_or("&\"false\".to_string()".to_string());
+                        Ok(format!("crate::shell_lib::helpers::maps::map_bool_to_string({}, {}, {})", value, true_str, false_str))
+                    }
                 }
                 model::ComputedStringValue::ListToStringValue(list_to_string_value) => {
                     let list = self.inner_construct_value(
@@ -232,20 +258,7 @@ impl<'a, SG: super::sequence::SequenceGen<'a>> ConstructValueState<'a, SG> {
                     ))
                 }
                 model::ComputedStringValue::ConstantStringValue(constant_string_value) => {
-                    let mut s = "\"".to_string();
-                    for c in constant_string_value.value.chars() {
-                        match c {
-                            '"' => s.push_str("\\\""),
-                            '\\' => s.push_str("\\\\"),
-                            '\n' => s.push_str("\\n"),
-                            '\r' => s.push_str("\\r"),
-                            '\t' => s.push_str("\\t"),
-                            '\0' => s.push_str("\\0"),
-                            _ => s.push(c),
-                        }
-                    }
-                    s.push_str("\".to_string()");
-                    Ok(s)
+                    Ok(super::helpers::as_rust_str(&constant_string_value.value))
                 }
             }
             model::ComputedValue::NumberValue(computed_number_value) => match computed_number_value {
@@ -689,7 +702,7 @@ fn ensure_value_type(
     model_type: &model::ComputedValue,
 ) -> Result<(), BuilderError> {
     if !match_value_type(meta_type, model_type) {
-        return Err(BuilderError::StateFieldTypeMismatch(
+        return Err(BuilderError::FieldTypeMismatch(
             ErrorDetails {
                 message: format!(
                     "Expected value type '{:?}' for field {} in module {}, found '{:?}'.",
@@ -701,4 +714,291 @@ fn ensure_value_type(
         ));
     }
     Ok(())
+}
+
+pub fn construct_parameter_values(
+    source: &model::Source,
+    values: &HashMap<model::NodeInitialParametersKey, model::Parameter>,
+    module: &meta::ModuleStructure,
+) -> Result<HashMap<String, String>, BuilderError> {
+    let mut errors = vec![];
+    let mut ret = HashMap::new();
+    let mut param_values: HashMap<String, &model::Parameter> = HashMap::new();
+    let mut unused: HashSet<String> = HashSet::new();
+    for (k, f) in values {
+        let key: String = k.clone().into();
+        param_values.insert(key.clone(), f);
+        unused.insert(key);
+    }
+
+    for field in &module.fields {
+        let param = param_values.get(&field.name);
+        if param.is_none() {
+            if !field.optional {
+                errors.push(BuilderError::RequiredFieldMissing(
+                    ErrorDetails {
+                        message: format!(
+                            "Missing required field {} in module {}.",
+                            field.name, module.name
+                        ),
+                        source: source.clone(),
+                        related: vec![],
+                    },
+                ));
+            }
+            continue;
+        }
+        let mut opt1 = "";
+        let mut opt2 = "";
+        if field.optional {
+            opt1 = "Some(";
+            opt2 = ")";
+        }
+        let param = param.unwrap();
+        match &field.value_type {
+            meta::ValueType::String => match &param.value {
+                model::ParameterValue::String { source: _source, value } => {
+                    ret.insert(field.name.clone(), format!("{}{}{}", opt1, super::helpers::as_rust_str(&value), opt2));
+                }
+                _ => {
+                    errors.push(BuilderError::FieldTypeMismatch(
+                        ErrorDetails {
+                            message: format!(
+                                "Expected string value for field {} in module {}, found {:?}.",
+                                field.name, module.name, param.value
+                            ),
+                            source: source.clone(),
+                            related: vec![],
+                        },
+                    ));
+                }
+            }
+            meta::ValueType::Float => match &param.value {
+                model::ParameterValue::Number { source: _source, value } => {
+                    ret.insert(field.name.clone(), format!("{}{}{}", opt1, value.to_string(), opt2));
+                }
+                _ => {
+                    errors.push(BuilderError::FieldTypeMismatch(
+                        ErrorDetails {
+                            message: format!(
+                                "Expected number value for field {} in module {}, found {:?}.",
+                                field.name, module.name, param.value
+                            ),
+                            source: source.clone(),
+                            related: vec![],
+                        },
+                    ));
+                }
+            }
+            meta::ValueType::Boolean => match &param.value {
+                model::ParameterValue::Boolean { source: _source, value } => {
+                    ret.insert(field.name.clone(), format!("{}{}{}", opt1, value.to_string(), opt2));
+                }
+                _ => {
+                    errors.push(BuilderError::FieldTypeMismatch(
+                        ErrorDetails {
+                            message: format!(
+                                "Expected boolean value for field {} in module {}, found {:?}.",
+                                field.name, module.name, param.value
+                            ),
+                            source: source.clone(),
+                            related: vec![],
+                        },
+                    ));
+                }
+            }
+            meta::ValueType::StringList => match &param.value {
+                model::ParameterValue::StringList { source: _source, value } => {
+                    let mut list = String::new();
+                    let mut first = true;
+                    for item in value {
+                        if !first {
+                            list.push_str(", ");
+                        }
+                        first = false;
+                        list.push_str(&super::helpers::as_rust_str(item));
+                        list.push_str(".to_string()");
+                    }
+                    ret.insert(field.name.clone(), format!("{}vec![{}]{}", opt1, list, opt2));
+                }
+                _ => {
+                    errors.push(BuilderError::FieldTypeMismatch(
+                        ErrorDetails {
+                            message: format!(
+                                "Expected string list value for field {} in module {}, found {:?}.",
+                                field.name, module.name, param.value
+                            ),
+                            source: source.clone(),
+                            related: vec![],
+                        },
+                    ));
+                }
+            }
+            meta::ValueType::FloatList => match &param.value {
+                model::ParameterValue::NumberList { source: _source, value } => {
+                    let mut list = String::new();
+                    let mut first = true;
+                    for item in value {
+                        if !first {
+                            list.push_str(", ");
+                        }
+                        first = false;
+                        list.push_str(item.to_string().as_str());
+                    }
+                    ret.insert(field.name.clone(), format!("{}vec![{}]{}", opt1, list, opt2));
+                }
+                _ => {
+                    errors.push(BuilderError::FieldTypeMismatch(
+                        ErrorDetails {
+                            message: format!(
+                                "Expected number list value for field {} in module {}, found {:?}.",
+                                field.name, module.name, param.value
+                            ),
+                            source: source.clone(),
+                            related: vec![],
+                        },
+                    ));
+                }
+            }
+            meta::ValueType::BooleanList => match &param.value {
+                model::ParameterValue::BooleanList { source: _source, value } => {
+                    let mut list = String::new();
+                    let mut first = true;
+                    for item in value {
+                        if !first {
+                            list.push_str(", ");
+                        }
+                        first = false;
+                        list.push_str(item.to_string().as_str());
+                    }
+                    ret.insert(field.name.clone(), format!("{}vec![{}]{}", opt1, list, opt2));
+                }
+                _ => {
+                    errors.push(BuilderError::FieldTypeMismatch(
+                        ErrorDetails {
+                            message: format!(
+                                "Expected boolean list value for field {} in module {}, found {:?}.",
+                                field.name, module.name, param.value
+                            ),
+                            source: source.clone(),
+                            related: vec![],
+                        },
+                    ));
+                }
+            }
+            meta::ValueType::StringMap => match &param.value {
+                model::ParameterValue::StringMap { source: _source, value } => {
+                    let mut map = String::new();
+                    let mut first = true;
+                    for (key, value) in value {
+                        if !first {
+                            map.push_str(", ");
+                        }
+                        first = false;
+                        map.push_str(&format!("({}.to_string(), {}.to_string())", super::helpers::as_rust_str(key), super::helpers::as_rust_str(value)));
+                    }
+                    ret.insert(field.name.clone(), format!("{}std::collections::HashMap::from([{}]){}", opt1, map, opt2));
+                }
+                _ => {
+                    errors.push(BuilderError::FieldTypeMismatch(
+                        ErrorDetails {
+                            message: format!(
+                                "Expected string map value for field {} in module {}, found {:?}.",
+                                field.name, module.name, param.value
+                            ),
+                            source: source.clone(),
+                            related: vec![],
+                        },
+                    ));
+                }
+            }
+            meta::ValueType::FloatMap => match &param.value {
+                model::ParameterValue::NumberMap { source: _source, value } => {
+                    let mut map = String::new();
+                    let mut first = true;
+                    for (key, value) in value {
+                        if !first {
+                            map.push_str(", ");
+                        }
+                        first = false;
+                        map.push_str(&format!("({}.to_string(), {})", super::helpers::as_rust_str(key), value));
+                    }
+                    ret.insert(field.name.clone(), format!("{}std::collections::HashMap::from([{}]){}", opt1, map, opt2));
+                }
+                _ => {
+                    errors.push(BuilderError::FieldTypeMismatch(
+                        ErrorDetails {
+                            message: format!(
+                                "Expected number map value for field {} in module {}, found {:?}.",
+                                field.name, module.name, param.value
+                            ),
+                            source: source.clone(),
+                            related: vec![],
+                        },
+                    ));
+                }
+            }
+            meta::ValueType::BooleanMap => match &param.value {
+                model::ParameterValue::BooleanMap { source: _source, value } => {
+                    let mut map = String::new();
+                    let mut first = true;
+                    for (key, value) in value {
+                        if !first {
+                            map.push_str(", ");
+                        }
+                        first = false;
+                        map.push_str(&format!("({}.to_string(), {})", super::helpers::as_rust_str(key), value));
+                    }
+                    ret.insert(field.name.clone(), format!("{}std::collections::HashMap::from([{}]){}", opt1, map, opt2));
+                }
+                _ => {
+                    errors.push(BuilderError::FieldTypeMismatch(
+                        ErrorDetails {
+                            message: format!(
+                                "Expected boolean map value for field {} in module {}, found {:?}.",
+                                field.name, module.name, param.value
+                            ),
+                            source: source.clone(),
+                            related: vec![],
+                        },
+                    ));
+                }
+            }
+            meta::ValueType::Enum(items) => match &param.value {
+                model::ParameterValue::String { source: _source, value } => {
+                    if items.contains(value) {
+                        ret.insert(field.name.clone(), format!("{}{}{}", opt1, super::helpers::as_rust_str(value), opt2));
+                    } else {
+                        errors.push(BuilderError::FieldTypeMismatch(
+                            ErrorDetails {
+                                message: format!(
+                                    "Expected enum value for field {} in module {}, found '{}', expected one of {:?}.",
+                                    field.name, module.name, value, items
+                                ),
+                                source: source.clone(),
+                                related: vec![],
+                            },
+                        ));
+                    }
+                }
+                _ => {
+                    errors.push(BuilderError::FieldTypeMismatch(
+                        ErrorDetails {
+                            message: format!(
+                                "Expected enum value for field {} in module {}, found {:?}.",
+                                field.name, module.name, param.value
+                            ),
+                            source: source.clone(),
+                            related: vec![],
+                        },
+                    ));
+                }
+            }
+        }
+    }
+    if errors.is_empty() {
+        return Ok(ret);
+    } else {
+        return Err(BuilderError::Collection(errors));
+    }
 }

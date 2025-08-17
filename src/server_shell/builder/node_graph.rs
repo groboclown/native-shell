@@ -18,6 +18,8 @@ use std::vec;
 use super::errors;
 use super::parse_node;
 use crate::server_shell::ast::model;
+use crate::server_shell::builder::parse_node::NodeIndex;
+use crate::server_shell::builder::special::is_main_node;
 
 #[derive(Debug, Clone)]
 pub struct NodeGraph {
@@ -100,14 +102,29 @@ fn stream_topo_sort(
     let mut visited = vec![None; count];
     let mut visiting = vec![false; count];
     let mut depth = Vec::with_capacity(count);
+    let mut main_node = NodeIndex::MAX; // placeholder
     // This will visit every node, to ensure all spanning trees are visited.
     for node_idx in 0..count {
-        depth.push(TopoItem::Enter((node_idx, clusters.next_cluster())));
+        let cluster = clusters.next_cluster();
+
+        // The main node has its own special handling.
+        // Main node does not participate in the node graph, as it will nearly always introduce cycles,
+        // and its stream handling is its own thing.
+        if is_main_node(&nodes.get(node_idx).expect("wrong counts").node.name) {
+            clusters.push(cluster, node_idx);
+            main_node = node_idx;
+        } else {
+            depth.push(TopoItem::Enter((node_idx, cluster)));
+        }
     }
-    
+
     while depth.len() > 0 {
         match depth.pop().expect("depth wasn't empty") {
             TopoItem::Enter((current_node, current_cluster)) => {
+                if current_node == main_node {
+                    // Skip the main node, as it doesn't participate in the node graph.
+                    continue;
+                }
                 if let Some(descendant_cluster) = *visited.get(current_node).expect("wrong counts") {
                     // Already visited.
                     // This means we need to change the current cluster to point to the visited cluster.
@@ -429,10 +446,12 @@ impl StreamClusters {
         let dest_stream = *descendant;
 
         // Now that they're locked, we can prepend the descendant's stream to the ancestor's stream.
-        self.streams.prepend(src_stream, dest_stream);
+        if src_stream != dest_stream {
+            self.streams.prepend(src_stream, dest_stream);
 
-        // Finally, we can update the ancestor to point to the descendant to join the clusters.
-        *ancestor = *descendant;
+            // Finally, we can update the ancestor to point to the descendant to join the clusters.
+            *ancestor = *descendant;
+        }
     }
 
     /// Get the underlying stream's topological ordering of the nodes.
@@ -527,6 +546,63 @@ mod tests {
         assert_eq!(tg.stream_order[1], 2); // node_idx 2 == sink
         assert_eq!(tg.initial_exec[0], 1); // node_idx 1 == cat
         assert_eq!(tg.initial_exec[1], 2); // node_idx 2 == sink
+    }
+
+    #[test]
+    fn test_tee_merge_json() {
+        let json = std::str::from_utf8(include_bytes!("../../samples/tee_merge/ast.json")).expect("failed to utf8 convert json");
+        let ast = crate::server_shell::ast::astio::read_str(&json.to_string()).expect("failed to read json");
+        let ast_errors = crate::server_shell::ast::validate::validate(&ast);
+        assert!(ast_errors.is_empty(), "AST validation failed: {:?}", ast_errors);
+        let nodes = parse_node::convert_nodes(&ast.nodes, &from_ast::get_available_modules()).expect("failed to convert nodes");
+        let graph = ScriptGraph::load(&nodes).expect("failed to load graph");
+        assert_eq!(graph.node_graphs.len(), 2);
+        assert_eq!(nodes.get(0).expect("exists").node.name, "main".to_string());
+        assert_eq!(nodes.get(0).expect("exists").node_id, "shell_0".to_string());
+        assert_eq!(nodes.get(1).expect("exists").node.name, "data_file_1".to_string());
+        assert_eq!(nodes.get(1).expect("exists").node_id, "cat_1".to_string());
+        assert_eq!(nodes.get(2).expect("exists").node.name, "data_file_2".to_string());
+        assert_eq!(nodes.get(2).expect("exists").node_id, "cat_2".to_string());
+        assert_eq!(nodes.get(3).expect("exists").node.name, "data_text_1".to_string());
+        assert_eq!(nodes.get(3).expect("exists").node_id, "echo_3".to_string());
+        assert_eq!(nodes.get(4).expect("exists").node.name, "data_text_2".to_string());
+        assert_eq!(nodes.get(4).expect("exists").node_id, "echo_4".to_string());
+        assert_eq!(nodes.get(5).expect("exists").node.name, "tee1".to_string());
+        assert_eq!(nodes.get(5).expect("exists").node_id, "tee_5".to_string());
+        assert_eq!(nodes.get(6).expect("exists").node.name, "merge1".to_string());
+        assert_eq!(nodes.get(6).expect("exists").node_id, "merge_6".to_string());
+        assert_eq!(nodes.get(7).expect("exists").node.name, "merge2".to_string());
+        assert_eq!(nodes.get(7).expect("exists").node_id, "merge_7".to_string());
+        assert_eq!(nodes.get(8).expect("exists").node.name, "merge3".to_string());
+        assert_eq!(nodes.get(8).expect("exists").node_id, "merge_8".to_string());
+        assert_eq!(graph.find_node_by_name(&mk_src(1), &"main".to_string(), &nodes).expect("exists").node_id, "shell_0".to_string());
+
+        let tg = &graph.node_graphs[0];
+        assert_eq!(tg.stream_order.len(), 1);
+        assert_eq!(tg.initial_exec.len(), 1);
+        assert_eq!(tg.stream_order[0], 0); // node_idx 0 == main
+        assert_eq!(tg.initial_exec[0], 0); // node_idx 0 == main
+
+        let tg = &graph.node_graphs[1];
+        assert_eq!(tg.stream_order.len(), 8);
+        assert_eq!(tg.stream_order[0], 1); // node_idx 1 == data_file_1
+        assert_eq!(tg.stream_order[1], 2); // node_idx 2 == data_file_2
+        assert_eq!(tg.stream_order[2], 3); // node_idx 3 == data_text_1
+        assert_eq!(tg.stream_order[3], 4); // node_idx 4 == data_text_2
+        assert_eq!(tg.stream_order[4], 5); // node_idx 5 == tee1
+        assert_eq!(tg.stream_order[5], 6); // node_idx 6 == merge1
+        assert_eq!(tg.stream_order[6], 7); // node_idx 2 == merge2
+        assert_eq!(tg.stream_order[7], 8); // node_idx 2 == merge3
+
+        assert_eq!(tg.initial_exec.len(), 8);  // All can run in parallel.
+        assert_eq!(tg.initial_exec[0], 1); // node_idx 1 == data_file_1
+        assert_eq!(tg.initial_exec[1], 2); // node_idx 2 == data_file_2
+        assert_eq!(tg.initial_exec[2], 3); // node_idx 3 == data_text_1
+        assert_eq!(tg.initial_exec[3], 4); // node_idx 4 == data_text_2
+        assert_eq!(tg.initial_exec[4], 5); // node_idx 5 == tee1
+        assert_eq!(tg.initial_exec[5], 6); // node_idx 6 == merge1
+        assert_eq!(tg.initial_exec[6], 7); // node_idx 7 == merge2
+        assert_eq!(tg.initial_exec[7], 8); // node_idx 8 == merge3
     }
 
     fn mk_cat_cp() -> Vec<parse_node::ModuleNode> {

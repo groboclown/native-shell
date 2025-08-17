@@ -44,9 +44,13 @@ pub enum BuilderError {
     /// The node's module does not have a state struct.
     NoStateForModule(ErrorDetails),
     /// The node's module's state field type does not match the expected type.
-    StateFieldTypeMismatch(ErrorDetails),
+    FieldTypeMismatch(ErrorDetails),
     /// The node's module does not have a state field with the given name.
-    NoSuchStateField(ErrorDetails),
+    NoSuchField(ErrorDetails),
+    /// Bug.  Something shoved this in the wrong sequence.
+    MainModuleInSequence(ErrorDetails),
+    /// A required field is missing in the module's structure.
+    RequiredFieldMissing(ErrorDetails),
 }
 
 impl From<std::io::Error> for BuilderError {
@@ -95,13 +99,23 @@ pub fn report_errors(err: &BuilderError) {
             show_source(&error_details.source);
             show_related(error_details);
         },
-        BuilderError::StateFieldTypeMismatch(error_details) => {
-            eprintln!("State field type mismatch: {}", error_details.message);
+        BuilderError::FieldTypeMismatch(error_details) => {
+            eprintln!("Field type mismatch: {}", error_details.message);
             show_source(&error_details.source);
             show_related(error_details);
         }
-        BuilderError::NoSuchStateField(error_details) => {
-            eprintln!("No such state field: {}", error_details.message);
+        BuilderError::NoSuchField(error_details) => {
+            eprintln!("No such field: {}", error_details.message);
+            show_source(&error_details.source);
+            show_related(error_details);
+        }
+        BuilderError::MainModuleInSequence(error_details) => {
+            eprintln!("BUG Main module in sequence: {}", error_details.message);
+            show_source(&error_details.source);
+            show_related(error_details);
+        }
+        BuilderError::RequiredFieldMissing(error_details) => {
+            eprintln!("Required field missing: {}", error_details.message);
             show_source(&error_details.source);
             show_related(error_details);
         }

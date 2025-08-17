@@ -34,4 +34,12 @@ mod tests {
         let ast_errors = crate::server_shell::ast::validate::validate(&ast);
         assert!(ast_errors.is_empty(), "AST validation errors: {:?}", ast_errors);
     }
+    
+    #[test]
+    fn test_tee_merge_json() {
+        let json = std::str::from_utf8(include_bytes!("../../samples/tee_merge/ast.json")).expect("failed to utf8 convert json");
+        let ast = read_str(&json.to_string()).expect("failed to read json");
+        let ast_errors = crate::server_shell::ast::validate::validate(&ast);
+        assert!(ast_errors.is_empty(), "AST validation errors: {:?}", ast_errors);
+    }
 }

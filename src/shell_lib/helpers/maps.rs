@@ -36,3 +36,11 @@ pub fn finalize_map<V: Clone>(map: &HashMap<String, Option<V>>) -> HashMap<Strin
     }
     result
 }
+
+pub fn map_bool_to_string(value: bool, true_val: &String, false_val: &String) -> String {
+    if value {
+        true_val.clone()
+    } else {
+        false_val.clone()
+    }
+}

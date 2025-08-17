@@ -247,10 +247,7 @@
                         "type": { "const": "number-list" },
                         "value": {
                           "type": "array",
-                          "items": {
-                            "type": "array",
-                            "items": { "type": "number" }
-                          }
+                          "items": { "type": "number" }
                         }
                       }
                     },
@@ -265,10 +262,7 @@
                         "type": { "const": "boolean-list" },
                         "value": {
                           "type": "array",
-                          "items": {
-                            "type": "array",
-                            "items": { "type": "boolean" }
-                          }
+                          "items": { "type": "boolean" }
                         }
                       }
                     },

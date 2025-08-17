@@ -6090,10 +6090,7 @@ impl<'de> ::serde::Deserialize<'de> for NativeShellAstSchemaName {
 #[doc = "                    \"value\": {"]
 #[doc = "                      \"type\": \"array\","]
 #[doc = "                      \"items\": {"]
-#[doc = "                        \"type\": \"array\","]
-#[doc = "                        \"items\": {"]
-#[doc = "                          \"type\": \"number\""]
-#[doc = "                        }"]
+#[doc = "                        \"type\": \"number\""]
 #[doc = "                      }"]
 #[doc = "                    }"]
 #[doc = "                  },"]
@@ -6118,10 +6115,7 @@ impl<'de> ::serde::Deserialize<'de> for NativeShellAstSchemaName {
 #[doc = "                    \"value\": {"]
 #[doc = "                      \"type\": \"array\","]
 #[doc = "                      \"items\": {"]
-#[doc = "                        \"type\": \"array\","]
-#[doc = "                        \"items\": {"]
-#[doc = "                          \"type\": \"boolean\""]
-#[doc = "                        }"]
+#[doc = "                        \"type\": \"boolean\""]
 #[doc = "                      }"]
 #[doc = "                    }"]
 #[doc = "                  },"]
@@ -6782,10 +6776,7 @@ impl ::std::convert::From<::std::vec::Vec<Action>> for OrderedActions {
 #[doc = "            \"value\": {"]
 #[doc = "              \"type\": \"array\","]
 #[doc = "              \"items\": {"]
-#[doc = "                \"type\": \"array\","]
-#[doc = "                \"items\": {"]
-#[doc = "                  \"type\": \"number\""]
-#[doc = "                }"]
+#[doc = "                \"type\": \"number\""]
 #[doc = "              }"]
 #[doc = "            }"]
 #[doc = "          },"]
@@ -6810,10 +6801,7 @@ impl ::std::convert::From<::std::vec::Vec<Action>> for OrderedActions {
 #[doc = "            \"value\": {"]
 #[doc = "              \"type\": \"array\","]
 #[doc = "              \"items\": {"]
-#[doc = "                \"type\": \"array\","]
-#[doc = "                \"items\": {"]
-#[doc = "                  \"type\": \"boolean\""]
-#[doc = "                }"]
+#[doc = "                \"type\": \"boolean\""]
 #[doc = "              }"]
 #[doc = "            }"]
 #[doc = "          },"]
@@ -7061,10 +7049,7 @@ impl Parameter {
 #[doc = "        \"value\": {"]
 #[doc = "          \"type\": \"array\","]
 #[doc = "          \"items\": {"]
-#[doc = "            \"type\": \"array\","]
-#[doc = "            \"items\": {"]
-#[doc = "              \"type\": \"number\""]
-#[doc = "            }"]
+#[doc = "            \"type\": \"number\""]
 #[doc = "          }"]
 #[doc = "        }"]
 #[doc = "      },"]
@@ -7089,10 +7074,7 @@ impl Parameter {
 #[doc = "        \"value\": {"]
 #[doc = "          \"type\": \"array\","]
 #[doc = "          \"items\": {"]
-#[doc = "            \"type\": \"array\","]
-#[doc = "            \"items\": {"]
-#[doc = "              \"type\": \"boolean\""]
-#[doc = "            }"]
+#[doc = "            \"type\": \"boolean\""]
 #[doc = "          }"]
 #[doc = "        }"]
 #[doc = "      },"]
@@ -7216,13 +7198,13 @@ pub enum ParameterValue {
     #[serde(rename = "number-list")]
     NumberList {
         source: Source,
-        value: ::std::vec::Vec<::std::vec::Vec<f64>>,
+        value: ::std::vec::Vec<f64>,
     },
     #[doc = "Compile-Time Boolean List\n\nA constant boolean list value."]
     #[serde(rename = "boolean-list")]
     BooleanList {
         source: Source,
-        value: ::std::vec::Vec<::std::vec::Vec<bool>>,
+        value: ::std::vec::Vec<bool>,
     },
     #[doc = "Compile-Time String Map\n\nA constant string map value."]
     #[serde(rename = "string-map")]
