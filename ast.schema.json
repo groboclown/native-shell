@@ -584,6 +584,7 @@
         { "$ref": "#/$defs/ListIndexStringValue" },
         { "$ref": "#/$defs/MapKeyStringValue" },
         { "$ref": "#/$defs/SubStringValue" },
+        { "$ref": "#/$defs/TrimStringValue" },
         { "$ref": "#/$defs/NumberToStringValue" },
         { "$ref": "#/$defs/BooleanToStringValue" },
         { "$ref": "#/$defs/ListToStringValue" },
@@ -645,6 +646,19 @@
         "start": { "$ref": "#/$defs/ComputedNumberValue" },
         "count": { "$ref": "#/$defs/ComputedNumberValue" },
         "end": { "$ref": "#/$defs/ComputedNumberValue" }
+      }
+    },
+    "TrimStringValue": {
+      "title": "Trim String Value",
+      "description": "Trims the surrounding whitespace or other characters from a string.",
+      "type": "object",
+      "required": ["source", "type", "value"],
+      "additionalProperties": false,
+      "properties": {
+        "source": { "$ref": "#/$defs/Source" },
+        "type": { "const": "trim-string" },
+        "value": { "$ref": "#/$defs/ComputedStringValue" },
+        "trim-chars": { "$ref": "#/$defs/ComputedStringValue" }
       }
     },
     "NumberToStringValue": {
@@ -1183,7 +1197,8 @@
         "source": { "$ref": "#/$defs/Source" },
         "type": { "const": "split-string" },
         "value": { "$ref": "#/$defs/ComputedStringValue" },
-        "separator": { "$ref": "#/$defs/ComputedStringValue" }
+        "separator": { "$ref": "#/$defs/ComputedStringValue" },
+        "maximumSplits": { "$ref": "#/$defs/ComputedNumberValue" }
       }
     },
     "RangeStringListValue": {

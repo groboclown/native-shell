@@ -37,10 +37,38 @@ pub fn finalize_map<V: Clone>(map: &HashMap<String, Option<V>>) -> HashMap<Strin
     result
 }
 
+pub fn finalize_map_union<V: Clone>(maps: &Vec<HashMap<String, Option<V>>>) -> HashMap<String, V> {
+    let unioned_map = union_maps(maps);
+    finalize_map(&unioned_map)
+}
+
+/// Convert a boolean value to a string based on the provided true and false values.
 pub fn map_bool_to_string(value: bool, true_val: &String, false_val: &String) -> String {
     if value {
         true_val.clone()
     } else {
         false_val.clone()
+    }
+}
+
+/// Splits a string by a separator and returns a vector of strings.
+pub fn split_string(value: &str, separator: &str, max_splits: f64) -> Vec<String> {
+    if max_splits <= 0.0 {
+        return vec![value.to_string()];
+    }
+    let values: Vec<String> = value.split(separator).map(|s| s.to_string()).collect();
+    if values.len() > max_splits as usize {
+        values.into_iter().take(max_splits as usize).collect()
+    } else {
+        values
+    }
+}
+
+/// Trims a string by removing specified characters from both ends.
+pub fn trim_string(value: &str, trim_chars: Option<&str>) -> String {
+    if let Some(chars) = trim_chars {
+        value.trim_matches(|v| chars.contains(v)).to_string()
+    } else {
+        value.trim().to_string()
     }
 }

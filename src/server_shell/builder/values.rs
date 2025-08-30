@@ -62,15 +62,15 @@ impl<'a, SG: super::sequence::SequenceGen<'a>> ConstructValueState<'a, SG> {
         let mut visiting = std::collections::HashSet::new();
         match value {
             model::ComputedValue::StringMapValue(_) => {
-                Ok(format!("crate::shell_lib::helpers::maps::finalize_map({})",
+                Ok(format!("crate::shell_lib::helpers::values::finalize_map({})",
                     self.inner_construct_value(value, &mut visiting)?))
             }
             model::ComputedValue::NumberMapValue(_) => {
-                Ok(format!("crate::shell_lib::helpers::maps::finalize_map({})",
+                Ok(format!("crate::shell_lib::helpers::values::finalize_map({})",
                     self.inner_construct_value(value, &mut visiting)?))
             }
             model::ComputedValue::BooleanMapValue(_) => {
-                Ok(format!("crate::shell_lib::helpers::maps::finalize_map({})",
+                Ok(format!("crate::shell_lib::helpers::values::finalize_map({})",
                     self.inner_construct_value(value, &mut visiting)?))
             }
             _ => self.inner_construct_value(value, &mut visiting),
@@ -137,7 +137,7 @@ impl<'a, SG: super::sequence::SequenceGen<'a>> ConstructValueState<'a, SG> {
                         &model::ComputedValue::StringValue(*list_index_string_value.default.clone()),
                         visiting,
                     )?;
-                    Ok(format!("{}.get({}).unwrap_or({})", list, index, default))
+                    Ok(format!("({}).get({}).unwrap_or({})", list, index, default))
                 }
                 model::ComputedStringValue::MapKeyStringValue(map_key_string_value) => {
                     let key = self.inner_construct_value(
@@ -152,7 +152,7 @@ impl<'a, SG: super::sequence::SequenceGen<'a>> ConstructValueState<'a, SG> {
                         &model::ComputedValue::StringValue(*map_key_string_value.default.clone()),
                         visiting,
                     )?;
-                    Ok(format!("{}.get({}).unwrap_or({})", map, key, default))
+                    Ok(format!("({}).get({}).unwrap_or({})", map, key, default))
                 }
                 model::ComputedStringValue::SubStringValue(sub_string_value) => {
                     let string = self.inner_construct_value(
@@ -176,7 +176,21 @@ impl<'a, SG: super::sequence::SequenceGen<'a>> ConstructValueState<'a, SG> {
                         sub.push_str(end?.as_str());
                     }
                     // There's probably better ways to do this.
-                    Ok(format!("{}.as_str()[{}].to_string()", string, sub))
+                    Ok(format!("({}).as_str()[{}].to_string()", string, sub))
+                }
+                model::ComputedStringValue::TrimStringValue(trim_string_value) => {
+                    let value = self.inner_construct_value(
+                        &model::ComputedValue::StringValue(*trim_string_value.value.clone()),
+                        visiting,
+                    )?;
+                    let trim_chars = match &trim_string_value.trim_chars {
+                        Some(chars) => format!("Some({})", self.inner_construct_value(
+                            &model::ComputedValue::StringValue(*chars.clone()),
+                            visiting,
+                        )?),
+                        None => "None".to_string(),
+                    };
+                    Ok(format!("crate::shell_lib::helpers::values::trim_string({}, {})", value, trim_chars))
                 }
                 model::ComputedStringValue::NumberToStringValue(number_to_string_value) => {
                     Ok(format!("{}.to_string()",
@@ -213,7 +227,7 @@ impl<'a, SG: super::sequence::SequenceGen<'a>> ConstructValueState<'a, SG> {
                             .map(|s| self.inner_construct_value(&model::ComputedValue::StringValue(*s.clone()), visiting))
                             .transpose()?
                             .unwrap_or("&\"false\".to_string()".to_string());
-                        Ok(format!("crate::shell_lib::helpers::maps::map_bool_to_string({}, {}, {})", value, true_str, false_str))
+                        Ok(format!("crate::shell_lib::helpers::values::map_bool_to_string({}, {}, {})", value, true_str, false_str))
                     }
                 }
                 model::ComputedStringValue::ListToStringValue(list_to_string_value) => {
@@ -228,7 +242,7 @@ impl<'a, SG: super::sequence::SequenceGen<'a>> ConstructValueState<'a, SG> {
                         )?,
                         None => "\"\"".to_string(),
                     };
-                    Ok(format!("{}.join({})", list, separator))
+                    Ok(format!("({}).join({})", list, separator))
                 }
                 model::ComputedStringValue::MapToStringValue(map_to_string_value) => {
                     let map = self.inner_construct_value(
@@ -274,7 +288,7 @@ impl<'a, SG: super::sequence::SequenceGen<'a>> ConstructValueState<'a, SG> {
                         &model::ComputedValue::NumberValue(*add_two_values.right.clone()),
                         visiting,
                     )?;
-                    Ok(format!("{} + {}", left, right))
+                    Ok(format!("({}) + ({})", left, right))
                 }
                 model::ComputedNumberValue::SubtractTwoValues(subtract_two_values) => {
                     let left = self.inner_construct_value(
@@ -285,7 +299,7 @@ impl<'a, SG: super::sequence::SequenceGen<'a>> ConstructValueState<'a, SG> {
                         &model::ComputedValue::NumberValue(*subtract_two_values.right.clone()),
                         visiting,
                     )?;
-                    Ok(format!("{} - {}", left, right))
+                    Ok(format!("({}) - ({})", left, right))
                 }
                 model::ComputedNumberValue::MultiplyTwoValues(multiply_two_values) => {
                     let left = self.inner_construct_value(
@@ -296,7 +310,7 @@ impl<'a, SG: super::sequence::SequenceGen<'a>> ConstructValueState<'a, SG> {
                         &model::ComputedValue::NumberValue(*multiply_two_values.right.clone()),
                         visiting,
                     )?;
-                    Ok(format!("{} * {}", left, right))
+                    Ok(format!("({}) * ({})", left, right))
                 }
                 model::ComputedNumberValue::DivideTwoValues(divide_two_values) => {
                     let left = self.inner_construct_value(
@@ -308,7 +322,16 @@ impl<'a, SG: super::sequence::SequenceGen<'a>> ConstructValueState<'a, SG> {
                         visiting,
                     )?;
                     // If we're really good, we'd do some validation here to ensure that the right value is not constant zero.
-                    Ok(format!("{} / {}", left, right))
+                    if right == "0" || right == "0.0" {
+                        return Err(BuilderError::FieldTypeMismatch(
+                            ErrorDetails {
+                                message: "Division by zero is not allowed.".to_string(),
+                                source: divide_two_values.source.clone(),
+                                related: vec![],
+                            },
+                        ));
+                    }
+                    Ok(format!("({}) / ({})", left, right))
                 }
                 model::ComputedNumberValue::ModulusTwoValues(modulus_two_values) => {
                     let left = self.inner_construct_value(
@@ -320,7 +343,7 @@ impl<'a, SG: super::sequence::SequenceGen<'a>> ConstructValueState<'a, SG> {
                         visiting,
                     )?;
                     // If we're really good, we'd do some validation here to ensure that the right value is not constant zero.
-                    Ok(format!("{} % {}", left, right))
+                    Ok(format!("({}) % ({})", left, right))
                 }
                 model::ComputedNumberValue::PowerTwoValues(power_two_values) => {
                     let left = self.inner_construct_value(
@@ -331,49 +354,49 @@ impl<'a, SG: super::sequence::SequenceGen<'a>> ConstructValueState<'a, SG> {
                         &model::ComputedValue::NumberValue(*power_two_values.exponent.clone()),
                         visiting,
                     )?;
-                    Ok(format!("{}.pow({})", left, right))
+                    Ok(format!("({}).pow({})", left, right))
                 }
                 model::ComputedNumberValue::RoundValue(round_value) => {
                     let value = self.inner_construct_value(
                         &model::ComputedValue::NumberValue(*round_value.value.clone()),
                         visiting,
                     )?;
-                    Ok(format!("{}.round()", value))
+                    Ok(format!("({}).round()", value))
                 }
                 model::ComputedNumberValue::FloorValue(floor_value) => {
                     let value = self.inner_construct_value(
                         &model::ComputedValue::NumberValue(*floor_value.value.clone()),
                         visiting,
                     )?;
-                    Ok(format!("{}.floor()", value))
+                    Ok(format!("({}).floor()", value))
                 }
                 model::ComputedNumberValue::CeilValue(ceil_value) => {
                     let value = self.inner_construct_value(
                         &model::ComputedValue::NumberValue(*ceil_value.value.clone()),
                         visiting,
                     )?;
-                    Ok(format!("{}.ceil()", value))
+                    Ok(format!("({}).ceil()", value))
                 }
                 model::ComputedNumberValue::AbsValue(abs_value) => {
                     let value = self.inner_construct_value(
                         &model::ComputedValue::NumberValue(abs_value.value.clone()),
                         visiting,
                     )?;
-                    Ok(format!("{}.abs()", value))
+                    Ok(format!("({}).abs()", value))
                 }
                 model::ComputedNumberValue::SumNumberListValue(sum_number_list_value) => {
                     let list = self.inner_construct_value(
                         &model::ComputedValue::NumberListValue(sum_number_list_value.value.clone()),
                         visiting,
                     )?;
-                    Ok(format!("{}.iter().sum::<f64>()", list))
+                    Ok(format!("({}).iter().sum::<f64>()", list))
                 }
                 model::ComputedNumberValue::ProductNumberListValue(product_number_list_value) => {
                     let list = self.inner_construct_value(
                         &model::ComputedValue::NumberListValue(product_number_list_value.value.clone()),
                         visiting,
                     )?;
-                    Ok(format!("{}.iter().product::<f64>()", list))
+                    Ok(format!("({}).iter().product::<f64>()", list))
                 }
                 model::ComputedNumberValue::AverageNumberListValue(average_number_list_value) => {
                     let list = self.inner_construct_value(
@@ -381,21 +404,21 @@ impl<'a, SG: super::sequence::SequenceGen<'a>> ConstructValueState<'a, SG> {
                         visiting,
                     )?;
                     // If we were really good, we'd check that the list is not empty.
-                    Ok(format!("{}.iter().sum::<f64>() / {}.len() as f64", list, list))
+                    Ok(format!("({}).iter().sum::<f64>() / {}.len() as f64", list, list))
                 }
                 model::ComputedNumberValue::MinNumberListValue(min_number_list_value) => {
                     let list = self.inner_construct_value(
                         &model::ComputedValue::NumberListValue(min_number_list_value.value.clone()),
                         visiting,
                     )?;
-                    Ok(format!("{}.iter().cloned().fold(f64::INFINITY, f64::min)", list))
+                    Ok(format!("({}).iter().cloned().fold(f64::INFINITY, f64::min)", list))
                 }
                 model::ComputedNumberValue::MaxNumberListValue(max_number_list_value) => {
                     let list = self.inner_construct_value(
                         &model::ComputedValue::NumberListValue(max_number_list_value.value.clone()),
                         visiting,
                     )?;
-                    Ok(format!("{}.iter().cloned().fold(f64::NEG_INFINITY, f64::max)", list))
+                    Ok(format!("({}).iter().cloned().fold(f64::NEG_INFINITY, f64::max)", list))
                 }
                 model::ComputedNumberValue::ListIndexNumberValue(list_index_number_value) => {
                     let index = self.inner_construct_value(
@@ -410,7 +433,7 @@ impl<'a, SG: super::sequence::SequenceGen<'a>> ConstructValueState<'a, SG> {
                         &model::ComputedValue::NumberValue(*list_index_number_value.default.clone()),
                         visiting,
                     )?;
-                    Ok(format!("{}.get({}).unwrap_or({})", list, index, default))
+                    Ok(format!("({}).get({}).unwrap_or({})", list, index, default))
                 }
                 model::ComputedNumberValue::MapKeyNumberValue(map_key_number_value) => {
                     let key = self.inner_construct_value(
@@ -425,7 +448,7 @@ impl<'a, SG: super::sequence::SequenceGen<'a>> ConstructValueState<'a, SG> {
                         &model::ComputedValue::NumberValue(*map_key_number_value.default.clone()),
                         visiting,
                     )?;
-                    Ok(format!("{}.get({}).unwrap_or({})", map, key, default))
+                    Ok(format!("({}).get({}).unwrap_or({})", map, key, default))
                 }
                 model::ComputedNumberValue::ConstantNumberValue(constant_number_value) => {
                     Ok(constant_number_value.value.to_string())
@@ -444,7 +467,7 @@ impl<'a, SG: super::sequence::SequenceGen<'a>> ConstructValueState<'a, SG> {
                         &model::ComputedValue::BooleanValue(*and_two_values.right.clone()),
                         visiting,
                     )?;
-                    Ok(format!("{} && {}", left, right))
+                    Ok(format!("({}) && ({})", left, right))
                 }
                 model::ComputedBooleanValue::OrTwoBooleanValues(or_two_values) => {
                     let left = self.inner_construct_value(
@@ -455,14 +478,14 @@ impl<'a, SG: super::sequence::SequenceGen<'a>> ConstructValueState<'a, SG> {
                         &model::ComputedValue::BooleanValue(*or_two_values.right.clone()),
                         visiting,
                     )?;
-                    Ok(format!("{} || {}", left, right))
+                    Ok(format!("({}) || ({})", left, right))
                 }
                 model::ComputedBooleanValue::NotBooleanValue(not_value) => {
                     let value = self.inner_construct_value(
                         &model::ComputedValue::BooleanValue(*not_value.value.clone()),
                         visiting,
                     )?;
-                    Ok(format!("!{}", value))
+                    Ok(format!("!({})", value))
                 }
                 model::ComputedBooleanValue::XorTwoBooleanValues(xor_two_boolean_values) => {
                     let left = self.inner_construct_value(
@@ -473,7 +496,7 @@ impl<'a, SG: super::sequence::SequenceGen<'a>> ConstructValueState<'a, SG> {
                         &model::ComputedValue::BooleanValue(*xor_two_boolean_values.right.clone()),
                         visiting,
                     )?;
-                    Ok(format!("{} ^ {}", left, right))
+                    Ok(format!("({}) ^ ({})", left, right))
                 }
                 model::ComputedBooleanValue::NandTwoBooleanValues(nand_two_boolean_values) => {
                     let left = self.inner_construct_value(
@@ -484,7 +507,7 @@ impl<'a, SG: super::sequence::SequenceGen<'a>> ConstructValueState<'a, SG> {
                         &model::ComputedValue::BooleanValue(*nand_two_boolean_values.right.clone()),
                         visiting,
                     )?;
-                    Ok(format!("!({} && {})", left, right))
+                    Ok(format!("!(({}) && ({}))", left, right))
                 }
                 model::ComputedBooleanValue::NorTwoBooleanValues(nor_two_boolean_values) => {
                     let left = self.inner_construct_value(
@@ -495,7 +518,7 @@ impl<'a, SG: super::sequence::SequenceGen<'a>> ConstructValueState<'a, SG> {
                         &model::ComputedValue::BooleanValue(*nor_two_boolean_values.right.clone()),
                         visiting,
                     )?;
-                    Ok(format!("!({} || {})", left, right))
+                    Ok(format!("!(({}) || ({}))", left, right))
                 }
                 model::ComputedBooleanValue::XnorTwoBooleanValues(xnor_two_boolean_values) => {
                     let left = self.inner_construct_value(
@@ -506,7 +529,7 @@ impl<'a, SG: super::sequence::SequenceGen<'a>> ConstructValueState<'a, SG> {
                         &model::ComputedValue::BooleanValue(*xnor_two_boolean_values.right.clone()),
                         visiting,
                     )?;
-                    Ok(format!("!({} ^ {})", left, right))
+                    Ok(format!("!(({}) ^ ({}))", left, right))
                 }
                 model::ComputedBooleanValue::ListIndexBooleanValue(list_index_boolean_value) => {
                     let index = self.inner_construct_value(
@@ -521,7 +544,7 @@ impl<'a, SG: super::sequence::SequenceGen<'a>> ConstructValueState<'a, SG> {
                         &model::ComputedValue::BooleanValue(*list_index_boolean_value.default.clone()),
                         visiting,
                     )?;
-                    Ok(format!("{}.get({}).unwrap_or({})", list, index, default))
+                    Ok(format!("({}).get({}).unwrap_or({})", list, index, default))
                 }
                 model::ComputedBooleanValue::MapKeyBooleanValue(map_key_boolean_value) => {
                     let key = self.inner_construct_value(
@@ -536,7 +559,7 @@ impl<'a, SG: super::sequence::SequenceGen<'a>> ConstructValueState<'a, SG> {
                         &model::ComputedValue::BooleanValue(*map_key_boolean_value.default.clone()),
                         visiting,
                     )?;
-                    Ok(format!("{}.get({}).unwrap_or({})", map, key, default))
+                    Ok(format!("({}).get({}).unwrap_or({})", map, key, default))
                 }
                 model::ComputedBooleanValue::ConstantBooleanValue(constant_boolean_value) => {
                     Ok(constant_boolean_value.value.to_string())
@@ -555,21 +578,93 @@ impl<'a, SG: super::sequence::SequenceGen<'a>> ConstructValueState<'a, SG> {
                 model::ComputedStringMapValue::LookupStringMapValue(lookup_string_map_value) => {
                     Ok(self.mark_value_visited(&lookup_string_map_value.source, value, &lookup_string_map_value.node, &lookup_string_map_value.name, true)?)
                 }
-                model::ComputedStringMapValue::UnionStringMapValue(union_string_map_value) => todo!(),
-                model::ComputedStringMapValue::ConstantStringMapValue(constant_string_map_value) => todo!(),
+                model::ComputedStringMapValue::UnionStringMapValue(union_string_map_value) => {
+                    let mut values = String::new();
+                    let mut first = true;
+                    for map in &union_string_map_value.values {
+                        if !first {
+                            values.push_str(", ");
+                        }
+                        first = false;
+                        values.push_str(&self.inner_construct_value(
+                            &model::ComputedValue::StringMapValue(map.clone()),
+                            visiting,
+                        )?);
+                    }
+                    Ok(format!("crate::shell_lib::helpers::union_maps(vec![{}])", values))
+                }
+                model::ComputedStringMapValue::ConstantStringMapValue(constant_string_map_value) => {
+                    let mut ret = "std::collections::HashMap::from([".to_string();
+                    for (key, value) in &constant_string_map_value.value {
+                        let key = key.as_str();
+                        let value = match value {
+                            Some(v) => format!("Some({})", self.inner_construct_value(
+                                &model::ComputedValue::StringValue(*v.clone()),
+                                visiting,
+                            )?),
+                            None => "None".to_string(),
+                        };
+                        ret.push_str(&format!("({key}, {value}), "));
+                    }
+                    ret.push_str("])");
+                    Ok(ret)
+                }
             }
             model::ComputedValue::NumberMapValue(computed_number_map_value) => match computed_number_map_value {
                 model::ComputedNumberMapValue::LookupNumberMapValue(lookup_number_map_value) => {
                     Ok(self.mark_value_visited(&lookup_number_map_value.source, value, &lookup_number_map_value.node, &lookup_number_map_value.name, true)?)
                 }
-                model::ComputedNumberMapValue::UnionNumberMapValue(union_number_map_value) => todo!(),
-                model::ComputedNumberMapValue::ConstantNumberMapValue(constant_number_map_value) => todo!(),
+                model::ComputedNumberMapValue::UnionNumberMapValue(union_number_map_value) => {
+                    let mut values = String::new();
+                    let mut first = true;
+                    for map in &union_number_map_value.values {
+                        if !first {
+                            values.push_str(", ");
+                        }
+                        first = false;
+                        values.push_str(&self.inner_construct_value(
+                            &model::ComputedValue::NumberMapValue(map.clone()),
+                            visiting,
+                        )?);
+                    }
+                    Ok(format!("crate::shell_lib::helpers::union_maps(vec![{}])", values))
+                }
+                model::ComputedNumberMapValue::ConstantNumberMapValue(constant_number_map_value) => {
+                    let mut ret = "std::collections::HashMap::from([".to_string();
+                    for (key, value) in &constant_number_map_value.value {
+                        let key = key.as_str();
+                        let value = match value {
+                            Some(v) => format!("Some({})", self.inner_construct_value(
+                                &model::ComputedValue::NumberValue(*v.clone()),
+                                visiting,
+                            )?),
+                            None => "None".to_string(),
+                        };
+                        ret.push_str(&format!("({key}, {value}), "));
+                    }
+                    ret.push_str("])");
+                    Ok(ret)
+                }
             }
             model::ComputedValue::BooleanMapValue(computed_boolean_map_value) => match computed_boolean_map_value {
                 model::ComputedBooleanMapValue::LookupBooleanMapValue(lookup_boolean_map_value) => {
                     Ok(self.mark_value_visited(&lookup_boolean_map_value.source, value, &lookup_boolean_map_value.node, &lookup_boolean_map_value.name, true)?)
                 }
-                model::ComputedBooleanMapValue::UnionBooleanMapValue(union_boolean_map_value) => todo!(),
+                model::ComputedBooleanMapValue::UnionBooleanMapValue(union_boolean_map_value) => {
+                    let mut values = String::new();
+                    let mut first = true;
+                    for map in &union_boolean_map_value.values {
+                        if !first {
+                            values.push_str(", ");
+                        }
+                        first = false;
+                        values.push_str(&self.inner_construct_value(
+                            &model::ComputedValue::BooleanMapValue(map.clone()),
+                            visiting,
+                        )?);
+                    }
+                    Ok(format!("crate::shell_lib::helpers::union_maps(vec![{}])", values))
+                }
                 model::ComputedBooleanMapValue::ConstantBooleanMapValue(constant_boolean_map_value) => {
                     let mut ret = "std::collections::HashMap::from([".to_string();
                     for (key, value) in &constant_boolean_map_value.value {
@@ -595,8 +690,69 @@ impl<'a, SG: super::sequence::SequenceGen<'a>> ConstructValueState<'a, SG> {
             model::ComputedStringListValue::LookupStringListValue(lookup_string_list_value) => {
                 Ok(self.mark_value_visited(&lookup_string_list_value.source, &model::ComputedValue::StringListValue(value.clone()), &lookup_string_list_value.node, &lookup_string_list_value.name, true)?)
             }
-            model::ComputedStringListValue::SplitStringValue(split_string_value) => todo!(),
-            model::ComputedStringListValue::RangeStringListValue(range_string_list_value) => todo!(),
+            model::ComputedStringListValue::SplitStringValue(split_string_value) => {
+                let value = self.inner_construct_value(
+                    &model::ComputedValue::StringValue(*split_string_value.value.clone()),
+                    visiting,
+                )?;
+                let separator = self.inner_construct_value(
+                    &model::ComputedValue::StringValue(*split_string_value.separator.clone()),
+                    visiting,
+                )?;
+                let maximum_splits = match &split_string_value.maximum_splits {
+                    Some(maximum_splits) => self.inner_construct_value(
+                        &model::ComputedValue::NumberValue(*maximum_splits.clone()),
+                        visiting,
+                    )?,
+                    None => "f64::MAX".to_string(),
+                };
+                Ok(format!("crate::shell_lib::helpers::values::split_string({}, {}, {})", value, separator, maximum_splits))
+            }
+            model::ComputedStringListValue::RangeStringListValue(range_string_list_value) => {
+                let start = match &range_string_list_value.start {
+                    Some(start) => self.inner_construct_value(&model::ComputedValue::NumberValue(*start.clone()), visiting)?,
+                    None => String::new(),
+                };
+                let list = self.inner_construct_value(
+                    &model::ComputedValue::StringListValue(*range_string_list_value.list.clone()),
+                    visiting,
+                )?;
+                if let Some(end) = &range_string_list_value.end {
+                    if range_string_list_value.count.is_some() {
+                        return Err(BuilderError::InvalidRange(
+                            ErrorDetails {
+                                message: "Cannot specify both end and count in a range.".to_string(),
+                                source: range_string_list_value.source.clone(),
+                                related: vec![],
+                            },
+                        ));
+                    }
+                    let end = self.inner_construct_value(
+                        &model::ComputedValue::NumberValue(*end.clone()),
+                        visiting,
+                    )?;
+                    Ok(format!("({})[({})..({})].to_vec()", list, start, end))
+                } else if let Some(count) = &range_string_list_value.count {
+                    if range_string_list_value.end.is_some() {
+                        return Err(BuilderError::InvalidRange(
+                            ErrorDetails {
+                                message: "Cannot specify both end and count in a range.".to_string(),
+                                source: range_string_list_value.source.clone(),
+                                related: vec![],
+                            },
+                        ));
+                    }
+                    let count = self.inner_construct_value(
+                        &model::ComputedValue::NumberValue(*count.clone()),
+                        visiting,
+                    )?;
+                    Ok(format!("({})[({})..(({})+({}))].to_vec()", list, start, start, count))
+                } else if start.is_empty() {
+                    Ok(list)
+                } else {
+                    Ok(format!("({})[({})..].to_vec()", list, start))
+                }
+            }
             model::ComputedStringListValue::ConstantStringListValue(constant_string_list_value) => {
                 let mut s = String::new();
                 for item in &constant_string_list_value.value {
@@ -623,7 +779,51 @@ impl<'a, SG: super::sequence::SequenceGen<'a>> ConstructValueState<'a, SG> {
             model::ComputedNumberListValue::LookupNumberListValue(lookup_number_list_value) => {
                 Ok(self.mark_value_visited(&lookup_number_list_value.source, &model::ComputedValue::NumberListValue(value.clone()), &lookup_number_list_value.node, &lookup_number_list_value.name, true)?)
             }
-            model::ComputedNumberListValue::RangeNumberListValue(range_number_list_value) => todo!(),
+            model::ComputedNumberListValue::RangeNumberListValue(range_number_list_value) => {
+                let start = match &range_number_list_value.start {
+                    Some(start) => self.inner_construct_value(&model::ComputedValue::NumberValue(*start.clone()), visiting)?,
+                    None => String::new(),
+                };
+                let list = self.inner_construct_value(
+                    &model::ComputedValue::NumberListValue(*range_number_list_value.list.clone()),
+                    visiting,
+                )?;
+                if let Some(end) = &range_number_list_value.end {
+                    if range_number_list_value.count.is_some() {
+                        return Err(BuilderError::InvalidRange(
+                            ErrorDetails {
+                                message: "Cannot specify both end and count in a range.".to_string(),
+                                source: range_number_list_value.source.clone(),
+                                related: vec![],
+                            },
+                        ));
+                    }
+                    let end = self.inner_construct_value(
+                        &model::ComputedValue::NumberValue(*end.clone()),
+                        visiting,
+                    )?;
+                    Ok(format!("({})[({})..({})].to_vec()", list, start, end))
+                } else if let Some(count) = &range_number_list_value.count {
+                    if range_number_list_value.end.is_some() {
+                        return Err(BuilderError::InvalidRange(
+                            ErrorDetails {
+                                message: "Cannot specify both end and count in a range.".to_string(),
+                                source: range_number_list_value.source.clone(),
+                                related: vec![],
+                            },
+                        ));
+                    }
+                    let count = self.inner_construct_value(
+                        &model::ComputedValue::NumberValue(*count.clone()),
+                        visiting,
+                    )?;
+                    Ok(format!("({})[({})..(({})+({}))].to_vec()", list, start, start, count))
+                } else if start.is_empty() {
+                    Ok(list)
+                } else {
+                    Ok(format!("({})[({})..].to_vec()", list, start))
+                }
+            }
             model::ComputedNumberListValue::ConstantNumberListValue(constant_number_list_value) => {
                 let mut s = String::new();
                 for item in &constant_number_list_value.value {
@@ -650,7 +850,51 @@ impl<'a, SG: super::sequence::SequenceGen<'a>> ConstructValueState<'a, SG> {
             model::ComputedBooleanListValue::LookupBooleanListValue(lookup_boolean_list_value) => {
                 Ok(self.mark_value_visited(&lookup_boolean_list_value.source, &model::ComputedValue::BooleanListValue(value.clone()), &lookup_boolean_list_value.node, &lookup_boolean_list_value.name, true)?)
             }
-            model::ComputedBooleanListValue::RangeBooleanListValue(range_boolean_list_value) => todo!(),
+            model::ComputedBooleanListValue::RangeBooleanListValue(range_boolean_list_value) => {
+                let start = match &range_boolean_list_value.start {
+                    Some(start) => self.inner_construct_value(&model::ComputedValue::NumberValue(*start.clone()), visiting)?,
+                    None => String::new(),
+                };
+                let list = self.inner_construct_value(
+                    &model::ComputedValue::BooleanListValue(*range_boolean_list_value.list.clone()),
+                    visiting,
+                )?;
+                if let Some(end) = &range_boolean_list_value.end {
+                    if range_boolean_list_value.count.is_some() {
+                        return Err(BuilderError::InvalidRange(
+                            ErrorDetails {
+                                message: "Cannot specify both end and count in a range.".to_string(),
+                                source: range_boolean_list_value.source.clone(),
+                                related: vec![],
+                            },
+                        ));
+                    }
+                    let end = self.inner_construct_value(
+                        &model::ComputedValue::NumberValue(*end.clone()),
+                        visiting,
+                    )?;
+                    Ok(format!("({})[({})..({})].to_vec()", list, start, end))
+                } else if let Some(count) = &range_boolean_list_value.count {
+                    if range_boolean_list_value.end.is_some() {
+                        return Err(BuilderError::InvalidRange(
+                            ErrorDetails {
+                                message: "Cannot specify both end and count in a range.".to_string(),
+                                source: range_boolean_list_value.source.clone(),
+                                related: vec![],
+                            },
+                        ));
+                    }
+                    let count = self.inner_construct_value(
+                        &model::ComputedValue::NumberValue(*count.clone()),
+                        visiting,
+                    )?;
+                    Ok(format!("({})[({})..(({})+({}))].to_vec()", list, start, start, count))
+                } else if start.is_empty() {
+                    Ok(list)
+                } else {
+                    Ok(format!("({})[({})..].to_vec()", list, start))
+                }
+            }
             model::ComputedBooleanListValue::ConstantBooleanListValue(constant_boolean_list_value) => {
                 let mut s = String::new();
                 for item in &constant_boolean_list_value.value {

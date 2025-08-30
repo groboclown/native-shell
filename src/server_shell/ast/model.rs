@@ -1655,6 +1655,9 @@ impl ::std::convert::From<ConstantStringMapValue> for ComputedStringMapValue {
 #[doc = "      \"$ref\": \"#/$defs/SubStringValue\""]
 #[doc = "    },"]
 #[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/TrimStringValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
 #[doc = "      \"$ref\": \"#/$defs/NumberToStringValue\""]
 #[doc = "    },"]
 #[doc = "    {"]
@@ -1680,6 +1683,7 @@ pub enum ComputedStringValue {
     ListIndexStringValue(ListIndexStringValue),
     MapKeyStringValue(MapKeyStringValue),
     SubStringValue(SubStringValue),
+    TrimStringValue(TrimStringValue),
     NumberToStringValue(NumberToStringValue),
     BooleanToStringValue(BooleanToStringValue),
     ListToStringValue(ListToStringValue),
@@ -1709,6 +1713,11 @@ impl ::std::convert::From<MapKeyStringValue> for ComputedStringValue {
 impl ::std::convert::From<SubStringValue> for ComputedStringValue {
     fn from(value: SubStringValue) -> Self {
         Self::SubStringValue(value)
+    }
+}
+impl ::std::convert::From<TrimStringValue> for ComputedStringValue {
+    fn from(value: TrimStringValue) -> Self {
+        Self::TrimStringValue(value)
     }
 }
 impl ::std::convert::From<NumberToStringValue> for ComputedStringValue {
@@ -7712,6 +7721,9 @@ impl Source {
 #[doc = "    \"value\""]
 #[doc = "  ],"]
 #[doc = "  \"properties\": {"]
+#[doc = "    \"maximumSplits\": {"]
+#[doc = "      \"$ref\": \"#/$defs/ComputedNumberValue\""]
+#[doc = "    },"]
 #[doc = "    \"separator\": {"]
 #[doc = "      \"$ref\": \"#/$defs/ComputedStringValue\""]
 #[doc = "    },"]
@@ -7732,6 +7744,12 @@ impl Source {
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
 pub struct SplitStringValue {
+    #[serde(
+        rename = "maximumSplits",
+        default,
+        skip_serializing_if = "::std::option::Option::is_none"
+    )]
+    pub maximum_splits: ::std::option::Option<::std::boxed::Box<ComputedNumberValue>>,
     pub separator: ::std::boxed::Box<ComputedStringValue>,
     pub source: Source,
     #[serde(rename = "type")]
@@ -8136,6 +8154,62 @@ impl ::std::convert::From<&SumNumberListValue> for SumNumberListValue {
 }
 impl SumNumberListValue {
     pub fn builder() -> builder::SumNumberListValue {
+        Default::default()
+    }
+}
+#[doc = "Trims the surrounding whitespace or other characters from a string."]
+#[doc = r""]
+#[doc = r" <details><summary>JSON schema</summary>"]
+#[doc = r""]
+#[doc = r" ```json"]
+#[doc = "{"]
+#[doc = "  \"title\": \"Trim String Value\","]
+#[doc = "  \"description\": \"Trims the surrounding whitespace or other characters from a string.\","]
+#[doc = "  \"type\": \"object\","]
+#[doc = "  \"required\": ["]
+#[doc = "    \"source\","]
+#[doc = "    \"type\","]
+#[doc = "    \"value\""]
+#[doc = "  ],"]
+#[doc = "  \"properties\": {"]
+#[doc = "    \"source\": {"]
+#[doc = "      \"$ref\": \"#/$defs/Source\""]
+#[doc = "    },"]
+#[doc = "    \"trim-chars\": {"]
+#[doc = "      \"$ref\": \"#/$defs/ComputedStringValue\""]
+#[doc = "    },"]
+#[doc = "    \"type\": {"]
+#[doc = "      \"const\": \"trim-string\""]
+#[doc = "    },"]
+#[doc = "    \"value\": {"]
+#[doc = "      \"$ref\": \"#/$defs/ComputedStringValue\""]
+#[doc = "    }"]
+#[doc = "  },"]
+#[doc = "  \"additionalProperties\": false"]
+#[doc = "}"]
+#[doc = r" ```"]
+#[doc = r" </details>"]
+#[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
+#[serde(deny_unknown_fields)]
+pub struct TrimStringValue {
+    pub source: Source,
+    #[serde(
+        rename = "trim-chars",
+        default,
+        skip_serializing_if = "::std::option::Option::is_none"
+    )]
+    pub trim_chars: ::std::option::Option<::std::boxed::Box<ComputedStringValue>>,
+    #[serde(rename = "type")]
+    pub type_: ::serde_json::Value,
+    pub value: ::std::boxed::Box<ComputedStringValue>,
+}
+impl ::std::convert::From<&TrimStringValue> for TrimStringValue {
+    fn from(value: &TrimStringValue) -> Self {
+        value.clone()
+    }
+}
+impl TrimStringValue {
+    pub fn builder() -> builder::TrimStringValue {
         Default::default()
     }
 }
@@ -13438,6 +13512,10 @@ pub mod builder {
     }
     #[derive(Clone, Debug)]
     pub struct SplitStringValue {
+        maximum_splits: ::std::result::Result<
+            ::std::option::Option<::std::boxed::Box<super::ComputedNumberValue>>,
+            ::std::string::String,
+        >,
         separator: ::std::result::Result<
             ::std::boxed::Box<super::ComputedStringValue>,
             ::std::string::String,
@@ -13452,6 +13530,7 @@ pub mod builder {
     impl ::std::default::Default for SplitStringValue {
         fn default() -> Self {
             Self {
+                maximum_splits: Ok(Default::default()),
                 separator: Err("no value supplied for separator".to_string()),
                 source: Err("no value supplied for source".to_string()),
                 type_: Err("no value supplied for type_".to_string()),
@@ -13460,6 +13539,18 @@ pub mod builder {
         }
     }
     impl SplitStringValue {
+        pub fn maximum_splits<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<
+                ::std::option::Option<::std::boxed::Box<super::ComputedNumberValue>>,
+            >,
+            T::Error: ::std::fmt::Display,
+        {
+            self.maximum_splits = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for maximum_splits: {}", e));
+            self
+        }
         pub fn separator<T>(mut self, value: T) -> Self
         where
             T: ::std::convert::TryInto<::std::boxed::Box<super::ComputedStringValue>>,
@@ -13507,6 +13598,7 @@ pub mod builder {
             value: SplitStringValue,
         ) -> ::std::result::Result<Self, super::error::ConversionError> {
             Ok(Self {
+                maximum_splits: value.maximum_splits?,
                 separator: value.separator?,
                 source: value.source?,
                 type_: value.type_?,
@@ -13517,6 +13609,7 @@ pub mod builder {
     impl ::std::convert::From<super::SplitStringValue> for SplitStringValue {
         fn from(value: super::SplitStringValue) -> Self {
             Self {
+                maximum_splits: Ok(value.maximum_splits),
                 separator: Ok(value.separator),
                 source: Ok(value.source),
                 type_: Ok(value.type_),
@@ -13914,6 +14007,96 @@ pub mod builder {
         fn from(value: super::SumNumberListValue) -> Self {
             Self {
                 source: Ok(value.source),
+                type_: Ok(value.type_),
+                value: Ok(value.value),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
+    pub struct TrimStringValue {
+        source: ::std::result::Result<super::Source, ::std::string::String>,
+        trim_chars: ::std::result::Result<
+            ::std::option::Option<::std::boxed::Box<super::ComputedStringValue>>,
+            ::std::string::String,
+        >,
+        type_: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+        value: ::std::result::Result<
+            ::std::boxed::Box<super::ComputedStringValue>,
+            ::std::string::String,
+        >,
+    }
+    impl ::std::default::Default for TrimStringValue {
+        fn default() -> Self {
+            Self {
+                source: Err("no value supplied for source".to_string()),
+                trim_chars: Ok(Default::default()),
+                type_: Err("no value supplied for type_".to_string()),
+                value: Err("no value supplied for value".to_string()),
+            }
+        }
+    }
+    impl TrimStringValue {
+        pub fn source<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<super::Source>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.source = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for source: {}", e));
+            self
+        }
+        pub fn trim_chars<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<
+                ::std::option::Option<::std::boxed::Box<super::ComputedStringValue>>,
+            >,
+            T::Error: ::std::fmt::Display,
+        {
+            self.trim_chars = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for trim_chars: {}", e));
+            self
+        }
+        pub fn type_<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::serde_json::Value>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.type_ = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for type_: {}", e));
+            self
+        }
+        pub fn value<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::boxed::Box<super::ComputedStringValue>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.value = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for value: {}", e));
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<TrimStringValue> for super::TrimStringValue {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: TrimStringValue,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                source: value.source?,
+                trim_chars: value.trim_chars?,
+                type_: value.type_?,
+                value: value.value?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::TrimStringValue> for TrimStringValue {
+        fn from(value: super::TrimStringValue) -> Self {
+            Self {
+                source: Ok(value.source),
+                trim_chars: Ok(value.trim_chars),
                 type_: Ok(value.type_),
                 value: Ok(value.value),
             }

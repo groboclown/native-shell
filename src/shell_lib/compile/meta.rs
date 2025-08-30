@@ -54,7 +54,7 @@ pub enum StreamDirection {
     Output,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub enum StreamType {
     /// The module reads from the stream.
     Input(StreamInterface),
@@ -63,7 +63,7 @@ pub enum StreamType {
     Output(StreamInterface),
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub enum StreamInterface {
     /// Either a std::io::Read or a std::io::Write trait.
     /// These will be passed inside a Box.
@@ -73,6 +73,21 @@ pub enum StreamInterface {
     Fd,
 }
 
+/// Defines a structure owned by the module that the script will use to interact with the module.
+pub struct ModuleStructure {
+    /// The name of the structure.
+    /// It must share the same mod name as the module.
+    pub name: String,
+
+    /// The list of public fields in the structure.
+    pub fields: Vec<NamedValue>,
+
+    /// The 'new' function that creates the structure.
+    /// Modules must provide this if the structure contains non-public fields.
+    pub new: Option<String>,
+}
+
+#[derive(Clone, Debug)]
 pub struct FixedStreamDef {
     /// The name of the stream.
     pub name: Option<String>,
@@ -95,24 +110,11 @@ pub struct FixedStreamDef {
     pub required: bool,
 }
 
-/// Defines a structure owned by the module that the script will use to interact with the module.
-pub struct ModuleStructure {
-    /// The name of the structure.
-    /// It must share the same mod name as the module.
-    pub name: String,
-
-    /// The list of public fields in the structure.
-    pub fields: Vec<NamedValue>,
-
-    /// The 'new' function that creates the structure.
-    /// Modules must provide this if the structure contains non-public fields.
-    pub new: Option<String>,
-}
-
 /// Defines a variable stream field for the module's stream structure.
 /// If the StreamInterface is `Fd`, then the field must be a `Vec<std::os::fd::OwnedFd>`.
 /// If the StreamInterface is `ReadWrite` and an input stream, then the field must be a `Vec<Box<dyn std::io::Read + Send + Sync>>`.
 /// If the StreamInterface is `ReadWrite` and an output stream, then the field must be a `Vec<Box<dyn std::io::Write + Send + Sync>>`.
+#[derive(Clone, Debug)]
 pub struct VariableStreamField {
     pub field_name: String,
     pub stream_type: StreamInterface,
@@ -128,6 +130,7 @@ pub struct VariableStreamField {
 /// The structure must define the stream's fixed fields are either the name
 /// (if only the name is given), or `fd_(index)` where `index` is the
 /// file descriptor index.
+#[derive(Clone, Debug)]
 pub struct ModuleStreamStructure {
     pub name: String,
     pub fixed_streams: Vec<FixedStreamDef>,

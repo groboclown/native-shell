@@ -10,5 +10,6 @@ pub mod node_graph;
 pub mod parse_node;
 pub mod sequence;
 pub mod special;
+pub mod stream_pair;
 pub mod values;
 pub mod writer;

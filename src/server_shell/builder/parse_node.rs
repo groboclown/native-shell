@@ -15,8 +15,8 @@ pub struct ModuleNode {
     pub module: Rc<meta::ModuleMeta>,
     pub node_id: String,
     pub node_idx: NodeIndex,
-    pub src_streams: Vec<Rc<NodeStream>>,
-    pub dest_streams: Vec<Rc<NodeStream>>,
+    pub input_streams: Vec<Rc<NodeStream>>,
+    pub output_streams: Vec<Rc<NodeStream>>,
 }
 
 impl ModuleNode {
@@ -27,22 +27,23 @@ impl ModuleNode {
             module,
             node_id: format!("{}_{}", mod_name, node_idx),
             node_idx,
-            src_streams: Vec::new(),
-            dest_streams: Vec::new(),
+            input_streams: Vec::new(),
+            output_streams: Vec::new(),
         }
     }
 
-    pub fn add_src_stream(&mut self, stream: Rc<NodeStream>) {
-        self.src_streams.push(stream);
+    pub fn add_input_stream(&mut self, stream: Rc<NodeStream>) {
+        self.input_streams.push(stream);
     }
 
-    pub fn add_dest_stream(&mut self, stream: Rc<NodeStream>) {
-        self.dest_streams.push(stream);
+    pub fn add_output_stream(&mut self, stream: Rc<NodeStream>) {
+        self.output_streams.push(stream);
     }
 }
 
 #[derive(Clone, Debug)]
 pub struct NodeStream {
+    pub stream_id: usize, // Unique ID for the stream.
     pub source_id: String,
     pub source_idx: NodeIndex,
     pub dest_id: String,
@@ -51,7 +52,11 @@ pub struct NodeStream {
     pub source_decl: meta::StreamDeclaration,
     pub dest_type: meta::StreamType, // better be Input
     pub dest_decl: meta::StreamDeclaration,
+    // TODO map this to the meta ModuleStreamStructure for source and dest,
+    //   into the specific stream.
 }
+
+const STREAM_COUNTER: std::sync::atomic::AtomicUsize = std::sync::atomic::AtomicUsize::new(0);
 
 impl NodeStream {
     pub fn new(
@@ -65,6 +70,7 @@ impl NodeStream {
         dest_decl: meta::StreamDeclaration,
     ) -> Self {
         NodeStream {
+            stream_id: STREAM_COUNTER.fetch_add(1, std::sync::atomic::Ordering::SeqCst),
             source_id,
             source_idx,
             dest_id,
@@ -346,8 +352,8 @@ fn setup_node_stream(
             target_stream_type,
             target_stream_decl,
         ));
-        source.add_dest_stream(node_stream.clone());
-        target.add_src_stream(node_stream);
+        source.add_output_stream(node_stream.clone());
+        target.add_input_stream(node_stream);
     }
 
     errs

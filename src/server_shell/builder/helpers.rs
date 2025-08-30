@@ -1,11 +1,16 @@
 //! Helpers for the rust file generation.
 
-use crate::server_shell::{ast::model, builder::parse_node::ModuleNode};
+use crate::{server_shell::{ast::model, builder::parse_node::ModuleNode}, shell_lib::compile::meta};
 
 /// Create the node's module's full crate and module name.
 pub fn as_mod_expr(node: &ModuleNode) -> String {
+    module_as_mod_expr(&node.module)
+}
+
+/// Create the node's module's full crate and module name.
+pub fn module_as_mod_expr(module: &meta::ModuleMeta) -> String {
     let mut line = "crate".to_owned();
-    for item in &node.module.mod_name {
+    for item in &module.mod_name {
         line.push_str("::");
         line.push_str(&item);
     }

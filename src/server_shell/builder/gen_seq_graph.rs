@@ -5,7 +5,10 @@ use super::node_graph::NodeGraph;
 use super::parse_node::ModuleNode;
 use super::sequence::{SeqIndex, SequenceGen};
 use super::writer::SourceWriter;
+use super::stream_pair;
 use crate::server_shell::builder::errors::{BuilderError, ErrorDetails};
+use crate::server_shell::builder::helpers;
+use crate::server_shell::builder::stream_pair::VariableNodeStream;
 use crate::shell_lib::compile::meta;
 
 pub fn write_graph_seq<'a, SW: SourceWriter, SG: SequenceGen<'a>>(
@@ -67,7 +70,7 @@ use crate::runtime;
     }
     out.write_all(b"    })\n}\n\n")?;
 
-    write_job0(seq_idx, graph, &mut out)?;
+    write_job0(seq_idx, graph, sgen, &mut out)?;
     let mut job_idx = 0;
     for node_idx in &graph.stream_order {
         job_idx += 1;
@@ -79,9 +82,10 @@ use crate::runtime;
 }
 
 /// Job 0: constructs all the streams.
-fn write_job0(
+fn write_job0<'a, SG: SequenceGen<'a>>(
     seq_idx: usize,
     graph: &NodeGraph,
+    sgen: &'a SG,
     out: &mut Box<dyn std::io::Write>,
 ) -> Result<(), BuilderError> {
     out.write_fmt(format_args!(
@@ -98,7 +102,7 @@ impl job::JobRunner for Seq{}Job0 {{
         seq_idx, seq_idx, seq_idx
     ))?;
 
-    write_stream_creation(graph, out)?;
+    write_stream_creation(graph, sgen, out)?;
 
     out.write_all(
         b"        }) {
@@ -241,13 +245,161 @@ impl Seq{}Job{} {{
     Ok(())
 }
 
-fn write_stream_creation(
+fn write_stream_creation<'a, SG: SequenceGen<'a>>(
     graph: &NodeGraph,
+    sgen: &'a SG,
     out: &mut Box<dyn std::io::Write>,
 ) -> Result<(), BuilderError> {
     // todo!("generate stream creation")
-    println!("TODO: generate stream creation.");
-    out.write_all(b"// TODO generate stream creation\n")?;
+    // Step 1: create the stream variables.  Generally, this will run helpers::fd::mk_pipe().
+    //   If they're both Read/Write, then use helpers::mem_rw::make_mem_read_write().
+    let streams = stream_pair::BoundStream::from_graph(graph, sgen)?;
+    for (stream_idx, stream) in streams.iter().enumerate() {
+        match stream {
+            stream_pair::BoundStream::MainNamed(std_stream) => {
+                if stream.is_strictly_rw() {
+                    out.write_fmt(format_args!(
+                        "            let s_{} = std::io::{}();\n",
+                        stream_idx, std_stream.name,
+                    ))?;
+                } else {
+                    out.write_fmt(format_args!(
+                        "            let s_{} = unsafe {{ OwnedFd::from_raw_fd(std::io::{}().as_raw_fd()) }};\n",
+                        stream_idx, std_stream.name,
+                    ))?;
+                }
+            }
+            stream_pair::BoundStream::MainFd(std_stream) => {
+                if stream.is_strictly_rw() {
+                    out.write_fmt(format_args!(
+                        "            let s_{} = helpers::fd::file_from_fd({});\n",
+                        stream_idx, std_stream.fd
+                    ))?;
+                } else {
+                    out.write_fmt(format_args!(
+                        "            let s_{} = unsafe {{ OwnedFd::from_raw_fd({}) }};\n",
+                        stream_idx, std_stream.fd,
+                    ))?;
+                }
+            }
+            crate::server_shell::builder::stream_pair::BoundStream::Pipe(_) => {
+                if stream.is_strictly_rw() {
+                    out.write_fmt(format_args!(
+                        "            let (read_{}, write_{}) = helpers::mem_rw::make_mem_read_write();\n",
+                        stream_idx, stream_idx,
+                    ))?;
+                } else {
+                    out.write_fmt(format_args!(
+                        "            let (read_{}, write_{}) = helpers::fd::mk_pipe();\n",
+                        stream_idx, stream_idx,
+                    ))?;
+                }
+            }
+        }
+    }
+
+    // Step 2: set the stream state values based on the created variables.
+    for ns in stream_pair::NodeStreamStruct::from_streams(
+        &streams,
+        graph,
+        sgen,
+    )? {
+        let s_struct = &ns.module.as_ref().stream_struct.clone().expect("must have streams");
+        out.write_fmt(format_args!(
+            "            state.{}.replace({}::{} {{\n",
+            ns.node_id,  helpers::module_as_mod_expr(&ns.module), &s_struct.name
+        ))?;
+        for fixed in &ns.fixed_streams {
+            let mut pref = "";
+            let mut suff = "";
+            if ! fixed.required {
+                pref = "Some(";
+                suff = ")";
+            }
+            let v_pre = match &fixed.bound {
+                stream_pair::BoundStream::MainNamed(_) => "s",
+                stream_pair::BoundStream::MainFd(_) => "s",
+                stream_pair::BoundStream::Pipe(_) => match fixed.direction {
+                    meta::StreamDirection::Input => "read",
+                    meta::StreamDirection::Output => "write",
+                }
+            };
+            if fixed.field_interface == fixed.stream_interface {
+                out.write_fmt(format_args!(
+                    "                {}: {}{}_{}{},\n",
+                    fixed.field_name, pref, v_pre, fixed.stream_idx, suff,
+                ))?;
+            } else {
+                match fixed.field_interface {
+                    meta::StreamInterface::ReadWrite => {
+                        // Convert from FD to ReadWrite.
+                        out.write_fmt(format_args!(
+                            "                {}: {}helpers::fd::file_from_fd({}_{}){},\n",
+                            fixed.field_name, pref, v_pre, fixed.stream_idx, suff,
+                        ))?;
+                    }
+                    meta::StreamInterface::Fd => {
+                        // Convert from ReadWrite to FD.
+                        // Based on the logic above, this shouldn't be a valid scenario.
+                        out.write_fmt(format_args!(
+                            "                {}: {}helpers::fd::owned_from_file({}_{}){},\n",
+                            fixed.field_name, pref, v_pre, fixed.stream_idx, suff,
+                        ))?;
+                    }
+                }
+            }
+        }
+        if let Some(var) = &ns.input_variable {
+            write_variable_stream_field(var, "read", out)?;
+        }
+        if let Some(var) = &ns.output_variable {
+            write_variable_stream_field(var, "write", out)?;
+        }
+        out.write_all(b"            });\n")?;
+    }
+
+    Ok(())
+}
+
+fn write_variable_stream_field(
+    var: &VariableNodeStream, mode: &'static str, out: &mut Box<dyn std::io::Write>,
+) -> Result<(), BuilderError> {
+    out.write_fmt(format_args!(
+        "                {}: vec![\n",
+        var.field_name,
+    ))?;
+    for (stream_idx, bound_stream) in &var.streams {
+        let v_pre = match &bound_stream {
+            stream_pair::BoundStream::MainNamed(_) => "s",
+            stream_pair::BoundStream::MainFd(_) => "s",
+            // hard-coded to read, since this is the input variable.
+            stream_pair::BoundStream::Pipe(_) => mode,
+        };
+        if var.field_interface == var.stream_interface {
+            out.write_fmt(format_args!(
+                "                    {}_{},\n",
+                v_pre, stream_idx,
+            ))?;
+        } else {
+            match var.field_interface {
+                meta::StreamInterface::ReadWrite => {
+                    // Convert from FD to ReadWrite.
+                    out.write_fmt(format_args!(
+                        "                    helpers::fd::file_from_fd({}_{}) as _,\n",
+                        v_pre, stream_idx,
+                    ))?;
+                }
+                meta::StreamInterface::Fd => {
+                    // Convert from ReadWrite to FD.
+                    out.write_fmt(format_args!(
+                        "                    helpers::fd::owned_from_file({}_{}) as _,\n",
+                        v_pre, stream_idx,
+                    ))?;
+                }
+            }
+        }
+    }
+    out.write_all(b"                ],\n")?;
     Ok(())
 }
 

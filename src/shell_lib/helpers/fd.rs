@@ -1,13 +1,11 @@
 //! Helps with using file descriptors for the node streams.
 
-use std::io::Write;
 #[cfg(unix)]
 use std::os::fd::OwnedFd;
 #[cfg(unix)]
 use std::os::unix::io::{FromRawFd, IntoRawFd};
 #[cfg(windows)]
 use std::os::windows::io::{FromRawHandle, IntoRawHandle};
-use std::sync::{Arc, RwLock};
 
 
 /// Create a pair of file descriptors that come from OS pipe objects, in the form (read, write).
@@ -40,18 +38,6 @@ pub fn mk_pipe() -> (OwnedFd, OwnedFd) {
     }
 }
 
-/// Turn a File into OwnedFd.
-#[cfg(unix)]
-pub fn owned_from_file(file: std::fs::File) -> OwnedFd {
-    let raw = file.into_raw_fd();
-    unsafe { OwnedFd::from_raw_fd(raw) }
-}
-#[cfg(windows)]
-pub fn owned_from_file(file: std::fs::File) -> OwnedFd {
-    let raw = file.into_raw_handle();
-    unsafe { OwnedFd::from_raw_handle(raw) }
-}
-
 /// Get a File from an OwnedFd.
 /// The caller must ensure the File follows the read or write semantics based on the FD.
 pub fn file_from_fd(fd: OwnedFd) -> std::fs::File {
@@ -62,8 +48,29 @@ pub fn file_from_fd(fd: OwnedFd) -> std::fs::File {
 }
 
 // The following are unit test helpers.
+#[cfg(test)]
+use std::io::Write;
+#[cfg(test)]
+use std::sync::{Arc, RwLock};
+
+
+/// Turn a File into OwnedFd.
+#[cfg(test)]
+#[cfg(unix)]
+pub fn owned_from_file(file: std::fs::File) -> OwnedFd {
+    let raw = file.into_raw_fd();
+    unsafe { OwnedFd::from_raw_fd(raw) }
+}
+#[cfg(test)]
+#[cfg(windows)]
+pub fn owned_from_file(file: std::fs::File) -> OwnedFd {
+    let raw = file.into_raw_handle();
+    unsafe { OwnedFd::from_raw_handle(raw) }
+}
+
 
 /// Create a FD reader from the given data, which can be used in tests.
+#[cfg(test)]
 pub fn make_fd_reader(data: &[u8]) -> OwnedFd {
     let (r, w) = mk_pipe();
     let mut writer = file_from_fd(w);
@@ -74,10 +81,12 @@ pub fn make_fd_reader(data: &[u8]) -> OwnedFd {
 }
 
 /// Writes to a vector, which can be monitored by the tests.
+#[cfg(test)]
 pub struct VecWriter {
     data: Arc<RwLock<Vec<u8>>>,
 }
 
+#[cfg(test)]
 impl VecWriter {
     /// Create a new VecWriter with the given data, wrapped in a box.
     pub fn new_box(data: Arc<RwLock<Vec<u8>>>) -> Box<Self> {
@@ -91,6 +100,7 @@ impl VecWriter {
     }
 }
 
+#[cfg(test)]
 impl Write for VecWriter {
     fn write(&mut self, buf: &[u8]) -> std::io::Result<usize> {
         self.data.write().unwrap().extend_from_slice(buf);

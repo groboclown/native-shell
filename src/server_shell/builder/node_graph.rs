@@ -19,7 +19,7 @@ use super::errors;
 use super::parse_node;
 use crate::server_shell::ast::model;
 use crate::server_shell::builder::parse_node::NodeIndex;
-use crate::server_shell::builder::special::is_main_node;
+use crate::server_shell::builder::special::is_main_node_name;
 
 #[derive(Debug, Clone)]
 pub struct NodeGraph {
@@ -110,7 +110,7 @@ fn stream_topo_sort(
         // The main node has its own special handling.
         // Main node does not participate in the node graph, as it will nearly always introduce cycles,
         // and its stream handling is its own thing.
-        if is_main_node(&nodes.get(node_idx).expect("wrong counts").node.name) {
+        if is_main_node_name(&nodes.get(node_idx).expect("wrong counts").node.name) {
             clusters.push(cluster, node_idx);
             main_node = node_idx;
         } else {
@@ -156,7 +156,7 @@ fn stream_topo_sort(
                 clusters.push(current_cluster, current_node);
 
                 // Visit destination streams.
-                for stream in &node.dest_streams {
+                for stream in &node.output_streams {
                     depth.push(TopoItem::Enter((stream.dest_idx, current_cluster)));
                 }
             }
@@ -610,6 +610,7 @@ mod tests {
         let cat_mod = Rc::new(cat::module_meta());
         let shell_mod = Rc::new(shell::module_meta());
         let cat_fs_stream = Rc::new(parse_node::NodeStream {
+            stream_id: 1,
             source_id: "cat_1".to_string(),
             source_idx: 1,
             dest_id: "sink_2".to_string(),
@@ -624,8 +625,8 @@ mod tests {
                 node_idx: 0,
                 node_id: "main_0".to_string(),
                 module: shell_mod.clone(),
-                src_streams: vec![],
-                dest_streams: vec![],
+                input_streams: vec![],
+                output_streams: vec![],
                 node: model::Node {
                     name: "main".to_string(),
                     module: shell_mod.name.clone(),
@@ -658,8 +659,8 @@ mod tests {
                 node_idx: 1,
                 node_id: "cp_1".to_string(),
                 module: cat_mod.clone(),
-                src_streams: vec![],
-                dest_streams: vec![cat_fs_stream.clone()],
+                input_streams: vec![],
+                output_streams: vec![cat_fs_stream.clone()],
                 node: model::Node {
                     name: "cat".to_string(),
                     module: cat_mod.name.clone(),
@@ -702,8 +703,8 @@ mod tests {
                 node_idx: 2,
                 node_id: "sink_2".to_string(),
                 module: fs_mod.clone(),
-                src_streams: vec![cat_fs_stream.clone()],
-                dest_streams: vec![],
+                input_streams: vec![cat_fs_stream.clone()],
+                output_streams: vec![],
                 node: model::Node {
                     name: "sink".to_string(),
                     module: fs_mod.name.clone(),

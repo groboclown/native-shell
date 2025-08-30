@@ -6,8 +6,8 @@ use crate::server_shell::ast::model::Source;
 pub enum Relationship {
     StreamSource,
     StreamTarget,
-    SpawnsNode,
-    SpawnedByNode,
+    //SpawnsNode,
+    //SpawnedByNode,
 }
 
 #[derive(Clone, Debug)]
@@ -34,7 +34,7 @@ pub enum BuilderError {
     /// Error when a target stream is not found.
     StreamNotFound(ErrorDetails),
     /// A stream is referenced by multiple nodes.
-    MultipleStreamUse(ErrorDetails),
+    InvalidStreamUse(ErrorDetails),
     /// A cycle happened in the streams.
     StreamCycle(ErrorDetails),
     /// I/O error.
@@ -49,6 +49,8 @@ pub enum BuilderError {
     NoSuchField(ErrorDetails),
     /// Bug.  Something shoved this in the wrong sequence.
     MainModuleInSequence(ErrorDetails),
+    /// Invalid AST range specifier.
+    InvalidRange(ErrorDetails),
     /// A required field is missing in the module's structure.
     RequiredFieldMissing(ErrorDetails),
 }
@@ -81,8 +83,8 @@ pub fn report_errors(err: &BuilderError) {
             show_source(&details.source);
             show_related(&details);
         }
-        BuilderError::MultipleStreamUse(details) => {
-            eprintln!("Multiple stream use: {}", details.message);
+        BuilderError::InvalidStreamUse(details) => {
+            eprintln!("Invalid stream use: {}", details.message);
             show_source(&details.source);
             show_related(&details);
         }
@@ -116,6 +118,11 @@ pub fn report_errors(err: &BuilderError) {
         }
         BuilderError::RequiredFieldMissing(error_details) => {
             eprintln!("Required field missing: {}", error_details.message);
+            show_source(&error_details.source);
+            show_related(error_details);
+        }
+        BuilderError::InvalidRange(error_details) => {
+            eprintln!("Invalid range specifier: {}", error_details.message);
             show_source(&error_details.source);
             show_related(error_details);
         }
@@ -170,8 +177,8 @@ fn show_related(details: &ErrorDetails) {
         eprintln!(
             "{}:",
             match related.relation {
-                Relationship::SpawnsNode => "Spawns node",
-                Relationship::SpawnedByNode => "Spawned by node",
+                //Relationship::SpawnsNode => "Spawns node",
+                //Relationship::SpawnedByNode => "Spawned by node",
                 Relationship::StreamSource => "Stream source",
                 Relationship::StreamTarget => "Stream target",
             }
