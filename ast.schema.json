@@ -404,7 +404,7 @@
                 "type": { "const": "run-node-handler" },
                 "handler": {
                   "type": "string",
-                  "description": "The name of the handler to run on the current node until the handler completes."
+                  "description": "The name of the handler to run on the current node, run until handler completion, and perform the success/fail actions when the handler completes."
                 },
                 "parameters": { "$ref": "#/$defs/NamedParameters" },
                 "on-success": { "$ref": "#/$defs/ActionEndBehavior" },
@@ -414,7 +414,7 @@
             {
               "type": "object",
               "title": "Spawn Node",
-              "description": "Requests the parallel execution of a node, either start it or restart it.  If it's currently running, this will wait for it to finish and reuse its exit code.",
+              "description": "Requests the parallel execution of a node, either start it or restart it.  If it's currently running, this will do nothing.",
               "required": ["source", "type", "node"],
               "additionalProperties": false,
               "properties": {

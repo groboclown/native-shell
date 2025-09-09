@@ -156,3 +156,6 @@ dmypy.json
 
 # Local play files
 /local-*
+
+# shell_lib zip constructed by the build.
+/shell_lib.zip

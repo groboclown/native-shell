@@ -7,7 +7,7 @@ use super::sequence::{SeqIndex, SequenceGen};
 use super::writer::SourceWriter;
 use super::stream_pair;
 use crate::server_shell::builder::errors::{BuilderError, ErrorDetails};
-use crate::server_shell::builder::helpers;
+use crate::server_shell::builder::{helpers, sequence};
 use crate::server_shell::builder::stream_pair::VariableNodeStream;
 use crate::shell_lib::compile::meta;
 
@@ -70,14 +70,59 @@ use crate::runtime;
     }
     out.write_all(b"    })\n}\n\n")?;
 
-    write_job0(seq_idx, graph, sgen, &mut out)?;
+    let job0_idx = write_job0(seq_idx, graph, sgen, &mut out)?;
     let mut job_idx = 0;
+    let mut node_job_map = std::collections::HashMap::new();
     for node_idx in &graph.stream_order {
         job_idx += 1;
         let node = sgen.node_at(*node_idx);
-        write_job_n(seq_idx, job_idx, node, sgen, &mut out)?;
+        node_job_map.insert(
+            node_idx,
+            write_job_n(seq_idx, job_idx, node, sgen, &mut out)?,
+        );
     }
 
+    // The first step is always running and waiting on job 0.
+    // Because of the synthetic nature of the job, it has no exit behavior other than
+    // just running.
+    out.write_fmt(format_args!("
+fn seq{}_description() -> job::JobSequenceDescription {{
+    job::JobSequenceDescription {{
+        name: \"@seq{}\".to_string(),
+        source: {},
+        steps: vec![
+            job::ScheduleStep::SpawnJob({}),
+            job::ScheduleStep::WaitForJob({}, job::ExitCodeBehavior {{
+                never_started: job::OnExitBehavior::AbortScript,
+                exit_code_behaviors: vec![],
+                default_behavior: job::OnExitBehavior::RunNext,
+            }}),
+",
+        seq_idx,  // fn seq{}_description()
+        seq_idx,  // name: \"@seq{}\"
+        helpers::as_rust_source(&sgen.node_at(*graph.initial_exec.get(0).unwrap()).node.source),
+        job0_idx,  // SpawnJob({})
+        job0_idx,  // WaitForJob({}, ...)
+    ))?;
+
+    // Run the initial execution order.
+    for node_idx in &graph.initial_exec {
+        let seq_job_id = node_job_map.get(node_idx).expect("must have job");
+        out.write_fmt(format_args!(
+            "            job::ScheduleStep::SpawnJobSequence({}),
+",
+            seq_job_id,
+        ))?;
+    }
+    // Wait for all the jobs to finish.
+    for (node_idx, seq_job_id) in node_job_map.iter() {
+        write_wait_for_job(*seq_job_id, **node_idx, sgen, &mut out)?;
+    }
+
+    out.write_all(b"        ],
+    }
+}
+")?;
     Ok(())
 }
 
@@ -87,7 +132,7 @@ fn write_job0<'a, SG: SequenceGen<'a>>(
     graph: &NodeGraph,
     sgen: &'a SG,
     out: &mut Box<dyn std::io::Write>,
-) -> Result<(), BuilderError> {
+) -> Result<sequence::JobIndex, BuilderError> {
     out.write_fmt(format_args!(
         "
 pub struct Seq{}Job0 {{
@@ -126,7 +171,7 @@ impl job::JobRunner for Seq{}Job0 {{
 ",
     )?;
 
-    Ok(())
+    Ok(sgen.add_job_seq(seq_idx, 0))
 }
 
 fn write_job_n<'a, SG: SequenceGen<'a>>(
@@ -135,7 +180,7 @@ fn write_job_n<'a, SG: SequenceGen<'a>>(
     node: &ModuleNode,
     sgen: &'a SG,
     out: &mut Box<dyn std::io::Write>,
-) -> Result<(), BuilderError> {
+) -> Result<sequence::SeqIndex, BuilderError> {
     out.write_fmt(format_args!(
         "
 pub struct Seq{}Job{} {{
@@ -242,6 +287,32 @@ impl Seq{}Job{} {{
         job_idx, // Seq{}Job{}
     ))?;
 
+    let global_job_id = sgen.add_job_seq(seq_idx, job_idx);
+
+    // FIXME create the exit code behaviors / never started / etc for the
+    // sequence.
+    out.write_fmt(format_args!("
+pub fn sub_sequence() -> job::JobSequenceDescription {{
+    job::JobSequenceDescription {{
+        name: \"@seq{}_{}\".to_string(),
+        source: {},
+        steps: vec![
+            job::ScheduleStep::SpawnJob({}),
+            job::ScheduleStep::WaitForJob({}, job::ExitCodeBehavior {{
+                never_started: job::OnExitBehavior::AbortScript,
+                exit_code_behaviors: vec![],
+                default_behavior: job::OnExitBehavior::RunNext,
+            }}),
+        ],
+    }}
+}}",
+        seq_idx, // name: \"@seq{}_{}\"
+        job_idx, // name: \"@seq{}_{}\"
+        helpers::as_rust_source(&node.node.source),
+        global_job_id, // SpawnJob({})
+        global_job_id, // WaitForJob({}, ...)
+    ))?;
+
     Ok(())
 }
 
@@ -306,7 +377,7 @@ fn write_stream_creation<'a, SG: SequenceGen<'a>>(
     )? {
         let s_struct = &ns.module.as_ref().stream_struct.clone().expect("must have streams");
         out.write_fmt(format_args!(
-            "            state.{}.replace({}::{} {{\n",
+            "            state.{}.replace({}{} {{\n",
             ns.node_id,  helpers::module_as_mod_expr(&ns.module), &s_struct.name
         ))?;
         for fixed in &ns.fixed_streams {
@@ -434,5 +505,34 @@ fn write_params<'a, SG: SequenceGen<'a>>(
     }
 
     out.write_all(b"        };\n")?;
+    Ok(())
+}
+
+fn write_wait_for_job<'a, SG: SequenceGen<'a>>(
+    seq_job_id: usize,
+    _node_idx: usize,
+    _sgen: &'a SG,
+    out: &mut Box<dyn std::io::Write>,
+) -> Result<(), BuilderError> {
+    // The top-level graph sequence will always have the same behavior for the jobs' sequences.
+    out.write_fmt(format_args!("
+        job::ScheduleStep::WaitForJobSequence({}, job::ExitCodeBehavior {{
+            never_started: job::OnExitBehavior::RunNext,
+            default_behavior: job::OnExitBehavior::RunNext,
+            exit_code_behaviors: vec![
+                job::ExitCodeRangeBehavior {{
+                    code: job::ExitCodeRange::AtOrAbove(1),
+                    behavior: job::OnExitBehavior::AbortScript,
+                }},
+                job::ExitCodeRangeBehavior {{
+                    code: job::ExitCodeRange::AtOrBelow(-1),
+                    behavior: job::OnExitBehavior::AbortScript,
+                }},
+            ],
+        }},
+",
+
+        seq_job_id,
+    ))?;
     Ok(())
 }

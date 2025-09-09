@@ -39,6 +39,8 @@ pub enum BuilderError {
     StreamCycle(ErrorDetails),
     /// I/O error.
     IOError(std::io::Error),
+    /// Zip Error
+    ZipError(zip::result::ZipError),
     /// Many errors.
     Collection(Vec<BuilderError>),
     /// The node's module does not have a state struct.
@@ -95,6 +97,9 @@ pub fn report_errors(err: &BuilderError) {
         }
         BuilderError::IOError(e) => {
             eprintln!("I/O error: {}", e);
+        }
+        BuilderError::ZipError(e) => {
+            eprintln!("Zip error: {}", e);
         }
         BuilderError::NoStateForModule(error_details) => {
             eprintln!("No state for module: {}", error_details.message);

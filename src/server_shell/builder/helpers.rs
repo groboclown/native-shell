@@ -50,7 +50,14 @@ pub fn as_rust_str(text: &String) -> String {
             _ => s.push(c),
         }
     }
-    s.push_str("\".to_string()");
+    s.push('\"');
+    s
+}
+
+/// Convert a String to a Rust string literal.
+pub fn as_rust_string(text: &String) -> String {
+    let mut s = as_rust_str(text);
+    s.push_str(".to_string()");
     s
 }
 

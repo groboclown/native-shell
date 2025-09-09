@@ -43,6 +43,14 @@ fn distinct_dependencies(nodes: &Vec<ModuleNode>) -> Vec<String> {
             ret.insert(dep.clone());
         }
     }
+    for lines in include_str!("../../../Cargo.toml")
+        .lines()
+    {
+        let line = lines.trim();
+        if line.starts_with("libc") || line.starts_with("log") || line.starts_with("users") {
+            ret.insert(line.to_string());
+        }
+    }
     return ret.into_iter().collect();
 }
 

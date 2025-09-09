@@ -1,4 +1,5 @@
 pub mod errors;
+pub mod extract_lib;
 pub mod from_ast;
 pub mod gen_cargo;
 pub mod gen_main;

@@ -106,7 +106,7 @@ impl AbsValue {
 #[doc = "          ],"]
 #[doc = "          \"properties\": {"]
 #[doc = "            \"handler\": {"]
-#[doc = "              \"description\": \"The name of the handler to run on the current node until the handler completes.\","]
+#[doc = "              \"description\": \"The name of the handler to run on the current node, run until handler completion, and perform the success/fail actions when the handler completes.\","]
 #[doc = "              \"type\": \"string\""]
 #[doc = "            },"]
 #[doc = "            \"on-failure\": {"]
@@ -129,7 +129,7 @@ impl AbsValue {
 #[doc = "        },"]
 #[doc = "        {"]
 #[doc = "          \"title\": \"Spawn Node\","]
-#[doc = "          \"description\": \"Requests the parallel execution of a node, either start it or restart it.  If it's currently running, this will wait for it to finish and reuse its exit code.\","]
+#[doc = "          \"description\": \"Requests the parallel execution of a node, either start it or restart it.  If it's currently running, this will do nothing.\","]
 #[doc = "          \"type\": \"object\","]
 #[doc = "          \"required\": ["]
 #[doc = "            \"node\","]
@@ -484,7 +484,7 @@ impl ActionParameter {
 #[doc = "      ],"]
 #[doc = "      \"properties\": {"]
 #[doc = "        \"handler\": {"]
-#[doc = "          \"description\": \"The name of the handler to run on the current node until the handler completes.\","]
+#[doc = "          \"description\": \"The name of the handler to run on the current node, run until handler completion, and perform the success/fail actions when the handler completes.\","]
 #[doc = "          \"type\": \"string\""]
 #[doc = "        },"]
 #[doc = "        \"on-failure\": {"]
@@ -507,7 +507,7 @@ impl ActionParameter {
 #[doc = "    },"]
 #[doc = "    {"]
 #[doc = "      \"title\": \"Spawn Node\","]
-#[doc = "      \"description\": \"Requests the parallel execution of a node, either start it or restart it.  If it's currently running, this will wait for it to finish and reuse its exit code.\","]
+#[doc = "      \"description\": \"Requests the parallel execution of a node, either start it or restart it.  If it's currently running, this will do nothing.\","]
 #[doc = "      \"type\": \"object\","]
 #[doc = "      \"required\": ["]
 #[doc = "        \"node\","]
@@ -687,7 +687,7 @@ pub enum ActionRun {
     #[doc = "Run Node Handler\n\nExecute a handler on the current node."]
     #[serde(rename = "run-node-handler")]
     RunNodeHandler {
-        #[doc = "The name of the handler to run on the current node until the handler completes."]
+        #[doc = "The name of the handler to run on the current node, run until handler completion, and perform the success/fail actions when the handler completes."]
         handler: ::std::string::String,
         #[serde(rename = "on-failure")]
         on_failure: ActionEndBehavior,
@@ -696,7 +696,7 @@ pub enum ActionRun {
         parameters: NamedParameters,
         source: Source,
     },
-    #[doc = "Spawn Node\n\nRequests the parallel execution of a node, either start it or restart it.  If it's currently running, this will wait for it to finish and reuse its exit code."]
+    #[doc = "Spawn Node\n\nRequests the parallel execution of a node, either start it or restart it.  If it's currently running, this will do nothing."]
     #[serde(rename = "spawn-node")]
     SpawnNode {
         #[doc = "The node ID to run."]

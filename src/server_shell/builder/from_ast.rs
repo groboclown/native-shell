@@ -48,8 +48,9 @@ pub fn ast_to_module_source<SW: SourceWriter>(
     // Step 7: Copy the shell_lib into the output directory.
     //   This can either be an unzip step, or it can be provided
     //   in the executable's install directory.
-    //   For now, it's manual.
-    eprintln!("NOTE: you must copy the shell_lib directory into the executable's path.");
+    //   For now, it's hard-coded.
+    super::extract_lib::extract_libs(&out)?;
+
     Ok(())
 }
 

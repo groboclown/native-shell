@@ -1,6 +1,5 @@
 //! Maintain stream pairs between nodes.
 
-use std::collections::HashMap;
 use std::rc::Rc;
 use crate::server_shell::ast::model;
 use crate::server_shell::builder::parse_node::ModuleNode;
@@ -260,47 +259,161 @@ impl NodeStreamStruct {
         sgen: &'a SG,
     ) -> Result<Vec<Self>, BuilderError> {
         // Match up the streams to the node's stream via the RC stream id.
+        let mut errs = Vec::new();
         let mut ret = vec![];
         for node_idx in &graph.stream_order {
             let node = sgen.node_at(*node_idx);
             let mut fixed_streams = vec![];
             let mut inputs = vec![];
             let mut outputs = vec![];
-            for node_stream in node.input_streams {
+            for node_stream in &node.input_streams {
                 let bound = find_bound_stream_for(&node.node.source, streams, &node_stream)?;
 
                 // Coming into this node, so it's an input (dest).
-                match node_stream.dest_decl {
+                match &node_stream.dest_decl {
                     meta::StreamDeclaration::Name(name) => {
-                        let mod_stream = find_named_fixed_stream(node, &name)?;
+                        let mod_stream = find_named_fixed_stream(node, name)?;
                         fixed_streams.push(FixedNodeStream {
-                            field_name: name,
+                            field_name: name.clone(),
                             required: mod_stream.required,
-                            field_interface: get_type_interface(node_stream.dest_type),
-                            stream_interface: node_stream.source_type.interface(),
-                            stream_idx: node_stream.source_idx.index(),
-                            bound: BoundStream::Pipe(Rc::new(node_stream)),
+                            field_interface: get_type_interface(&node_stream.dest_type),
+                            stream_interface: get_type_interface(&mod_stream.stream_type),
+                            stream_idx: node_stream.stream_id,
+                            bound: bound.clone(),
                             direction: meta::StreamDirection::Input,
                         });
                     }
-                    meta::StreamDeclaration::FdIndex(fd) => format!("fd_{}", fd),
-                    meta::StreamDeclaration::VariableStream(name, _) => name,
+                    meta::StreamDeclaration::FdIndex(fd) => {
+                        let mod_stream = find_fd_fixed_stream(node, fd)?;
+                        fixed_streams.push(FixedNodeStream {
+                            field_name: format!("fd_{}", fd),
+                            required: mod_stream.required,
+                            field_interface: get_type_interface(&node_stream.dest_type),
+                            stream_interface: get_type_interface(&mod_stream.stream_type),
+                            stream_idx: node_stream.stream_id,
+                            bound: bound.clone(),
+                            direction: meta::StreamDirection::Input,
+                        });
+                    }
+                    meta::StreamDeclaration::VariableStream(_, _) => {
+                        inputs.push((node_stream.stream_id, bound.clone()));
+                    }
                 };
             }
-            for node_stream in node.output_streams {
+            for node_stream in &node.output_streams {
                 let bound = find_bound_stream_for(&node.node.source, streams, &node_stream)?;
 
                 // Going out of this node, so it's an output (source).
-                let name = match node_stream.source_decl {
-                    meta::StreamDeclaration::Name(name) => name,
-                    meta::StreamDeclaration::FdIndex(fd) => format!("fd_{}", fd),
-                    meta::StreamDeclaration::VariableStream(name, _) => name,
+                match &node_stream.source_decl {
+                    meta::StreamDeclaration::Name(name) => {
+                        let mod_stream = find_named_fixed_stream(node, name)?;
+                        fixed_streams.push(FixedNodeStream {
+                            field_name: name.clone(),
+                            required: mod_stream.required,
+                            field_interface: get_type_interface(&node_stream.source_type),
+                            stream_interface: get_type_interface(&mod_stream.stream_type),
+                            stream_idx: node_stream.stream_id,
+                            bound: bound.clone(),
+                            direction: meta::StreamDirection::Output,
+                        });
+                    }
+                    meta::StreamDeclaration::FdIndex(fd) => {
+                        let mod_stream = find_fd_fixed_stream(node, fd)?;
+                        fixed_streams.push(FixedNodeStream {
+                            field_name: format!("fd_{}", fd),
+                            required: mod_stream.required,
+                            field_interface: get_type_interface(&node_stream.source_type),
+                            stream_interface: get_type_interface(&mod_stream.stream_type),
+                            stream_idx: node_stream.stream_id,
+                            bound: bound.clone(),
+                            direction: meta::StreamDirection::Input,
+                        });
+                    }
+                    meta::StreamDeclaration::VariableStream(_, _) => {
+                        outputs.push((node_stream.stream_id, bound.clone()));
+                    }
                 };
             }
 
-            // TODO validate the node's streams against the module's streams.
+            // Collect and validate the node's streams against the module's streams.
+            let input_count = inputs.len();
+            let output_count = outputs.len();
+            let mut input_variable = None;
+            let mut output_variable = None;
+            if let Some(stream) = &node.module.stream_struct {
+                if let Some(var_stream) = &stream.input_variable {
+                    input_variable = Some(VariableNodeStream {
+                        field_name: var_stream.field_name.clone(),
+                        field_interface: var_stream.stream_type.clone(),
+                        stream_interface: var_stream.stream_type.clone(),
+                        streams: inputs,
+                    });
+                    if input_count < var_stream.min_count as usize {
+                        errs.push(BuilderError::InvalidStreamUse(ErrorDetails {
+                            message: format!("Node '{}' requires at least {} input variable streams, found {}", node.node.name, var_stream.min_count, input_count),
+                            source: node.node.source.clone(),
+                            related: vec![],
+                        }));
+                    }
+                    if input_count > var_stream.max_count as usize {
+                        errs.push(BuilderError::InvalidStreamUse(ErrorDetails {
+                            message: format!("Node '{}' allows at most {} input variable streams, found {}", node.node.name, var_stream.max_count, input_count),
+                            source: node.node.source.clone(),
+                            related: vec![],
+                        }));
+                    }
+                }
+                if let Some(var_stream) = &stream.output_variable {
+                    output_variable = Some(VariableNodeStream {
+                        field_name: var_stream.field_name.clone(),
+                        field_interface: var_stream.stream_type.clone(),
+                        stream_interface: var_stream.stream_type.clone(),
+                        streams: outputs,
+                    });
+                    if output_count < var_stream.min_count as usize {
+                        errs.push(BuilderError::InvalidStreamUse(ErrorDetails {
+                            message: format!("Node '{}' requires at least {} output variable streams, found {}", node.node.name, var_stream.min_count, output_count),
+                            source: node.node.source.clone(),
+                            related: vec![],
+                        }));
+                    }
+                    if output_count > var_stream.max_count as usize {
+                        errs.push(BuilderError::InvalidStreamUse(ErrorDetails {
+                            message: format!("Node '{}' allows at most {} output variable streams, found {}", node.node.name, var_stream.max_count, output_count),
+                            source: node.node.source.clone(),
+                            related: vec![],
+                        }));
+                    }
+                }
+            }
+            if input_count != 0 && input_variable.is_none() {
+                errs.push(BuilderError::InvalidStreamUse(ErrorDetails {
+                    message: format!("Node '{}' has {} input variable streams, but module '{}' does not support variable input streams", node.node.name, input_count, node.module.name),
+                    source: node.node.source.clone(),
+                    related: vec![],
+                }));
+            } // else it was checked in the Some case above.
+            if output_count != 0 && output_variable.is_none() {
+                errs.push(BuilderError::InvalidStreamUse(ErrorDetails {
+                    message: format!("Node '{}' has {} output variable streams, but module '{}' does not support variable output streams", node.node.name, output_count, node.module.name),
+                    source: node.node.source.clone(),
+                    related: vec![],
+                }));
+            } // else it was checked in the Some case above.
+
+            // Add the values into ret.
+            ret.push(NodeStreamStruct {
+                node_id: node.node.name.clone(),
+                module: node.module.clone(),
+                fixed_streams,
+                input_variable,
+                output_variable,
+            });
         }
 
+        if !errs.is_empty() {
+            return Err(BuilderError::Collection(errs));
+        }
         Ok(ret)
     }
 }

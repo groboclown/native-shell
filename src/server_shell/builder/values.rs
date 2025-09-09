@@ -272,7 +272,7 @@ impl<'a, SG: super::sequence::SequenceGen<'a>> ConstructValueState<'a, SG> {
                     ))
                 }
                 model::ComputedStringValue::ConstantStringValue(constant_string_value) => {
-                    Ok(super::helpers::as_rust_str(&constant_string_value.value))
+                    Ok(super::helpers::as_rust_string(&constant_string_value.value))
                 }
             }
             model::ComputedValue::NumberValue(computed_number_value) => match computed_number_value {
@@ -1002,7 +1002,7 @@ pub fn construct_parameter_values(
         match &field.value_type {
             meta::ValueType::String => match &param.value {
                 model::ParameterValue::String { source: _source, value } => {
-                    ret.insert(field.name.clone(), format!("{}{}{}", opt1, super::helpers::as_rust_str(&value), opt2));
+                    ret.insert(field.name.clone(), format!("{}{}{}", opt1, super::helpers::as_rust_string(&value), opt2));
                 }
                 _ => {
                     errors.push(BuilderError::FieldTypeMismatch(
@@ -1060,7 +1060,7 @@ pub fn construct_parameter_values(
                             list.push_str(", ");
                         }
                         first = false;
-                        list.push_str(&super::helpers::as_rust_str(item));
+                        list.push_str(&super::helpers::as_rust_string(item));
                         list.push_str(".to_string()");
                     }
                     ret.insert(field.name.clone(), format!("{}vec![{}]{}", opt1, list, opt2));
@@ -1139,7 +1139,7 @@ pub fn construct_parameter_values(
                             map.push_str(", ");
                         }
                         first = false;
-                        map.push_str(&format!("({}.to_string(), {}.to_string())", super::helpers::as_rust_str(key), super::helpers::as_rust_str(value)));
+                        map.push_str(&format!("({}.to_string(), {}.to_string())", super::helpers::as_rust_string(key), super::helpers::as_rust_string(value)));
                     }
                     ret.insert(field.name.clone(), format!("{}std::collections::HashMap::from([{}]){}", opt1, map, opt2));
                 }
@@ -1165,7 +1165,7 @@ pub fn construct_parameter_values(
                             map.push_str(", ");
                         }
                         first = false;
-                        map.push_str(&format!("({}.to_string(), {})", super::helpers::as_rust_str(key), value));
+                        map.push_str(&format!("({}.to_string(), {})", super::helpers::as_rust_string(key), value));
                     }
                     ret.insert(field.name.clone(), format!("{}std::collections::HashMap::from([{}]){}", opt1, map, opt2));
                 }
@@ -1191,7 +1191,7 @@ pub fn construct_parameter_values(
                             map.push_str(", ");
                         }
                         first = false;
-                        map.push_str(&format!("({}.to_string(), {})", super::helpers::as_rust_str(key), value));
+                        map.push_str(&format!("({}.to_string(), {})", super::helpers::as_rust_string(key), value));
                     }
                     ret.insert(field.name.clone(), format!("{}std::collections::HashMap::from([{}]){}", opt1, map, opt2));
                 }
@@ -1211,7 +1211,7 @@ pub fn construct_parameter_values(
             meta::ValueType::Enum(items) => match &param.value {
                 model::ParameterValue::String { source: _source, value } => {
                     if items.contains(value) {
-                        ret.insert(field.name.clone(), format!("{}{}{}", opt1, super::helpers::as_rust_str(value), opt2));
+                        ret.insert(field.name.clone(), format!("{}{}{}", opt1, super::helpers::as_rust_string(value), opt2));
                     } else {
                         errors.push(BuilderError::FieldTypeMismatch(
                             ErrorDetails {

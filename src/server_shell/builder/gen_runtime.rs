@@ -1,5 +1,4 @@
 //! Create the runtime file.
-
 use super::helpers::{as_mod_expr, rust_file_header};
 use super::parse_node::ModuleNode;
 use super::writer::SourceWriter;
@@ -13,7 +12,7 @@ pub fn write_runtime_rs<SW: SourceWriter>(
     let mut out = out.writer_for("src/runtime.rs")?;
     out.write_all(rust_file_header().as_bytes())?;
     out.write_fmt(format_args!(
-        "use std::sync::Arc;\n//use crate::shell_lib::helpers;\nuse {};\n\npub struct Nodes {{\n",
+        "use std::sync::Arc;\nuse std::collections::HashMap;\n//use crate::shell_lib::helpers;\nuse {};\n\npub struct Nodes {{\n",
         super::helpers::SOURCE_MODULE,
     ))?;
     for node in nodes {
@@ -24,15 +23,32 @@ pub fn write_runtime_rs<SW: SourceWriter>(
             node.module.instance_struct,
         ))?;
     }
-
     out.write_all(
-        b"}\n\n#[derive(Clone)]\npub struct Runtime {\n    pub nodes: Arc<Nodes>,\n}\n\nimpl Nodes {\n    pub fn new(argv: Vec<String>, environ: HashMap<String, String>) -> Self {\n",
+        b"}
+
+#[derive(Clone)]
+pub struct Runtime {
+    pub nodes: Arc<Nodes>,
+}
+
+impl Runtime {
+    pub fn new(argv: Vec<String>, environ: HashMap<String, String>) -> Self {
+        Runtime {
+            nodes: Arc::new(Nodes::new(argv, environ)),
+        }
+    }
+}
+
+impl Nodes {
+    pub fn new(argv: Vec<String>, environ: HashMap<String, String>) -> Self {
+"
     )?;
+
     for node in nodes {
         if let Some(params) = &node.module.compile_param_struct {
             if let Some(new) = &params.new {
                 out.write_fmt(format_args!(
-                    "        let params_{} = {}{}::{}();\n",
+                    "        let mut params_{} = {}{}::{}();\n",
                     node.node_id, as_mod_expr(node), params.name, new,
                 ))?;
                 let field_values = super::values::construct_parameter_values(
@@ -50,6 +66,7 @@ pub fn write_runtime_rs<SW: SourceWriter>(
         }
     }
 
+    // Generate the return statement.
     out.write_all(
         b"\n        Nodes {\n",
     )?;
