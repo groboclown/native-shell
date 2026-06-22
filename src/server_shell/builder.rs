@@ -1,3 +1,4 @@
+pub mod cargo;
 pub mod errors;
 pub mod extract_lib;
 pub mod from_ast;
@@ -10,6 +11,7 @@ pub mod helpers;
 pub mod node_graph;
 pub mod parse_node;
 pub mod sequence;
+pub mod shell_lib_deps;
 pub mod special;
 pub mod stream_pair;
 pub mod values;

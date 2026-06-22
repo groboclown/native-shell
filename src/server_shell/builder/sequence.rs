@@ -16,14 +16,20 @@ pub trait SequenceGen<'a> {
     /// This will cause the later generation of the sequence.
     fn add_ordered_sequence(&'a self, actions: &model::OrderedActions) -> SeqIndex;
 
+    /// Mark the existence of a "job0" for a graph sequence, and create its associated global job index.
+    fn gen_graph_seq_job0(&'a self, seq_idx: SeqIndex) -> JobIndex;
+
     /// Set the ordered actions that run a particular node, within the
     /// node's graph sequence.  This will generate a sub-sequence with its own sequence ID.
+    /// The seq_index and seq_job_idx must align between the script generator that produces
+    /// the job runner implementing structure and the script generator that creates the
+    /// new instance in the job list.
     fn set_node_execution_sequence(
         &'a self,
         node_idx: parse_node::NodeIndex,
         actions: &model::OrderedActions,
         seq_idx: SeqIndex,
-        sequence_job_idx: usize,
+        seq_job_idx: usize,
     ) -> (SeqIndex, JobIndex);
 
     fn get_node_named(
@@ -218,5 +224,11 @@ impl<'a> SequenceGen<'a> for StdSequenceStore {
                 related: vec![],
             })),
         }
+    }
+
+    fn gen_graph_seq_job0(&'a self, seq_idx: SeqIndex) -> JobIndex {
+        let global_job_id = self.jobs.borrow().len();
+        self.jobs.borrow_mut().push((seq_idx, 0));
+        global_job_id
     }
 }

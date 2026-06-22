@@ -22,6 +22,8 @@ mod runtime;
     }
     out.write_all(b"
 
+use std::collections::HashMap;
+
 pub fn main(argv: Vec<String>, environ: HashMap<String, String>) {
     // Run the main function and handle any errors.
     env_logger::init();
@@ -45,6 +47,8 @@ fn run_main(argv: Vec<String>, environ: HashMap<String, String>) -> Result<i32, 
 
     // Collect the on-exit codes.
     // Exit with the highest exit code.
+
+    out.write_all(b"\n    // FIXME this needs a full implementation.\n    Ok(0)\n")?;
 
     out.write_all(b"}\n")?;
     Ok(())

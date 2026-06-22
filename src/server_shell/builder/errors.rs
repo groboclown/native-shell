@@ -55,6 +55,8 @@ pub enum BuilderError {
     InvalidRange(ErrorDetails),
     /// A required field is missing in the module's structure.
     RequiredFieldMissing(ErrorDetails),
+    /// HTTP error.
+    HttpError(String),
 }
 
 impl From<std::io::Error> for BuilderError {
@@ -130,6 +132,9 @@ pub fn report_errors(err: &BuilderError) {
             eprintln!("Invalid range specifier: {}", error_details.message);
             show_source(&error_details.source);
             show_related(error_details);
+        }
+        BuilderError::HttpError(msg) => {
+            eprintln!("HTTP error: {}", msg);
         }
         BuilderError::Collection(errs) => {
             for err in errs {

@@ -16,6 +16,7 @@ use std::thread;
 use crate::shell_lib::compile::meta::{
     FixedStreamDef, ModuleMeta, ModuleStreamStructure, ModuleStructure,
     NamedValue, StreamInterface, StreamType, ValueType, VariableStreamField,
+    as_latest_crate_dependency,
 };
 use crate::shell_lib::compile::job;
 use crate::shell_lib::runtime::event_bus;
@@ -29,7 +30,12 @@ pub fn module_meta() -> ModuleMeta {
         version: "0.1.0".to_string(),
         authors: vec!["Native Shell Developers".to_string()],
         mod_name: vec!["shell_lib".to_string(), "modules".to_string(), "shell".to_string()],
-        dependencies: vec!["termion = \"4.0.5\"".to_string(), "textwrap = \"0.16.2\"".to_string()],
+        dependencies: vec![
+            as_latest_crate_dependency("termion"),
+            as_latest_crate_dependency("textwrap"),
+            as_latest_crate_dependency("env_logger"),
+            as_latest_crate_dependency("log"),
+        ],
         os_dependencies: vec![],
         instance_struct: "ShellModule".to_string(),
         compile_param_struct: Some(ModuleStructure {

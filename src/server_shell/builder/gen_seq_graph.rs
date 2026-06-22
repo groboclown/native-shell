@@ -65,7 +65,7 @@ use crate::runtime;
     for node_idx in &graph.stream_order {
         let node = sgen.node_at(*node_idx);
         if node.module.stream_struct.is_some() {
-            out.write_fmt(format_args!("    {}: None,\n", &node.node.name))?;
+            out.write_fmt(format_args!("        {}: None,\n", &node.node.name))?;
         }
     }
     out.write_all(b"    })\n}\n\n")?;
@@ -115,8 +115,27 @@ fn seq{}_description() -> job::JobSequenceDescription {{
         ))?;
     }
     // Wait for all the jobs to finish.
-    for (node_idx, seq_job_id) in node_job_map.iter() {
-        write_wait_for_job(*seq_job_id, **node_idx, sgen, &mut out)?;
+    for (_node_idx, seq_job_id) in node_job_map.iter() {
+        // Because these are job sequences, with their own implicit job ordering,
+        // they don't have any special exit code handling for the sequence exit itself.
+        // They all abort the script if they fail.  It's up to the job's own exit handlers
+        // to determine the failure conditions.
+        // If a job in the sequence never started due to conditional statements, then it
+        // just "runs next" meaning that no error happens.
+        out.write_fmt(format_args!("
+            job::ScheduleStep::WaitForJobSequence({}, job::ExitCodeBehavior {{
+                never_started: job::OnExitBehavior::RunNext,
+                default_behavior: job::OnExitBehavior::AbortScript,
+                exit_code_behaviors: vec![
+                    job::ExitCodeRangeBehavior {{
+                        code: job::ExitCodeRange::Exact(0),
+                        behavior: job::OnExitBehavior::RunNext,
+                    }},
+                ],
+            }}),
+",
+            seq_job_id,
+        ))?;
     }
 
     out.write_all(b"        ],
@@ -171,9 +190,10 @@ impl job::JobRunner for Seq{}Job0 {{
 ",
     )?;
 
-    Ok(sgen.add_job_seq(seq_idx, 0))
+    Ok(sgen.gen_graph_seq_job0(seq_idx))
 }
 
+/// Job N: runs a job within a stream sequence.
 fn write_job_n<'a, SG: SequenceGen<'a>>(
     seq_idx: usize,
     job_idx: usize,
@@ -287,10 +307,13 @@ impl Seq{}Job{} {{
         job_idx, // Seq{}Job{}
     ))?;
 
-    let global_job_id = sgen.add_job_seq(seq_idx, job_idx);
+    // FIXME move this into the gen_seq_ordered file.
+    // It will call set_node_execution_sequence, and this
+    // method will return its sub-sequence id.
 
-    // FIXME create the exit code behaviors / never started / etc for the
-    // sequence.
+    // let global_job_id = sgen.add_job_seq(seq_idx, job_idx);
+    let global_job_id = 1; // TODO fixme
+
     out.write_fmt(format_args!("
 pub fn sub_sequence() -> job::JobSequenceDescription {{
     job::JobSequenceDescription {{
@@ -313,7 +336,7 @@ pub fn sub_sequence() -> job::JobSequenceDescription {{
         global_job_id, // WaitForJob({}, ...)
     ))?;
 
-    Ok(())
+    Ok(global_job_id)
 }
 
 fn write_stream_creation<'a, SG: SequenceGen<'a>>(
@@ -505,34 +528,5 @@ fn write_params<'a, SG: SequenceGen<'a>>(
     }
 
     out.write_all(b"        };\n")?;
-    Ok(())
-}
-
-fn write_wait_for_job<'a, SG: SequenceGen<'a>>(
-    seq_job_id: usize,
-    _node_idx: usize,
-    _sgen: &'a SG,
-    out: &mut Box<dyn std::io::Write>,
-) -> Result<(), BuilderError> {
-    // The top-level graph sequence will always have the same behavior for the jobs' sequences.
-    out.write_fmt(format_args!("
-        job::ScheduleStep::WaitForJobSequence({}, job::ExitCodeBehavior {{
-            never_started: job::OnExitBehavior::RunNext,
-            default_behavior: job::OnExitBehavior::RunNext,
-            exit_code_behaviors: vec![
-                job::ExitCodeRangeBehavior {{
-                    code: job::ExitCodeRange::AtOrAbove(1),
-                    behavior: job::OnExitBehavior::AbortScript,
-                }},
-                job::ExitCodeRangeBehavior {{
-                    code: job::ExitCodeRange::AtOrBelow(-1),
-                    behavior: job::OnExitBehavior::AbortScript,
-                }},
-            ],
-        }},
-",
-
-        seq_job_id,
-    ))?;
     Ok(())
 }

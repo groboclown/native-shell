@@ -47,6 +47,12 @@ The builder has a responsibility to break the ordered actions and the node execu
 * The ordered action lists describe a job sequence.  Each item in the ordered action list represents one job in the sequence.
 * Each node forms a node group with all nodes that connect via their streams.  It constructs a graph, with nodes as the vertices and streams as the edges.  All the nodes in this group run as a single job sequence, with a starting job to initialize the streams, and one job per node that prepares the runtime parameters and executes it.  These all run in parallel, and the job sequence waits for all nodes in the group to complete.
 
+### Runtime Execution
+
+The job scheduler manages the execution of the following components:
+
+* **job** - processing that represents the logic run by a [module](#modules) combined with specialized logic created by the [builder](#builder).
+* **event** - a message passed from one job to zero or more jobs.
 
 ## Modules
 

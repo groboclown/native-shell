@@ -1,12 +1,12 @@
 //! Helps with using file descriptors for the node streams.
 
-#[cfg(unix)]
-use std::os::fd::OwnedFd;
-#[cfg(unix)]
-use std::os::unix::io::{FromRawFd, IntoRawFd};
 #[cfg(windows)]
 use std::os::windows::io::{FromRawHandle, IntoRawHandle};
-
+#[cfg(unix)]
+use std::os::{
+    fd::OwnedFd,
+    unix::io::{FromRawFd, IntoRawFd},
+};
 
 /// Create a pair of file descriptors that come from OS pipe objects, in the form (read, write).
 #[cfg(unix)]
@@ -15,15 +15,19 @@ pub fn mk_pipe() -> (OwnedFd, OwnedFd) {
     use std::os::unix::io::FromRawFd;
 
     let mut fds = [0; 2];
-    unsafe { if libc::pipe(fds.as_mut_ptr()) != 0 { panic!("pipe failed"); } }
+    unsafe {
+        if libc::pipe(fds.as_mut_ptr()) != 0 {
+            panic!("pipe failed");
+        }
+    }
     let r = unsafe { OwnedFd::from_raw_fd(fds[0]) };
     let w = unsafe { OwnedFd::from_raw_fd(fds[1]) };
     (r, w)
 }
 #[cfg(windows)]
 pub fn mk_pipe() -> (OwnedFd, OwnedFd) {
-    use std::ptr::null_mut;
     use std::os::windows::io::FromRawHandle;
+    use std::ptr::null_mut;
     use winapi::um::namedpipeapi::CreatePipe;
 
     let mut read_pipe = null_mut();
@@ -53,7 +57,6 @@ use std::io::Write;
 #[cfg(test)]
 use std::sync::{Arc, RwLock};
 
-
 /// Turn a File into OwnedFd.
 #[cfg(test)]
 #[cfg(unix)]
@@ -67,7 +70,6 @@ pub fn owned_from_file(file: std::fs::File) -> OwnedFd {
     let raw = file.into_raw_handle();
     unsafe { OwnedFd::from_raw_handle(raw) }
 }
-
 
 /// Create a FD reader from the given data, which can be used in tests.
 #[cfg(test)]
@@ -93,7 +95,7 @@ impl VecWriter {
         Box::new(VecWriter { data })
     }
 
-    /// Create a new Box VecWriter 
+    /// Create a new Box VecWriter
     pub fn new_pair() -> (Box<Self>, Arc<RwLock<Vec<u8>>>) {
         let data = Arc::new(RwLock::new(Vec::new()));
         (Self::new_box(data.clone()), data)

@@ -138,6 +138,21 @@ pub struct ModuleStreamStructure {
     pub output_variable: Option<VariableStreamField>,
 }
 
+/// A version bit for a crate dependency.
+/// The first value is the separator between the previous value and the next (e.g. '.' or '-' or '\0' for none).,
+#[derive(Clone, Debug)]
+pub enum VerBit {
+    S((char, String)),
+    N((char, u32)),
+}
+
+#[derive(Clone, Debug)]
+pub struct CrateDependency {
+    pub name: String,
+    pub version: Vec<VerBit>,
+    pub features: Vec<String>,
+}
+
 /// The module metadata definition.
 /// 
 /// This describes basic information about the module itself, as well as
@@ -225,7 +240,7 @@ pub struct ModuleMeta {
 
     // Below here are Rust reflection of the module's source.
 
-    pub dependencies: Vec<String>,
+    pub dependencies: Vec<CrateDependency>,
     pub os_dependencies: Vec<(String, String)>,
 
     /// The module's mod name, divided along paths.
@@ -249,4 +264,13 @@ pub struct ModuleMeta {
 
     /// The list of available handlers and their parameters.
     pub handlers: Vec<(String, Vec<NamedValue>)>,
+}
+
+
+pub fn as_latest_crate_dependency<'a>(name: &'a str) -> CrateDependency {
+    CrateDependency {
+        name: name.to_string(),
+        version: vec![],
+        features: vec![],
+    }
 }

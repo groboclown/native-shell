@@ -4,6 +4,7 @@ pub mod echo;
 pub mod file_sink;
 pub mod merge;
 pub mod shell;
+pub mod shell_lib;
 pub mod tee;
 
 /// Get all available modules for use by scripts.
