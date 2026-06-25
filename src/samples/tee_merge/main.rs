@@ -1,20 +1,19 @@
 //! Manually constructed code to show how the builder might turn the AST into a shell program.
 
 use std::collections::HashMap;
-use std::sync::{mpsc, Arc};
+use std::sync::{Arc, mpsc};
 use std::usize;
 
-use crate::shell_lib::compile::{job, source};
-use crate::shell_lib::compile::source::Source;
+use crate::shell_lib::buildup::source::Source;
+use crate::shell_lib::buildup::{job, source};
 use crate::shell_lib::helpers;
-use crate::shell_lib::modules::{cat, echo, merge, shell, tee};
 use crate::shell_lib::internal::scheduler;
+use crate::shell_lib::modules::{cat, echo, merge, shell, tee};
 use crate::shell_lib::runtime::event_bus;
 
 mod runtime;
 mod seq0;
 mod seq1;
-
 
 pub fn main(argv: Vec<String>, environ: HashMap<String, String>) -> i32 {
     // Run the main function and handle any errors.
@@ -110,23 +109,25 @@ fn run_main(argv: Vec<String>, environ: HashMap<String, String>) -> Result<i32, 
             seq0::Seq0Job6::new_job(runtime.clone(), seq0_state.clone()), // 6
             seq0::Seq0Job7::new_job(runtime.clone(), seq0_state.clone()), // 7
             seq0::Seq0Job8::new_job(runtime.clone(), seq0_state.clone()), // 8
-            // seq1 has no jobs of its own.
+                                                                          // seq1 has no jobs of its own.
         ],
         vec![
             // Sequence 0
-            job::JobSequenceDescription {
+            job::JobThreadDescription {
                 // Node graph around data_file_1.
                 name: "@seq0".to_string(),
                 source: Source::new("script.ns", 1, 1),
                 steps: vec![
                     // Start the first job, and wait for it to end.
                     job::ScheduleStep::SpawnJob(0),
-                    job::ScheduleStep::WaitForJob(0, job::ExitCodeBehavior {
-                        never_started: job::OnExitBehavior::AbortScript,
-                        exit_code_behaviors: vec![],
-                        default_behavior: job::OnExitBehavior::RunNext,
-                    }),
-
+                    job::ScheduleStep::WaitForJob(
+                        0,
+                        job::ExitBehavior {
+                            never_started: job::OnExitBehavior::AbortScript,
+                            exit_code_behaviors: vec![],
+                            default_behavior: job::OnExitBehavior::RunNext,
+                        },
+                    ),
                     // Start all jobs in the node graph.  As a node graph, they all run in parallel.
                     // The graph construction should also look at the exit behaviors, as these may
                     // mark that some jobs in the node graph must run after another completes.
@@ -138,80 +139,102 @@ fn run_main(argv: Vec<String>, environ: HashMap<String, String>) -> Result<i32, 
                     job::ScheduleStep::SpawnJob(6),
                     job::ScheduleStep::SpawnJob(7),
                     job::ScheduleStep::SpawnJob(8),
-
                     // Implicitly wait for all jobs in the node graph to end.
-                    job::ScheduleStep::WaitForJob(1, job::ExitCodeBehavior {
-                        never_started: job::OnExitBehavior::AbortScript,
-                        exit_code_behaviors: vec![],
-                        default_behavior: job::OnExitBehavior::RunNext,
-                    }),
-                    job::ScheduleStep::WaitForJob(2, job::ExitCodeBehavior {
-                        never_started: job::OnExitBehavior::AbortScript,
-                        exit_code_behaviors: vec![],
-                        default_behavior: job::OnExitBehavior::RunNext,
-                    }),
-                    job::ScheduleStep::WaitForJob(3, job::ExitCodeBehavior {
-                        never_started: job::OnExitBehavior::AbortScript,
-                        exit_code_behaviors: vec![],
-                        default_behavior: job::OnExitBehavior::RunNext,
-                    }),
-                    job::ScheduleStep::WaitForJob(4, job::ExitCodeBehavior {
-                        never_started: job::OnExitBehavior::AbortScript,
-                        exit_code_behaviors: vec![],
-                        default_behavior: job::OnExitBehavior::RunNext,
-                    }),
-                    job::ScheduleStep::WaitForJob(5, job::ExitCodeBehavior {
-                        never_started: job::OnExitBehavior::AbortScript,
-                        exit_code_behaviors: vec![],
-                        default_behavior: job::OnExitBehavior::RunNext,
-                    }),
-                    job::ScheduleStep::WaitForJob(6, job::ExitCodeBehavior {
-                        never_started: job::OnExitBehavior::AbortScript,
-                        exit_code_behaviors: vec![],
-                        default_behavior: job::OnExitBehavior::RunNext,
-                    }),
-                    job::ScheduleStep::WaitForJob(7, job::ExitCodeBehavior {
-                        never_started: job::OnExitBehavior::AbortScript,
-                        exit_code_behaviors: vec![],
-                        default_behavior: job::OnExitBehavior::RunNext,
-                    }),
-                    job::ScheduleStep::WaitForJob(8, job::ExitCodeBehavior {
-                        never_started: job::OnExitBehavior::AbortScript,
-                        exit_code_behaviors: vec![],
-                        default_behavior: job::OnExitBehavior::RunNext,
-                    }),
+                    job::ScheduleStep::WaitForJob(
+                        1,
+                        job::ExitBehavior {
+                            never_started: job::OnExitBehavior::AbortScript,
+                            exit_code_behaviors: vec![],
+                            default_behavior: job::OnExitBehavior::RunNext,
+                        },
+                    ),
+                    job::ScheduleStep::WaitForJob(
+                        2,
+                        job::ExitBehavior {
+                            never_started: job::OnExitBehavior::AbortScript,
+                            exit_code_behaviors: vec![],
+                            default_behavior: job::OnExitBehavior::RunNext,
+                        },
+                    ),
+                    job::ScheduleStep::WaitForJob(
+                        3,
+                        job::ExitBehavior {
+                            never_started: job::OnExitBehavior::AbortScript,
+                            exit_code_behaviors: vec![],
+                            default_behavior: job::OnExitBehavior::RunNext,
+                        },
+                    ),
+                    job::ScheduleStep::WaitForJob(
+                        4,
+                        job::ExitBehavior {
+                            never_started: job::OnExitBehavior::AbortScript,
+                            exit_code_behaviors: vec![],
+                            default_behavior: job::OnExitBehavior::RunNext,
+                        },
+                    ),
+                    job::ScheduleStep::WaitForJob(
+                        5,
+                        job::ExitBehavior {
+                            never_started: job::OnExitBehavior::AbortScript,
+                            exit_code_behaviors: vec![],
+                            default_behavior: job::OnExitBehavior::RunNext,
+                        },
+                    ),
+                    job::ScheduleStep::WaitForJob(
+                        6,
+                        job::ExitBehavior {
+                            never_started: job::OnExitBehavior::AbortScript,
+                            exit_code_behaviors: vec![],
+                            default_behavior: job::OnExitBehavior::RunNext,
+                        },
+                    ),
+                    job::ScheduleStep::WaitForJob(
+                        7,
+                        job::ExitBehavior {
+                            never_started: job::OnExitBehavior::AbortScript,
+                            exit_code_behaviors: vec![],
+                            default_behavior: job::OnExitBehavior::RunNext,
+                        },
+                    ),
+                    job::ScheduleStep::WaitForJob(
+                        8,
+                        job::ExitBehavior {
+                            never_started: job::OnExitBehavior::AbortScript,
+                            exit_code_behaviors: vec![],
+                            default_behavior: job::OnExitBehavior::RunNext,
+                        },
+                    ),
                 ],
             },
-
             // Sequence 1
-            job::JobSequenceDescription {
+            job::JobThreadDescription {
                 // The 'main' node event listener for 'start'.
                 name: "event::main::start".to_string(),
                 source: Source::new("script.ns", 1, 1),
                 steps: vec![
                     // The action in the main -> start event handler is simply 'spawn-node data_file_1'.
                     // As this is a job within seq0, this triggers seq0 to run.
-                    job::ScheduleStep::SpawnJobSequence(0),
-
+                    job::ScheduleStep::SpawnJobThread(0),
                     // The entry event handler implies waiting for all sequences to end.
-                    job::ScheduleStep::WaitForJobSequence(0, job::ExitCodeBehavior {
-                        never_started: job::OnExitBehavior::RunNext,
-                        exit_code_behaviors: vec![],
-                        default_behavior: job::OnExitBehavior::RunNext,
-                    }),
+                    job::ScheduleStep::WaitForJobThread(
+                        0,
+                        job::ExitBehavior {
+                            never_started: job::OnExitBehavior::RunNext,
+                            exit_code_behaviors: vec![],
+                            default_behavior: job::OnExitBehavior::RunNext,
+                        },
+                    ),
                 ],
-            }
+            },
         ],
-        event_bus::with_default_event_groups(
-            vec![
-                job::EventGroup{ name: "start".to_string() },
-            ],
-        ),
+        event_bus::with_default_event_groups(vec![job::EventGroup {
+            name: "start".to_string(),
+        }]),
     );
 
     // Register event listeners.
     scheduler.add_signal_event_listener(
-        usize::MAX,  // Note that 'main' does not have a job id.
+        usize::MAX, // Note that 'main' does not have a job id.
         &"start".to_string(),
         job::SignalEventHandler::new(
             vec![],
@@ -221,7 +244,10 @@ fn run_main(argv: Vec<String>, environ: HashMap<String, String>) -> Result<i32, 
 
     // Start the main node's run function, to start monitoring OS interactions.
     let (completion_tx, on_exit) = mpsc::channel();
-    let start_event = runtime.nodes.main.start(Box::new(scheduler.context(0)), on_exit)?;
+    let start_event = runtime
+        .nodes
+        .main
+        .start(Box::new(scheduler.context(0)), on_exit)?;
     scheduler.add_global_completion_listener(completion_tx);
     let (tx, rx) = std::sync::mpsc::channel();
     scheduler.add_global_completion_listener(tx);
@@ -229,7 +255,9 @@ fn run_main(argv: Vec<String>, environ: HashMap<String, String>) -> Result<i32, 
     // Start the execution by running the start event.
     scheduler.run_signal_event_named(usize::MAX, &start_event, 0)?;
 
-    let codes = rx.recv().map_err(|e| format!("Failed to receive completion: {}", e))?;
+    let codes = rx
+        .recv()
+        .map_err(|e| format!("Failed to receive completion: {}", e))?;
 
     let mut exit_code = 0;
     for code in codes {

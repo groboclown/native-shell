@@ -1,14 +1,14 @@
 //! Maintain stream pairs between nodes.
 
-use std::rc::Rc;
-use crate::server_shell::ast::model;
-use crate::server_shell::builder::parse_node::ModuleNode;
-use crate::shell_lib::compile::meta;
-use super::parse_node;
-use super::errors::{BuilderError, RelatedSource, Relationship, ErrorDetails};
+use super::errors::{BuilderError, ErrorDetails, RelatedSource, Relationship};
 use super::node_graph;
+use super::parse_node;
 use super::sequence;
 use super::special;
+use crate::server_shell::ast::model;
+use crate::server_shell::builder::parse_node::ModuleNode;
+use crate::shell_lib::structure::meta;
+use std::rc::Rc;
 
 #[derive(Debug, Clone)]
 pub enum BoundStream {
@@ -56,34 +56,37 @@ impl BoundStream {
                 continue;
             }
             for sink in &node.input_streams {
-                assert_eq!(sink.dest_idx, *node_idx, "Sink stream destination index must match node index");
+                assert_eq!(
+                    sink.dest_idx, *node_idx,
+                    "Sink stream destination index must match node index"
+                );
                 let source_name = &sgen.node_at(sink.source_idx).node.name;
                 if special::is_main_node_name(source_name) {
-                    println!("Adding main stream from (main) {} ({}) to {} ({})", sink.source_idx, sink.source_idx, sink.dest_id, sink.dest_idx);
+                    println!(
+                        "Adding main stream from (main) {} ({}) to {} ({})",
+                        sink.source_idx, sink.source_idx, sink.dest_id, sink.dest_idx
+                    );
                     match &sink.source_decl {
                         meta::StreamDeclaration::Name(name) => {
-                            streams.push(
-                                BoundStream::MainNamed(StdNamedStream {
-                                    name: name.clone(),
-                                    node_idx: *node_idx,
-                                    stream: sink.clone(),
-                                    stream_type: sink.source_type.clone(),
-                                }),
-                            );
+                            streams.push(BoundStream::MainNamed(StdNamedStream {
+                                name: name.clone(),
+                                node_idx: *node_idx,
+                                stream: sink.clone(),
+                                stream_type: sink.source_type.clone(),
+                            }));
                         }
                         meta::StreamDeclaration::FdIndex(fd) => {
-                            streams.push(
-                                BoundStream::MainFd(StdFdStream {
-                                    fd: *fd,
-                                    node_idx: *node_idx,
-                                    stream: sink.clone(),
-                                    stream_type: sink.source_type.clone(),
-                                }),
-                            );
+                            streams.push(BoundStream::MainFd(StdFdStream {
+                                fd: *fd,
+                                node_idx: *node_idx,
+                                stream: sink.clone(),
+                                stream_type: sink.source_type.clone(),
+                            }));
                         }
                         _ => {
                             errs.push(BuilderError::InvalidStreamUse(ErrorDetails {
-                                message: "Main node stream must be a named or file descriptor".to_string(),
+                                message: "Main node stream must be a named or file descriptor"
+                                    .to_string(),
                                 source: node.node.source.clone(),
                                 related: vec![RelatedSource {
                                     relation: Relationship::StreamTarget,
@@ -93,7 +96,10 @@ impl BoundStream {
                         }
                     }
                 } else {
-                    println!("Adding pipe stream from {} ({}) to {} ({})", sink.source_id, sink.source_idx, sink.dest_id, sink.dest_idx);
+                    println!(
+                        "Adding pipe stream from {} ({}) to {} ({})",
+                        sink.source_id, sink.source_idx, sink.dest_id, sink.dest_idx
+                    );
                     streams.push(BoundStream::Pipe(sink.clone()));
                 }
             }
@@ -107,34 +113,37 @@ impl BoundStream {
                 continue;
             }
             for gener in &node.output_streams {
-                assert_eq!(gener.source_idx, *node_idx, "Sink stream destination index must match node index");
+                assert_eq!(
+                    gener.source_idx, *node_idx,
+                    "Sink stream destination index must match node index"
+                );
                 let dest_name = &sgen.node_at(gener.dest_idx).node.name;
                 if special::is_main_node_name(dest_name) {
-                    println!("Adding main stream from {} ({}) to (main) {} ({})", gener.source_id, gener.source_idx, gener.dest_id, gener.dest_idx);
+                    println!(
+                        "Adding main stream from {} ({}) to (main) {} ({})",
+                        gener.source_id, gener.source_idx, gener.dest_id, gener.dest_idx
+                    );
                     match &gener.dest_decl {
                         meta::StreamDeclaration::Name(name) => {
-                            streams.push(
-                                BoundStream::MainNamed(StdNamedStream {
-                                    name: name.clone(),
-                                    node_idx: *node_idx,
-                                    stream: gener.clone(),
-                                    stream_type: gener.dest_type.clone(),
-                                }),
-                            );
+                            streams.push(BoundStream::MainNamed(StdNamedStream {
+                                name: name.clone(),
+                                node_idx: *node_idx,
+                                stream: gener.clone(),
+                                stream_type: gener.dest_type.clone(),
+                            }));
                         }
                         meta::StreamDeclaration::FdIndex(fd) => {
-                            streams.push(
-                                BoundStream::MainFd(StdFdStream {
-                                    fd: *fd,
-                                    node_idx: *node_idx,
-                                    stream: gener.clone(),
-                                    stream_type: gener.dest_type.clone(),
-                                }),
-                            );
+                            streams.push(BoundStream::MainFd(StdFdStream {
+                                fd: *fd,
+                                node_idx: *node_idx,
+                                stream: gener.clone(),
+                                stream_type: gener.dest_type.clone(),
+                            }));
                         }
                         _ => {
                             errs.push(BuilderError::InvalidStreamUse(ErrorDetails {
-                                message: "Main node stream must be a named or file descriptor".to_string(),
+                                message: "Main node stream must be a named or file descriptor"
+                                    .to_string(),
                                 source: node.node.source.clone(),
                                 related: vec![RelatedSource {
                                     relation: Relationship::StreamSource,
@@ -163,63 +172,43 @@ impl BoundStream {
                     meta::StreamType::Input(_) => {
                         panic!("source_type is marked as input")
                     }
-                    meta::StreamType::Output(stream_interface) => {
-                        match stream_interface {
-                            meta::StreamInterface::ReadWrite => (),
-                            meta::StreamInterface::Fd => {
-                                return false;
-                            }
+                    meta::StreamType::Output(stream_interface) => match stream_interface {
+                        meta::StreamInterface::ReadWrite => (),
+                        meta::StreamInterface::Fd => {
+                            return false;
                         }
-                    }
+                    },
                 }
                 match &stream.dest_type {
-                    meta::StreamType::Input(stream_interface) => {
-                        match &stream_interface {
-                            meta::StreamInterface::ReadWrite => {
-                                true
-                            }
-                            meta::StreamInterface::Fd => {
-                                false
-                            }
-                        }
-                    }
+                    meta::StreamType::Input(stream_interface) => match &stream_interface {
+                        meta::StreamInterface::ReadWrite => true,
+                        meta::StreamInterface::Fd => false,
+                    },
                     meta::StreamType::Output(_) => {
                         panic!("dest_type is marked as output")
                     }
                 }
             }
-            BoundStream::MainNamed(std_stream) => {
-                match &std_stream.stream_type {
-                    meta::StreamType::Input(stream_interface) => {
-                        match stream_interface {
-                            meta::StreamInterface::ReadWrite => true,
-                            meta::StreamInterface::Fd => false,
-                        }
-                    }
-                    meta::StreamType::Output(stream_interface) => {
-                        match stream_interface {
-                            meta::StreamInterface::ReadWrite => true,
-                            meta::StreamInterface::Fd => false,
-                        }
-                    }
-                }
-            }
-            BoundStream::MainFd(std_stream) => {
-                match &std_stream.stream_type {
-                    meta::StreamType::Input(stream_interface) => {
-                        match stream_interface {
-                            meta::StreamInterface::ReadWrite => true,
-                            meta::StreamInterface::Fd => false,
-                        }
-                    }
-                    meta::StreamType::Output(stream_interface) => {
-                        match stream_interface {
-                            meta::StreamInterface::ReadWrite => true,
-                            meta::StreamInterface::Fd => false,
-                        }
-                    }
-                }
-            }
+            BoundStream::MainNamed(std_stream) => match &std_stream.stream_type {
+                meta::StreamType::Input(stream_interface) => match stream_interface {
+                    meta::StreamInterface::ReadWrite => true,
+                    meta::StreamInterface::Fd => false,
+                },
+                meta::StreamType::Output(stream_interface) => match stream_interface {
+                    meta::StreamInterface::ReadWrite => true,
+                    meta::StreamInterface::Fd => false,
+                },
+            },
+            BoundStream::MainFd(std_stream) => match &std_stream.stream_type {
+                meta::StreamType::Input(stream_interface) => match stream_interface {
+                    meta::StreamInterface::ReadWrite => true,
+                    meta::StreamInterface::Fd => false,
+                },
+                meta::StreamType::Output(stream_interface) => match stream_interface {
+                    meta::StreamInterface::ReadWrite => true,
+                    meta::StreamInterface::Fd => false,
+                },
+            },
         }
     }
 }
@@ -350,14 +339,20 @@ impl NodeStreamStruct {
                     });
                     if input_count < var_stream.min_count as usize {
                         errs.push(BuilderError::InvalidStreamUse(ErrorDetails {
-                            message: format!("Node '{}' requires at least {} input variable streams, found {}", node.node.name, var_stream.min_count, input_count),
+                            message: format!(
+                                "Node '{}' requires at least {} input variable streams, found {}",
+                                node.node.name, var_stream.min_count, input_count
+                            ),
                             source: node.node.source.clone(),
                             related: vec![],
                         }));
                     }
                     if input_count > var_stream.max_count as usize {
                         errs.push(BuilderError::InvalidStreamUse(ErrorDetails {
-                            message: format!("Node '{}' allows at most {} input variable streams, found {}", node.node.name, var_stream.max_count, input_count),
+                            message: format!(
+                                "Node '{}' allows at most {} input variable streams, found {}",
+                                node.node.name, var_stream.max_count, input_count
+                            ),
                             source: node.node.source.clone(),
                             related: vec![],
                         }));
@@ -372,14 +367,20 @@ impl NodeStreamStruct {
                     });
                     if output_count < var_stream.min_count as usize {
                         errs.push(BuilderError::InvalidStreamUse(ErrorDetails {
-                            message: format!("Node '{}' requires at least {} output variable streams, found {}", node.node.name, var_stream.min_count, output_count),
+                            message: format!(
+                                "Node '{}' requires at least {} output variable streams, found {}",
+                                node.node.name, var_stream.min_count, output_count
+                            ),
                             source: node.node.source.clone(),
                             related: vec![],
                         }));
                     }
                     if output_count > var_stream.max_count as usize {
                         errs.push(BuilderError::InvalidStreamUse(ErrorDetails {
-                            message: format!("Node '{}' allows at most {} output variable streams, found {}", node.node.name, var_stream.max_count, output_count),
+                            message: format!(
+                                "Node '{}' allows at most {} output variable streams, found {}",
+                                node.node.name, var_stream.max_count, output_count
+                            ),
                             source: node.node.source.clone(),
                             related: vec![],
                         }));
@@ -418,8 +419,10 @@ impl NodeStreamStruct {
     }
 }
 
-
-fn find_named_fixed_stream(node: &ModuleNode, name: &str) -> Result<meta::FixedStreamDef, BuilderError> {
+fn find_named_fixed_stream(
+    node: &ModuleNode,
+    name: &str,
+) -> Result<meta::FixedStreamDef, BuilderError> {
     if let Some(stream) = &node.module.stream_struct {
         for fixed_stream in &stream.fixed_streams {
             if let Some(f_name) = &fixed_stream.name {
@@ -430,12 +433,14 @@ fn find_named_fixed_stream(node: &ModuleNode, name: &str) -> Result<meta::FixedS
         }
     }
     Err(BuilderError::InvalidStreamUse(ErrorDetails {
-        message: format!("Named stream '{}' not found in module '{}'", name, node.module.name),
+        message: format!(
+            "Named stream '{}' not found in module '{}'",
+            name, node.module.name
+        ),
         source: node.node.source.clone(),
         related: vec![],
     }))
 }
-
 
 fn find_fd_fixed_stream(node: &ModuleNode, fd: &u16) -> Result<meta::FixedStreamDef, BuilderError> {
     if let Some(stream) = &node.module.stream_struct {
@@ -448,7 +453,10 @@ fn find_fd_fixed_stream(node: &ModuleNode, fd: &u16) -> Result<meta::FixedStream
         }
     }
     Err(BuilderError::InvalidStreamUse(ErrorDetails {
-        message: format!("FD stream '{}' not found in module '{}'", *fd, node.module.name),
+        message: format!(
+            "FD stream '{}' not found in module '{}'",
+            *fd, node.module.name
+        ),
         source: node.node.source.clone(),
         related: vec![],
     }))
@@ -462,7 +470,9 @@ fn get_type_interface(s_type: &meta::StreamType) -> meta::StreamInterface {
 }
 
 fn find_bound_stream_for<'a>(
-    source: &model::Source, bounds: &'a Vec<BoundStream>, node: &Rc<parse_node::NodeStream>,
+    source: &model::Source,
+    bounds: &'a Vec<BoundStream>,
+    node: &Rc<parse_node::NodeStream>,
 ) -> Result<&'a BoundStream, BuilderError> {
     for stream in bounds {
         match stream {
@@ -493,22 +503,27 @@ fn find_bound_stream_for<'a>(
     }))
 }
 
-
 #[cfg(test)]
 mod tests {
     use crate::server_shell::builder::from_ast;
 
     use super::*;
 
-    
     #[test]
     fn test_cat_cp_json() {
         // Load the AST.
-        let json = std::str::from_utf8(include_bytes!("../../samples/cat_cp/ast.json")).expect("failed to utf8 convert json");
-        let ast = crate::server_shell::ast::astio::read_str(&json.to_string()).expect("failed to read json");
+        let json = std::str::from_utf8(include_bytes!("../../samples/cat_cp/ast.json"))
+            .expect("failed to utf8 convert json");
+        let ast = crate::server_shell::ast::astio::read_str(&json.to_string())
+            .expect("failed to read json");
         let ast_errors = crate::server_shell::ast::validate::validate(&ast);
-        assert!(ast_errors.is_empty(), "AST validation failed: {:?}", ast_errors);
-        let nodes = parse_node::convert_nodes(&ast.nodes, &from_ast::get_available_modules()).expect("failed to convert nodes");
+        assert!(
+            ast_errors.is_empty(),
+            "AST validation failed: {:?}",
+            ast_errors
+        );
+        let nodes = parse_node::convert_nodes(&ast.nodes, &from_ast::get_available_modules())
+            .expect("failed to convert nodes");
 
         // Ensure expected node order.
         assert_eq!(nodes.get(0).expect("node 0 must exist").node.name, "main");
@@ -518,44 +533,97 @@ mod tests {
         // Load the script graph and sequence generator.
         let sg = node_graph::ScriptGraph::load(&nodes).expect("failed to load graph");
         let graphs = sg.graphs().clone();
-        assert_eq!(graphs.len(), 2, "Expected a single graph, found: {}", graphs.len());
+        assert_eq!(
+            graphs.len(),
+            2,
+            "Expected a single graph, found: {}",
+            graphs.len()
+        );
         let sgen = sequence::StdSequenceStore::new(nodes, sg);
 
         // Check bound streams from graph 0.
         // Graph 0 should contain just the main node, which has no bound streams.
-        assert_eq!(graphs.get(0).expect("graph 0 must exist").stream_order.len(), 1);
-        assert_eq!(*graphs.get(0).expect("graph 0 must exist").stream_order.get(0).expect("graph 0 node 0 must exist"), 0);
-        let streams = BoundStream::from_graph(graphs.get(0).expect("must exist"), &sgen).expect("failed to build streams");
-        assert!(streams.is_empty(), "Main node graph should have no streams, found {}", streams.len());
+        assert_eq!(
+            graphs
+                .get(0)
+                .expect("graph 0 must exist")
+                .stream_order
+                .len(),
+            1
+        );
+        assert_eq!(
+            *graphs
+                .get(0)
+                .expect("graph 0 must exist")
+                .stream_order
+                .get(0)
+                .expect("graph 0 node 0 must exist"),
+            0
+        );
+        let streams = BoundStream::from_graph(graphs.get(0).expect("must exist"), &sgen)
+            .expect("failed to build streams");
+        assert!(
+            streams.is_empty(),
+            "Main node graph should have no streams, found {}",
+            streams.len()
+        );
 
         // Check bound streams from graph 1.
-        let streams = BoundStream::from_graph(graphs.get(1).expect("must exist"), &sgen).expect("failed to build streams");
+        let streams = BoundStream::from_graph(graphs.get(1).expect("must exist"), &sgen)
+            .expect("failed to build streams");
         assert_eq!(streams.len(), 1);
         let stream = streams.get(0).expect("stream 0 must exist");
         match stream {
             BoundStream::Pipe(stream) => {
-                assert_eq!(stream.source_idx, 1, "Expected stream gen to be 0, found: {}", stream.source_idx);
-                assert_eq!(stream.dest_idx, 2, "Expected stream sink to be 1, found: {}", stream.dest_idx);
+                assert_eq!(
+                    stream.source_idx, 1,
+                    "Expected stream gen to be 0, found: {}",
+                    stream.source_idx
+                );
+                assert_eq!(
+                    stream.dest_idx, 2,
+                    "Expected stream sink to be 1, found: {}",
+                    stream.dest_idx
+                );
             }
             _ => panic!("Expected a pipe stream, found: {:?}", stream),
         }
     }
-    
+
     #[test]
     fn test_tee_merge_json() {
         // Load the AST.
-        let json = std::str::from_utf8(include_bytes!("../../samples/tee_merge/ast.json")).expect("failed to utf8 convert json");
-        let ast = crate::server_shell::ast::astio::read_str(&json.to_string()).expect("failed to read json");
+        let json = std::str::from_utf8(include_bytes!("../../samples/tee_merge/ast.json"))
+            .expect("failed to utf8 convert json");
+        let ast = crate::server_shell::ast::astio::read_str(&json.to_string())
+            .expect("failed to read json");
         let ast_errors = crate::server_shell::ast::validate::validate(&ast);
-        assert!(ast_errors.is_empty(), "AST validation failed: {:?}", ast_errors);
-        let nodes = parse_node::convert_nodes(&ast.nodes, &from_ast::get_available_modules()).expect("failed to convert nodes");
+        assert!(
+            ast_errors.is_empty(),
+            "AST validation failed: {:?}",
+            ast_errors
+        );
+        let nodes = parse_node::convert_nodes(&ast.nodes, &from_ast::get_available_modules())
+            .expect("failed to convert nodes");
 
         // Ensure expected node order.
         assert_eq!(nodes.get(0).expect("node 0 must exist").node.name, "main");
-        assert_eq!(nodes.get(1).expect("node 1 must exist").node.name, "data_file_1");
-        assert_eq!(nodes.get(2).expect("node 2 must exist").node.name, "data_file_2");
-        assert_eq!(nodes.get(3).expect("node 3 must exist").node.name, "data_text_1");
-        assert_eq!(nodes.get(4).expect("node 4 must exist").node.name, "data_text_2");
+        assert_eq!(
+            nodes.get(1).expect("node 1 must exist").node.name,
+            "data_file_1"
+        );
+        assert_eq!(
+            nodes.get(2).expect("node 2 must exist").node.name,
+            "data_file_2"
+        );
+        assert_eq!(
+            nodes.get(3).expect("node 3 must exist").node.name,
+            "data_text_1"
+        );
+        assert_eq!(
+            nodes.get(4).expect("node 4 must exist").node.name,
+            "data_text_2"
+        );
         assert_eq!(nodes.get(5).expect("node 5 must exist").node.name, "tee1");
         assert_eq!(nodes.get(6).expect("node 6 must exist").node.name, "merge1");
         assert_eq!(nodes.get(7).expect("node 7 must exist").node.name, "merge2");
@@ -564,18 +632,45 @@ mod tests {
         // Load the script graph and sequence generator.
         let sg = node_graph::ScriptGraph::load(&nodes).expect("failed to load graph");
         let graphs = sg.graphs().clone();
-        assert_eq!(graphs.len(), 2, "Expected a single graph, found: {}", graphs.len());
+        assert_eq!(
+            graphs.len(),
+            2,
+            "Expected a single graph, found: {}",
+            graphs.len()
+        );
         let sgen = sequence::StdSequenceStore::new(nodes, sg);
 
         // Check bound streams from graph 0.
         // Graph 0 should contain just the main node, which has no bound streams.
-        assert_eq!(graphs.get(0).expect("graph 0 must exist").stream_order.len(), 1);
-        assert_eq!(*graphs.get(0).expect("graph 0 must exist").stream_order.get(0).expect("graph 0 node 0 must exist"), 0);
-        let streams = BoundStream::from_graph(graphs.get(0).expect("must exist"), &sgen).expect("failed to build streams");
-        assert_eq!(streams.len(), 0, "Incorrect number of streams built, expected 0, found: {}", streams.len());
+        assert_eq!(
+            graphs
+                .get(0)
+                .expect("graph 0 must exist")
+                .stream_order
+                .len(),
+            1
+        );
+        assert_eq!(
+            *graphs
+                .get(0)
+                .expect("graph 0 must exist")
+                .stream_order
+                .get(0)
+                .expect("graph 0 node 0 must exist"),
+            0
+        );
+        let streams = BoundStream::from_graph(graphs.get(0).expect("must exist"), &sgen)
+            .expect("failed to build streams");
+        assert_eq!(
+            streams.len(),
+            0,
+            "Incorrect number of streams built, expected 0, found: {}",
+            streams.len()
+        );
 
         // Check bound streams from graph 1.
-        let streams = BoundStream::from_graph(graphs.get(1).expect("must exist"), &sgen).expect("failed to build streams");
+        let streams = BoundStream::from_graph(graphs.get(1).expect("must exist"), &sgen)
+            .expect("failed to build streams");
         // FIXME there is currently a bug where the merge3 -> stdout is not generated.
         assert_eq!(streams.len(), 10);
 

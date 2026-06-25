@@ -1,8 +1,22 @@
 //! Provide 'cat' functionality for the shell.
 
-use std::{io::{Read, Write}, os::fd::OwnedFd};
+use std::{
+    io::{Read, Write},
+    os::fd::OwnedFd,
+};
 
-use crate::shell_lib::{compile::{job, meta::{FixedStreamDef, ModuleMeta, ModuleStreamStructure, ModuleStructure, NamedValue, StreamInterface, StreamType, ValueType}, source::Source}, helpers::fd::file_from_fd, runtime::event_bus};
+use crate::shell_lib::{
+    helpers::{evt_fmt::send_log, fd::file_from_fd},
+    structure::{
+        event::{EventRef, EventRegistrar},
+        job,
+        meta::{
+            FixedStreamDef, ModuleMeta, ModuleStreamStructure, ModuleStructure, NamedValue,
+            StreamInterface, StreamType, ValueType,
+        },
+        source::Source,
+    },
+};
 
 const BUFFER_SIZE: usize = 8192;
 const RETRY_TIME: std::time::Duration = std::time::Duration::from_millis(10);
@@ -13,7 +27,11 @@ pub fn module_meta() -> ModuleMeta {
         description: "Concatenate and display files".to_string(),
         version: "0.1.0".to_string(),
         authors: vec!["Native Shell Developers".to_string()],
-        mod_name: vec!["shell_lib".to_string(), "modules".to_string(), "cat".to_string()],
+        mod_name: vec![
+            "shell_lib".to_string(),
+            "modules".to_string(),
+            "cat".to_string(),
+        ],
         dependencies: vec![],
         os_dependencies: vec![],
         instance_struct: "CatModule".to_string(),
@@ -21,25 +39,21 @@ pub fn module_meta() -> ModuleMeta {
         runtime_param_struct: Some(ModuleStructure {
             name: "CatModuleRuntimeParams".to_string(),
             new: None,
-            fields: vec![
-                NamedValue {
-                    name: "filenames".to_string(),
-                    value_type: ValueType::StringList,
-                    optional: false,
-                },
-            ],
+            fields: vec![NamedValue {
+                name: "filenames".to_string(),
+                value_type: ValueType::StringList,
+                optional: false,
+            }],
         }),
         state_struct: None,
         stream_struct: Some(ModuleStreamStructure {
             name: "CatModuleStream".to_string(),
-            fixed_streams: vec![
-                FixedStreamDef {
-                    name: Some("output".to_string()),
-                    fd_index: Some(0),
-                    stream_type: StreamType::Output(StreamInterface::Fd),
-                    required: true,
-                },
-            ],
+            fixed_streams: vec![FixedStreamDef {
+                name: Some("output".to_string()),
+                fd_index: Some(0),
+                stream_type: StreamType::Output(StreamInterface::Fd),
+                required: true,
+            }],
             input_variable: None,
             output_variable: None,
         }),
@@ -58,15 +72,29 @@ pub struct CatModuleStream {
 
 pub struct CatModule {
     source: Source,
+    debug: EventRef,
 }
 
 impl CatModule {
-    pub fn new(source: Source) -> Self {
-        CatModule { source }
+    pub fn new(source: Source, e_reg: &mut EventRegistrar) -> Self {
+        CatModule {
+            source,
+            debug: e_reg.add_event("debug"),
+        }
     }
 
-    pub fn exec(&self, context: Box<dyn job::JobRunnerContext>, params: CatModuleRuntimeParams, mut streams: CatModuleStream) -> Result<job::ExitCode, String> {
-        event_bus::send_debug_event(&context, &self.source, format!("Executing cat over {:?}", params.filenames))?;
+    pub fn exec(
+        &self,
+        context: Box<dyn job::JobRunnerContext>,
+        params: CatModuleRuntimeParams,
+        mut streams: CatModuleStream,
+    ) -> Result<job::ExitCode, String> {
+        send_log(
+            &context,
+            self.debug,
+            &self.source,
+            format_args!("Executing cat over {:?}", params.filenames),
+        )?;
         let mut out = file_from_fd(streams.fd_0);
         let mut buf = [0 as u8; BUFFER_SIZE];
         for filename in params.filenames {
@@ -77,23 +105,23 @@ impl CatModule {
                     break; // EOF
                 }
                 match out.write_all(&buf[..bytes_read]) {
-                    Ok(_) => {},
+                    Ok(_) => {}
                     Err(e) if e.kind() == std::io::ErrorKind::BrokenPipe => {
                         // If the output pipe is broken, this must stop writing.
                         // Note that this isn't an error, just a signal to stop.
                         return Ok(0);
-                    },
+                    }
                     Err(e) if e.kind() == std::io::ErrorKind::Interrupted => {
                         // Take interrupted problems as notices to the
                         // executable to examine the current state.
                         continue;
-                    },
+                    }
                     Err(e) if e.kind() == std::io::ErrorKind::WouldBlock => {
                         // If the write would block, we can retry.
                         // Give the process a bit of time.
                         std::thread::sleep(RETRY_TIME);
                         continue;
-                    },
+                    }
                     Err(e) => return Err(e.to_string()),
                 }
             }

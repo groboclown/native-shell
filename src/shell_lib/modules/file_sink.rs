@@ -1,13 +1,20 @@
 //! The equivalent of '> filename'.
 
-use std::{io::{self, Write}, os::fd::OwnedFd};
 use std::sync::RwLock;
+use std::{
+    io::{self, Write},
+    os::fd::OwnedFd,
+};
 
-use crate::shell_lib::{compile::{job, source::Source}, helpers::abort_handler, runtime::event_bus};
+use crate::shell_lib::helpers::evt_fmt::send_log;
+use crate::shell_lib::structure::event::{EventRef, EventRegistrar};
+use crate::shell_lib::structure::meta::{
+    FixedStreamDef, ModuleMeta, ModuleStreamStructure, ModuleStructure, NamedValue,
+    StreamInterface, StreamType, ValueType,
+};
 use crate::shell_lib::{
-    compile::meta::{
-        FixedStreamDef, ModuleMeta, ModuleStreamStructure, ModuleStructure, NamedValue, StreamInterface, StreamType, ValueType
-    },
+    helpers::abort_handler,
+    structure::{job, source::Source},
 };
 
 const BUFFER_SIZE: usize = 8192;
@@ -18,7 +25,11 @@ pub fn module_meta() -> ModuleMeta {
         description: "Sink for file output".to_string(),
         version: "0.1.0".to_string(),
         authors: vec!["Native Shell Developers".to_string()],
-        mod_name: vec!["shell_lib".to_string(), "modules".to_string(), "file_sink".to_string()],
+        mod_name: vec![
+            "shell_lib".to_string(),
+            "modules".to_string(),
+            "file_sink".to_string(),
+        ],
         dependencies: vec![],
         os_dependencies: vec![],
         instance_struct: "FileSinkModule".to_string(),
@@ -42,24 +53,20 @@ pub fn module_meta() -> ModuleMeta {
         state_struct: Some(ModuleStructure {
             name: "FileSinkModuleState".to_string(),
             new: None,
-            fields: vec![
-                NamedValue {
-                    name: "size".to_string(),
-                    value_type: ValueType::Float,
-                    optional: false,
-                },
-            ],
+            fields: vec![NamedValue {
+                name: "size".to_string(),
+                value_type: ValueType::Float,
+                optional: false,
+            }],
         }),
         stream_struct: Some(ModuleStreamStructure {
             name: "FileSinkModuleStream".to_string(),
-            fixed_streams: vec![
-                FixedStreamDef {
-                    name: Some("input".to_string()),
-                    fd_index: Some(0),
-                    stream_type: StreamType::Input(StreamInterface::Fd),
-                    required: true,
-                },
-            ],
+            fixed_streams: vec![FixedStreamDef {
+                name: Some("input".to_string()),
+                fd_index: Some(0),
+                stream_type: StreamType::Input(StreamInterface::Fd),
+                required: true,
+            }],
             input_variable: None,
             output_variable: None,
         }),
@@ -71,6 +78,7 @@ pub struct FileSinkModule {
     state: abort_handler::RunState<abort_handler::FdIn>,
     count: RwLock<f64>,
     source: Source,
+    error: EventRef,
 }
 
 #[derive(Clone, Debug)]
@@ -89,31 +97,54 @@ pub struct FileSinkModuleStream {
 }
 
 impl FileSinkModule {
-    pub fn new(source: Source) -> Self {
-        FileSinkModule { state: abort_handler::RunState::new(), count: RwLock::new(0.0), source }
+    pub fn new(source: Source, e_reg: &mut EventRegistrar) -> Self {
+        FileSinkModule {
+            state: abort_handler::RunState::new(),
+            count: RwLock::new(0.0),
+            source,
+            error: e_reg.add_event("error"),
+        }
     }
 
     // The streams must be mut, as per the docs.
-    pub fn exec(&self, context: Box<dyn job::JobRunnerContext>, params: FileSinkModuleRuntimeParams, mut streams: FileSinkModuleStream) -> Result<job::ExitCode, String> {
+    pub fn exec(
+        &self,
+        context: Box<dyn job::JobRunnerContext>,
+        params: FileSinkModuleRuntimeParams,
+        mut streams: FileSinkModuleStream,
+    ) -> Result<job::ExitCode, String> {
         let (inp, reader) = abort_handler::FdIn::new(streams.fd_0);
         self.state.start(inp);
 
         let mut ret: job::ExitCode = 0;
         if let Err(e) = self.exec_impl(&params, reader) {
-            let _ = event_bus::send_error_event(&context, &self.source, format!("{}: {}", params.filename.clone(), e));
+            let _ = send_log(
+                &context,
+                self.error,
+                &self.source,
+                format_args!("{}: {}", params.filename.clone(), e),
+            );
             ret = 1;
         }
 
         // The FD close happens in the stop, in order ensure the
         // FD close happen just once.
         if let Err(e) = self.stop() {
-            let _ = event_bus::send_error_event(&context, &self.source, format!("Failed to clean up file sink: {}", e));
+            let _ = send_log(
+                &context,
+                self.error,
+                &self.source,
+                format_args!("Failed to clean up file sink: {}", e),
+            );
         }
         Ok(ret)
     }
 
-
-    fn exec_impl<R: std::io::Read>(&self, params: &FileSinkModuleRuntimeParams, mut inp: R) -> Result<(), std::io::Error> {
+    fn exec_impl<R: std::io::Read>(
+        &self,
+        params: &FileSinkModuleRuntimeParams,
+        mut inp: R,
+    ) -> Result<(), std::io::Error> {
         {
             let mut count = self.count.write().unwrap();
             *count = 0.0;
@@ -135,25 +166,25 @@ impl FileSinkModule {
                     // No data and not would block (for non-blocking FD scenarios) means
                     // EOF.
                     return Ok(());
-                },
+                }
                 Ok(size) => {
                     // Write the byte to the file.
                     // Errors mean stop.
                     out.write(&buf[..size])?;
                     out.flush()?;
                     *(self.count.write().unwrap()) += size as f64;
-                },
+                }
                 Err(ref e) if e.kind() == io::ErrorKind::WouldBlock => continue,
                 Err(ref e) if e.kind() == io::ErrorKind::UnexpectedEof => {
                     // EOF reached, so stop.
                     return Ok(());
-                },
+                }
                 Err(e) => {
                     // If we get some other kind error, we should stop.
                     return Err(e);
                 }
             }
-        };
+        }
     }
 
     pub fn state(&self) -> FileSinkModuleState {
@@ -172,23 +203,30 @@ impl FileSinkModule {
     fn stop(&self) -> Result<(), String> {
         self.state.on_stop(|e| e.stop())
     }
-
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::{cell::RefCell, fs, io::{Read, Write}, thread, time::Duration};
+    use crate::shell_lib::helpers::fd::{file_from_fd, mk_pipe, owned_from_file};
+    use crate::shell_lib::structure::event::{EventPayload, EventRef};
+    use crate::shell_lib::structure::job::ScriptExit;
     use std::env;
     use std::sync::Arc;
-    use crate::shell_lib::helpers::fd::{file_from_fd, mk_pipe, owned_from_file};
+    use std::{
+        cell::RefCell,
+        fs,
+        io::{Read, Write},
+        thread,
+        time::Duration,
+    };
 
     struct EventBus {
         name: &'static str,
-        msgs: RefCell<Vec<(String, job::EventPayload)>>,
+        msgs: RefCell<Vec<(EventRef, EventPayload)>>,
     }
     impl job::JobRunnerContext for EventBus {
-        fn send_event(&self, event_ref: &job::EventRef, payload: job::EventPayload) -> Result<(), String> {
+        fn send_event(&self, event_ref: EventRef, payload: EventPayload) -> Result<(), ScriptExit> {
             println!("{} {}: {}", self.name, event_ref, payload);
             self.msgs.borrow_mut().push((event_ref.clone(), payload));
             Ok(())
@@ -197,7 +235,11 @@ mod tests {
 
     #[test]
     fn test_file_sink_writes_data_to_file() {
-        let context = Box::new(EventBus{ name: "00", msgs: RefCell::new(vec![]) });
+        let mut event_reg = EventRegistrar::new();
+        let context = Box::new(EventBus {
+            name: "00",
+            msgs: RefCell::new(vec![]),
+        });
         // Prepare input file
         let dir = env::temp_dir();
         let input_path = dir.join("00_in.txt");
@@ -209,16 +251,22 @@ mod tests {
         // Setup module and streams
         let input_file = fs::File::open(&input_path).unwrap();
         let fd = owned_from_file(input_file);
-        let module = FileSinkModule::new(Source::default());
+        let module = FileSinkModule::new(Source::default(), &mut event_reg);
         let out_path = dir.join("00_out.txt");
         let _ = fs::remove_file(&out_path);
-        let params = FileSinkModuleRuntimeParams { filename: out_path.to_str().unwrap().to_string(), append: Some(false) };
+        let params = FileSinkModuleRuntimeParams {
+            filename: out_path.to_str().unwrap().to_string(),
+            append: Some(false),
+        };
         let streams = FileSinkModuleStream { fd_0: fd };
         let res = module.exec(context, params, streams).unwrap();
         assert_eq!(res, 0);
         // Verify output
         let mut contents = String::new();
-        fs::File::open(&out_path).unwrap().read_to_string(&mut contents).unwrap();
+        fs::File::open(&out_path)
+            .unwrap()
+            .read_to_string(&mut contents)
+            .unwrap();
         assert_eq!(contents, "hello");
         let _ = fs::remove_file(&input_path);
         let _ = fs::remove_file(&out_path);
@@ -226,7 +274,11 @@ mod tests {
 
     #[test]
     fn test_file_sink_appends_to_file() {
-        let context = Box::new(EventBus{ name: "01", msgs: RefCell::new(vec![]) });
+        let mut event_reg = EventRegistrar::new();
+        let context = Box::new(EventBus {
+            name: "01",
+            msgs: RefCell::new(vec![]),
+        });
         let dir = env::temp_dir();
         let out_file = dir.join("01_out.txt");
         let _ = fs::remove_file(&out_file);
@@ -243,14 +295,20 @@ mod tests {
         }
         let in_file = fs::File::open(&input_path).unwrap();
         let fd = owned_from_file(in_file);
-        let module = FileSinkModule::new(Source::default());
-        let params = FileSinkModuleRuntimeParams { filename: out_file.to_str().unwrap().to_string(), append: Some(true) };
+        let module = FileSinkModule::new(Source::default(), &mut event_reg);
+        let params = FileSinkModuleRuntimeParams {
+            filename: out_file.to_str().unwrap().to_string(),
+            append: Some(true),
+        };
         let streams = FileSinkModuleStream { fd_0: fd };
         let res = module.exec(context, params, streams).unwrap();
         assert_eq!(res, 0);
         // Verify append
         let mut contents = String::new();
-        fs::File::open(&out_file).unwrap().read_to_string(&mut contents).unwrap();
+        fs::File::open(&out_file)
+            .unwrap()
+            .read_to_string(&mut contents)
+            .unwrap();
         assert_eq!(contents, "foobar");
         let _ = fs::remove_file(&out_file);
         let _ = fs::remove_file(&input_path);
@@ -258,7 +316,11 @@ mod tests {
 
     #[test]
     fn test_file_sink_appends_to_non_existent_file() {
-        let context = Box::new(EventBus{ name: "02", msgs: RefCell::new(vec![]) });
+        let mut event_reg = EventRegistrar::new();
+        let context = Box::new(EventBus {
+            name: "02",
+            msgs: RefCell::new(vec![]),
+        });
         let dir = env::temp_dir();
         let out_file = dir.join("02_out.txt");
         let _ = fs::remove_file(&out_file);
@@ -271,14 +333,20 @@ mod tests {
         }
         let in_file = fs::File::open(&input_path).unwrap();
         let fd = owned_from_file(in_file);
-        let module = FileSinkModule::new(Source::default());
-        let params = FileSinkModuleRuntimeParams { filename: out_file.to_str().unwrap().to_string(), append: Some(true) };
+        let module = FileSinkModule::new(Source::default(), &mut event_reg);
+        let params = FileSinkModuleRuntimeParams {
+            filename: out_file.to_str().unwrap().to_string(),
+            append: Some(true),
+        };
         let streams = FileSinkModuleStream { fd_0: fd };
         let res = module.exec(context, params, streams).unwrap();
         assert_eq!(res, 0);
         // Verify append
         let mut contents = String::new();
-        fs::File::open(&out_file).unwrap().read_to_string(&mut contents).unwrap();
+        fs::File::open(&out_file)
+            .unwrap()
+            .read_to_string(&mut contents)
+            .unwrap();
         assert_eq!(contents, "bar");
         let _ = fs::remove_file(&out_file);
         let _ = fs::remove_file(&input_path);
@@ -286,7 +354,11 @@ mod tests {
 
     #[test]
     fn test_stop_async() {
-        let context = Box::new(EventBus{ name: "03", msgs: RefCell::new(vec![]) });
+        let mut event_reg = EventRegistrar::new();
+        let context = Box::new(EventBus {
+            name: "03",
+            msgs: RefCell::new(vec![]),
+        });
         let dir = env::temp_dir();
         let target = dir.join("03_out.txt");
 
@@ -294,13 +366,14 @@ mod tests {
         let (r, w) = mk_pipe();
         let mut writer = file_from_fd(w);
 
-        let params = FileSinkModuleRuntimeParams { filename: target.to_str().unwrap().to_string(), append: Some(false) };
+        let params = FileSinkModuleRuntimeParams {
+            filename: target.to_str().unwrap().to_string(),
+            append: Some(false),
+        };
         let streams = FileSinkModuleStream { fd_0: r };
-        let module_arc = Arc::new(FileSinkModule::new(Source::default()));
+        let module_arc = Arc::new(FileSinkModule::new(Source::default(), &mut event_reg));
         let spawned = module_arc.clone();
-        let handle = thread::spawn(move || {
-            spawned.exec(context, params, streams).unwrap()
-        });
+        let handle = thread::spawn(move || spawned.exec(context, params, streams).unwrap());
 
         // Write small data after exec started.
         write!(writer, "data").unwrap();
@@ -323,7 +396,10 @@ mod tests {
 
         // Verify output
         let mut contents = String::new();
-        fs::File::open(&target).unwrap().read_to_string(&mut contents).unwrap();
+        fs::File::open(&target)
+            .unwrap()
+            .read_to_string(&mut contents)
+            .unwrap();
         assert!(contents.starts_with("dataxxxxx"));
         assert!(contents.len() == 4 + BUFFER_SIZE + 1);
     }

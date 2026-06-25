@@ -6,8 +6,8 @@ use super::sequence::StdSequenceStore;
 use super::writer::SourceWriter;
 use crate::server_shell::ast::model;
 use crate::server_shell::builder::errors::{BuilderError, ErrorDetails};
-use crate::shell_lib::compile::meta;
 use crate::shell_lib::modules;
+use crate::shell_lib::structure::meta;
 
 const AST_VERSION_1: &str = "1.0.0";
 

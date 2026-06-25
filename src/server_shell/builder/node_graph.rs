@@ -125,7 +125,8 @@ fn stream_topo_sort(
                     // Skip the main node, as it doesn't participate in the node graph.
                     continue;
                 }
-                if let Some(descendant_cluster) = *visited.get(current_node).expect("wrong counts") {
+                if let Some(descendant_cluster) = *visited.get(current_node).expect("wrong counts")
+                {
                     // Already visited.
                     // This means we need to change the current cluster to point to the visited cluster.
                     clusters.join_clusters(current_cluster, descendant_cluster);
@@ -275,7 +276,10 @@ struct SingleLinkedList {
 impl SingleLinkedList {
     fn new() -> Self {
         SingleLinkedList {
-            head: LinkedEl { node_idx: 0, next: None },
+            head: LinkedEl {
+                node_idx: 0,
+                next: None,
+            },
             tail: None,
             count: 0,
         }
@@ -307,7 +311,7 @@ impl SingleLinkedList {
                 // This is safe because we hold a read lock on the tail.
                 let mut tail_ptr = tail.borrow_mut();
                 tail_ptr.next = Some(new_el.clone());
-            },
+            }
             None => {
                 // If the tail doesn't exist, this is the first element.
                 self.head.next = Some(new_el.clone());
@@ -333,7 +337,10 @@ impl SingleLinkedList {
     }
 
     fn clear(&mut self) {
-        self.head = LinkedEl { node_idx: 0, next: None };
+        self.head = LinkedEl {
+            node_idx: 0,
+            next: None,
+        };
         self.tail = None;
         self.count = 0;
     }
@@ -351,24 +358,37 @@ impl StreamTopoSet {
         for _ in 0..count {
             streams.push(Arc::new(RwLock::new(SingleLinkedList::new())));
         }
-        StreamTopoSet {
-            streams,
-        }
+        StreamTopoSet { streams }
     }
 
     /// Add a node to the end of a stream graph.
     fn push(&mut self, stream_idx: parse_node::NodeIndex, node_idx: parse_node::NodeIndex) {
-        assert!(stream_idx < self.streams.len(), "stream index out of bounds");
-        let mut list = self.streams[stream_idx as usize].write().expect("failed to lock stream list");
+        assert!(
+            stream_idx < self.streams.len(),
+            "stream index out of bounds"
+        );
+        let mut list = self.streams[stream_idx as usize]
+            .write()
+            .expect("failed to lock stream list");
         list.push(node_idx);
     }
 
     /// Prepends a source stream on a stream, and clears out the source.
     fn prepend(&mut self, src_stream: parse_node::NodeIndex, dest_stream: parse_node::NodeIndex) {
-        assert!(src_stream < self.streams.len(), "source stream index out of bounds");
-        assert!(dest_stream < self.streams.len(), "destination stream index out of bounds");
-        let mut dest = self.streams[dest_stream as usize].write().expect("failed to lock stream list");
-        let mut src = self.streams[src_stream as usize].write().expect("failed to lock stream list");
+        assert!(
+            src_stream < self.streams.len(),
+            "source stream index out of bounds"
+        );
+        assert!(
+            dest_stream < self.streams.len(),
+            "destination stream index out of bounds"
+        );
+        let mut dest = self.streams[dest_stream as usize]
+            .write()
+            .expect("failed to lock stream list");
+        let mut src = self.streams[src_stream as usize]
+            .write()
+            .expect("failed to lock stream list");
         dest.prepend(&src);
         src.clear();
     }
@@ -402,22 +422,35 @@ impl StreamClusters {
     fn next_cluster(&mut self) -> parse_node::NodeIndex {
         // Cluster and stream always start as the same index.  As clusters join with others, they switch their
         // streams always to a lower index.
-        let mut next = self.next.write().expect("failed to lock next cluster index");
+        let mut next = self
+            .next
+            .write()
+            .expect("failed to lock next cluster index");
         let cluster_idx = *next;
-        *next += 1; 
-        assert!(cluster_idx < self.clusters.len(), "cluster index out of bounds");
-        let mut cluster = self.clusters[cluster_idx].write().expect("failed to lock cluster");
+        *next += 1;
+        assert!(
+            cluster_idx < self.clusters.len(),
+            "cluster index out of bounds"
+        );
+        let mut cluster = self.clusters[cluster_idx]
+            .write()
+            .expect("failed to lock cluster");
         *cluster = cluster_idx;
         cluster_idx
     }
 
     /// Add a node to the end of a cluster's stream.
     fn push(&mut self, cluster_idx: parse_node::NodeIndex, node_idx: parse_node::NodeIndex) {
-        assert!(cluster_idx < self.clusters.len(), "cluster index out of bounds");
+        assert!(
+            cluster_idx < self.clusters.len(),
+            "cluster index out of bounds"
+        );
 
         // First, lock the cluster.
         {
-            let cluster = self.clusters[cluster_idx].write().expect("failed to lock cluster");
+            let cluster = self.clusters[cluster_idx]
+                .write()
+                .expect("failed to lock cluster");
             // Then, add the node to the cluster's stream.
             let stream_idx = *cluster;
             self.streams.push(stream_idx, node_idx);
@@ -426,7 +459,10 @@ impl StreamClusters {
         // Assign the node to the cluster.
         // As the node is always assigned to the same cluster, and only the cluster can change, this node lock
         // can happen outside the cluster lock.
-        let mut node_to_cluster = self.node_to_cluster.write().expect("failed to lock node to cluster");
+        let mut node_to_cluster = self
+            .node_to_cluster
+            .write()
+            .expect("failed to lock node to cluster");
         assert!(node_idx < node_to_cluster.len(), "node index out of bounds");
         node_to_cluster[node_idx] = cluster_idx;
     }
@@ -435,12 +471,26 @@ impl StreamClusters {
     /// A cluster joined to another will always happen as the second is a dependency of the first.
     /// In order to avoid updating all clusters referencing a stream, the ancestor cluster will reference the
     /// the descendant cluster, ans the descendant cluster should have already been populated.
-    fn join_clusters(&mut self, ancestor_cluster: parse_node::NodeIndex, descendant_cluster: parse_node::NodeIndex) {
+    fn join_clusters(
+        &mut self,
+        ancestor_cluster: parse_node::NodeIndex,
+        descendant_cluster: parse_node::NodeIndex,
+    ) {
         // Lock both clusters.
-        assert!(ancestor_cluster < self.clusters.len(), "ancestor cluster index out of bounds");
-        assert!(descendant_cluster < self.clusters.len(), "descendant cluster index out of bounds");
-        let mut ancestor = self.clusters[ancestor_cluster].write().expect("failed to lock ancestor cluster");
-        let descendant = self.clusters[descendant_cluster].read().expect("failed to lock descendant cluster");
+        assert!(
+            ancestor_cluster < self.clusters.len(),
+            "ancestor cluster index out of bounds"
+        );
+        assert!(
+            descendant_cluster < self.clusters.len(),
+            "descendant cluster index out of bounds"
+        );
+        let mut ancestor = self.clusters[ancestor_cluster]
+            .write()
+            .expect("failed to lock ancestor cluster");
+        let descendant = self.clusters[descendant_cluster]
+            .read()
+            .expect("failed to lock descendant cluster");
 
         let src_stream = *ancestor;
         let dest_stream = *descendant;
@@ -463,7 +513,7 @@ impl StreamClusters {
         let mut ret = Vec::with_capacity(self.streams.streams.len());
         for stream in &self.streams.streams {
             let list = stream.read().expect("failed to lock stream list");
-            if ! list.is_empty() {
+            if !list.is_empty() {
                 // Only add non-empty streams.
                 let stream_order = list.as_vec();
                 let initial_exec = find_initial_spawned_group(&stream_order, nodes, &node_map)?;
@@ -498,9 +548,9 @@ mod tests {
 
     use super::*;
     use crate::server_shell::ast::model;
-    use crate::server_shell::builder::{parse_node, from_ast};
-    use crate::shell_lib::compile::meta;
+    use crate::server_shell::builder::{from_ast, parse_node};
     use crate::shell_lib::modules::{cat, file_sink, shell};
+    use crate::shell_lib::structure::meta;
 
     #[test]
     fn test_cat_cp_graph() {
@@ -516,7 +566,7 @@ mod tests {
 
         let tg = &graph.node_graphs[1];
         assert_eq!(tg.stream_order.len(), 2);
-        assert_eq!(tg.initial_exec.len(), 2);  // Both can run in parallel.
+        assert_eq!(tg.initial_exec.len(), 2); // Both can run in parallel.
         assert_eq!(tg.stream_order[0], 1); // node_idx 1 == cat
         assert_eq!(tg.stream_order[1], 2); // node_idx 2 == sink
         assert_eq!(tg.initial_exec[0], 1); // node_idx 1 == cat
@@ -525,11 +575,18 @@ mod tests {
 
     #[test]
     fn test_cat_cp_json() {
-        let json = std::str::from_utf8(include_bytes!("../../samples/cat_cp/ast.json")).expect("failed to utf8 convert json");
-        let ast = crate::server_shell::ast::astio::read_str(&json.to_string()).expect("failed to read json");
+        let json = std::str::from_utf8(include_bytes!("../../samples/cat_cp/ast.json"))
+            .expect("failed to utf8 convert json");
+        let ast = crate::server_shell::ast::astio::read_str(&json.to_string())
+            .expect("failed to read json");
         let ast_errors = crate::server_shell::ast::validate::validate(&ast);
-        assert!(ast_errors.is_empty(), "AST validation failed: {:?}", ast_errors);
-        let nodes = parse_node::convert_nodes(&ast.nodes, &from_ast::get_available_modules()).expect("failed to convert nodes");
+        assert!(
+            ast_errors.is_empty(),
+            "AST validation failed: {:?}",
+            ast_errors
+        );
+        let nodes = parse_node::convert_nodes(&ast.nodes, &from_ast::get_available_modules())
+            .expect("failed to convert nodes");
         let graph = ScriptGraph::load(&nodes).expect("failed to load graph");
         assert_eq!(graph.node_graphs.len(), 2);
 
@@ -541,7 +598,7 @@ mod tests {
 
         let tg = &graph.node_graphs[1];
         assert_eq!(tg.stream_order.len(), 2);
-        assert_eq!(tg.initial_exec.len(), 2);  // Both can run in parallel.
+        assert_eq!(tg.initial_exec.len(), 2); // Both can run in parallel.
         assert_eq!(tg.stream_order[0], 1); // node_idx 1 == cat
         assert_eq!(tg.stream_order[1], 2); // node_idx 2 == sink
         assert_eq!(tg.initial_exec[0], 1); // node_idx 1 == cat
@@ -550,32 +607,66 @@ mod tests {
 
     #[test]
     fn test_tee_merge_json() {
-        let json = std::str::from_utf8(include_bytes!("../../samples/tee_merge/ast.json")).expect("failed to utf8 convert json");
-        let ast = crate::server_shell::ast::astio::read_str(&json.to_string()).expect("failed to read json");
+        let json = std::str::from_utf8(include_bytes!("../../samples/tee_merge/ast.json"))
+            .expect("failed to utf8 convert json");
+        let ast = crate::server_shell::ast::astio::read_str(&json.to_string())
+            .expect("failed to read json");
         let ast_errors = crate::server_shell::ast::validate::validate(&ast);
-        assert!(ast_errors.is_empty(), "AST validation failed: {:?}", ast_errors);
-        let nodes = parse_node::convert_nodes(&ast.nodes, &from_ast::get_available_modules()).expect("failed to convert nodes");
+        assert!(
+            ast_errors.is_empty(),
+            "AST validation failed: {:?}",
+            ast_errors
+        );
+        let nodes = parse_node::convert_nodes(&ast.nodes, &from_ast::get_available_modules())
+            .expect("failed to convert nodes");
         let graph = ScriptGraph::load(&nodes).expect("failed to load graph");
         assert_eq!(graph.node_graphs.len(), 2);
         assert_eq!(nodes.get(0).expect("exists").node.name, "main".to_string());
         assert_eq!(nodes.get(0).expect("exists").node_id, "shell_0".to_string());
-        assert_eq!(nodes.get(1).expect("exists").node.name, "data_file_1".to_string());
+        assert_eq!(
+            nodes.get(1).expect("exists").node.name,
+            "data_file_1".to_string()
+        );
         assert_eq!(nodes.get(1).expect("exists").node_id, "cat_1".to_string());
-        assert_eq!(nodes.get(2).expect("exists").node.name, "data_file_2".to_string());
+        assert_eq!(
+            nodes.get(2).expect("exists").node.name,
+            "data_file_2".to_string()
+        );
         assert_eq!(nodes.get(2).expect("exists").node_id, "cat_2".to_string());
-        assert_eq!(nodes.get(3).expect("exists").node.name, "data_text_1".to_string());
+        assert_eq!(
+            nodes.get(3).expect("exists").node.name,
+            "data_text_1".to_string()
+        );
         assert_eq!(nodes.get(3).expect("exists").node_id, "echo_3".to_string());
-        assert_eq!(nodes.get(4).expect("exists").node.name, "data_text_2".to_string());
+        assert_eq!(
+            nodes.get(4).expect("exists").node.name,
+            "data_text_2".to_string()
+        );
         assert_eq!(nodes.get(4).expect("exists").node_id, "echo_4".to_string());
         assert_eq!(nodes.get(5).expect("exists").node.name, "tee1".to_string());
         assert_eq!(nodes.get(5).expect("exists").node_id, "tee_5".to_string());
-        assert_eq!(nodes.get(6).expect("exists").node.name, "merge1".to_string());
+        assert_eq!(
+            nodes.get(6).expect("exists").node.name,
+            "merge1".to_string()
+        );
         assert_eq!(nodes.get(6).expect("exists").node_id, "merge_6".to_string());
-        assert_eq!(nodes.get(7).expect("exists").node.name, "merge2".to_string());
+        assert_eq!(
+            nodes.get(7).expect("exists").node.name,
+            "merge2".to_string()
+        );
         assert_eq!(nodes.get(7).expect("exists").node_id, "merge_7".to_string());
-        assert_eq!(nodes.get(8).expect("exists").node.name, "merge3".to_string());
+        assert_eq!(
+            nodes.get(8).expect("exists").node.name,
+            "merge3".to_string()
+        );
         assert_eq!(nodes.get(8).expect("exists").node_id, "merge_8".to_string());
-        assert_eq!(graph.find_node_by_name(&mk_src(1), &"main".to_string(), &nodes).expect("exists").node_id, "shell_0".to_string());
+        assert_eq!(
+            graph
+                .find_node_by_name(&mk_src(1), &"main".to_string(), &nodes)
+                .expect("exists")
+                .node_id,
+            "shell_0".to_string()
+        );
 
         let tg = &graph.node_graphs[0];
         assert_eq!(tg.stream_order.len(), 1);
@@ -594,7 +685,7 @@ mod tests {
         assert_eq!(tg.stream_order[6], 7); // node_idx 2 == merge2
         assert_eq!(tg.stream_order[7], 8); // node_idx 2 == merge3
 
-        assert_eq!(tg.initial_exec.len(), 8);  // All can run in parallel.
+        assert_eq!(tg.initial_exec.len(), 8); // All can run in parallel.
         assert_eq!(tg.initial_exec[0], 1); // node_idx 1 == data_file_1
         assert_eq!(tg.initial_exec[1], 2); // node_idx 2 == data_file_2
         assert_eq!(tg.initial_exec[2], 3); // node_idx 3 == data_text_1
@@ -631,26 +722,22 @@ mod tests {
                     name: "main".to_string(),
                     module: shell_mod.name.clone(),
                     source: mk_src(1),
-                    runtime_parameters: model::NamedParameters {
-                        0: vec![],
-                    },
+                    runtime_parameters: model::NamedParameters { 0: vec![] },
                     streams: vec![],
-                    event_listeners: vec![
-                        model::EventListener {
-                            name: "start".to_string(),
-                            source: mk_src(2),
-                            actions: model::OrderedActions {
-                                0: vec![model::Action {
-                                    name: "cat src.txt > tgt.txt".to_string(),
-                                    run: model::ActionRun::SpawnNode {
-                                        node: "cat".to_string(),
-                                        source: mk_src(12),
-                                    },
-                                    source: mk_src(2),
-                                }],
-                            },
+                    event_listeners: vec![model::EventListener {
+                        name: "start".to_string(),
+                        source: mk_src(2),
+                        actions: model::OrderedActions {
+                            0: vec![model::Action {
+                                name: "cat src.txt > tgt.txt".to_string(),
+                                run: model::ActionRun::SpawnNode {
+                                    node: "cat".to_string(),
+                                    source: mk_src(12),
+                                },
+                                source: mk_src(2),
+                            }],
                         },
-                    ],
+                    }],
                     initial_parameters: HashMap::new(),
                     exit_actions: vec![],
                 },
@@ -673,13 +760,17 @@ mod tests {
                                 model::ComputedStringListValue::ConstantStringListValue(
                                     model::ConstantStringListValue {
                                         type_: "string_list".into(),
-                                        value: vec![model::ConstantStringListValueValueItem::Value(
-                                            model::ComputedStringValue::ConstantStringValue(model::ConstantStringValue {
-                                                type_: "string".into(),
-                                                value: "src.txt".to_string(),
-                                                source: mk_src(8),
-                                            })
-                                        )],
+                                        value: vec![
+                                            model::ConstantStringListValueValueItem::Value(
+                                                model::ComputedStringValue::ConstantStringValue(
+                                                    model::ConstantStringValue {
+                                                        type_: "string".into(),
+                                                        value: "src.txt".to_string(),
+                                                        source: mk_src(8),
+                                                    },
+                                                ),
+                                            ),
+                                        ],
                                         source: mk_src(9),
                                     },
                                 ),
@@ -709,17 +800,21 @@ mod tests {
                     name: "sink".to_string(),
                     module: fs_mod.name.clone(),
                     source: mk_src(4),
-                    runtime_parameters: model::NamedParameters{0: vec![
-                        model::ActionParameter{
+                    runtime_parameters: model::NamedParameters {
+                        0: vec![model::ActionParameter {
                             name: "filename".to_string(),
                             source: mk_src(5),
-                            value: model::ComputedValue::StringValue(model::ComputedStringValue::ConstantStringValue(model::ConstantStringValue {
-                                type_: "string".into(),
-                                value: "tgt.txt".to_string(),
-                                source: mk_src(6),
-                            })),
-                        }
-                    ]},
+                            value: model::ComputedValue::StringValue(
+                                model::ComputedStringValue::ConstantStringValue(
+                                    model::ConstantStringValue {
+                                        type_: "string".into(),
+                                        value: "tgt.txt".to_string(),
+                                        source: mk_src(6),
+                                    },
+                                ),
+                            ),
+                        }],
+                    },
                     streams: vec![],
                     event_listeners: vec![],
                     exit_actions: vec![],

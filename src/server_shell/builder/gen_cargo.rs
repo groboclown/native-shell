@@ -4,11 +4,11 @@ use std::collections::{HashMap, HashSet};
 
 use super::helpers::toml_file_header;
 use super::parse_node::ModuleNode;
-use super::writer::SourceWriter;
 use super::shell_lib_deps::SHELL_LIB_DEPS;
+use super::writer::SourceWriter;
 use crate::server_shell::builder::cargo::cargo_lib::get_crate_dependency;
 use crate::server_shell::builder::errors::BuilderError;
-use crate::shell_lib::compile::meta::{CrateDependency, VerBit};
+use crate::shell_lib::structure::meta::{CrateDependency, VerBit};
 
 pub fn write_cargo_toml<SW: SourceWriter>(
     name: &String,
@@ -45,23 +45,21 @@ fn distinct_dependencies(nodes: &Vec<ModuleNode>) -> Result<Vec<String>, Builder
     let mut defaults = HashMap::new();
     for dep_name in SHELL_LIB_DEPS.iter() {
         let dep = get_crate_dependency(dep_name)?;
-        defaults.insert(dep.name.clone(),dep.clone());
-        best_deps.insert(dep.name.clone(),dep.clone());
+        defaults.insert(dep.name.clone(), dep.clone());
+        best_deps.insert(dep.name.clone(), dep.clone());
     }
 
     for node in nodes {
         for dep in &node.module.dependencies {
             let dep = match dep.version.len() {
-                0 => {
-                    match defaults.get(&dep.name) {
-                        Some(d) => d,
-                        None => {
-                            let d = get_crate_dependency(&dep.name)?;
-                            defaults.insert(d.name.clone(), d.clone());
-                            &d.clone()
-                        }
+                0 => match defaults.get(&dep.name) {
+                    Some(d) => d,
+                    None => {
+                        let d = get_crate_dependency(&dep.name)?;
+                        defaults.insert(d.name.clone(), d.clone());
+                        &d.clone()
                     }
-                }
+                },
                 _ => dep,
             };
             match best_deps.get(&dep.name) {
@@ -81,7 +79,6 @@ fn distinct_dependencies(nodes: &Vec<ModuleNode>) -> Result<Vec<String>, Builder
     }
     Ok(ret)
 }
-
 
 fn distinct_target_dependencies(nodes: &Vec<ModuleNode>) -> Vec<(String, Vec<String>)> {
     let mut os: HashMap<String, HashSet<String>> = HashMap::new();
@@ -109,11 +106,10 @@ fn distinct_target_dependencies(nodes: &Vec<ModuleNode>) -> Vec<(String, Vec<Str
     ret
 }
 
-
-
-
-
-fn select_highest_version<'a>(left: &'a CrateDependency, right: &'a CrateDependency) -> &'a CrateDependency {
+fn select_highest_version<'a>(
+    left: &'a CrateDependency,
+    right: &'a CrateDependency,
+) -> &'a CrateDependency {
     let len = std::cmp::min(left.version.len(), right.version.len());
     for i in 0..len {
         // Numbers have a higher precedence than strings.
@@ -170,8 +166,12 @@ fn select_highest_version<'a>(left: &'a CrateDependency, right: &'a CrateDepende
     return right;
 }
 
-
-fn compare_version_separator<'a>(left: &'a CrateDependency, lc: char, right: &'a CrateDependency, rc: char) -> Option<&'a CrateDependency> {
+fn compare_version_separator<'a>(
+    left: &'a CrateDependency,
+    lc: char,
+    right: &'a CrateDependency,
+    rc: char,
+) -> Option<&'a CrateDependency> {
     if lc != rc {
         if lc == '.' {
             return Some(left);
@@ -187,7 +187,6 @@ fn compare_version_separator<'a>(left: &'a CrateDependency, lc: char, right: &'a
     }
     None
 }
-
 
 fn as_cargo_line(dep: &CrateDependency) -> String {
     let mut line = format!("{} = ", dep.name);

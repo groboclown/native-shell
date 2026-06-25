@@ -7,8 +7,8 @@ use std::{collections::VecDeque, io::Read, os::fd::OwnedFd};
 
 use crate::shell_lib::runtime::event_bus;
 use crate::shell_lib::{
-    compile::{job, meta, source::Source},
     helpers::abort_handler,
+    structure::{job, meta, source::Source},
 };
 
 const BUFFER_SIZE: f64 = 8192.0;

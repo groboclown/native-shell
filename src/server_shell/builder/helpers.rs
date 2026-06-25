@@ -1,6 +1,9 @@
 //! Helpers for the rust file generation.
 
-use crate::{server_shell::{ast::model, builder::parse_node::ModuleNode}, shell_lib::compile::meta};
+use crate::{
+    server_shell::{ast::model, builder::parse_node::ModuleNode},
+    shell_lib::structure::meta,
+};
 
 /// Create the node's module's full crate and module name.
 pub fn as_mod_expr(node: &ModuleNode) -> String {

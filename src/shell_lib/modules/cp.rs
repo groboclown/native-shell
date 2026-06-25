@@ -1,6 +1,14 @@
 //! Perform the equivalent of `cp` in a shell-like environment.
 
-use crate::shell_lib::{compile::{job, meta::{ModuleMeta, ModuleStructure, NamedValue, ValueType}, source::Source}, runtime::event_bus};
+use crate::shell_lib::{
+    helpers::evt_fmt::send_log,
+    structure::{
+        event::{EventRef, EventRegistrar},
+        job,
+        meta::{ModuleMeta, ModuleStructure, NamedValue, ValueType},
+        source::Source,
+    },
+};
 
 pub fn module_meta() -> ModuleMeta {
     ModuleMeta {
@@ -8,7 +16,11 @@ pub fn module_meta() -> ModuleMeta {
         description: "Copy files and directories".to_string(),
         version: "0.1.0".to_string(),
         authors: vec!["Native Shell Developers".to_string()],
-        mod_name: vec!["shell_lib".to_string(), "modules".to_string(), "cp".to_string()],
+        mod_name: vec![
+            "shell_lib".to_string(),
+            "modules".to_string(),
+            "cp".to_string(),
+        ],
         dependencies: vec![],
         os_dependencies: vec![],
         instance_struct: "CpModule".to_string(),
@@ -81,14 +93,13 @@ pub fn module_meta() -> ModuleMeta {
                 },
             ],
         }),
-        handlers: vec![
-            ("abort".to_string(), vec![]),
-        ],
+        handlers: vec![("abort".to_string(), vec![])],
     }
 }
 
 pub struct CpModule {
     source: Source,
+    debug: EventRef,
 }
 
 pub struct CpModuleRuntimeParams {
@@ -109,15 +120,27 @@ pub struct CpModuleState {
 }
 
 impl CpModule {
-    pub fn new(source: Source) -> Self {
-        CpModule { source }
+    pub fn new(source: Source, e_reg: &mut EventRegistrar) -> Self {
+        CpModule {
+            source,
+            debug: e_reg.add_event("debug"),
+        }
     }
 
-    pub fn exec(&mut self, context: Box<dyn job::JobRunnerContext>, params: CpModuleRuntimeParams) -> Result<i16, String> {
+    pub fn exec(
+        &mut self,
+        context: Box<dyn job::JobRunnerContext>,
+        params: CpModuleRuntimeParams,
+    ) -> Result<i16, String> {
         // Implementation of the copy logic goes here.
         // This is a placeholder for the actual logic.
-        event_bus::send_debug_event(&context, &self.source, format!("Copying from {} to {}", params.source, params.destination))?;
-        
+        send_log(
+            &context,
+            self.debug,
+            &self.source,
+            format_args!("Copying from {} to {}", params.source, params.destination),
+        )?;
+
         return Err("Not implemented".to_string());
     }
 

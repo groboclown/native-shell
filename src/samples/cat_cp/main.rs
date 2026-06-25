@@ -3,14 +3,14 @@
 //! and will be broken into multiple files.
 
 use std::collections::HashMap;
-use std::sync::{mpsc, Arc};
+use std::sync::{Arc, mpsc};
 
-use crate::shell_lib::compile::{job, source};
-use crate::shell_lib::compile::source::Source;
 use crate::shell_lib::helpers;
 use crate::shell_lib::helpers::state_guard::StateGuard;
-use crate::shell_lib::modules::{cat, file_sink, shell};
 use crate::shell_lib::internal::scheduler;
+use crate::shell_lib::modules::{cat, file_sink, shell};
+use crate::shell_lib::structure::source::Source;
+use crate::shell_lib::structure::{job, source};
 
 pub fn main(argv: Vec<String>, environ: HashMap<String, String>) -> i32 {
     // Run the main function and handle any errors.
@@ -130,24 +130,24 @@ fn run_main(argv: Vec<String>, environ: HashMap<String, String>) -> Result<i32, 
             // have their own sequence, but with no associated jobs.
 
             // seq0: cat -> file sink node group
-            job::JobSequenceDescription {
+            job::JobThreadDescription {
                 name: "@seq0".to_string(),
                 source: Source::new("script.ns", 1, 1),
                 steps: vec![
                     // Start the coordinator job and wait for it to finish.
                     // Automatically added, and not part of the AST.
                     job::ScheduleStep::SpawnJob(0),
-                    job::ScheduleStep::WaitForJob(0, job::ExitCodeBehavior {
-                        never_started: job::OnExitBehavior::AbortScript,
-                        exit_code_behaviors: vec![
-                            job::ExitCodeRangeBehavior {
+                    job::ScheduleStep::WaitForJob(
+                        0,
+                        job::ExitBehavior {
+                            never_started: job::OnExitBehavior::AbortScript,
+                            exit_code_behaviors: vec![job::ExitCodeRangeBehavior {
                                 code: job::ExitCodeRange::Exact(0),
                                 behavior: job::OnExitBehavior::RunNext,
-                            },
-                        ],
-                        default_behavior: job::OnExitBehavior::AbortScript,
-                    }),
-
+                            }],
+                            default_behavior: job::OnExitBehavior::AbortScript,
+                        },
+                    ),
                     // AST defines the sequence as spawning the cat node and waiting for
                     // the cat node to finish.
                     // This is where the complex logic of the builder comes into play.
@@ -158,32 +158,32 @@ fn run_main(argv: Vec<String>, environ: HashMap<String, String>) -> Result<i32, 
                     // in which case it only waits on that one job.
                     job::ScheduleStep::SpawnJob(1),
                     job::ScheduleStep::SpawnJob(2),
-
-                    job::ScheduleStep::WaitForJob(1, job::ExitCodeBehavior {
-                        never_started: job::OnExitBehavior::AbortScript,
-                        exit_code_behaviors: vec![
-                            job::ExitCodeRangeBehavior {
+                    job::ScheduleStep::WaitForJob(
+                        1,
+                        job::ExitBehavior {
+                            never_started: job::OnExitBehavior::AbortScript,
+                            exit_code_behaviors: vec![job::ExitCodeRangeBehavior {
                                 code: job::ExitCodeRange::Exact(0),
                                 behavior: job::OnExitBehavior::RunNext,
-                            },
-                        ],
-                        default_behavior: job::OnExitBehavior::AbortScript,
-                    }),
-                    job::ScheduleStep::WaitForJob(2, job::ExitCodeBehavior {
-                        never_started: job::OnExitBehavior::AbortScript,
-                        exit_code_behaviors: vec![
-                            job::ExitCodeRangeBehavior {
+                            }],
+                            default_behavior: job::OnExitBehavior::AbortScript,
+                        },
+                    ),
+                    job::ScheduleStep::WaitForJob(
+                        2,
+                        job::ExitBehavior {
+                            never_started: job::OnExitBehavior::AbortScript,
+                            exit_code_behaviors: vec![job::ExitCodeRangeBehavior {
                                 code: job::ExitCodeRange::Exact(0),
                                 behavior: job::OnExitBehavior::RunNext,
-                            },
-                        ],
-                        default_behavior: job::OnExitBehavior::AbortScript,
-                    }),
+                            }],
+                            default_behavior: job::OnExitBehavior::AbortScript,
+                        },
+                    ),
                 ],
             },
-
             // seq1: the 'main' node 'start' pseudo event listener.
-            job::JobSequenceDescription {
+            job::JobThreadDescription {
                 name: "start".to_string(),
                 source: Source::new("script.ns", 1, 1),
                 steps: vec![
@@ -192,7 +192,7 @@ fn run_main(argv: Vec<String>, environ: HashMap<String, String>) -> Result<i32, 
                     // which is a job sequence.
                     // The scheduler will implicitly wait for it to stop async of
                     // the sequence that started it.
-                    job::ScheduleStep::SpawnJobSequence(0),
+                    job::ScheduleStep::SpawnJobThread(0),
                 ],
             },
         ],
@@ -203,14 +203,19 @@ fn run_main(argv: Vec<String>, environ: HashMap<String, String>) -> Result<i32, 
 
     // Start the main node's run function, to start monitoring OS interactions.
     let (completion_tx, on_exit) = mpsc::channel();
-    let start_event = runtime.nodes.main.start(Box::new(scheduler.context(0)), on_exit)?;
+    let start_event = runtime
+        .nodes
+        .main
+        .start(Box::new(scheduler.context(0)), on_exit)?;
     scheduler.add_global_completion_listener(completion_tx);
     let (tx, rx) = std::sync::mpsc::channel();
     scheduler.add_global_completion_listener(tx);
 
     scheduler.start_job_sequence_named(&start_event)?;
 
-    let codes = rx.recv().map_err(|e| format!("Failed to receive completion: {}", e))?;
+    let codes = rx
+        .recv()
+        .map_err(|e| format!("Failed to receive completion: {}", e))?;
 
     let mut exit_code = 0;
     for code in codes {
@@ -262,7 +267,9 @@ impl job::JobRunner for Seq0Job0 {
         let (r, w) = helpers::fd::mk_pipe();
         match self.state.run_mut(|state| {
             state.streams_cat.replace(cat::CatModuleStream { fd_0: w });
-            state.streams_output.replace(file_sink::FileSinkModuleStream { fd_0: r });
+            state
+                .streams_output
+                .replace(file_sink::FileSinkModuleStream { fd_0: r });
             Ok::<(), String>(())
         }) {
             helpers::state_guard::ExecState::LockContention => {
@@ -277,7 +284,13 @@ impl job::JobRunner for Seq0Job0 {
         //    map: lookup-string-map (main, value_params)
         //    key: constant-string (source)
         //    default: ""
-        let main_source = self.runtime.nodes.main.state().value_params.get("source")
+        let main_source = self
+            .runtime
+            .nodes
+            .main
+            .state()
+            .value_params
+            .get("source")
             .unwrap_or(&"".to_string())
             .clone();
 
@@ -285,7 +298,13 @@ impl job::JobRunner for Seq0Job0 {
         //    map: lookup-string-map (main, value_params)
         //    key: constant-string (target)
         //    default: ""
-        let main_target = self.runtime.nodes.main.state().value_params.get("target")
+        let main_target = self
+            .runtime
+            .nodes
+            .main
+            .state()
+            .value_params
+            .get("target")
             .unwrap_or(&"".to_string())
             .clone();
         match self.runtime.params.run_mut(move |params| {
@@ -318,13 +337,20 @@ struct Seq0Job1 {
 
 impl job::JobRunner for Seq0Job1 {
     fn run(&self, context: Box<dyn job::JobRunnerContext>) -> Result<job::ExitCode, String> {
-        let params = match self.runtime.params.run_mut(|params| Ok::<cat::CatModuleRuntimeParams, String>(params.cat.clone())) {
+        let params = match self
+            .runtime
+            .params
+            .run_mut(|params| Ok::<cat::CatModuleRuntimeParams, String>(params.cat.clone()))
+        {
             helpers::state_guard::ExecState::LockContention => {
                 return Err("Failed to acquire lock on runtime parameters".to_string());
             }
             helpers::state_guard::ExecState::Ran(params) => params?,
         };
-        let streams = match self.state.run_mut(|state| { Ok::<Option<cat::CatModuleStream>, String>(state.streams_cat.take()) }) {
+        let streams = match self
+            .state
+            .run_mut(|state| Ok::<Option<cat::CatModuleStream>, String>(state.streams_cat.take()))
+        {
             helpers::state_guard::ExecState::LockContention => {
                 return Err("Failed to acquire lock on state".to_string());
             }
@@ -352,13 +378,17 @@ struct Seq0Job2 {
 
 impl job::JobRunner for Seq0Job2 {
     fn run(&self, context: Box<dyn job::JobRunnerContext>) -> Result<job::ExitCode, String> {
-        let params = match self.runtime.params.run_mut(|params| Ok::<file_sink::FileSinkModuleRuntimeParams, String>(params.output.clone())) {
+        let params = match self.runtime.params.run_mut(|params| {
+            Ok::<file_sink::FileSinkModuleRuntimeParams, String>(params.output.clone())
+        }) {
             helpers::state_guard::ExecState::LockContention => {
                 return Err("Failed to acquire lock on runtime parameters".to_string());
             }
             helpers::state_guard::ExecState::Ran(params) => params?,
         };
-        let streams = match self.state.run_mut(|state| { Ok::<Option<file_sink::FileSinkModuleStream>, String>(state.streams_output.take()) }) {
+        let streams = match self.state.run_mut(|state| {
+            Ok::<Option<file_sink::FileSinkModuleStream>, String>(state.streams_output.take())
+        }) {
             helpers::state_guard::ExecState::LockContention => {
                 return Err("Failed to acquire lock on state".to_string());
             }

@@ -13,15 +13,12 @@ use std::collections::{HashMap, HashSet};
 use std::sync::mpsc::Receiver;
 use std::thread;
 
-use crate::shell_lib::compile::meta::{
-    FixedStreamDef, ModuleMeta, ModuleStreamStructure, ModuleStructure,
-    NamedValue, StreamInterface, StreamType, ValueType, VariableStreamField,
-    as_latest_crate_dependency,
+use crate::shell_lib::structure::job;
+use crate::shell_lib::structure::meta::{
+    FixedStreamDef, ModuleMeta, ModuleStreamStructure, ModuleStructure, NamedValue,
+    StreamInterface, StreamType, ValueType, VariableStreamField, as_latest_crate_dependency,
 };
-use crate::shell_lib::compile::job;
-use crate::shell_lib::runtime::event_bus;
-use crate::shell_lib::compile::source::Source;
-
+use crate::shell_lib::structure::source::Source;
 
 pub fn module_meta() -> ModuleMeta {
     ModuleMeta {
@@ -29,7 +26,11 @@ pub fn module_meta() -> ModuleMeta {
         description: "The shell program that interacts with the OS".to_string(),
         version: "0.1.0".to_string(),
         authors: vec!["Native Shell Developers".to_string()],
-        mod_name: vec!["shell_lib".to_string(), "modules".to_string(), "shell".to_string()],
+        mod_name: vec![
+            "shell_lib".to_string(),
+            "modules".to_string(),
+            "shell".to_string(),
+        ],
         dependencies: vec![
             as_latest_crate_dependency("termion"),
             as_latest_crate_dependency("textwrap"),
@@ -118,7 +119,6 @@ pub fn module_meta() -> ModuleMeta {
                     value_type: ValueType::StringList,
                     optional: true,
                 },
-
                 // main() provided only; script users do not provide these.
                 NamedValue {
                     name: "argv".to_string(),
@@ -274,12 +274,11 @@ impl ShellModule {
     pub fn new(source: Source, compile_params: ShellModuleCompileParams) -> Self {
         let width = termion::terminal_size().map_or(80, |(w, _)| w as usize);
         let start = compile_params.start_event.clone();
-        let environ = compile_params.environ.clone().expect("main must set environ");
-        let params = parse_params(
-            compile_params,
-            &mut std::io::stderr(),
-            width,
-        );
+        let environ = compile_params
+            .environ
+            .clone()
+            .expect("main must set environ");
+        let params = parse_params(compile_params, &mut std::io::stderr(), width);
         if let Err(code) = params {
             std::process::exit(code);
         }
@@ -290,25 +289,33 @@ impl ShellModule {
             bool_params: params.1,
             position_params: params.2,
         };
-        ShellModule { state, start, source }
+        ShellModule {
+            state,
+            start,
+            source,
+        }
     }
 
     pub fn state(&self) -> ShellModuleState {
         self.state.clone()
     }
 
-    pub fn start(&self, context: Box<dyn job::MainContext>, on_exit: Receiver<Vec<Option<job::ExitCode>>>) -> Result<String, String> {
+    pub fn start(
+        &self,
+        context: Box<dyn job::MainContext>,
+        on_exit: Receiver<Vec<Option<job::ExitCode>>>,
+    ) -> Result<String, String> {
         // The shell module does not have an exec function, but rather a run function.
         // It will return a channel that the main module can use to signal that the script has ended.
         // This allows the shell module to monitor system signals and other events.
 
         // Add logging event listeners.
         let registrar = context as Box<dyn job::JobSequenceEventRegistrar>;
-        event_bus::listen_trace_event(&registrar, Box::new(TraceLogger{}));
-        event_bus::listen_debug_event(&registrar, Box::new(DebugLogger{}));
-        event_bus::listen_info_event(&registrar, Box::new(InfoLogger{}));
-        event_bus::listen_warning_event(&registrar, Box::new(WarnLogger{}));
-        event_bus::listen_error_event(&registrar, Box::new(ErrorLogger{}));
+        event_bus::listen_trace_event(&registrar, Box::new(TraceLogger {}));
+        event_bus::listen_debug_event(&registrar, Box::new(DebugLogger {}));
+        event_bus::listen_info_event(&registrar, Box::new(InfoLogger {}));
+        event_bus::listen_warning_event(&registrar, Box::new(WarnLogger {}));
+        event_bus::listen_error_event(&registrar, Box::new(ErrorLogger {}));
 
         thread::Builder::new()
             .name("os_monitor".to_string())
@@ -370,7 +377,15 @@ fn parse_params<W: std::io::Write>(
             continue;
         }
         if arg == "--version" || arg == "-V" {
-            let _ = print_line(out, &format!("{} {}", params.name.unwrap_or(cmd_name), params.version.unwrap_or("0.0.0".to_string())), width);
+            let _ = print_line(
+                out,
+                &format!(
+                    "{} {}",
+                    params.name.unwrap_or(cmd_name),
+                    params.version.unwrap_or("0.0.0".to_string())
+                ),
+                width,
+            );
             return Err(0);
         }
         if arg.starts_with("--") {
@@ -413,10 +428,18 @@ fn parse_params<W: std::io::Write>(
     }
     let position_param_count = position_params.len() as i64;
     if position_param_count < min_position_param_count {
-        problems.push(format!("Too few position parameters: expected {}, found {}", min_position_param_count, position_params.len()));
+        problems.push(format!(
+            "Too few position parameters: expected {}, found {}",
+            min_position_param_count,
+            position_params.len()
+        ));
     }
     if position_param_count > max_position_param_count {
-        problems.push(format!("Too many position parameters: expected {}, found {}", max_position_param_count, position_params.len()));
+        problems.push(format!(
+            "Too many position parameters: expected {}, found {}",
+            max_position_param_count,
+            position_params.len()
+        ));
     }
     if let Some(params) = &params.required_value_parameters {
         for name in params {
@@ -449,10 +472,10 @@ fn parse_params<W: std::io::Write>(
                 let _ = print_key_val(out, param, &help_text, key_size, width);
             }
         } else {
-            let key_col_width =
-                find_max_width(&params.required_value_parameters)
+            let key_col_width = find_max_width(&params.required_value_parameters)
                 .max(find_max_width(&params.optional_value_parameters))
-                .max(find_max_width(&params.boolean_parameters)) + 2;
+                .max(find_max_width(&params.boolean_parameters))
+                + 2;
             let _ = print_key_val(out, "-h/--help", "Display this help", key_col_width, width);
             if let Some(params) = &params.required_value_parameters {
                 for param in params {
@@ -479,15 +502,22 @@ fn parse_params<W: std::io::Write>(
         // Note: does not display help unless explicitly asked.
         let _ = print_str(out, "Script invocation failed.", width);
         let _ = print_lines(out, &problems, width);
-        let _ = print_str(out, "Run with '--help' for details on how to run the script.", width);
+        let _ = print_str(
+            out,
+            "Run with '--help' for details on how to run the script.",
+            width,
+        );
         return Err(1);
     }
 
     Ok((value_params, bool_params, position_params))
 }
 
-
-fn print_lines<W: std::io::Write>(out: &mut W, lines: &Vec<String>, width: usize) -> std::io::Result<()> {
+fn print_lines<W: std::io::Write>(
+    out: &mut W,
+    lines: &Vec<String>,
+    width: usize,
+) -> std::io::Result<()> {
     for line in lines {
         print_line(out, line, width)?;
     }
@@ -541,7 +571,11 @@ fn find_max_width(vals: &Option<Vec<String>>) -> usize {
 struct TraceLogger {}
 
 impl job::MessageEventHandler for TraceLogger {
-    fn handle_message<'a>(&self, message: String, _scheduler: &Box<dyn job::EventHandlerContext + 'a>) -> Result<(), String> {
+    fn handle_message<'a>(
+        &self,
+        message: String,
+        _scheduler: &Box<dyn job::EventHandlerContext + 'a>,
+    ) -> Result<(), String> {
         log::trace!("{}", message);
         Ok(())
     }
@@ -550,7 +584,11 @@ impl job::MessageEventHandler for TraceLogger {
 struct DebugLogger {}
 
 impl job::MessageEventHandler for DebugLogger {
-    fn handle_message<'a>(&self, message: String, _scheduler: &Box<dyn job::EventHandlerContext + 'a>) -> Result<(), String> {
+    fn handle_message<'a>(
+        &self,
+        message: String,
+        _scheduler: &Box<dyn job::EventHandlerContext + 'a>,
+    ) -> Result<(), String> {
         log::debug!("{}", message);
         Ok(())
     }
@@ -559,7 +597,11 @@ impl job::MessageEventHandler for DebugLogger {
 struct InfoLogger {}
 
 impl job::MessageEventHandler for InfoLogger {
-    fn handle_message<'a>(&self, message: String, _scheduler: &Box<dyn job::EventHandlerContext + 'a>) -> Result<(), String> {
+    fn handle_message<'a>(
+        &self,
+        message: String,
+        _scheduler: &Box<dyn job::EventHandlerContext + 'a>,
+    ) -> Result<(), String> {
         log::info!("{}", message);
         Ok(())
     }
@@ -568,7 +610,11 @@ impl job::MessageEventHandler for InfoLogger {
 struct WarnLogger {}
 
 impl job::MessageEventHandler for WarnLogger {
-    fn handle_message<'a>(&self, message: String, _scheduler: &Box<dyn job::EventHandlerContext + 'a>) -> Result<(), String> {
+    fn handle_message<'a>(
+        &self,
+        message: String,
+        _scheduler: &Box<dyn job::EventHandlerContext + 'a>,
+    ) -> Result<(), String> {
         log::warn!("{}", message);
         Ok(())
     }
@@ -577,7 +623,11 @@ impl job::MessageEventHandler for WarnLogger {
 struct ErrorLogger {}
 
 impl job::MessageEventHandler for ErrorLogger {
-    fn handle_message<'a>(&self, message: String, _scheduler: &Box<dyn job::EventHandlerContext + 'a>) -> Result<(), String> {
+    fn handle_message<'a>(
+        &self,
+        message: String,
+        _scheduler: &Box<dyn job::EventHandlerContext + 'a>,
+    ) -> Result<(), String> {
         log::error!("{}", message);
         Ok(())
     }

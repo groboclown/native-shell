@@ -1,7 +1,10 @@
 //! Helpers and tools for managing Cargo library declarations.
 
-use crate::{server_shell::builder::errors::BuilderError, shell_lib::compile::meta::{CrateDependency, VerBit}};
 use super::crates_io;
+use crate::{
+    server_shell::builder::errors::BuilderError,
+    shell_lib::structure::meta::{CrateDependency, VerBit},
+};
 
 /// Fetches crate information from crates.io and constructs a RustDependency.
 pub fn get_crate_dependency<'a>(crate_name: &'a str) -> Result<CrateDependency, BuilderError> {
@@ -130,16 +133,14 @@ fn from_ureq_err(err: ureq::Error) -> BuilderError {
         ureq::Error::Io(err) => {
             BuilderError::HttpError(format!("I/O error while connecting to crates.io: {}", err))
         }
-        err => {
-            BuilderError::HttpError(format!("error while connecting to crates.io: {}", err))
-        }
+        err => BuilderError::HttpError(format!("error while connecting to crates.io: {}", err)),
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::parse_version_str;
-    use crate::shell_lib::compile::meta::VerBit;
+    use crate::shell_lib::structure::meta::VerBit;
 
     fn repr(bits: Vec<VerBit>) -> Vec<(char, Option<u32>, Option<String>)> {
         bits.into_iter()

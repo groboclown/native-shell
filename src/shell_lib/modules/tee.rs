@@ -3,8 +3,11 @@
 
 use std::{collections::VecDeque, io::Read, os::fd::OwnedFd};
 
-use crate::shell_lib::{compile::{job, meta, source::Source}, helpers::abort_handler};
 use crate::shell_lib::runtime::event_bus;
+use crate::shell_lib::{
+    helpers::abort_handler,
+    structure::{job, meta, source::Source},
+};
 
 const BUFFER_SIZE: usize = 8192;
 
@@ -14,7 +17,11 @@ pub fn module_meta() -> meta::ModuleMeta {
         description: "Split one input stream into zero or more output streams".to_string(),
         version: "0.1.0".to_string(),
         authors: vec!["Native Shell Developers".to_string()],
-        mod_name: vec!["shell_lib".to_string(), "modules".to_string(), "tee".to_string()],
+        mod_name: vec![
+            "shell_lib".to_string(),
+            "modules".to_string(),
+            "tee".to_string(),
+        ],
         dependencies: vec![],
         os_dependencies: vec![],
         instance_struct: "TeeModule".to_string(),
@@ -23,14 +30,12 @@ pub fn module_meta() -> meta::ModuleMeta {
         state_struct: None,
         stream_struct: Some(meta::ModuleStreamStructure {
             name: "TeeModuleStream".to_string(),
-            fixed_streams: vec![
-                meta::FixedStreamDef {
-                    name: Some("input".to_string()),
-                    fd_index: Some(0),
-                    stream_type: meta::StreamType::Input(meta::StreamInterface::Fd),
-                    required: true,
-                },
-            ],
+            fixed_streams: vec![meta::FixedStreamDef {
+                name: Some("input".to_string()),
+                fd_index: Some(0),
+                stream_type: meta::StreamType::Input(meta::StreamInterface::Fd),
+                required: true,
+            }],
             input_variable: None,
             output_variable: Some(meta::VariableStreamField {
                 field_name: "output".to_string(),
@@ -55,10 +60,17 @@ pub struct TeeModule {
 
 impl TeeModule {
     pub fn new(source: Source) -> Self {
-        TeeModule { state: abort_handler::RunState::new(), source }
+        TeeModule {
+            state: abort_handler::RunState::new(),
+            source,
+        }
     }
 
-    pub fn exec(&self, context: Box<dyn job::JobRunnerContext>, mut streams: TeeModuleStream) -> Result<job::ExitCode, String> {
+    pub fn exec(
+        &self,
+        context: Box<dyn job::JobRunnerContext>,
+        mut streams: TeeModuleStream,
+    ) -> Result<job::ExitCode, String> {
         let mut inp;
         let mut active = VecDeque::with_capacity(streams.output.len());
         {
@@ -81,10 +93,11 @@ impl TeeModule {
                     let _ = self.stop();
                     return Ok(0);
                 }
-                Ok(size) => {
-                    size
-                }
-                Err(e) if e.kind() == std::io::ErrorKind::Interrupted || e.kind() == std::io::ErrorKind::WouldBlock => {
+                Ok(size) => size,
+                Err(e)
+                    if e.kind() == std::io::ErrorKind::Interrupted
+                        || e.kind() == std::io::ErrorKind::WouldBlock =>
+                {
                     // Just loop again.
                     continue;
                 }
@@ -94,14 +107,18 @@ impl TeeModule {
                     return Ok(0);
                 }
                 Err(e) => {
-                    let _ = event_bus::send_error_event(&context, &self.source, format!("Failed to read from input stream: {}", e));
+                    let _ = event_bus::send_error_event(
+                        &context,
+                        &self.source,
+                        format!("Failed to read from input stream: {}", e),
+                    );
                     let _ = self.stop();
                     return Ok(1);
                 }
             };
 
             let mut valid = VecDeque::with_capacity(active.len());
-            for mut out  in active {
+            for mut out in active {
                 // Write the data to each output stream.
                 loop {
                     match out.write_all(&buf[..size]) {
@@ -125,7 +142,11 @@ impl TeeModule {
                             break;
                         }
                         Err(e) => {
-                            let _ = event_bus::send_error_event(&context, &self.source, format!("Failed to write to output stream: {}", e));
+                            let _ = event_bus::send_error_event(
+                                &context,
+                                &self.source,
+                                format!("Failed to write to output stream: {}", e),
+                            );
                             let _ = self.stop();
                             return Ok(1);
                         }
@@ -136,7 +157,6 @@ impl TeeModule {
             active = valid;
         }
     }
-
 
     /// Required module abort handler.
     pub fn abort(&self) -> bool {
@@ -153,15 +173,19 @@ impl TeeModule {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::shell_lib::helpers::fd::{VecWriter, make_fd_reader};
     use std::cell::RefCell;
-    use crate::shell_lib::helpers::fd::{make_fd_reader, VecWriter};
 
     struct EventBus {
         name: &'static str,
         msgs: RefCell<Vec<(String, job::EventPayload)>>,
     }
     impl job::JobRunnerContext for EventBus {
-        fn send_event(&self, event_ref: &job::EventRef, payload: job::EventPayload) -> Result<(), String> {
+        fn send_event(
+            &self,
+            event_ref: &job::EventRef,
+            payload: job::EventPayload,
+        ) -> Result<(), String> {
             println!("{} {}: {}", self.name, event_ref, payload);
             self.msgs.borrow_mut().push((event_ref.clone(), payload));
             Ok(())
@@ -170,45 +194,54 @@ mod tests {
 
     #[test]
     fn test_zero_outputs() {
-        let bus = EventBus { name: "test_zero_inputs", msgs: RefCell::new(vec![]) };
+        let bus = EventBus {
+            name: "test_zero_inputs",
+            msgs: RefCell::new(vec![]),
+        };
         let module = TeeModule::new(Source::default());
         let fd_0 = make_fd_reader(b"hello\nworld\n");
-        let streams = TeeModuleStream { fd_0, output: vec![] };
-        let code = module.exec(
-            Box::new(bus),
-            streams,
-        ).unwrap();
+        let streams = TeeModuleStream {
+            fd_0,
+            output: vec![],
+        };
+        let code = module.exec(Box::new(bus), streams).unwrap();
         assert_eq!(code, 0);
     }
 
     #[test]
     fn test_single_output() {
-        let bus = EventBus { name: "test_single_input_default_separator", msgs: RefCell::new(vec![]) };
+        let bus = EventBus {
+            name: "test_single_input_default_separator",
+            msgs: RefCell::new(vec![]),
+        };
         let module = TeeModule::new(Source::default());
         let (ov1, out1) = VecWriter::new_pair();
         let fd_0 = make_fd_reader(b"hello\nworld\n");
-        let streams = TeeModuleStream { fd_0, output: vec![ov1] };
-        let code = module.exec(
-            Box::new(bus),
-            streams,
-        ).unwrap();
+        let streams = TeeModuleStream {
+            fd_0,
+            output: vec![ov1],
+        };
+        let code = module.exec(Box::new(bus), streams).unwrap();
         assert_eq!(code, 0);
         assert_eq!(*out1.read().unwrap(), b"hello\nworld\n");
     }
 
     #[test]
     fn test_two_outputs() {
-        let bus = EventBus { name: "test_single_input_default_separator", msgs: RefCell::new(vec![]) };
+        let bus = EventBus {
+            name: "test_single_input_default_separator",
+            msgs: RefCell::new(vec![]),
+        };
         let module = TeeModule::new(Source::default());
         let data = b"a1\na2\na3";
         let fd_0 = make_fd_reader(data);
         let (ov1, out1) = VecWriter::new_pair();
         let (ov2, out2) = VecWriter::new_pair();
-        let streams = TeeModuleStream { fd_0, output: vec![ov1, ov2] };
-        let code = module.exec(
-            Box::new(bus),
-            streams,
-        ).unwrap();
+        let streams = TeeModuleStream {
+            fd_0,
+            output: vec![ov1, ov2],
+        };
+        let code = module.exec(Box::new(bus), streams).unwrap();
         assert_eq!(code, 0);
         assert_eq!(*out1.read().unwrap(), data);
         assert_eq!(*out2.read().unwrap(), data);
@@ -216,7 +249,10 @@ mod tests {
 
     #[test]
     fn test_two_outputs_three_buffer_reads() {
-        let bus = EventBus { name: "test_two_inputs_separator_two_chars", msgs: RefCell::new(vec![]) };
+        let bus = EventBus {
+            name: "test_two_inputs_separator_two_chars",
+            msgs: RefCell::new(vec![]),
+        };
         let module = TeeModule::new(Source::default());
         let mut data = [0u8; BUFFER_SIZE * 2 + 3];
         for i in 0..BUFFER_SIZE * 2 + 3 {
@@ -225,7 +261,10 @@ mod tests {
         let fd_0 = make_fd_reader(&data);
         let (ov1, out1) = VecWriter::new_pair();
         let (ov2, out2) = VecWriter::new_pair();
-        let streams = TeeModuleStream { fd_0, output: vec![ov1, ov2] };
+        let streams = TeeModuleStream {
+            fd_0,
+            output: vec![ov1, ov2],
+        };
         let code = module.exec(Box::new(bus), streams).unwrap();
         assert_eq!(code, 0);
         assert_eq!(*out1.read().unwrap(), data);

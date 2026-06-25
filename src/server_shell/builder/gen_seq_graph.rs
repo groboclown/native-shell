@@ -4,12 +4,12 @@ use super::helpers::{as_mod_expr, rust_file_header};
 use super::node_graph::NodeGraph;
 use super::parse_node::ModuleNode;
 use super::sequence::{SeqIndex, SequenceGen};
-use super::writer::SourceWriter;
 use super::stream_pair;
+use super::writer::SourceWriter;
 use crate::server_shell::builder::errors::{BuilderError, ErrorDetails};
-use crate::server_shell::builder::{helpers, sequence};
 use crate::server_shell::builder::stream_pair::VariableNodeStream;
-use crate::shell_lib::compile::meta;
+use crate::server_shell::builder::{helpers, sequence};
+use crate::shell_lib::structure::meta;
 
 pub fn write_graph_seq<'a, SW: SourceWriter, SG: SequenceGen<'a>>(
     seq_idx: SeqIndex,
@@ -85,7 +85,8 @@ use crate::runtime;
     // The first step is always running and waiting on job 0.
     // Because of the synthetic nature of the job, it has no exit behavior other than
     // just running.
-    out.write_fmt(format_args!("
+    out.write_fmt(format_args!(
+        "
 fn seq{}_description() -> job::JobSequenceDescription {{
     job::JobSequenceDescription {{
         name: \"@seq{}\".to_string(),
@@ -98,11 +99,16 @@ fn seq{}_description() -> job::JobSequenceDescription {{
                 default_behavior: job::OnExitBehavior::RunNext,
             }}),
 ",
-        seq_idx,  // fn seq{}_description()
-        seq_idx,  // name: \"@seq{}\"
-        helpers::as_rust_source(&sgen.node_at(*graph.initial_exec.get(0).unwrap()).node.source),
-        job0_idx,  // SpawnJob({})
-        job0_idx,  // WaitForJob({}, ...)
+        seq_idx, // fn seq{}_description()
+        seq_idx, // name: \"@seq{}\"
+        helpers::as_rust_source(
+            &sgen
+                .node_at(*graph.initial_exec.get(0).unwrap())
+                .node
+                .source
+        ),
+        job0_idx, // SpawnJob({})
+        job0_idx, // WaitForJob({}, ...)
     ))?;
 
     // Run the initial execution order.
@@ -122,7 +128,8 @@ fn seq{}_description() -> job::JobSequenceDescription {{
         // to determine the failure conditions.
         // If a job in the sequence never started due to conditional statements, then it
         // just "runs next" meaning that no error happens.
-        out.write_fmt(format_args!("
+        out.write_fmt(format_args!(
+            "
             job::ScheduleStep::WaitForJobSequence({}, job::ExitCodeBehavior {{
                 never_started: job::OnExitBehavior::RunNext,
                 default_behavior: job::OnExitBehavior::AbortScript,
@@ -138,10 +145,12 @@ fn seq{}_description() -> job::JobSequenceDescription {{
         ))?;
     }
 
-    out.write_all(b"        ],
+    out.write_all(
+        b"        ],
     }
 }
-")?;
+",
+    )?;
     Ok(())
 }
 
@@ -215,13 +224,7 @@ impl job::JobRunner for Seq{}Job{} {{
     ))?;
 
     if let Some(rps) = &node.module.runtime_param_struct {
-        write_params(
-            out,
-            node,
-            rps,
-            sgen,
-            "        ",
-        )?;
+        write_params(out, node, rps, sgen, "        ")?;
     }
     if node.module.stream_struct.is_some() {
         out.write_fmt(format_args!(
@@ -314,7 +317,8 @@ impl Seq{}Job{} {{
     // let global_job_id = sgen.add_job_seq(seq_idx, job_idx);
     let global_job_id = 1; // TODO fixme
 
-    out.write_fmt(format_args!("
+    out.write_fmt(format_args!(
+        "
 pub fn sub_sequence() -> job::JobSequenceDescription {{
     job::JobSequenceDescription {{
         name: \"@seq{}_{}\".to_string(),
@@ -393,20 +397,23 @@ fn write_stream_creation<'a, SG: SequenceGen<'a>>(
     }
 
     // Step 2: set the stream state values based on the created variables.
-    for ns in stream_pair::NodeStreamStruct::from_streams(
-        &streams,
-        graph,
-        sgen,
-    )? {
-        let s_struct = &ns.module.as_ref().stream_struct.clone().expect("must have streams");
+    for ns in stream_pair::NodeStreamStruct::from_streams(&streams, graph, sgen)? {
+        let s_struct = &ns
+            .module
+            .as_ref()
+            .stream_struct
+            .clone()
+            .expect("must have streams");
         out.write_fmt(format_args!(
             "            state.{}.replace({}{} {{\n",
-            ns.node_id,  helpers::module_as_mod_expr(&ns.module), &s_struct.name
+            ns.node_id,
+            helpers::module_as_mod_expr(&ns.module),
+            &s_struct.name
         ))?;
         for fixed in &ns.fixed_streams {
             let mut pref = "";
             let mut suff = "";
-            if ! fixed.required {
+            if !fixed.required {
                 pref = "Some(";
                 suff = ")";
             }
@@ -416,7 +423,7 @@ fn write_stream_creation<'a, SG: SequenceGen<'a>>(
                 stream_pair::BoundStream::Pipe(_) => match fixed.direction {
                     meta::StreamDirection::Input => "read",
                     meta::StreamDirection::Output => "write",
-                }
+                },
             };
             if fixed.field_interface == fixed.stream_interface {
                 out.write_fmt(format_args!(
@@ -456,12 +463,11 @@ fn write_stream_creation<'a, SG: SequenceGen<'a>>(
 }
 
 fn write_variable_stream_field(
-    var: &VariableNodeStream, mode: &'static str, out: &mut Box<dyn std::io::Write>,
+    var: &VariableNodeStream,
+    mode: &'static str,
+    out: &mut Box<dyn std::io::Write>,
 ) -> Result<(), BuilderError> {
-    out.write_fmt(format_args!(
-        "                {}: vec![\n",
-        var.field_name,
-    ))?;
+    out.write_fmt(format_args!("                {}: vec![\n", var.field_name,))?;
     for (stream_idx, bound_stream) in &var.streams {
         let v_pre = match &bound_stream {
             stream_pair::BoundStream::MainNamed(_) => "s",
@@ -511,20 +517,22 @@ fn write_params<'a, SG: SequenceGen<'a>>(
     let mut values = std::collections::HashMap::new();
     for field in &node.node.runtime_parameters.0 {
         // TODO ensure the runtime parameters has this field, and that it aligns with the value type.
-        values.insert(field.name.clone(), value_state.construct_value(&field.value)?);
+        values.insert(
+            field.name.clone(),
+            value_state.construct_value(&field.value)?,
+        );
     }
 
     out.write_all(value_state.state_values().as_bytes())?;
     out.write_fmt(format_args!(
         "{}let params = {}{} {{\n",
-        indent, as_mod_expr(node), &rps.name
+        indent,
+        as_mod_expr(node),
+        &rps.name
     ))?;
 
     for (param, value) in values {
-        out.write_fmt(format_args!(
-            "{}    {}: {},\n",
-            indent, param, value
-        ))?;
+        out.write_fmt(format_args!("{}    {}: {},\n", indent, param, value))?;
     }
 
     out.write_all(b"        };\n")?;
