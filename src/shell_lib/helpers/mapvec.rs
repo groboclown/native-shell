@@ -9,6 +9,7 @@ use std::{
 
 pub struct HashMapVec<K: Eq + Hash, V> {
     inner: HashMap<K, Vec<V>>,
+    empty: Vec<V>,
 }
 
 /// Stores a non-empty vector for a key.
@@ -16,6 +17,7 @@ impl<K: Eq + Hash, V> HashMapVec<K, V> {
     pub fn new() -> Self {
         Self {
             inner: HashMap::new(),
+            empty: Vec::new(),
         }
     }
 
@@ -48,6 +50,11 @@ impl<K: Eq + Hash, V> HashMapVec<K, V> {
                 self.inner.insert(key, v);
             }
         }
+    }
+
+    /// Get the contents of the key as a reference.
+    pub fn get_ref(&mut self, key: K) -> &Vec<V> {
+        self.inner.get(&key).unwrap_or(&self.empty)
     }
 
     /// Remove the list at key

@@ -1,7 +1,7 @@
 //! Helpers for the rust file generation.
 
 use crate::{
-    server_shell::{ast::model, builder::parse_node::ModuleNode},
+    server_shell::{builder::parse_node::ModuleNode, lls::model},
     shell_lib::structure::meta,
 };
 

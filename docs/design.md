@@ -44,6 +44,7 @@ The system does not allow for dynamic construction of new jobs (such as through 
 
 The builder has a responsibility to break the ordered actions and the node executions into trees of jobs and job sequences.  The [runtime](runtime.md) document describes this model.
 
+
 ## Modules
 
 Modules define functionality that takes the place of what a scripting language provides (such as if statements or executable running or file redirection).
@@ -53,6 +54,7 @@ Modules must bridge between running within the compiled code, and providing info
 Some modules may also need to allow for external events to stop the execution early, so that it can cleanly stop.
 
 **For now, see the [`meta.rs`](../src/shell_lib/compile/meta.rs) source for details on what's expected from modules.**
+
 
 ### The Main Module
 

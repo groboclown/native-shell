@@ -1,0 +1,703 @@
+{
+  "events": [
+    {
+      "name": "start",
+      "source": {
+        "column": 1,
+        "file": "script.ns",
+        "line": 1
+      },
+      "text": "Start of the shell script execution.",
+      "type": "signal"
+    },
+    {
+      "name": "trace",
+      "source": {
+        "column": 1,
+        "file": "built-in",
+        "line": 0
+      },
+      "text": "Trace event, used by modules to report debug information."
+    },
+    {
+      "name": "debug",
+      "source": {
+        "column": 2,
+        "file": "built-in",
+        "line": 0
+      },
+      "text": "Debug event, used by modules to report debug information."
+    },
+    {
+      "name": "info",
+      "source": {
+        "column": 3,
+        "file": "built-in",
+        "line": 0
+      },
+      "text": "Informative event, used by modules to report debug information."
+    }
+  ],
+  "name": "tee-merge",
+  "nodes": [
+    {
+      "event-listeners": [
+        {
+          "actions": [
+            {
+              "name": "Data 1",
+              "run": {
+                "node": "data_file_1",
+                "source": {
+                  "column": 19,
+                  "file": "script.ns",
+                  "line": 1
+                },
+                "type": "spawn-node"
+              },
+              "source": {
+                "column": 18,
+                "file": "script.ns",
+                "line": 1
+              }
+            }
+          ],
+          "name": "start",
+          "source": {
+            "column": 17,
+            "file": "script.ns",
+            "line": 1
+          }
+        }
+      ],
+      "exit-actions": [],
+      "initial-parameters": {
+        "description": {
+          "source": {
+            "column": 2,
+            "file": "script.ns",
+            "line": 1
+          },
+          "value": {
+            "source": {
+              "column": 3,
+              "file": "script.ns",
+              "line": 1
+            },
+            "type": "string",
+            "value": "Sends the contents of files and text and stdin into stdout."
+          }
+        },
+        "end_help": {
+          "source": {
+            "column": 14,
+            "file": "script.ns",
+            "line": 1
+          },
+          "value": {
+            "source": {
+              "column": 15,
+              "file": "script.ns",
+              "line": 1
+            },
+            "type": "string-list",
+            "value": [
+              "Performs merge of five pieces of data across multiple manipulations (stdin is also read).  Uses '+' as a record separator."
+            ]
+          }
+        },
+        "parameter_help": {
+          "source": {
+            "column": 12,
+            "file": "script.ns",
+            "line": 1
+          },
+          "value": {
+            "source": {
+              "column": 13,
+              "file": "script.ns",
+              "line": 1
+            },
+            "type": "string-map",
+            "value": {
+              "--file1": "(required) The file to read from.",
+              "--file2": "(required) The file to read from.",
+              "--text1": "(required) Text to use as a source.",
+              "--text2": "(required) Text to use as a source."
+            }
+          }
+        },
+        "required_value_parameters": {
+          "source": {
+            "column": 8,
+            "file": "script.ns",
+            "line": 1
+          },
+          "value": {
+            "source": {
+              "column": 9,
+              "file": "script.ns",
+              "line": 1
+            },
+            "type": "string-list",
+            "value": [
+              "file1",
+              "file2",
+              "text1",
+              "text2"
+            ]
+          }
+        },
+        "start_event": {
+          "source": {
+            "column": 6,
+            "file": "script.ns",
+            "line": 1
+          },
+          "value": {
+            "source": {
+              "column": 7,
+              "file": "script.ns",
+              "line": 1
+            },
+            "type": "string",
+            "value": "start"
+          }
+        },
+        "usage_line": {
+          "source": {
+            "column": 10,
+            "file": "script.ns",
+            "line": 1
+          },
+          "value": {
+            "source": {
+              "column": 11,
+              "file": "script.ns",
+              "line": 1
+            },
+            "type": "string",
+            "value": "--file1=SOURCE --file2=SOURCE --text1=TEXT --text2=TEXT"
+          }
+        },
+        "version": {
+          "source": {
+            "column": 4,
+            "file": "script.ns",
+            "line": 1
+          },
+          "value": {
+            "source": {
+              "column": 5,
+              "file": "script.ns",
+              "line": 1
+            },
+            "type": "string",
+            "value": "1.0.0"
+          }
+        }
+      },
+      "module": "shell",
+      "name": "main",
+      "runtime-parameters": [],
+      "source": {
+        "column": 1,
+        "file": "script.ns",
+        "line": 1
+      },
+      "streams": [
+        {
+          "mode": "output",
+          "name": "stdin",
+          "source": {
+            "column": 16,
+            "file": "script.ns",
+            "line": 1
+          },
+          "to-node": "merge1",
+          "to-stream": "input"
+        }
+      ]
+    },
+    {
+      "event-listeners": [],
+      "exit-actions": [],
+      "initial-parameters": {},
+      "module": "cat",
+      "name": "data_file_1",
+      "runtime-parameters": [
+        {
+          "name": "filenames",
+          "source": {
+            "column": 2,
+            "file": "script.ns",
+            "line": 2
+          },
+          "value": {
+            "source": {
+              "column": 3,
+              "file": "script.ns",
+              "line": 2
+            },
+            "type": "constant-string-list",
+            "value": [
+              {
+                "default": {
+                  "source": {
+                    "column": 7,
+                    "file": "script.ns",
+                    "line": 2
+                  },
+                  "type": "constant-string",
+                  "value": ""
+                },
+                "key": {
+                  "source": {
+                    "column": 6,
+                    "file": "script.ns",
+                    "line": 2
+                  },
+                  "type": "constant-string",
+                  "value": "file1"
+                },
+                "map": {
+                  "name": "value_params",
+                  "node": "main",
+                  "source": {
+                    "column": 5,
+                    "file": "script.ns",
+                    "line": 2
+                  },
+                  "type": "lookup-string-map"
+                },
+                "source": {
+                  "column": 4,
+                  "file": "script.ns",
+                  "line": 2
+                },
+                "type": "map-key-string"
+              }
+            ]
+          }
+        }
+      ],
+      "source": {
+        "column": 1,
+        "file": "script.ns",
+        "line": 2
+      },
+      "streams": [
+        {
+          "mode": "output",
+          "name": "output",
+          "source": {
+            "column": 8,
+            "file": "script.ns",
+            "line": 2
+          },
+          "to-node": "tee1",
+          "to-stream": "input"
+        }
+      ]
+    },
+    {
+      "event-listeners": [],
+      "exit-actions": [],
+      "initial-parameters": {},
+      "module": "cat",
+      "name": "data_file_2",
+      "runtime-parameters": [
+        {
+          "name": "filenames",
+          "source": {
+            "column": 2,
+            "file": "script.ns",
+            "line": 3
+          },
+          "value": {
+            "source": {
+              "column": 3,
+              "file": "script.ns",
+              "line": 3
+            },
+            "type": "constant-string-list",
+            "value": [
+              {
+                "default": {
+                  "source": {
+                    "column": 7,
+                    "file": "script.ns",
+                    "line": 3
+                  },
+                  "type": "constant-string",
+                  "value": ""
+                },
+                "key": {
+                  "source": {
+                    "column": 6,
+                    "file": "script.ns",
+                    "line": 3
+                  },
+                  "type": "constant-string",
+                  "value": "file2"
+                },
+                "map": {
+                  "name": "value_params",
+                  "node": "main",
+                  "source": {
+                    "column": 5,
+                    "file": "script.ns",
+                    "line": 3
+                  },
+                  "type": "lookup-string-map"
+                },
+                "source": {
+                  "column": 4,
+                  "file": "script.ns",
+                  "line": 3
+                },
+                "type": "map-key-string"
+              }
+            ]
+          }
+        }
+      ],
+      "source": {
+        "column": 1,
+        "file": "script.ns",
+        "line": 3
+      },
+      "streams": [
+        {
+          "mode": "output",
+          "name": "output",
+          "source": {
+            "column": 8,
+            "file": "script.ns",
+            "line": 3
+          },
+          "to-node": "merge2",
+          "to-stream": "input"
+        }
+      ]
+    },
+    {
+      "event-listeners": [],
+      "exit-actions": [],
+      "initial-parameters": {},
+      "module": "echo",
+      "name": "data_text_1",
+      "runtime-parameters": [
+        {
+          "name": "text",
+          "source": {
+            "column": 2,
+            "file": "script.ns",
+            "line": 4
+          },
+          "value": {
+            "default": {
+              "source": {
+                "column": 6,
+                "file": "script.ns",
+                "line": 4
+              },
+              "type": "constant-string",
+              "value": ""
+            },
+            "key": {
+              "source": {
+                "column": 5,
+                "file": "script.ns",
+                "line": 4
+              },
+              "type": "constant-string",
+              "value": "text1"
+            },
+            "map": {
+              "name": "value_params",
+              "node": "main",
+              "source": {
+                "column": 4,
+                "file": "script.ns",
+                "line": 4
+              },
+              "type": "lookup-string-map"
+            },
+            "source": {
+              "column": 3,
+              "file": "script.ns",
+              "line": 4
+            },
+            "type": "map-key-string"
+          }
+        }
+      ],
+      "source": {
+        "column": 1,
+        "file": "script.ns",
+        "line": 4
+      },
+      "streams": [
+        {
+          "mode": "output",
+          "name": "output",
+          "source": {
+            "column": 7,
+            "file": "script.ns",
+            "line": 4
+          },
+          "to-node": "merge1",
+          "to-stream": "input"
+        }
+      ]
+    },
+    {
+      "event-listeners": [],
+      "exit-actions": [],
+      "initial-parameters": {},
+      "module": "echo",
+      "name": "data_text_2",
+      "runtime-parameters": [
+        {
+          "name": "text",
+          "source": {
+            "column": 2,
+            "file": "script.ns",
+            "line": 5
+          },
+          "value": {
+            "default": {
+              "source": {
+                "column": 6,
+                "file": "script.ns",
+                "line": 5
+              },
+              "type": "constant-string",
+              "value": ""
+            },
+            "key": {
+              "source": {
+                "column": 5,
+                "file": "script.ns",
+                "line": 5
+              },
+              "type": "constant-string",
+              "value": "text2"
+            },
+            "map": {
+              "name": "value_params",
+              "node": "main",
+              "source": {
+                "column": 4,
+                "file": "script.ns",
+                "line": 5
+              },
+              "type": "lookup-string-map"
+            },
+            "source": {
+              "column": 3,
+              "file": "script.ns",
+              "line": 5
+            },
+            "type": "map-key-string"
+          }
+        }
+      ],
+      "source": {
+        "column": 1,
+        "file": "script.ns",
+        "line": 5
+      },
+      "streams": [
+        {
+          "mode": "output",
+          "name": "output",
+          "source": {
+            "column": 7,
+            "file": "script.ns",
+            "line": 5
+          },
+          "to-node": "merge2",
+          "to-stream": "input"
+        }
+      ]
+    },
+    {
+      "event-listeners": [],
+      "exit-actions": [],
+      "initial-parameters": {},
+      "module": "tee",
+      "name": "tee1",
+      "runtime-parameters": [],
+      "source": {
+        "column": 1,
+        "file": "script.ns",
+        "line": 6
+      },
+      "streams": [
+        {
+          "mode": "output",
+          "name": "output",
+          "source": {
+            "column": 2,
+            "file": "script.ns",
+            "line": 6
+          },
+          "to-node": "merge1",
+          "to-stream": "input"
+        },
+        {
+          "mode": "output",
+          "name": "output",
+          "source": {
+            "column": 3,
+            "file": "script.ns",
+            "line": 6
+          },
+          "to-node": "merge3",
+          "to-stream": "input"
+        }
+      ]
+    },
+    {
+      "event-listeners": [],
+      "exit-actions": [],
+      "initial-parameters": {},
+      "module": "merge",
+      "name": "merge1",
+      "runtime-parameters": [
+        {
+          "name": "separator",
+          "source": {
+            "column": 2,
+            "file": "script.ns",
+            "line": 7
+          },
+          "value": {
+            "source": {
+              "column": 3,
+              "file": "script.ns",
+              "line": 7
+            },
+            "type": "constant-string",
+            "value": "+"
+          }
+        }
+      ],
+      "source": {
+        "column": 1,
+        "file": "script.ns",
+        "line": 7
+      },
+      "streams": [
+        {
+          "mode": "output",
+          "name": "output",
+          "source": {
+            "column": 4,
+            "file": "script.ns",
+            "line": 7
+          },
+          "to-node": "merge3",
+          "to-stream": "input"
+        }
+      ]
+    },
+    {
+      "event-listeners": [],
+      "exit-actions": [],
+      "initial-parameters": {},
+      "module": "merge",
+      "name": "merge2",
+      "runtime-parameters": [
+        {
+          "name": "separator",
+          "source": {
+            "column": 2,
+            "file": "script.ns",
+            "line": 8
+          },
+          "value": {
+            "source": {
+              "column": 3,
+              "file": "script.ns",
+              "line": 8
+            },
+            "type": "constant-string",
+            "value": "+"
+          }
+        }
+      ],
+      "source": {
+        "column": 1,
+        "file": "script.ns",
+        "line": 8
+      },
+      "streams": [
+        {
+          "mode": "output",
+          "name": "output",
+          "source": {
+            "column": 4,
+            "file": "script.ns",
+            "line": 8
+          },
+          "to-node": "merge3",
+          "to-stream": "input"
+        }
+      ]
+    },
+    {
+      "event-listeners": [],
+      "exit-actions": [],
+      "initial-parameters": {},
+      "module": "merge",
+      "name": "merge3",
+      "runtime-parameters": [
+        {
+          "name": "separator",
+          "source": {
+            "column": 2,
+            "file": "script.ns",
+            "line": 9
+          },
+          "value": {
+            "source": {
+              "column": 3,
+              "file": "script.ns",
+              "line": 9
+            },
+            "type": "constant-string",
+            "value": "+"
+          }
+        }
+      ],
+      "source": {
+        "column": 1,
+        "file": "script.ns",
+        "line": 9
+      },
+      "streams": [
+        {
+          "mode": "output",
+          "name": "output",
+          "source": {
+            "column": 4,
+            "file": "script.ns",
+            "line": 9
+          },
+          "to-node": "main",
+          "to-stream": "stdout"
+        }
+      ]
+    }
+  ],
+  "schema-version": "1.0.0",
+  "source": {
+    "column": 1,
+    "file": "tee-merge.ns",
+    "line": 1
+  },
+  "version": "1.0.0"
+}

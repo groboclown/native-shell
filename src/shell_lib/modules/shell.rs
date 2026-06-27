@@ -10,15 +10,13 @@
 //! it must be named 'main'.
 
 use std::collections::{HashMap, HashSet};
-use std::sync::mpsc::Receiver;
-use std::thread;
 
-use crate::shell_lib::structure::job;
 use crate::shell_lib::structure::meta::{
-    FixedStreamDef, ModuleMeta, ModuleStreamStructure, ModuleStructure, NamedValue,
+    EventFunc, FixedStreamDef, ModuleMeta, ModuleStreamStructure, ModuleStructure, NamedValue,
     StreamInterface, StreamType, ValueType, VariableStreamField, as_latest_crate_dependency,
 };
 use crate::shell_lib::structure::source::Source;
+use crate::shell_lib::structure::{EventRef, ExecCtx, InitCtx, ScriptExit};
 
 pub fn module_meta() -> ModuleMeta {
     ModuleMeta {
@@ -62,11 +60,6 @@ pub fn module_meta() -> ModuleMeta {
                     name: "authors".to_string(),
                     value_type: ValueType::StringList,
                     optional: true,
-                },
-                NamedValue {
-                    name: "start_event".to_string(),
-                    value_type: ValueType::String,
-                    optional: false,
                 },
                 NamedValue {
                     name: "required_value_parameters".to_string(),
@@ -167,13 +160,13 @@ pub fn module_meta() -> ModuleMeta {
                 field_name: "input_fds".to_string(),
                 stream_type: StreamInterface::Fd,
                 min_count: 0,
-                max_count: 65535,
+                max_count: u16::MAX,
             }),
             output_variable: Some(VariableStreamField {
                 field_name: "output_fds".to_string(),
                 stream_type: StreamInterface::Fd,
                 min_count: 0,
-                max_count: 65535,
+                max_count: u16::MAX,
             }),
         }),
         state_struct: Some(ModuleStructure {
@@ -202,7 +195,16 @@ pub fn module_meta() -> ModuleMeta {
                 },
             ],
         }),
-        handlers: vec![],
+        handlers: vec![
+            // The logging handlers.
+            EventFunc::imm_msg("trace"),
+            EventFunc::imm_msg("debug"),
+            EventFunc::imm_msg("verbose"),
+            EventFunc::imm_msg("info"),
+            EventFunc::imm_msg("notice"),
+            EventFunc::imm_msg("warning"),
+            EventFunc::imm_msg("error"),
+        ],
     }
 }
 
@@ -211,7 +213,6 @@ pub struct ShellModuleCompileParams {
     pub description: Option<String>,
     pub version: Option<String>,
     pub authors: Option<Vec<String>>,
-    pub start_event: String,
     pub required_value_parameters: Option<Vec<String>>,
     pub optional_value_parameters: Option<Vec<String>>,
     pub boolean_parameters: Option<Vec<String>>,
@@ -232,7 +233,6 @@ impl ShellModuleCompileParams {
             description: None,
             version: None,
             authors: None,
-            start_event: "start".to_string(),
             required_value_parameters: None,
             optional_value_parameters: None,
             boolean_parameters: None,
@@ -266,14 +266,16 @@ pub struct ShellModuleState {
 
 pub struct ShellModule {
     source: Source,
-    start: String,
     state: ShellModuleState,
 }
 
 impl ShellModule {
-    pub fn new(source: Source, compile_params: ShellModuleCompileParams) -> Self {
+    pub fn new(
+        source: Source,
+        ctx: &mut dyn InitCtx,
+        compile_params: ShellModuleCompileParams,
+    ) -> Self {
         let width = termion::terminal_size().map_or(80, |(w, _)| w as usize);
-        let start = compile_params.start_event.clone();
         let environ = compile_params
             .environ
             .clone()
@@ -289,44 +291,79 @@ impl ShellModule {
             bool_params: params.1,
             position_params: params.2,
         };
-        ShellModule {
-            state,
-            start,
-            source,
-        }
+        ShellModule { state, source }
     }
 
     pub fn state(&self) -> ShellModuleState {
         self.state.clone()
     }
 
-    pub fn start(
+    pub fn exec(&self, context: &mut dyn ExecCtx) -> Result<(), ScriptExit> {
+        Ok(())
+    }
+
+    /// Event listener
+    pub fn trace(
         &self,
-        context: Box<dyn job::MainContext>,
-        on_exit: Receiver<Vec<Option<job::ExitCode>>>,
-    ) -> Result<String, String> {
-        // The shell module does not have an exec function, but rather a run function.
-        // It will return a channel that the main module can use to signal that the script has ended.
-        // This allows the shell module to monitor system signals and other events.
+        ctx: &mut dyn ExecCtx,
+        _: EventRef,
+        msg: &String,
+    ) -> Result<(), ScriptExit> {
+        log::trace!("{}", msg);
+        Ok(())
+    }
 
-        // Add logging event listeners.
-        let registrar = context as Box<dyn job::JobSequenceEventRegistrar>;
-        event_bus::listen_trace_event(&registrar, Box::new(TraceLogger {}));
-        event_bus::listen_debug_event(&registrar, Box::new(DebugLogger {}));
-        event_bus::listen_info_event(&registrar, Box::new(InfoLogger {}));
-        event_bus::listen_warning_event(&registrar, Box::new(WarnLogger {}));
-        event_bus::listen_error_event(&registrar, Box::new(ErrorLogger {}));
+    /// Event listener
+    pub fn debug(
+        &self,
+        ctx: &mut dyn ExecCtx,
+        _: EventRef,
+        msg: &String,
+    ) -> Result<(), ScriptExit> {
+        log::debug!("{}", msg);
+        Ok(())
+    }
 
-        thread::Builder::new()
-            .name("os_monitor".to_string())
-            .spawn(move || {
-                // TODO add in OS signal monitoring.
+    /// Event listener
+    pub fn verbose(
+        &self,
+        ctx: &mut dyn ExecCtx,
+        _: EventRef,
+        msg: &String,
+    ) -> Result<(), ScriptExit> {
+        log::info!("{}", msg);
+        Ok(())
+    }
 
-                let _ = on_exit.recv();
-            })
-            .expect("Failed to launch OS monitor");
+    /// Event listener
+    pub fn info(&self, _: &mut dyn ExecCtx, _: EventRef, msg: &String) -> Result<(), ScriptExit> {
+        log::info!("{}", msg);
+        Ok(())
+    }
 
-        Ok(self.start.clone())
+    /// Event listener
+    pub fn notice(&self, _: &mut dyn ExecCtx, _: EventRef, msg: &String) -> Result<(), ScriptExit> {
+        // TODO notice is supposed to be a report-only-once thing, so this should
+        // cache the messages and ensure it doesn't send duplicates.
+        log::error!("{}", msg);
+        Ok(())
+    }
+
+    /// Event listener
+    pub fn warning(
+        &self,
+        _: &mut dyn ExecCtx,
+        _: EventRef,
+        msg: &String,
+    ) -> Result<(), ScriptExit> {
+        log::warn!("{}", msg);
+        Ok(())
+    }
+
+    /// Event listener
+    pub fn error(&self, _: &mut dyn ExecCtx, _: EventRef, msg: &String) -> Result<(), ScriptExit> {
+        log::error!("{}", msg);
+        Ok(())
     }
 }
 
@@ -565,70 +602,5 @@ fn find_max_width(vals: &Option<Vec<String>>) -> usize {
     match vals {
         Some(vals) => vals.iter().map(|v| v.len()).max().unwrap_or(0),
         None => 0,
-    }
-}
-
-struct TraceLogger {}
-
-impl job::MessageEventHandler for TraceLogger {
-    fn handle_message<'a>(
-        &self,
-        message: String,
-        _scheduler: &Box<dyn job::EventHandlerContext + 'a>,
-    ) -> Result<(), String> {
-        log::trace!("{}", message);
-        Ok(())
-    }
-}
-
-struct DebugLogger {}
-
-impl job::MessageEventHandler for DebugLogger {
-    fn handle_message<'a>(
-        &self,
-        message: String,
-        _scheduler: &Box<dyn job::EventHandlerContext + 'a>,
-    ) -> Result<(), String> {
-        log::debug!("{}", message);
-        Ok(())
-    }
-}
-
-struct InfoLogger {}
-
-impl job::MessageEventHandler for InfoLogger {
-    fn handle_message<'a>(
-        &self,
-        message: String,
-        _scheduler: &Box<dyn job::EventHandlerContext + 'a>,
-    ) -> Result<(), String> {
-        log::info!("{}", message);
-        Ok(())
-    }
-}
-
-struct WarnLogger {}
-
-impl job::MessageEventHandler for WarnLogger {
-    fn handle_message<'a>(
-        &self,
-        message: String,
-        _scheduler: &Box<dyn job::EventHandlerContext + 'a>,
-    ) -> Result<(), String> {
-        log::warn!("{}", message);
-        Ok(())
-    }
-}
-
-struct ErrorLogger {}
-
-impl job::MessageEventHandler for ErrorLogger {
-    fn handle_message<'a>(
-        &self,
-        message: String,
-        _scheduler: &Box<dyn job::EventHandlerContext + 'a>,
-    ) -> Result<(), String> {
-        log::error!("{}", message);
-        Ok(())
     }
 }

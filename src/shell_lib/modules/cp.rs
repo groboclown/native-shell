@@ -1,10 +1,9 @@
 //! Perform the equivalent of `cp` in a shell-like environment.
 
 use crate::shell_lib::{
-    helpers::evt_fmt::send_log,
+    helpers::log::Logger,
     structure::{
-        event::{EventRef, EventRegistrar},
-        job,
+        ExecCtx, InitCtx, ScriptExit,
         meta::{ModuleMeta, ModuleStructure, NamedValue, ValueType},
         source::Source,
     },
@@ -93,13 +92,13 @@ pub fn module_meta() -> ModuleMeta {
                 },
             ],
         }),
-        handlers: vec![("abort".to_string(), vec![])],
+        handlers: Vec::new(),
     }
 }
 
 pub struct CpModule {
     source: Source,
-    debug: EventRef,
+    logger: Logger,
 }
 
 pub struct CpModuleRuntimeParams {
@@ -120,28 +119,26 @@ pub struct CpModuleState {
 }
 
 impl CpModule {
-    pub fn new(source: Source, e_reg: &mut EventRegistrar) -> Self {
+    pub fn new(source: Source, ctx: &mut dyn InitCtx) -> Self {
         CpModule {
+            logger: Logger::new(&source, ctx),
             source,
-            debug: e_reg.add_event("debug"),
         }
     }
 
     pub fn exec(
         &mut self,
-        context: Box<dyn job::JobRunnerContext>,
+        ctx: &mut dyn ExecCtx,
         params: CpModuleRuntimeParams,
-    ) -> Result<i16, String> {
+    ) -> Result<(), ScriptExit> {
         // Implementation of the copy logic goes here.
         // This is a placeholder for the actual logic.
-        send_log(
-            &context,
-            self.debug,
-            &self.source,
+        self.logger.debug(
+            ctx,
             format_args!("Copying from {} to {}", params.source, params.destination),
         )?;
 
-        return Err("Not implemented".to_string());
+        return Err("Not implemented".to_string().into());
     }
 
     pub fn state(&self) -> CpModuleState {
@@ -150,11 +147,5 @@ impl CpModule {
             exit_code: None,
             error_message: None,
         }
-    }
-
-    pub fn abort(&self) -> bool {
-        // While at face value the copy operation shouldn't have need for an abort,
-        // we can see the need for this if it's copying a terrabyte file across a network device.
-        true
     }
 }

@@ -6,15 +6,13 @@ use std::{
 };
 
 use crate::shell_lib::{
-    helpers::{evt_fmt::send_log, fd::file_from_fd},
+    helpers::{fd::file_from_fd, log::Logger},
     structure::{
-        event::{EventRef, EventRegistrar},
-        job,
+        ExecCtx, InitCtx, ScriptExit, Source, job,
         meta::{
             FixedStreamDef, ModuleMeta, ModuleStreamStructure, ModuleStructure, NamedValue,
             StreamInterface, StreamType, ValueType,
         },
-        source::Source,
     },
 };
 
@@ -32,8 +30,8 @@ pub fn module_meta() -> ModuleMeta {
             "modules".to_string(),
             "cat".to_string(),
         ],
-        dependencies: vec![],
-        os_dependencies: vec![],
+        dependencies: Vec::new(),
+        os_dependencies: Vec::new(),
         instance_struct: "CatModule".to_string(),
         compile_param_struct: None,
         runtime_param_struct: Some(ModuleStructure {
@@ -57,7 +55,7 @@ pub fn module_meta() -> ModuleMeta {
             input_variable: None,
             output_variable: None,
         }),
-        handlers: vec![],
+        handlers: Vec::new(),
     }
 }
 
@@ -72,27 +70,28 @@ pub struct CatModuleStream {
 
 pub struct CatModule {
     source: Source,
-    debug: EventRef,
+    logger: Logger,
 }
 
 impl CatModule {
-    pub fn new(source: Source, e_reg: &mut EventRegistrar) -> Self {
+    pub fn new(source: Source, ctx: &mut dyn InitCtx) -> Self {
+        // This doesn't add an abort listener.
+        // It will stop writing when the output pipe is closed.
+
         CatModule {
+            logger: Logger::new(&source, ctx),
             source,
-            debug: e_reg.add_event("debug"),
         }
     }
 
     pub fn exec(
         &self,
-        context: Box<dyn job::JobRunnerContext>,
+        context: &mut dyn ExecCtx,
         params: CatModuleRuntimeParams,
         mut streams: CatModuleStream,
-    ) -> Result<job::ExitCode, String> {
-        send_log(
-            &context,
-            self.debug,
-            &self.source,
+    ) -> Result<job::ExitCode, ScriptExit> {
+        self.logger.debug(
+            context,
             format_args!("Executing cat over {:?}", params.filenames),
         )?;
         let mut out = file_from_fd(streams.fd_0);
@@ -122,16 +121,10 @@ impl CatModule {
                         std::thread::sleep(RETRY_TIME);
                         continue;
                     }
-                    Err(e) => return Err(e.to_string()),
+                    Err(e) => return Err(e.to_string().into()),
                 }
             }
         }
         Ok(0)
-    }
-
-    pub fn abort(&self) -> bool {
-        // This module does not have any state to abort.
-        // It will stop writing when the output pipe is closed.
-        true
     }
 }

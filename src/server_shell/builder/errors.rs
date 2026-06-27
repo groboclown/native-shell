@@ -1,6 +1,6 @@
 //! General errors that come from turning the AST into a module source.
 
-use crate::server_shell::ast::model::Source;
+use crate::server_shell::lls::model::Source;
 
 #[derive(Clone, Debug)]
 pub enum Relationship {
@@ -107,7 +107,7 @@ pub fn report_errors(err: &BuilderError) {
             eprintln!("No state for module: {}", error_details.message);
             show_source(&error_details.source);
             show_related(error_details);
-        },
+        }
         BuilderError::FieldTypeMismatch(error_details) => {
             eprintln!("Field type mismatch: {}", error_details.message);
             show_source(&error_details.source);

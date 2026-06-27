@@ -1,328 +1,177 @@
 //SPDX:MIT
 
-use std::collections::HashMap;
-use std::sync::{Arc, mpsc};
-use std::thread;
+use std::collections::HashSet;
+use std::time;
 
-use super::old_state::GlobalState;
-use crate::shell_lib::structure::event::{EventPayload, EventRef};
-use crate::shell_lib::structure::job::{
-    ExitBehavior, JobDescription, JobRef, JobRunnerContext, JobThreadRef, OnExitBehavior,
-    ScheduleStep, ScriptExit,
-};
+use super::run_step::{JobRunStatus, LoopState, Requests};
+use crate::shell_lib::helpers::async_signal;
+use crate::shell_lib::helpers::se_collect::ScriptExitCollector;
+use crate::shell_lib::structure::job::JobDescription;
+use crate::shell_lib::structure::thread::{EventCollection, ThreadStore};
+use crate::shell_lib::structure::{JobRef, ScriptExit, ThreadRef};
 
-/// Schedules jobs and runs the job threads.
-/// This only runs jobs in separate OS threads; the "job thread" handling happens by stepping through all
-/// the active threads at once, one step at a time.  It includes a job state change poll mechanism, too.
-pub fn run_threads(
-    main_threads: &[JobThreadRef],
-    state: &mut GlobalState,
-) -> Result<ScriptExit, String> {
-    let (tx, rx) = mpsc::channel();
-    let tx = Arc::new(tx);
+use super::eventbus::JobEventBus;
+use super::run_job::JobManager;
+use super::run_step::ThreadManager;
 
-    let mut spawned_jobs = Vec::new();
-    let mut t_steps = Vec::new();
-    let mut active_main_count = 0;
-    for t_id in main_threads {
-        match state.start_thread(*t_id)? {
-            None => return Err(format!("job thread {} already running", t_id)),
-            Some(step) => {
-                t_steps.push(StepState::new(*t_id, step, true));
-                active_main_count += 1;
-            }
-        }
-    }
-
-    while active_main_count > 0 {
-        // Pull in all pending job completions and events without waiting.
-
-        //  pending_events: a map of event ref -> list of payloads.
-        let mut pending_events = HashMapVec::new();
-        loop {
-            match rx.try_recv() {
-                Ok(v) => match v {
-                    JobEvent::JobDone(j_id, j_exit) => {
-                        state.job_stopped(j_id, j_exit)?;
-                    }
-                    JobEvent::Event(e_id, e_data) => {
-                        pending_events.insert(e_id, e_data);
-                    }
-                },
-                Err(mpsc::TryRecvError::Empty) => {
-                    break;
-                }
-                Err(mpsc::TryRecvError::Disconnected) => {
-                    return Err("event queue unexpectedly closed".to_string());
-                }
-            }
-        }
-
-        // Perform all thread steps, keeping track of what's waiting on other things.
-        // TODO If this was really good, it'd have a thread wait DAG to discover deadlocks.
-
-        let mut waiting_steps = Vec::new();
-        let mut next_steps = Vec::new();
-
-        for mut step in t_steps.drain(0..t_steps.len()) {
-            // For each thread, handle its current step.
-            // If the thread needs to wait on something happening, then it goes in the wait list.
-            // If the thread can advance to another step, it goes in the next steps list.
-
-            match step.current() {
-                ScheduleStep::SendEvent(event_ref, event_payload) => {
-                    // Add the pending event.
-                    pending_events.insert(*event_ref, event_payload.clone());
-                    // Advance the step.
-                    next_steps.push((step, 1));
-                }
-                ScheduleStep::WaitForEvent(event_ref, _) => {
-                    // Event waiting is done after the loop, so that a thread that sends an event
-                    // in the same loop can be properly captured.
-                    waiting_steps.push(step);
-                }
-                ScheduleStep::SpawnJob(job_ref) => {
-                    if let Some(job_desc) = state.start_job(*job_ref)? {
-                        // Job is now marked as started, so we need to be careful with errors.
-                        match run_job(*job_ref, job_desc, tx) {
-                            Ok(handle) => {
-                                spawned_jobs.push(handle);
-                            }
-                            Err(e) => {
-                                state.job_stopped(
-                                    *job_ref,
-                                    ScriptExit {
-                                        code: 1,
-                                        message: Some(e),
-                                    },
-                                )?;
-                            }
-                        }
-                    }
-                    // Advance the step.
-                    next_steps.push((step, 1));
-                }
-                ScheduleStep::WaitForJob(job_id, _) => {
-                    // Add to the wait list for a unified check.
-                    waiting_steps.push(step);
-                }
-                ScheduleStep::SpawnJobThread(thread_id) => {
-                    match state.start_thread(*thread_id)? {
-                        Some(s) => {
-                            // Add a new thread.
-                            next_steps.push((StepState::new(*thread_id, s, false), 0))
-                        }
-                        None => (),
-                    }
-                    // Advance the thread.
-                    next_steps.push((step, 1));
-                }
-                ScheduleStep::WaitForJobThread(_, _) => {
-                    // Add to the wait list for a unified check.
-                    waiting_steps.push(step);
-                }
-                ScheduleStep::WaitForAll(items, items1, exit_behavior) => {
-                    // Add to the wait list for a unified check.
-                    waiting_steps.push(step);
-                }
-            }
-        }
-
-        if active_main_count < 0 {
-            break;
-        }
-
-        // Loop over the waits, advancing if wait is over.
-        // Note that though this could complete the thread wait
-        // (A waits for thread B, then we discover thread B advances and is at end),
-        // but the later loops will solve it.
-        // Each thread that is not at an end is added into t_steps for the next loop,
-        // and, if the step.is_main is true, increment the active_main_count.
-        active_main_count = 0;
-        t_steps.clear();
-
-        todo!()
-    }
-
-    // Send out an abort event.
-    // Wait on all job threads to end, with a maximum time limit.
-
-    todo!()
+/// Runs a script according to the standard.
+/// While the jobs run in parallel, the functions here must be run from the same thread.
+pub struct ScheduleRunner {
+    signal_notice: async_signal::SignalNotice,
+    signal_wait: async_signal::SignalWait,
+    jobs: JobManager,
+    steps: ThreadManager,
+    events: JobEventBus,
+    previously_running_jobs: HashSet<JobRef>,
+    started: bool,
 }
 
-enum JobEvent {
-    JobDone(JobRef, ScriptExit),
-    Event(EventRef, EventPayload),
-}
-
-fn run_job(
-    id: JobRef,
-    job: Arc<JobDescription>,
-    tx: Arc<mpsc::Sender<JobEvent>>,
-) -> Result<thread::JoinHandle<Result<(), String>>, String> {
-    let (comm_tx, comm_rx) = mpsc::channel();
-    thread::Builder::new()
-        .name(format!("job-{}", id))
-        .spawn(move || {
-            let res = job.runner.run(Box::new(EventSender { tx: tx.clone() }));
-            tx.send(JobEvent::JobDone(id, res)).map_err(|e| {
-                format!(
-                    "failed inter-process communication on job {} end: {}",
-                    id, e
-                )
-            })
+impl ScheduleRunner {
+    pub fn new(
+        start_threads: Vec<ThreadRef>,
+        jobs: Vec<JobDescription>,
+        threads: ThreadStore,
+        events: JobEventBus,
+    ) -> Result<Self, String> {
+        let (signal_notice, signal_wait) = async_signal::signal();
+        Ok(Self {
+            signal_notice,
+            signal_wait,
+            jobs: JobManager::new(jobs),
+            steps: ThreadManager::new(start_threads, threads)?,
+            events,
+            previously_running_jobs: HashSet::new(),
+            started: false,
         })
-        .map_err(|e| format!("failed spawning job {}: {}", job.source.name, e))
-}
-
-struct EventSender {
-    tx: Arc<mpsc::Sender<JobEvent>>,
-}
-
-impl JobRunnerContext for EventSender {
-    fn send_event(&self, event_ref: EventRef, payload: EventPayload) -> Result<(), ScriptExit> {
-        self.tx
-            .send(JobEvent::Event(event_ref, payload))
-            .map_err(|e| ScriptExit {
-                code: 1,
-                message: Some(format!("failed sending event: {}", e)),
-            })
-    }
-}
-
-struct StepState {
-    pub id: JobThreadRef,
-    pub is_main: bool,
-    step: ScheduleStep,
-    wait: HashMap<JobOrThread, Option<ScriptExit>>,
-}
-
-#[derive(Clone, Debug, PartialEq)]
-enum JobOrThread {
-    Job(JobRef),
-    Thread(JobThreadRef),
-}
-
-impl StepState {
-    pub fn new(id: JobThreadRef, step: ScheduleStep, is_main: bool) -> Self {
-        let mut ret = Self {
-            id,
-            is_main,
-            step: step.clone(),
-            wait: HashMap::new(),
-        };
-        ret.set_step(step);
-        ret
     }
 
-    pub fn current(&mut self) -> &ScheduleStep {
-        &self.step
-    }
+    /// Run the threads to completion, or until the timeout.
+    pub fn run(&mut self, timeout: time::Duration) -> ScriptExit {
+        assert_eq!(self.started, false);
+        self.started = true;
 
-    pub fn set_step(&mut self, step: ScheduleStep) {
-        if let ScheduleStep::WaitForAll(jobs, threads, _) = &step {
-            self.wait.clear();
-            for job in jobs {
-                self.wait.insert(JobOrThread::Job(*job), None);
-            }
-            for t in threads {
-                self.thread_wait.insert(JobOrThread::Thread(*t), None);
-            }
-        }
-        self.step = step;
-    }
+        let end_time = time::Instant::now() + timeout;
 
-    pub fn test_wait_stopped(
-        &mut self,
-        jt: JobOrThread,
-        exit: Option<ScriptExit>,
-    ) -> Option<(ScriptExit, ExitBehavior)> {
-        match exit {
-            // Did not actually stop.
-            None => None,
-            Some(exit) => match jt {
-                JobOrThread::Thread(t) => self.thread_exit(t, exit),
-                JobOrThread::Job(j) => self.job_exit(j, exit),
-            },
-        }
-    }
-
-    fn job_exit(&mut self, job: JobRef, exit: ScriptExit) -> Option<(ScriptExit, ExitBehavior)> {
-        match self.step {
-            ScheduleStep::WaitForJob(j, e) => {
-                if j == job {
-                    Some((exit, e))
-                } else {
-                    None
+        while time::Instant::now() < end_time {
+            // If the script comes to an abnormal *or* normal exit, then it returns an error.
+            match self.step() {
+                Err(e) => {
+                    return e;
                 }
-            }
-            ScheduleStep::WaitForAll(_, _, e) => match self.wait.get_mut(&JobOrThread::Job(job)) {
-                Some(v) => {
-                    v.insert(exit);
-                    self.assemble_wait_state().map(|s| (s, e))
-                }
-                None => None,
-            },
-            _ => None,
-        }
-    }
-
-    fn thread_exit(
-        &mut self,
-        t_ref: JobThreadRef,
-        exit: ScriptExit,
-    ) -> Option<(ScriptExit, ExitBehavior)> {
-        match self.step {
-            ScheduleStep::WaitForJobThread(t, e) => {
-                if t == t_ref {
-                    Some((exit, e))
-                } else {
-                    None
-                }
-            }
-            ScheduleStep::WaitForAll(_, _, e) => {
-                match self.wait.get_mut(&JobOrThread::Thread(t_ref)) {
-                    Some(v) => {
-                        v.insert(exit);
-                        self.assemble_wait_state().map(|s| (s, e))
-                    }
-                    None => None,
-                }
-            }
-            _ => None,
-        }
-    }
-
-    fn assemble_wait_state(&self) -> Option<ScriptExit> {
-        let mut errs = 0;
-        let mut msg = String::new();
-        for e in self.wait.values() {
-            match e {
-                // Early exit; at least one waiting-on isn't ready.
-                None => return None,
-                Some(e) => {
-                    if e.code != 0 {
-                        errs += 1;
-                    }
-                    if let Some(m) = e.message {
-                        if !msg.is_empty() {
-                            msg.push('\n');
+                Ok(s) => match s {
+                    StepResult::Wait => {
+                        let dur = end_time - time::Instant::now();
+                        if dur > time::Duration::ZERO {
+                            self.signal_wait.wait_for(dur);
                         }
-                        msg.push_str(m.as_str());
+                    }
+
+                    // Keep looping
+                    StepResult::Active => (),
+                },
+            }
+        }
+
+        // Timed out.
+        ScriptExit::new(251, Some("script timed out".into()))
+    }
+
+    /// Wait for all still-running jobs to finish.
+    /// Optionally call after the run completes.  It will generate an error if,
+    /// when the timeout ends, any job is still running.
+    pub fn wait_for_jobs(&mut self, timeout: time::Duration) -> Result<ScriptExit, String> {
+        let end_time = time::Instant::now() + timeout;
+        loop {
+            let mut all_stopped = true;
+            let mut coll = ScriptExitCollector::new();
+            for s in self.jobs.job_states()? {
+                match s {
+                    JobRunStatus::NotExist => panic!("BUG should never happen"),
+                    JobRunStatus::NeverStarted => (),
+                    JobRunStatus::Running => {
+                        // No need to check further.
+                        all_stopped = false;
+                        break;
+                    }
+                    JobRunStatus::Stopped(script_exit) => {
+                        coll.add(&script_exit);
+                    }
+                }
+            }
+            if all_stopped {
+                return Ok(coll.close());
+            }
+            let dur = end_time - time::Instant::now();
+            if dur <= time::Duration::ZERO {
+                return Err("timed out waiting for jobs to end".into());
+            }
+
+            // Can still have something stop.
+            self.signal_wait.wait_for(dur);
+        }
+    }
+
+    /// Run a single step through the whole process.
+    /// The StepResult does not contain an is-complete status.  Instead,
+    /// that's returned as the "error" result.
+    fn step(&mut self) -> Result<StepResult, ScriptExit> {
+        // 1. Collect events and stopped jobs.
+        let r = Requests {
+            jobs_ended: self.collect_stopped_jobs()?,
+            new_events: self.events.collect_and_handle()?,
+        };
+
+        // 2. Perform the thread steps.
+        let resp = self.steps.run_step(&r, &self.jobs)?;
+
+        // 3. If the step caused the threads to finish, then return early.
+        let ret = match resp.state {
+            LoopState::Stopped(script_exit) => return Err(script_exit),
+            LoopState::Waiting => StepResult::Wait,
+            LoopState::Active => StepResult::Active,
+        };
+
+        // 4. Handle the newly spawned things from the threads.
+        for j in resp.spawned_jobs {
+            let ctx = Box::new(self.events.as_async_sender(self.signal_notice.clone()));
+            self.jobs.start_job(j, ctx, self.signal_notice.clone());
+        }
+        if !resp.generated_events.is_empty() {
+            for e in resp.generated_events {
+                self.events.add_event(e.0, e.1);
+            }
+            self.events.collect_and_handle()?;
+        }
+
+        Ok(ret)
+    }
+
+    /// Collect all the jobs whose state has changed from running to stopped.
+    /// This also updates the history so it reflects the current status.
+    fn collect_stopped_jobs(&mut self) -> Result<Vec<(JobRef, ScriptExit)>, String> {
+        let mut stopped = Vec::new();
+        let mut running = HashSet::new();
+        let states = self.jobs.job_states()?;
+        for (job_ref, state) in states.iter().enumerate() {
+            match state {
+                JobRunStatus::NotExist => panic!("BUG should never happen"),
+                JobRunStatus::NeverStarted => (),
+                JobRunStatus::Running => {
+                    running.insert(job_ref);
+                }
+                JobRunStatus::Stopped(script_exit) => {
+                    if self.previously_running_jobs.contains(&job_ref) {
+                        stopped.push((job_ref, script_exit.clone()))
                     }
                 }
             }
         }
-        if msg.is_empty() {
-            Some(ScriptExit {
-                code: errs,
-                message: None,
-            })
-        } else {
-            Some(ScriptExit {
-                code: errs,
-                message: Some(msg),
-            })
-        }
+        self.previously_running_jobs = running;
+        Ok(stopped)
     }
+}
+
+enum StepResult {
+    Wait,
+    Active,
 }

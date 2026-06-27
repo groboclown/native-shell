@@ -4,8 +4,8 @@ use std::rc::Rc;
 
 use super::sequence::StdSequenceStore;
 use super::writer::SourceWriter;
-use crate::server_shell::ast::model;
 use crate::server_shell::builder::errors::{BuilderError, ErrorDetails};
+use crate::server_shell::lls::model;
 use crate::shell_lib::modules;
 use crate::shell_lib::structure::meta;
 

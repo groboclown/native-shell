@@ -431,12 +431,12 @@ impl ::std::convert::From<&Self> for ActionStderrLogLevel {
 impl ::std::fmt::Display for ActionStderrLogLevel {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         match *self {
-            Self::Debug => write!(f, "debug"),
-            Self::Info => write!(f, "info"),
-            Self::Warn => write!(f, "warn"),
-            Self::Error => write!(f, "error"),
-            Self::Fatal => write!(f, "fatal"),
-            Self::Ignore => write!(f, "ignore"),
+            Self::Debug => f.write_str("debug"),
+            Self::Info => f.write_str("info"),
+            Self::Warn => f.write_str("warn"),
+            Self::Error => f.write_str("error"),
+            Self::Fatal => f.write_str("fatal"),
+            Self::Ignore => f.write_str("ignore"),
         }
     }
 }
@@ -698,12 +698,12 @@ impl ::std::convert::From<&Self> for ActionStdoutLogLevel {
 impl ::std::fmt::Display for ActionStdoutLogLevel {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         match *self {
-            Self::Debug => write!(f, "debug"),
-            Self::Info => write!(f, "info"),
-            Self::Warn => write!(f, "warn"),
-            Self::Error => write!(f, "error"),
-            Self::Fatal => write!(f, "fatal"),
-            Self::Ignore => write!(f, "ignore"),
+            Self::Debug => f.write_str("debug"),
+            Self::Info => f.write_str("info"),
+            Self::Warn => f.write_str("warn"),
+            Self::Error => f.write_str("error"),
+            Self::Fatal => f.write_str("fatal"),
+            Self::Ignore => f.write_str("ignore"),
         }
     }
 }
@@ -783,7 +783,7 @@ impl ::std::str::FromStr for ActionWithKey {
     fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
         static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
             ::std::sync::LazyLock::new(|| ::regress::Regex::new(".*").unwrap());
-        if (&*PATTERN).find(value).is_none() {
+        if PATTERN.find(value).is_none() {
             return Err("doesn't match pattern \".*\"".into());
         }
         Ok(Self(value.to_string()))
@@ -1050,7 +1050,7 @@ impl ::std::str::FromStr for CommandSetEnvKey {
     fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
         static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
             ::std::sync::LazyLock::new(|| ::regress::Regex::new(".*").unwrap());
-        if (&*PATTERN).find(value).is_none() {
+        if PATTERN.find(value).is_none() {
             return Err("doesn't match pattern \".*\"".into());
         }
         Ok(Self(value.to_string()))
@@ -1470,12 +1470,12 @@ impl ::std::convert::From<&Self> for FileDescriptorLogLevel {
 impl ::std::fmt::Display for FileDescriptorLogLevel {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         match *self {
-            Self::Debug => write!(f, "debug"),
-            Self::Info => write!(f, "info"),
-            Self::Warn => write!(f, "warn"),
-            Self::Error => write!(f, "error"),
-            Self::Fatal => write!(f, "fatal"),
-            Self::Ignore => write!(f, "ignore"),
+            Self::Debug => f.write_str("debug"),
+            Self::Info => f.write_str("info"),
+            Self::Warn => f.write_str("warn"),
+            Self::Error => f.write_str("error"),
+            Self::Fatal => f.write_str("fatal"),
+            Self::Ignore => f.write_str("ignore"),
         }
     }
 }
@@ -1562,8 +1562,8 @@ impl ::std::convert::From<&Self> for FileDescriptorMerge {
 impl ::std::fmt::Display for FileDescriptorMerge {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         match *self {
-            Self::Line => write!(f, "line"),
-            Self::Byte => write!(f, "byte"),
+            Self::Line => f.write_str("line"),
+            Self::Byte => f.write_str("byte"),
         }
     }
 }
@@ -1645,8 +1645,8 @@ impl ::std::convert::From<&Self> for FileDescriptorType {
 impl ::std::fmt::Display for FileDescriptorType {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         match *self {
-            Self::In => write!(f, "in"),
-            Self::Out => write!(f, "out"),
+            Self::In => f.write_str("in"),
+            Self::Out => f.write_str("out"),
         }
     }
 }
@@ -1719,7 +1719,7 @@ impl ::std::str::FromStr for IdRef {
     fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
         static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
             ::std::sync::LazyLock::new(|| ::regress::Regex::new("^[a-zA-Z0-9_.$ -]+$").unwrap());
-        if (&*PATTERN).find(value).is_none() {
+        if PATTERN.find(value).is_none() {
             return Err("doesn't match pattern \"^[a-zA-Z0-9_.$ -]+$\"".into());
         }
         Ok(Self(value.to_string()))
@@ -1839,7 +1839,7 @@ impl ::std::str::FromStr for MapActionListKey {
     fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
         static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
             ::std::sync::LazyLock::new(|| ::regress::Regex::new(".*").unwrap());
-        if (&*PATTERN).find(value).is_none() {
+        if PATTERN.find(value).is_none() {
             return Err("doesn't match pattern \".*\"".into());
         }
         Ok(Self(value.to_string()))
@@ -2199,7 +2199,7 @@ impl ::std::str::FromStr for NativeShellScript2SchemaCommandSetsKey {
     fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
         static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
             ::std::sync::LazyLock::new(|| ::regress::Regex::new(".*").unwrap());
-        if (&*PATTERN).find(value).is_none() {
+        if PATTERN.find(value).is_none() {
             return Err("doesn't match pattern \".*\"".into());
         }
         Ok(Self(value.to_string()))
@@ -2276,7 +2276,7 @@ impl ::std::str::FromStr for NativeShellScript2SchemaProcessesKey {
     fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
         static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
             ::std::sync::LazyLock::new(|| ::regress::Regex::new(".*").unwrap());
-        if (&*PATTERN).find(value).is_none() {
+        if PATTERN.find(value).is_none() {
             return Err("doesn't match pattern \".*\"".into());
         }
         Ok(Self(value.to_string()))
@@ -2351,7 +2351,7 @@ impl ::std::str::FromStr for NativeShellScript2SchemaStepsKey {
     fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
         static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
             ::std::sync::LazyLock::new(|| ::regress::Regex::new(".*").unwrap());
-        if (&*PATTERN).find(value).is_none() {
+        if PATTERN.find(value).is_none() {
             return Err("doesn't match pattern \".*\"".into());
         }
         Ok(Self(value.to_string()))
@@ -2677,7 +2677,7 @@ impl ::std::str::FromStr for ProcessEnvKey {
     fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
         static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
             ::std::sync::LazyLock::new(|| ::regress::Regex::new(".*").unwrap());
-        if (&*PATTERN).find(value).is_none() {
+        if PATTERN.find(value).is_none() {
             return Err("doesn't match pattern \".*\"".into());
         }
         Ok(Self(value.to_string()))
@@ -3014,7 +3014,7 @@ impl ::std::str::FromStr for ShellEnvKey {
     fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
         static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
             ::std::sync::LazyLock::new(|| ::regress::Regex::new(".*").unwrap());
-        if (&*PATTERN).find(value).is_none() {
+        if PATTERN.find(value).is_none() {
             return Err("doesn't match pattern \".*\"".into());
         }
         Ok(Self(value.to_string()))
@@ -3089,7 +3089,7 @@ impl ::std::str::FromStr for ShellSignalsKey {
     fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
         static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
             ::std::sync::LazyLock::new(|| ::regress::Regex::new(".*").unwrap());
-        if (&*PATTERN).find(value).is_none() {
+        if PATTERN.find(value).is_none() {
             return Err("doesn't match pattern \".*\"".into());
         }
         Ok(Self(value.to_string()))
@@ -3164,7 +3164,7 @@ impl ::std::str::FromStr for ShellValuesKey {
     fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
         static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
             ::std::sync::LazyLock::new(|| ::regress::Regex::new(".*").unwrap());
-        if (&*PATTERN).find(value).is_none() {
+        if PATTERN.find(value).is_none() {
             return Err("doesn't match pattern \".*\"".into());
         }
         Ok(Self(value.to_string()))
@@ -3309,8 +3309,8 @@ impl ::std::convert::From<&Self> for StandardInputMerge {
 impl ::std::fmt::Display for StandardInputMerge {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         match *self {
-            Self::Line => write!(f, "line"),
-            Self::Byte => write!(f, "byte"),
+            Self::Line => f.write_str("line"),
+            Self::Byte => f.write_str("byte"),
         }
     }
 }

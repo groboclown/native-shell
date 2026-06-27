@@ -1,7 +1,9 @@
 //! Information that describes the module.
-//! 
+//!
 //! Eventually, this should move into macros for automatically constructing
 //! this from the code.
+
+use crate::shell_lib::structure::event::EventKind;
 
 /// Allowed types for module input parameters and output states.
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -19,14 +21,14 @@ pub enum ValueType {
 }
 
 /// A field / parameter definition for a module.
-/// 
+///
 /// If `optional` is true, then the user does not need to provide a value for this field,
 /// and the code representation will wrap the type in an `Option<ValueType>`.
 pub struct NamedValue {
     pub name: String,
     // pub description: String,  // use this?
     pub value_type: ValueType,
-    pub optional: bool,   
+    pub optional: bool,
 }
 
 /// The code that evaluates a parameter value at runtime.
@@ -92,7 +94,6 @@ pub struct FixedStreamDef {
     /// The name of the stream.
     pub name: Option<String>,
     // pub description: String,  // use this?
-
     /// The file descriptor index for the stream.
     /// The actual file descriptor passed to the module's code can be any number, but it will assign it to this index.
     /// A stream must have at least one of the name or index; both indicates the name acts as an alias.
@@ -123,7 +124,7 @@ pub struct VariableStreamField {
 }
 
 /// Defines the module's stream structure.
-/// 
+///
 /// If the structure does not use a variable stream type, then it should use
 /// `Fd` as the stream type, and set the min and max counts to 0.
 ///
@@ -153,25 +154,68 @@ pub struct CrateDependency {
     pub features: Vec<String>,
 }
 
+pub struct EventFunc {
+    pub func_name: String,
+    pub event_name: String,
+    pub kind: EventKind,
+    pub mutable: bool,
+}
+
+impl EventFunc {
+    pub fn mut_msg(name: &str) -> Self {
+        Self {
+            func_name: name.to_string(),
+            event_name: name.to_string(),
+            kind: EventKind::Message,
+            mutable: true,
+        }
+    }
+    pub fn mut_sig(name: &str) -> Self {
+        Self {
+            func_name: name.to_string(),
+            event_name: name.to_string(),
+            kind: EventKind::Signal,
+            mutable: true,
+        }
+    }
+    pub fn imm_msg(name: &str) -> Self {
+        Self {
+            func_name: name.to_string(),
+            event_name: name.to_string(),
+            kind: EventKind::Message,
+            mutable: false,
+        }
+    }
+    pub fn imm_sig(name: &str) -> Self {
+        Self {
+            func_name: name.to_string(),
+            event_name: name.to_string(),
+            kind: EventKind::Signal,
+            mutable: false,
+        }
+    }
+}
+
 /// The module metadata definition.
-/// 
+///
 /// This describes basic information about the module itself, as well as
 /// information used to generate Rust code to interact with the module.
-/// 
+///
 /// Each module must have these items defined:
-/// 
+///
 /// * `mod_name`: Used to construct the module's Rust mod name.
 ///     It will be joined with `::` to form the full path.
 /// * `instance_struct`: The name of the module's instance `struct`.
 ///     It must implement the `new()`, `exec()`, `state()` and actions.
 ///     * `new() -> Self`: The constructor for the module.
 ///         Parameter order:
-///           * `source: shell_lib::compile::source::Source`: The source of the module, used for debugging.
+///           * `source: shell_lib::structure::source::Source`: The source of the module, used for debugging.
+///           * `ctx: &mut dyn shell_lib::structure::mod_ctx::InitCtx': The event ID registration.
 ///           * `params: #[compile_param_struct.name]`: The compile-time parameters.
 ///             Only passed if the compile_param_struct is Some.
 ///     * `exec(&self) -> Result<i16, String>`: The function that executes the module.
 ///         Parameter order:
-///           * `context: Box<dyn JobRunnerContext>`: Allows for limited interaction with the engine.
+///           * `ctx: &mut dyn shell_lib::structure::mod_ctx::ExecInit`: Allows for limited interaction with the engine.
 ///           * `params: #[runtime_param_struct.name]`: The runtime parameters.
 ///             Only passed if the runtime_param_struct is Some.
 ///           * `mut streams: #[stream_struct.name]`: The stream structure.
@@ -183,11 +227,9 @@ pub struct CrateDependency {
 ///     * `state(&self) -> #[state_struct.name]`: The function that returns the module's state.
 ///         Only needed if the `state_struct` is Some.
 ///         The state returns the result of the most recent execution of the module instance.
-///     * `abort(&self) -> bool`: The function that aborts the module.
-///         An implicit action all modules must implement.  It should attempt to stop the module from running.
-///         The script engine will only call this if the module is running, but if the abort is registered
-///         through an event group, then it may be called before or after it runs.
-///     * `#[handler name](&self, Box<dyn JobRunnerContext>, #[handler_params]) -> Result<i16, String>`: The handler functions.
+///     * Each event handler in the 'handlers' list must also have a function, to allow for easier
+///         binding of the event callback at setup time.  See the 'handlers' field below for details
+///         on the event handler function parameters.
 /// * `state_struct`: The name of the module's state `type strut`.
 ///     It's returned by the module's `get_state()` method.
 /// * `state_fields`: A list of states the module reports, for use by the compiled code to get.
@@ -204,12 +246,12 @@ pub struct CrateDependency {
 /// * `dependencies`: A list of the Cargo.toml `[dependencies]` lines this module depends on.
 /// * `os_dependencies`: A list of the Cargo.toml OS dependencies this module requires, where the first item is the
 ///     `[target.'cfg(target_os = "NAME")'.dependencies]` NAME value, and the second is the dependency line in that section.
-/// 
+///
 /// It's the responsibility of the module to close all streams passed to it.
-/// 
+///
 /// Separate from this is the "main" module.  Each AST must have exactly one node named "main", which follows the
 /// rules of a main module:
-/// 
+///
 /// * The module may include `argv` parameter, which will be populated with the script's command line arguments.  If included,
 ///   it must be of type StringList.  This must be `optional`, because the AST must not include it.
 /// * The module may include `environ` parameter, which will be populated with the script's environment variables.
@@ -227,7 +269,7 @@ pub struct CrateDependency {
 /// * Under review: the argument parsing could be done through the compilation step, rather than at runtime by the module.
 ///   If so, this means that the main module needs some method to describe arguments passed to compile parameters.  Though, this
 ///   may be just a generic feature that all modules can support.  Same goes for CLI help text.
-/// 
+///
 pub struct ModuleMeta {
     /// The human readable module name.
     pub name: String,
@@ -239,7 +281,6 @@ pub struct ModuleMeta {
     pub authors: Vec<String>,
 
     // Below here are Rust reflection of the module's source.
-
     pub dependencies: Vec<CrateDependency>,
     pub os_dependencies: Vec<(String, String)>,
 
@@ -262,10 +303,16 @@ pub struct ModuleMeta {
     /// The name of the structure that contains the stream instance information.
     pub stream_struct: Option<ModuleStreamStructure>,
 
-    /// The list of available handlers and their parameters.
-    pub handlers: Vec<(String, Vec<NamedValue>)>,
+    /// List of event handlers to automatically bind.
+    /// Without this, the `new` function must explicitly bind handlers.
+    /// When a handler is given, the 'func_name' must exist as a function in the
+    /// module structure, and, depending on the 'mutable' and 'kind' values, one of:
+    ///   (&self, &mut dyn ExecCtx, EventRef, &String) -> Result<(), ScriptExit>
+    ///   (&self, &mut dyn ExecCtx, EventRef, SignalCode) -> Result<(), ScriptExit>
+    ///   (&mut self, &mut dyn ExecCtx, EventRef, &String) -> Result<(), ScriptExit>
+    ///   (&mut self, &mut dyn ExecCtx, EventRef, SignalCode) -> Result<(), ScriptExit>
+    pub handlers: Vec<EventFunc>,
 }
-
 
 pub fn as_latest_crate_dependency<'a>(name: &'a str) -> CrateDependency {
     CrateDependency {

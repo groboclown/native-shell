@@ -2,9 +2,9 @@
 
 use super::helpers::rust_file_header;
 use super::writer::SourceWriter;
-use crate::server_shell::ast::model;
 use crate::server_shell::builder::errors::BuilderError;
 use crate::server_shell::builder::sequence::SeqIndex;
+use crate::server_shell::lls::model;
 
 /// Create a sequence file based on ordered actions.
 pub fn write_ordered_seq<SW: SourceWriter>(

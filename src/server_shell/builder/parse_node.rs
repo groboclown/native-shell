@@ -4,8 +4,8 @@ use std::cell::RefCell;
 use std::collections::HashMap;
 use std::rc::Rc;
 
-use crate::server_shell::ast::model;
 use crate::server_shell::builder::errors;
+use crate::server_shell::lls::model;
 use crate::shell_lib::structure::meta;
 
 pub type NodeIndex = usize;

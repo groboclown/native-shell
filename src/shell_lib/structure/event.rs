@@ -1,6 +1,10 @@
 //SPDX:MIT
 
 //! Inter-job event system.
+//!
+//! The event system as described in this structure only allows for inter-communication
+//! from a thread perspective, where a thread can send or wait on events.  For jobs,
+//! their interaction with the events lives external to this structure.
 
 use std::{collections::HashMap, fmt::Display};
 
@@ -14,11 +18,12 @@ pub type SignalCode = i32;
 pub struct EventDesc {
     pub e_ref: EventRef,
     pub name: String,
+    pub kind: EventKind,
 }
 
 impl EventDesc {
-    pub fn new(e_ref: EventRef, name: String) -> Self {
-        Self { e_ref, name }
+    pub fn new(e_ref: EventRef, name: String, kind: EventKind) -> Self {
+        Self { e_ref, name, kind }
     }
 }
 
@@ -36,6 +41,21 @@ pub enum EventPayload {
 
     /// An event with an integer payload.
     Signal(SignalCode),
+}
+
+impl EventPayload {
+    pub fn kind(&self) -> EventKind {
+        match self {
+            EventPayload::Message(_) => EventKind::Message,
+            EventPayload::Signal(_) => EventKind::Signal,
+        }
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum EventKind {
+    Message,
+    Signal,
 }
 
 impl Display for EventPayload {
@@ -74,17 +94,31 @@ impl EventRegistrar {
 
     /// Add a named event to the registration.  It's safe to register the same
     /// name multiple times; it will return the existing ID.
-    pub fn add_event(&mut self, name: &str) -> EventRef {
+    pub fn add_event(&mut self, name: &str, kind: &EventKind) -> EventRef {
         let name = name.to_string();
         match self.by_name.get(&name) {
-            Some(v) => *v,
+            Some(v) => {
+                #[cfg(test)]
+                assert_eq!(self.by_ref.get(*v).expect("no ref").kind, *kind);
+                *v
+            }
             None => {
                 let e_ref = self.by_ref.len();
                 self.by_name.insert(name.clone(), e_ref);
-                self.by_ref.push(EventDesc::new(e_ref, name));
+                self.by_ref.push(EventDesc::new(e_ref, name, kind.clone()));
                 e_ref
             }
         }
+    }
+
+    /// Describe the event, if registered.
+    pub fn describe(&self, e_ref: EventRef) -> Option<&EventDesc> {
+        self.by_ref.get(e_ref)
+    }
+
+    /// Is the event of the given kind?  If the event isn't registered, this returns false.
+    pub fn is_kind(&self, e_ref: EventRef, kind: &EventKind) -> bool {
+        self.by_ref.get(e_ref).map_or(false, |d| *kind == d.kind)
     }
 
     /// Close off registration.
@@ -102,6 +136,16 @@ impl EventStore {
     /// Get the event description for the event ID.
     pub fn get(&self, e_ref: EventRef) -> Option<&EventDesc> {
         self.store.get(e_ref)
+    }
+
+    /// Lookup (slow) the event description by name.
+    pub fn lookup(&self, name: &str) -> Option<&EventDesc> {
+        for desc in &self.store {
+            if desc.name == name {
+                return Some(desc);
+            }
+        }
+        None
     }
 
     /// Format the event ID for friendly output.
@@ -132,11 +176,17 @@ mod tests {
     #[test]
     fn test_er_add_event() {
         let mut er = EventRegistrar::new();
-        assert_eq!(0, er.add_event("f0"));
-        assert_eq!(1, er.add_event("f1"));
-        assert_eq!(0, er.add_event("f0"));
+        assert_eq!(0, er.add_event("f0", &EventKind::Signal));
+        assert_eq!(1, er.add_event("f1", &EventKind::Message));
+        assert_eq!(0, er.add_event("f0", &EventKind::Signal));
         let es = er.close();
-        assert_eq!(&EventDesc::new(0, "f0".to_string()), es.get(0).unwrap());
-        assert_eq!(&EventDesc::new(1, "f1".to_string()), es.get(1).unwrap());
+        assert_eq!(
+            &EventDesc::new(0, "f0".to_string(), EventKind::Signal),
+            es.get(0).unwrap()
+        );
+        assert_eq!(
+            &EventDesc::new(1, "f1".to_string(), EventKind::Message),
+            es.get(1).unwrap()
+        );
     }
 }

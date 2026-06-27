@@ -5,7 +5,7 @@ use std::cell::RefCell;
 use super::errors;
 use super::node_graph;
 use super::parse_node;
-use crate::server_shell::ast::model;
+use crate::server_shell::lls::model;
 
 pub type SeqIndex = usize;
 pub type JobIndex = usize;
@@ -191,7 +191,7 @@ impl<'a> SequenceGen<'a> for StdSequenceStore {
     fn seq_range(&self) -> std::ops::Range<SeqIndex> {
         0..(self.seq.borrow().len() + self.seq_graph_indicies.len())
     }
-    
+
     fn set_node_execution_sequence(
         &'a self,
         node_idx: parse_node::NodeIndex,

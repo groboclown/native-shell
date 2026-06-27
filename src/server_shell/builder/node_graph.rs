@@ -17,9 +17,9 @@ use std::vec;
 
 use super::errors;
 use super::parse_node;
-use crate::server_shell::ast::model;
 use crate::server_shell::builder::parse_node::NodeIndex;
 use crate::server_shell::builder::special::is_main_node_name;
+use crate::server_shell::lls::model;
 
 #[derive(Debug, Clone)]
 pub struct NodeGraph {

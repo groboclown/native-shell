@@ -4,11 +4,11 @@ use std::collections::{HashMap, HashSet};
 
 use crate::{
     server_shell::{
-        ast::model,
         builder::{
             errors::{BuilderError, ErrorDetails},
             parse_node,
         },
+        lls::model,
     },
     shell_lib::structure::meta,
 };

@@ -2,15 +2,17 @@
 
 //! Keeps track of threads' state as they loop through their steps.
 
-use super::mapvec::HashMapVec;
 use std::collections::{HashMap, HashSet};
 
-use crate::shell_lib::structure::{
-    event::{Event, EventPayload, EventRef},
-    job::{ExitCode, JobRef, ScriptExit},
-    thread::{
-        ExitBehavior, OnExitBehavior, ScheduleStep, StepCount, ThreadDescription, ThreadRef,
-        ThreadStore,
+use crate::shell_lib::{
+    helpers::{mapvec::HashMapVec, se_collect::ScriptExitCollector},
+    structure::{
+        event::{Event, EventPayload, EventRef},
+        job::{ExitCode, JobRef, ScriptExit},
+        thread::{
+            ExitBehavior, OnExitBehavior, ScheduleStep, StepCount, ThreadDescription, ThreadRef,
+            ThreadStore,
+        },
     },
 };
 
@@ -18,10 +20,10 @@ use crate::shell_lib::structure::{
 /// have its own things it needs to handle with this.
 pub struct Requests {
     /// Jobs that stopped their run function execution since the last invocation.
-    jobs_ended: Vec<(JobRef, ScriptExit)>,
+    pub jobs_ended: Vec<(JobRef, ScriptExit)>,
 
     /// Events produced by any job since the last invocation.
-    new_events: Vec<Event>,
+    pub new_events: Vec<Event>,
 }
 
 pub enum JobRunStatus {
@@ -31,8 +33,19 @@ pub enum JobRunStatus {
     Stopped(ScriptExit),
 }
 
+impl JobRunStatus {
+    pub fn is_running(&self) -> bool {
+        match self {
+            JobRunStatus::NotExist => false,
+            JobRunStatus::NeverStarted => false,
+            JobRunStatus::Running => true,
+            JobRunStatus::Stopped(_) => false,
+        }
+    }
+}
+
 pub trait JobStatus {
-    fn job_status(&self, job_ref: JobRef) -> JobRunStatus;
+    fn job_status(&self, job_ref: JobRef) -> Result<JobRunStatus, String>;
 }
 
 /// The condition of the thread step management after an incremental step.
@@ -89,7 +102,7 @@ pub struct ThreadManager {
     stopped: HashMap<ThreadRef, ThreadState>,
 
     /// All the stopped main.
-    main_complete: ErrCollector,
+    main_complete: ScriptExitCollector,
 }
 
 impl ThreadManager {
@@ -122,7 +135,7 @@ impl ThreadManager {
                 pending_thread_end: HashMapVec::new(),
                 pending_join: Vec::new(),
                 stopped,
-                main_complete: ErrCollector::new(),
+                main_complete: ScriptExitCollector::new(),
             })
         }
     }
@@ -131,7 +144,7 @@ impl ThreadManager {
     pub fn run_step<T: JobStatus>(
         &mut self,
         req: &Requests,
-        job_status: T,
+        job_status: &T,
     ) -> Result<Response, String> {
         let mut run_state = AdvanceState::new();
 
@@ -168,7 +181,7 @@ impl ThreadManager {
                     break;
                 }
             };
-            self.handle_step(t, &mut run_state, &job_status)?;
+            self.handle_step(t, &mut run_state, job_status)?;
         }
         if run_state.is_aborted() {
             return run_state.return_abort();
@@ -339,7 +352,7 @@ impl ThreadManager {
             ScheduleStep::WaitForJob(job_ref, exit_behavior) => {
                 // Can't just immediately wait for the job.  Its state needs to be inspected.
                 // Similar to the wait-for-event, this doesn't check the pending job spawns for this step.
-                match job_status.job_status(*job_ref) {
+                match job_status.job_status(*job_ref)? {
                     JobRunStatus::NotExist => Err(format!("no such job {}", job_ref)),
                     JobRunStatus::NeverStarted => {
                         // The exit behavior handles the advance.
@@ -400,7 +413,7 @@ impl ThreadManager {
                             Some(e) => AccRunStatus::Stopped(e.clone()),
                         },
                     },
-                );
+                )?;
                 if acc.is_ready() {
                     // Turn this into an exit behavior check.
                     let (t, exit) = acc.close();
@@ -676,15 +689,15 @@ impl WaitAccumulator {
         on_complete: &ExitBehavior,
         check_job: A,
         check_thread: B,
-    ) -> Self
+    ) -> Result<Self, String>
     where
-        A: Fn(&JobRef) -> JobRunStatus,
+        A: Fn(&JobRef) -> Result<JobRunStatus, String>,
         B: Fn(&ThreadRef) -> AccRunStatus,
     {
         let mut hj = HashMap::new();
         let mut jobs_ready_count = 0;
         for j in jobs {
-            let res = match check_job(j) {
+            let res = match check_job(j)? {
                 JobRunStatus::NotExist | JobRunStatus::NeverStarted => {
                     jobs_ready_count += 1;
                     AccRunStatus::NeverStarted
@@ -707,14 +720,14 @@ impl WaitAccumulator {
             };
             ht.insert(*t, res);
         }
-        Self {
+        Ok(Self {
             thread,
             jobs_ready_count,
             threads_ready_count,
             jobs: hj,
             threads: ht,
             on_complete: on_complete.clone(),
-        }
+        })
     }
 
     pub fn requires_job(&self, j_ref: JobRef) -> bool {
@@ -730,7 +743,7 @@ impl WaitAccumulator {
         if !self.is_ready() {
             panic!("BUG bad ready state");
         }
-        let mut coll = ErrCollector::new();
+        let mut coll = ScriptExitCollector::new();
         for oe in self.jobs.values() {
             match oe {
                 AccRunStatus::Running => panic!("BUG jobs_ready_count"),
@@ -781,54 +794,5 @@ impl WaitAccumulator {
             self.threads.insert(t_ref, AccRunStatus::Stopped(exit));
         }
         self.is_ready()
-    }
-}
-
-#[derive(Clone)]
-struct ErrCollector {
-    first: bool,
-    msg: String,
-    err_count: ExitCode,
-    pub total: usize,
-}
-
-impl ErrCollector {
-    pub fn new() -> Self {
-        Self {
-            first: true,
-            msg: String::new(),
-            err_count: 0,
-            total: 0,
-        }
-    }
-
-    pub fn add(&mut self, exit: &ScriptExit) {
-        self.total += 1;
-        if let Some(message) = &exit.message {
-            if self.first {
-                self.first = false;
-            } else {
-                self.msg.push('\n');
-            }
-            self.msg.push_str(message.as_str());
-        }
-        if exit.code != 0 {
-            self.err_count += 1;
-        }
-    }
-
-    pub fn close(self) -> ScriptExit {
-        if self.first {
-            // No messages added.
-            ScriptExit {
-                code: self.err_count,
-                message: None,
-            }
-        } else {
-            ScriptExit {
-                code: self.err_count,
-                message: Some(self.msg),
-            }
-        }
     }
 }

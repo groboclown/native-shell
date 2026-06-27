@@ -1,0 +1,2307 @@
+# Construction:
+#     Maintainers of this file need to follow several standards:
+#       - Any item that relates to a place in a user script must include a 'source' element.
+#       - Except for the most basic, self-describing values (like an integer parameter),
+#         each item must include a title and description.
+#       - Descriptions should use the '>' syntax to allow for multi-line text.
+#       - If two properties share the same *purpose*, then they should use a '$ref' to that property.
+#       - Properties of type 'string' must include a minLength and maxLength qualifier.
+#       - Properties of type 'array' must include a minItems and maxItems qualifier.
+#       - Properties of type 'integer' and 'float' must include a minValue and maxValue qualifier.
+#       - Properties of type 'object' with 'patternProperties' must include a minItems and maxItems.
+#       - Properties of type 'object' with 'properties' must include required qualifier, and
+#         define 'additionalProperties: false'.
+#       - Properties use the ordering:
+#           $ref
+#           title
+#           description
+#           type
+#           const
+#           default
+#           required
+#           additionalProperties
+#           minLength
+#           maxLength
+#           minItems
+#           maxItems
+#           items
+#           properties
+#           patternProperties
+
+#"$schema": "https://json-schema.org/draft/2020-12/schema"
+#"$schema": "https://json-schema.org/draft/2019-09/schema"
+"$schema": "http://json-schema.org/draft-07/schema#"
+"$spdx-license": MIT
+title: Native Shell Low-Level Script Schema
+description: >
+  The low-level script schema for a Native Shell.  It describes in the most basic
+  way the elements necessary to build the code that can compile into the shell program.
+type: object
+required:
+  - schema-version
+  - meta
+  - threads
+  - module-jobs
+  - inline-jobs
+  - streams
+additionalProperties: false
+
+# ===================================================================
+# ===================================================================
+# ===================================================================
+# Top-Level Script Elements
+properties:
+  "schema-version":
+    title: Schema Version
+    description: >
+      The version of the schema for this LLS.  This is used to ensure compatibility with the parser and runtime.
+    const: "1.0.0"
+
+  meta:
+    title: Metadata
+    description: Information about the script.
+    type: object
+    required:
+      - name
+      - version
+      - source
+    additionalProperties: false
+    properties:
+      name:
+        title: Script Name
+        description: The script name.
+        type: string
+        minLength: 1
+        maxLength: 200
+      version:
+        title: Script Version
+        description: The version of the script.
+        type: string
+        minLength: 1
+        maxLength: 100
+      source:
+        "$ref": "#/$defs/Source"
+      authors:
+        title: Script Author List
+        description: All authors of the script, if the authors desire to include it.
+        type: array
+        minItems: 0
+        maxItems: 200
+        items:
+          title: Script Author
+          description: An author of the script.
+          type: string
+          minLength: 1
+          maxLength: 200
+      license:
+        title: Script License
+        description: The SPDX description of the script's license.
+        type: object
+        required:
+          - spdx
+        additionalProperties: false
+        properties:
+          spdx-id:
+            title: SPDX ID
+            description: The formal SPDX identifier string for this license.
+            type: string
+            minLength: 1
+            maxLength: 1000
+          copyright:
+            title: Copyright
+            description: >
+              The copyright description that accompanies the license type.  This usually
+              relates to the first line of the license text.
+
+  threads:
+    title: Threads
+    description: >
+      All sequential instructions for execution.  These provide a form of instruction set.
+    type: object
+    minItems: 1
+    maxItems: 10000
+    patternProperties:
+      ".*":
+        "$ref": "#/$defs/Thread"
+  jobs:
+    title: Job Collection
+    description: The set of all configured actions to take during execution.
+    type: object
+    minItems: 0
+    maxItems: 10000
+    patternProperties:
+      ".*":
+        "$ref": "#/$defs/Job"
+  streams:
+    title: Streams List
+    description: The configuration of inter-connected streams for the jobs.
+    type: array
+    minItems: 0
+    maxItems: 10000
+    items:
+      "$ref": "#/$defs/Stream"
+
+# ===================================================================
+# ===================================================================
+# ===================================================================
+# Shared Definitions
+
+"$defs":
+  # ===================================================================
+  # Simple and Common Types
+  Source:
+    title: Source
+    description: The source from the script.  Every object should include one.
+    type: object
+    required:
+      - file
+      - line
+      - column
+    additionalProperties: false
+    properties:
+      file:
+        title: File
+        description: The file where the node is defined.
+        type: string
+        minLength: 1
+        maxLength: 10000
+      line:
+        title: Line
+        description: The line number where the node is defined.
+        type: integer
+        minValue: 0
+        maxValue: 4294967295
+      column:
+        title: Column
+        description: The column number where the node is defined.
+        type: integer
+        minValue: 0
+        maxValue: 4294967295
+      text:
+        title: Text
+        description: >
+          The script's code.  If present, allows better error reporting by
+          showing the related script text.
+        type: string
+        minLength: 0
+        maxLength: 4294967295
+  JobRef:
+    title: JobRef
+    description: Reference to a job.  It must reference one of the keys in the "job" collection.
+    type: string
+    minLength: 1
+    maxLength: 100
+  ThreadRef:
+    title: JobRef
+    description: Reference to a thread.  It must reference one of the keys in the "thread" collection.
+    type: string
+    minLength: 1
+    maxLength: 100
+  EventRef:
+    title: EventRef
+    description: >
+      Reference to a named event.  Named events exist within the script, and some modules have expectations for
+      certain kinds of events.  These must all align, especially with the payload kind (either a Message (string)
+      or Signal (number)).
+    type: string
+    minLength: 1
+    maxLength: 100
+  EventPayloadMessage:
+    title: Event Payload Message
+    description: The text payload for a message kind of event.
+    type: string
+    minLength: 0
+    maxLength: 10000
+  EventPayloadSignal:
+    title: Event Payload Signal
+    description: The number payload for a signal kind of event.
+    type: integer
+    minValue: -32768
+    maxValue: 32767
+  ExitCode:
+    description: The script exit code.
+    type: integer
+    minValue: -32768
+    maxValue: 32767
+  StreamName:
+    title: StreamName
+    description: >
+      A module's named stream identifier.
+    type: string
+    minLength: 1
+    maxLength: 100
+  FileDescriptor:
+    title: File Descriptor
+    description: >
+      A numeric reference to a stream, usually corresponding to the inputs and outputs for
+      a program.
+    type: integer
+    minValue: 0
+    maxValue: 65535
+  ConstString:
+    title: Constant String Value
+    description: >
+      A constant string value declared within the script.  Used as an inline value.
+    type: string
+    minLength: 0
+    maxLength: 65535
+  ConstInt:
+    title: Constant Integer Value
+    description: >
+      A constant integer value declared within the script.  Used as an inline value.
+    type: integer
+    minValue: -4294967296
+    maxValue: 4294967295
+  ParamName:
+    title: Parameter Name
+    description: >
+      A reference to a parameter or state placeholder.
+    type: string
+    minLength: 1
+    maxLength: 100
+    pattern: "^[a-zA-Z][a-zA-Z0-9$_]*$"
+
+  # ===================================================================
+  # ===================================================================
+  # Thread-Related Definitions
+
+  Thread:
+    title: Thread
+    description: A sequence of steps.  The name comes from the property key in the owning object.
+    type: object
+    required:
+      - source
+      #- steps
+    properties:
+      source:
+        "$ref": "#/$defs/Source"
+      "main":
+        oneOf:
+          - type: null
+          - title: Main
+            description: >
+              A thread which the user can include in the list of threads to start when the script
+              begins running.  The 'job' reference field indicates a job whose initial parameters
+              will come from the
+            type: object
+            required:
+              - source
+              - job
+            additionalProperties: false
+            properties:
+              source:
+                "$ref": "#/$defs/Source"
+              job:
+                "$ref": "#/$defs/JobRef"
+              default:
+                title: Default
+                description: >
+                  If true, then this will run as a main thread if the user does not declare a main
+                  thread to run.
+                type: boolean
+                default: false
+
+      steps:
+        title: Step List
+        description: A list of ordered steps that run sequentially.
+        type: array
+        minItems: 1
+        maxItems: 10000
+        items:
+          "$ref": "#/$defs/Step"
+
+  Step:
+    type: object
+    title: Step
+    description: A minimal unit of work to perform, which ties events and jobs together.
+    required:
+      - name
+      - run
+      - source
+    additionalProperties: false
+    properties:
+      name:
+        type: string
+        description: The name of the step.  Used only for debugging.
+      source:
+        "$ref": "#/$defs/Source"
+      run:
+        # The 'run' object uses the 'kind' property as the determinant.
+        oneOf:
+          - title: Send Event
+            description: Send an event to the event broker.  It has either a string message, or an integer code.
+            type: object
+            required:
+              - kind
+              - name
+              - payload
+            additionalProperties: false
+            properties:
+              kind:
+                const: send-event
+              name:
+                "$ref": "#/$defs/EventRef"
+              payload:
+                oneOf:
+                  - "$ref": "#/$defs/EventPayloadMessage"
+                  - "$ref": "#/$defs/EventPayloadSignal"
+          - title: Wait For Event
+            description: >
+              Wait for something to send an event *after* this starts listening for events.
+              It can optionally also wait for a matching payload.
+            type: object
+            required:
+              - kind
+              - name
+            additionalProperties: false
+            properties:
+              kind:
+                const: wait-for-event
+              name:
+                "$ref": "#/$defs/EventRef"
+              payload:
+                oneOf:
+                  - "$ref": "#/$defs/EventPayloadMessage"
+                  - "$ref": "#/$defs/EventPayloadSignal"
+          - title: Spawn Job
+            description: >
+              Requests the parallel execution of a job, either start
+              it or restart it.  If it's currently running, this will do nothing.
+            type: object
+            required:
+              - kind
+              - job
+            additionalProperties: false
+            properties:
+              kind:
+                const: spawn-job
+              job:
+                "$ref": "#/$defs/JobRef"
+          - title: Wait For Job
+            description: >
+              Wait for a job to finish executing.  This will block until the
+              job's execution exits.  If it has already completed, this will continue without waiting.
+            type: object
+            required:
+              - kind
+              - job
+              - exit-behavior
+            additionalProperties: false
+            properties:
+              kind:
+                const: wait-for-job
+              job:
+                "$ref": "#/$defs/JobRef"
+              exit-behavior:
+                "$ref": "#/$defs/ExitBehavior"
+          - title: Spawn Thread
+            description: >
+              Requests the parallel execution of a thread, either start it
+              or restart it.  If it's currently running, this will do nothing.
+            type: object
+            required:
+              - kind
+              - thread
+            additionalProperties: false
+            properties:
+              kind:
+                const: spawn-thread
+              thread:
+                "$ref": "#/$defs/ThreadRef"
+          - title: Wait For Thread
+            description: >
+              Wait for a thread to finish executing.  This will block until
+              the thread's execution exits.  If it has already completed, this will continue without waiting.
+            type: object
+            required:
+              - kind
+              - thread
+              - exit-behavior
+            additionalProperties: false
+            properties:
+              kind:
+                const: wait-for-thread
+              thread:
+                "$ref": "#/$defs/ThreadRef"
+              "exit-behavior":
+                "$ref": "#/$defs/ExitBehavior"
+          - title: Wait For All
+            description: Wait for all the threads and jobs to finish.
+            type: object
+            required:
+              - kind
+              - jobs
+              - threads
+              - exit-behavior
+            additionalProperties: false
+            properties:
+              kind:
+                const: wait-for-thread
+              jobs:
+                type: array
+                minItems: 0
+                maxItems: 1000
+                items:
+                  "$ref": "#/$defs/JobRef"
+              threads:
+                type: array
+                minItems: 0
+                maxItems: 1000
+                items:
+                  "$ref": "#/$defs/ThreadRef"
+              exit-behavior:
+                "$ref": "#/$defs/ExitBehavior"
+          - type: object
+            title: Do Nothing
+            description: Perform no action.
+            required:
+              - kind
+            additionalProperties: false
+            properties:
+              kind:
+                const: noop
+
+  ExitBehavior:
+    title: Exit Behavior
+    description: The action to take after waiting on a job or thread, based on how it stopped.
+    type: object
+    requires:
+      - source
+      - never-started
+      - exit-code-behaviors
+      - default-behavior
+    additionalProperties: false
+    properties:
+      source:
+        "$ref": "#/$defs/Source"
+      never-started:
+        "$ref": "#/$defs/OnExitBehavior"
+      default-behavior:
+        "$ref": "#/$defs/OnExitBehavior"
+      exit-code-behaviors:
+        type: array
+        minItems: 0
+        maxItems: 1000
+        items:
+          title: Exit Code Behavior
+          description: >
+            A behavior based on the exit code numeric value.
+            At least one of 'min-code' or 'max-code' must be set.
+          type: object
+          required:
+            - source
+            - behavior
+          additionalProperties: false
+          properties:
+            source:
+              "$ref": "#/$defs/Source"
+            behavior:
+              "$ref": "#/$defs/OnExitBehavior"
+            min-code:
+              "$ref": "#/$defs/ExitCode"
+            max-code:
+              "$ref": "#/$defs/ExitCode"
+
+  ScriptExit:
+    title: Script Exit
+    description: The script exit code and optional message.
+    type: object
+    requires:
+      - source
+      - code
+    additionalProperties: false
+    properties:
+      source:
+        "$ref": "#/$defs/Source"
+      code:
+        "$ref": "#/$defs/ExitCode"
+      message:
+        description: A descriptive message for the reason of the exit.
+        type: string
+        minLength: 0
+        maxLength: 1000
+
+  OnExitBehavior:
+    title: On Exit Behavior
+    description: Describes how to continue running the owning thread.
+    oneOf:
+      - type: object
+        required:
+          - source
+          - kind
+          - by
+        additionalProperties: false
+        properties:
+          source:
+            "$ref": "#/$defs/Source"
+          kind:
+            const: jump
+          by:
+            type: integer
+            minValue: -32768
+            maxValue: 32767
+      - type: object
+        required:
+          - source
+          - kind
+        additionalProperties: false
+        properties:
+          source:
+            "$ref": "#/$defs/Source"
+          kind:
+            enum:
+              - stop-thread
+              - abort-script
+          stop-with:
+            "$ref": "#/$defs/ScriptExit"
+
+  # ===================================================================
+  # ===================================================================
+  # Stream-Related Definitions
+
+  Stream:
+    type: object
+    title: Stream
+    description: A connection between two jobs' streams.
+    required:
+      - source
+      - from
+      - to
+    additionalProperties: false
+    properties:
+      source:
+        "$ref": "#/$defs/Source"
+      from:
+        "$ref": "#/$defs/StreamLocation"
+      to:
+        "$ref": "#/$defs/StreamLocation"
+
+  StreamLocation:
+    oneOf:
+      - title: FD
+        description: The file descriptor reference associated with the owning job.
+        type: object
+        required:
+          - source
+          - kind
+          - job
+          - fd
+        additionalProperties: false
+        properties:
+          kind:
+            title: Kind
+            description: Stream location distinguisher
+            const: fd
+          job:
+            "$ref": "#/$defs/JobRef"
+          fd:
+            $ref: "#/$defs/FileDescriptor"
+      - title: Named Stream
+        description: The named stream's name in the owning job.
+        type: object
+        required:
+          - source
+          - kind
+          - job
+          - name
+        additionalProperties: false
+        properties:
+          source:
+            "$ref": "#/$defs/Source"
+          kind:
+            const: named
+          job:
+            "$ref": "#/$defs/JobRef"
+          name:
+            "$ref": "#/$defs/StreamName"
+
+  # ===================================================================
+  # ===================================================================
+  # Job-Related Definitions
+  Job:
+    title: Job
+    description: >
+      A configured execution element.  The 'name' of the job is in the property key
+      of the owning object, which other objects may reference through a JobRef type.
+    type: object
+    required:
+      - source
+      - def
+    additionalProperties: false
+    properties:
+      source:
+        "$ref": "#/$defs/Source"
+      rerunnable:
+        type: boolean
+        default: true
+      def:
+        # All def values use the constant string 'kind' as the distinguisher.
+        # They do not have a source, because that comes from the parent (this object).
+        oneOf:
+          - "$ref": "#/$defs/ModuleJob"
+          - "$ref": "#/$defs/InlineJob"
+          - "$ref": "#/$defs/MacroJob"
+          - "$ref": "#/$defs/StateJob"
+
+  ModuleJob:
+    title: Module Job
+    description: >
+      A configuration for a pre-built execution path.  The shell comes with a set
+      of pre-installed modules in the 'shell_lib/modules' path.
+    type: object
+    required:
+      - kind
+      - module
+    additionalProperties: false
+    properties:
+      kind:
+        title: Kind
+        description: Job definition distinguisher
+        const: module
+      module:
+        type: string
+        description: The build implementation for the job.
+        minLength: 1
+        maxLength: 1000
+      initial-parameters:
+        "$ref": "#/$defs/InitialParameters"
+      runtime-parameters:
+        "$ref": "#/$defs/NamedParameters"
+  InlineJob:
+    title: Inline Job
+    description: A job with explicit code that describes the execution behavior.
+    type: object
+    required:
+      - kind
+      - code
+    additionalProperties: false
+    properties:
+      kind:
+        title: Kind
+        description: Job definition distinguisher
+        const: inline
+      code:
+        type: string
+        description: The source code to execute within the job.
+        minLength: 0
+        maxLength: 65535
+      initial-parameters:
+        "$ref": "#/$defs/InitialParameters"
+      runtime-parameters:
+        "$ref": "#/$defs/NamedParameters"
+  MacroJob:
+    title: Macro Job
+    description: >
+      A job that constructs through a well-defined process, usually through
+      a series of templates.  Example: wiring together multiple jobs'
+      streams.
+    type: object
+    required:
+      - kind
+      - macro
+    additionalProperties: false
+    properties:
+      kind:
+        const: macro
+      macro:
+        type: string
+        minLength: 1
+        maxLength: 1000
+      # TODO figure this out.
+  StateJob:
+    title: State Job
+    description: >
+      A job that only defines a state, usable by other jobs.  This kind of
+      job does not run anything.  Commonly, scripts use this
+      to store command-line arguments and to provide the user feedback on those
+      arguments and possible environment variable usage.
+
+      The job generates a shared state by forming a union of the
+      initial-parameters, runtime-parameters, and environment-parameters.
+      When the job runs, it will construct its shared state by loading
+      first the initial-parameters, then the environment-parameters,
+      then the runtime-parameters.
+    type: object
+    required:
+      - kind
+    additionalProperties: false
+    properties:
+      kind:
+        const: state
+      initial-parameters:
+        "$ref": "#/$defs/InitialParameters"
+      runtime-parameters:
+        "$ref": "#/$defs/NamedParameters"
+      environment-parameters:
+        title: Environment Parameter List
+        description: >
+          A list of parameters that come from the environment.
+        type: object
+        minItems: 0
+        maxItems: 1000
+        patternProperties:
+          ".*":
+            title: Environment Parameter
+            description: >
+              A description of a parameter that comes from the environment.
+              This will grant jobs to reference the value from runtime
+              parameters.
+            type: object
+            required:
+              - source
+              - kind
+            properties:
+              source:
+                "$ref": "#/$defs/Source"
+              kind:
+                title: Value type
+                description: Allowed type of value.
+                enum:
+                  - string
+                  - string-list
+                  - int
+                  - int-list
+                  - flag
+              description:
+                title: Description
+                description: >
+                  Help text for the parameter.
+                  Currently, only allows for a list of text for a single language.  Eventually may allow for
+                  multiple langauges.
+                type: array
+                minItems: 0
+                maxItems: 1000
+                items:
+                  type: string
+                  minLength: 0
+                  maxLength: 10000
+              aliases:
+                title: Alias List
+                description: >
+                  A list of aliases the user can give to fill in the value.  Useful for allowing
+                  an environment variable in the form THE_NAME and the CLI parameters '--the-name'
+                  and '-n'.
+                type: array
+                minItems: 0
+                maxItems: 1000
+                items:
+                  type: string
+                  minLength: 0
+                  maxLength: 100
+
+  # ===================================================================
+  InitialParameters:
+    type: object
+    title: Initial Parameters
+    description: The compile-time parameters for the node.  These parameters are static and help initialize the module.
+    patternProperties:
+      ".*":
+        type: object
+        title: Parameter
+        description: A compile-time parameter for the node.
+        additionalProperties: false
+        required:
+          - source
+          - value
+        properties:
+          source:
+            "$ref": "#/$defs/Source"
+          value:
+            # The value object uses 'kind' as the determinant.
+            oneOf:
+              - title: Compile-Time String
+                description: A constant string value.
+                type: object
+                required:
+                  - source
+                  - kind
+                  - value
+                additionalProperties: false
+                properties:
+                  source:
+                    "$ref": "#/$defs/Source"
+                  kind:
+                    const: string
+                  value:
+                    "$ref": "#/$defs/ConstString"
+              - title: Compile-Time Number
+                description: A constant number value.
+                type: object
+                required:
+                  - source
+                  - kind
+                  - value
+                additionalProperties: false
+                properties:
+                  source:
+                    "$ref": "#/$defs/Source"
+                  kind:
+                    const: number
+                  value:
+                    "$ref": "#/$defs/ConstInt"
+              - title: Compile-Time Boolean
+                description: A constant boolean (true/false) value.
+                type: object
+                required:
+                  - source
+                  - kind
+                  - value
+                additionalProperties: false
+                properties:
+                  source:
+                    "$ref": "#/$defs/Source"
+                  kind:
+                    const: boolean
+                  value:
+                    description: The constant boolean value.
+                    type: boolean
+              - title: Compile-Time Null
+                description: A constant null value.
+                type: object
+                required:
+                  - source
+                  - kind
+                additionalProperties: false
+                properties:
+                  source:
+                    "$ref": "#/$defs/Source"
+                  kind:
+                    const: "null"
+              - title: Compile-Time String List
+                description: A constant string list value.
+                type: object
+                required:
+                  - source
+                  - kind
+                  - value
+                additionalProperties: false
+                properties:
+                  source:
+                    "$ref": "#/$defs/Source"
+                  kind:
+                    const: string-list
+                  value:
+                    type: array
+                    minItems: 0
+                    maxItems: 1000
+                    items:
+                      "$ref": "#/$defs/ConstString"
+              - title: Compile-Time Number List
+                description: A constant number list value.
+                type: object
+                required:
+                  - source
+                  - kind
+                  - value
+                additionalProperties: false
+                properties:
+                  source:
+                    "$ref": "#/$defs/Source"
+                  kind:
+                    const: number-list
+                  value:
+                    type: array
+                    minItems: 0
+                    maxItems: 1000
+                    items:
+                      "$ref": "#/$defs/ConstInt"
+              - title: Compile-Time Boolean List
+                description: A constant boolean list value.
+                type: object
+                required:
+                  - source
+                  - kind
+                  - value
+                additionalProperties: false
+                properties:
+                  source:
+                    "$ref": "#/$defs/Source"
+                  kind:
+                    const: boolean-list
+                  value:
+                    type: array
+                    minItems: 0
+                    maxItems: 1000
+                    items:
+                      type: boolean
+              - title: Compile-Time String Map
+                description: A constant string map value.
+                type: object
+                required:
+                  - source
+                  - kind
+                  - value
+                additionalProperties: false
+                properties:
+                  source:
+                    "$ref": "#/$defs/Source"
+                  kind:
+                    const: string-map
+                  value:
+                    type: object
+                    minItems: 0
+                    maxItems: 1000
+                    patternProperties:
+                      ".*":
+                        "$ref": "#/$defs/ConstString"
+              - title: Compile-Time Number Map
+                description: A constant number map value.
+                type: object
+                required:
+                  - source
+                  - kind
+                  - value
+                additionalProperties: false
+                properties:
+                  source:
+                    "$ref": "#/$defs/Source"
+                  kind:
+                    const: number-map
+                  value:
+                    type: object
+                    minItems: 0
+                    maxItems: 1000
+                    patternProperties:
+                      ".*":
+                        "$ref": "#/$defs/ConstInt"
+              - title: Compile-Time Boolean Map
+                description: A constant boolean map value.
+                type: object
+                required:
+                  - source
+                  - kind
+                  - value
+                additionalProperties: false
+                properties:
+                  source:
+                    "$ref": "#/$defs/Source"
+                  kind:
+                    const: boolean-map
+                  value:
+                    type: object
+                    minItems: 0
+                    maxItems: 1000
+                    patternProperties:
+                      ".*":
+                        type: boolean
+
+  # ===================================================================
+  # Runtime Parameters for Jobs
+  NamedParameters:
+    title: Named Parameters
+    description: The parameters for the job.
+    type: array
+    items:
+      type: object
+      title: Action Parameter
+      description: A parameter for the job. Must provide exactly one of a value or a value-array.
+      required:
+        - source
+        - name
+        - value
+      additionalProperties: false
+      properties:
+        source:
+          "$ref": "#/$defs/Source"
+        name:
+          type: string
+          description: The name of the parameter.
+        value:
+          "$ref": "#/$defs/ComputedValue"
+
+  ComputedValue:
+    title: Computed Value
+    description: >
+      A value that is computed at runtime.  This can be a constant value, a lookup from
+      a job's state, or an array of values, or an operation on a list of values.
+    oneOf:
+      - "$ref": "#/$defs/ComputedStringValue"
+      - "$ref": "#/$defs/ComputedNumberValue"
+      - "$ref": "#/$defs/ComputedBooleanValue"
+      - "$ref": "#/$defs/ComputedStringListValue"
+      - "$ref": "#/$defs/ComputedNumberListValue"
+      - "$ref": "#/$defs/ComputedBooleanListValue"
+      - "$ref": "#/$defs/ComputedStringMapValue"
+      - "$ref": "#/$defs/ComputedNumberMapValue"
+      - "$ref": "#/$defs/ComputedBooleanMapValue"
+
+  # -------------------------------------------------------------------
+  # String-Related Values
+  ComputedStringValue:
+    title: Computed String Value
+    description: A computed string value.
+    oneOf:
+      - "$ref": "#/$defs/LookupStringValue"
+      - "$ref": "#/$defs/ListIndexStringValue"
+      - "$ref": "#/$defs/MapKeyStringValue"
+      - "$ref": "#/$defs/SubStringValue"
+      - "$ref": "#/$defs/TrimStringValue"
+      - "$ref": "#/$defs/NumberToStringValue"
+      - "$ref": "#/$defs/BooleanToStringValue"
+      - "$ref": "#/$defs/ListToStringValue"
+      - "$ref": "#/$defs/MapToStringValue"
+      - "$ref": "#/$defs/ConstantStringValue"
+  LookupStringValue:
+    title: Lookup String Value
+    description: A string value that is looked up from a job's state.
+    type: object
+    required:
+      - source
+      - kind
+      - node
+      - name
+    additionalProperties: false
+    properties:
+      source:
+        "$ref": "#/$defs/Source"
+      kind:
+        const: lookup-string
+      job:
+        "$ref": "#/defs/JobRef"
+      name:
+        "$ref": "#/defs/ParamName"
+  ListIndexStringValue:
+    title: List Indexed String Value
+    description: >
+      Extracts a single indexed string from a string list.  A default must be given, in case the index is out of bounds.
+    type: object
+    required:
+      - source
+      - kind
+      - list
+      - index
+      - default
+    additionalProperties: false
+    properties:
+      source:
+        "$ref": "#/$defs/Source"
+      kind:
+        const: list-index-string
+      list:
+        "$ref": "#/$defs/ComputedStringListValue"
+      index:
+        "$ref": "#/$defs/ComputedNumberValue"
+      default:
+        "$ref": "#/$defs/ComputedStringValue"
+  MapKeyStringValue:
+    title: Map Keyed String Value
+    description: A key's string value from a map.  A default must be given, in case the key is not found.
+    type: object
+    required:
+      - source
+      - kind
+      - map
+      - key
+      - default
+    additionalProperties: false
+    properties:
+      source:
+        "$ref": "#/$defs/Source"
+      kind:
+        const: map-key-string
+      map:
+        "$ref": "#/$defs/ComputedStringMapValue"
+      key:
+        "$ref": "#/$defs/ComputedStringValue"
+      default:
+        "$ref": "#/$defs/ComputedStringValue"
+  SubStringValue:
+    title: Sub-String Value
+    description: >
+      Extract an internal part of another string.  The 'count' field
+      cannot be used with 'end'.  If 'start' is not given, then it defaults to 0,
+      and if 'end' or 'count' are not given, then it defaults to the end of the string.
+    type: object
+    required:
+      - source
+      - kind
+      - value
+    additionalProperties: false
+    properties:
+      source:
+        "$ref": "#/$defs/Source"
+      kind:
+        const: substring
+      value:
+        "$ref": "#/$defs/ComputedStringValue"
+      start:
+        "$ref": "#/$defs/ComputedNumberValue"
+      count:
+        "$ref": "#/$defs/ComputedNumberValue"
+      end:
+        "$ref": "#/$defs/ComputedNumberValue"
+  TrimStringValue:
+    title: Trim String Value
+    description: Trims the surrounding whitespace or other characters from a string.
+    type: object
+    required:
+      - source
+      - kind
+      - value
+    additionalProperties: false
+    properties:
+      source:
+        "$ref": "#/$defs/Source"
+      kind:
+        const: trim-string
+      value:
+        "$ref": "#/$defs/ComputedStringValue"
+      "trim-chars":
+        "$ref": "#/$defs/ComputedStringValue"
+  NumberToStringValue:
+    title: Number to String Value
+    description: A string value that is the string representation of a number.
+    type: object
+    required:
+      - source
+      - kind
+      - value
+    additionalProperties: false
+    "$comment": >
+      We may want to expand the format into an explicit definition so it does
+      not require additional parsing.  At the moment, this is the printf format string.
+    properties:
+      source:
+        "$ref": "#/$defs/Source"
+      kind:
+        const: number-to-string
+      value:
+        "$ref": "#/$defs/ComputedNumberValue"
+      format:
+        "$ref": "#/$defs/ComputedStringValue"
+  BooleanToStringValue:
+    title: Boolean to String Value
+    description: A string value that is the string representation of a boolean.
+    type: object
+    required:
+      - source
+      - kind
+      - value
+    additionalProperties: false
+    properties:
+      source:
+        "$ref": "#/$defs/Source"
+      kind:
+        const: boolean-to-string
+      value:
+        "$ref": "#/$defs/ComputedBooleanValue"
+      "true-string":
+        "$ref": "#/$defs/ComputedStringValue"
+      "false-string":
+        "$ref": "#/$defs/ComputedStringValue"
+  ListToStringValue:
+    title: List to String Value
+    description: A string value that is the string representation of a list.
+    type: object
+    required:
+      - source
+      - kind
+      - value
+    additionalProperties: false
+    properties:
+      source:
+        "$ref": "#/$defs/Source"
+      kind:
+        const: list-to-string
+      value:
+        "$ref": "#/$defs/ComputedStringListValue"
+      separator:
+        "$ref": "#/$defs/ComputedStringValue"
+  MapToStringValue:
+    title: Map to String Value
+    description: A string value that is the string representation of a map.
+    type: object
+    required:
+      - source
+      - kind
+      - value
+    additionalProperties: false
+    properties:
+      source:
+        "$ref": "#/$defs/Source"
+      kind:
+        const: map-to-string
+      value:
+        "$ref": "#/$defs/ComputedStringMapValue"
+      "key-separator":
+        "$ref": "#/$defs/ComputedStringValue"
+      "item-separator":
+        "$ref": "#/$defs/ComputedStringValue"
+  ConstantStringValue:
+    title: Constant String Value
+    description: A constant string value.
+    type: object
+    required:
+      - source
+      - kind
+      - value
+    additionalProperties: false
+    properties:
+      source:
+        "$ref": "#/$defs/Source"
+      kind:
+        const: constant-string
+      value:
+        type: string
+        description: The constant string value.
+
+  # -------------------------------------------------------------------
+  # Number values
+  ComputedNumberValue:
+    title: Computed Number Value
+    description: A computed number value.
+    oneOf:
+      - "$ref": "#/$defs/LookupNumberValue"
+      - "$ref": "#/$defs/AddTwoValues"
+      - "$ref": "#/$defs/SubtractTwoValues"
+      - "$ref": "#/$defs/MultiplyTwoValues"
+      - "$ref": "#/$defs/DivideTwoValues"
+      - "$ref": "#/$defs/ModulusTwoValues"
+      - "$ref": "#/$defs/PowerTwoValues"
+      - "$ref": "#/$defs/RoundValue"
+      - "$ref": "#/$defs/FloorValue"
+      - "$ref": "#/$defs/CeilValue"
+      - "$ref": "#/$defs/AbsValue"
+      - "$ref": "#/$defs/SumNumberListValue"
+      - "$ref": "#/$defs/ProductNumberListValue"
+      - "$ref": "#/$defs/AverageNumberListValue"
+      - "$ref": "#/$defs/MinNumberListValue"
+      - "$ref": "#/$defs/MaxNumberListValue"
+      - "$ref": "#/$defs/ListIndexNumberValue"
+      - "$ref": "#/$defs/MapKeyNumberValue"
+      - "$ref": "#/$defs/ConstantNumberValue"
+  LookupNumberValue:
+    title: Lookup Number Value
+    description: A number value that is looked up from a node's state.
+    type: object
+    required:
+      - source
+      - kind
+      - job
+      - name
+    additionalProperties: false
+    properties:
+      source:
+        "$ref": "#/$defs/Source"
+      kind:
+        const: lookup-state-number
+      job:
+        "$ref": "#/$defs/JobRef"
+      name:
+        "$ref": "#/$defs/ParamName"
+  AddTwoValues:
+    title: Add Two Values
+    description: A number value that is the sum of two other number values.
+    type: object
+    required:
+      - source
+      - kind
+      - left
+      - right
+    additionalProperties: false
+    properties:
+      source:
+        "$ref": "#/$defs/Source"
+      kind:
+        const: add-number
+      left:
+        "$ref": "#/$defs/ComputedNumberValue"
+      right:
+        "$ref": "#/$defs/ComputedNumberValue"
+  SubtractTwoValues:
+    title: Subtract Two Values
+    description: A number value that is the difference of two other number values.
+    type: object
+    required:
+      - source
+      - kind
+      - left
+      - right
+    additionalProperties: false
+    properties:
+      source:
+        "$ref": "#/$defs/Source"
+      kind:
+        const: subtract-number
+      left:
+        "$ref": "#/$defs/ComputedNumberValue"
+      right:
+        "$ref": "#/$defs/ComputedNumberValue"
+  MultiplyTwoValues:
+    title: Multiply Two Values
+    description: A number value that is the product of two other number values.
+    type: object
+    required:
+      - source
+      - kind
+      - left
+      - right
+    additionalProperties: false
+    properties:
+      source:
+        "$ref": "#/$defs/Source"
+      kind:
+        const: multiply-number
+      left:
+        "$ref": "#/$defs/ComputedNumberValue"
+      right:
+        "$ref": "#/$defs/ComputedNumberValue"
+  DivideTwoValues:
+    title: Divide Two Values
+    description: A number value that is the quotient of two other number values.
+    type: object
+    required:
+      - source
+      - kind
+      - left
+      - right
+    additionalProperties: false
+    properties:
+      source:
+        "$ref": "#/$defs/Source"
+      kind:
+        const: divide-number
+      left:
+        "$ref": "#/$defs/ComputedNumberValue"
+      right:
+        "$ref": "#/$defs/ComputedNumberValue"
+  ModulusTwoValues:
+    title: Modulus Two Values
+    description: A number value that is the modulus of two other number values.
+    type: object
+    required:
+      - source
+      - kind
+      - left
+      - right
+    additionalProperties: false
+    properties:
+      source:
+        "$ref": "#/$defs/Source"
+      kind:
+        const: modulus-number
+      left:
+        "$ref": "#/$defs/ComputedNumberValue"
+      right:
+        "$ref": "#/$defs/ComputedNumberValue"
+  PowerTwoValues:
+    title: Power Two Values
+    description: A number value that is the result of raising one number to the power of another.
+    type: object
+    required:
+      - source
+      - kind
+      - base
+      - exponent
+    additionalProperties: false
+    properties:
+      source:
+        "$ref": "#/$defs/Source"
+      kind:
+        const: power-number
+      base:
+        "$ref": "#/$defs/ComputedNumberValue"
+      exponent:
+        "$ref": "#/$defs/ComputedNumberValue"
+  RoundValue:
+    title: Round Value
+    description: A number value that is the result of rounding another number to the nearest integer.
+    type: object
+    required:
+      - source
+      - kind
+      - value
+    additionalProperties: false
+    properties:
+      source:
+        "$ref": "#/$defs/Source"
+      kind:
+        const: round-number
+      value:
+        "$ref": "#/$defs/ComputedNumberValue"
+  FloorValue:
+    title: Floor Value
+    description: A number value that is the result of rounding another number down to the nearest integer.
+    type: object
+    required:
+      - source
+      - kind
+      - value
+    additionalProperties: false
+    properties:
+      source:
+        "$ref": "#/$defs/Source"
+      kind:
+        const: floor-number
+      value:
+        "$ref": "#/$defs/ComputedNumberValue"
+  CeilValue:
+    title: Ceil Value
+    description: A number value that is the result of rounding another number up to the nearest integer.
+    type: object
+    required:
+      - source
+      - kind
+      - value
+    additionalProperties: false
+    properties:
+      source:
+        "$ref": "#/$defs/Source"
+      kind:
+        const: ceil-number
+      value:
+        "$ref": "#/$defs/ComputedNumberValue"
+  AbsValue:
+    title: Absolute Value
+    description: A number value that is the absolute value of another number.
+    type: object
+    required:
+      - source
+      - kind
+      - value
+    additionalProperties: false
+    properties:
+      source:
+        "$ref": "#/$defs/Source"
+      kind:
+        const: abs-number
+      value:
+        "$ref": "#/$defs/ComputedNumberValue"
+  SumNumberListValue:
+    title: Sum Number List Value
+    description: A number value that is the sum of all numbers in a list.
+    type: object
+    required:
+      - source
+      - kind
+      - value
+    additionalProperties: false
+    properties:
+      source:
+        "$ref": "#/$defs/Source"
+      kind:
+        const: sum-number-list
+      value:
+        "$ref": "#/$defs/ComputedNumberListValue"
+  ProductNumberListValue:
+    title: Product Number List Value
+    description: A number value that is the product of all numbers in a list.
+    type: object
+    required:
+      - source
+      - kind
+      - value
+    additionalProperties: false
+    properties:
+      source:
+        "$ref": "#/$defs/Source"
+      kind:
+        const: product-number-list
+      value:
+        "$ref": "#/$defs/ComputedNumberListValue"
+  AverageNumberListValue:
+    title: Average Number List Value
+    description: A number value that is the average of all numbers in a list.
+    type: object
+    required:
+      - source
+      - kind
+      - value
+    additionalProperties: false
+    properties:
+      source:
+        "$ref": "#/$defs/Source"
+      kind:
+        const: average-number-list
+      value:
+        "$ref": "#/$defs/ComputedNumberListValue"
+  MinNumberListValue:
+    title: Minimum Number List Value
+    description: A number value that is the minimum of all numbers in a list.
+    type: object
+    required:
+      - source
+      - kind
+      - value
+    additionalProperties: false
+    properties:
+      source:
+        "$ref": "#/$defs/Source"
+      kind:
+        const: min-number-list
+      value:
+        "$ref": "#/$defs/ComputedNumberListValue"
+  MaxNumberListValue:
+    title: Maximum Number List Value
+    description: A number value that is the maximum of all numbers in a list.
+    type: object
+    required:
+      - source
+      - kind
+      - value
+    additionalProperties: false
+    properties:
+      source:
+        "$ref": "#/$defs/Source"
+      kind:
+        const: max-number-list
+      value:
+        "$ref": "#/$defs/ComputedNumberListValue"
+  ListIndexNumberValue:
+    title: List Indexed Number Value
+    description: Extracts a single indexed number from a string list.  A default must be given, in case the index is out of bounds.
+    type: object
+    required:
+      - source
+      - kind
+      - list
+      - index
+      - default
+    additionalProperties: false
+    properties:
+      source:
+        "$ref": "#/$defs/Source"
+      kind:
+        const: list-index-number
+      list:
+        "$ref": "#/$defs/ComputedNumberListValue"
+      index:
+        "$ref": "#/$defs/ComputedNumberValue"
+      default:
+        "$ref": "#/$defs/ComputedNumberValue"
+  MapKeyNumberValue:
+    title: Map Keyed Number Value
+    description: A key's number value from a map.  A default must be given, in case the key is not found.
+    type: object
+    required:
+      - source
+      - kind
+      - map
+      - key
+      - default
+    additionalProperties: false
+    properties:
+      source:
+        "$ref": "#/$defs/Source"
+      kind:
+        const: map-key-number
+      map:
+        "$ref": "#/$defs/ComputedNumberMapValue"
+      key:
+        "$ref": "#/$defs/ComputedStringValue"
+      default:
+        "$ref": "#/$defs/ComputedNumberValue"
+  ConstantNumberValue:
+    title: Constant Number Value
+    description: A constant number value.
+    type: object
+    required:
+      - source
+      - kind
+      - value
+    additionalProperties: false
+    properties:
+      source:
+        "$ref": "#/$defs/Source"
+      kind:
+        const: constant-number
+      value:
+        type: number
+        description: The constant number value.
+
+  # -------------------------------------------------------------------
+  # Boolean values
+  ComputedBooleanValue:
+    title: Computed Boolean Value
+    description: A computed boolean value.
+    oneOf:
+      - "$ref": "#/$defs/LookupBooleanValue"
+      - "$ref": "#/$defs/AndTwoBooleanValues"
+      - "$ref": "#/$defs/OrTwoBooleanValues"
+      - "$ref": "#/$defs/NotBooleanValue"
+      - "$ref": "#/$defs/XorTwoBooleanValues"
+      - "$ref": "#/$defs/NandTwoBooleanValues"
+      - "$ref": "#/$defs/NorTwoBooleanValues"
+      - "$ref": "#/$defs/XnorTwoBooleanValues"
+      - "$ref": "#/$defs/ListIndexBooleanValue"
+      - "$ref": "#/$defs/MapKeyBooleanValue"
+      - "$ref": "#/$defs/ConstantBooleanValue"
+  LookupBooleanValue:
+    title: Lookup Boolean Value
+    description: A boolean value that is looked up from a node's state.
+    type: object
+    required:
+      - source
+      - kind
+      - job
+      - name
+    additionalProperties: false
+    properties:
+      source:
+        "$ref": "#/$defs/Source"
+      kind:
+        const: lookup-state-boolean
+      job:
+        "$ref": "#/$defs/JobRef"
+      name:
+        "$ref": "#/$defs/ParamName"
+  AndTwoBooleanValues:
+    title: And Boolean Value
+    description: A boolean value that is the result of a logical AND operation on two boolean values.
+    type: object
+    required:
+      - source
+      - kind
+      - left
+      - right
+    additionalProperties: false
+    properties:
+      source:
+        "$ref": "#/$defs/Source"
+      kind:
+        const: and-boolean
+      left:
+        "$ref": "#/$defs/ComputedBooleanValue"
+      right:
+        "$ref": "#/$defs/ComputedBooleanValue"
+  OrTwoBooleanValues:
+    title: Or Boolean Value
+    description: A boolean value that is the result of a logical OR operation on two boolean values.
+    type: object
+    required:
+      - source
+      - kind
+      - left
+      - right
+    additionalProperties: false
+    properties:
+      source:
+        "$ref": "#/$defs/Source"
+      kind:
+        const: or-boolean
+      left:
+        "$ref": "#/$defs/ComputedBooleanValue"
+      right:
+        "$ref": "#/$defs/ComputedBooleanValue"
+  NotBooleanValue:
+    title: Not Boolean Value
+    description: A boolean value that is the negation of another boolean value.
+    type: object
+    required:
+      - source
+      - kind
+      - value
+    additionalProperties: false
+    properties:
+      source:
+        "$ref": "#/$defs/Source"
+      kind:
+        const: not-boolean
+      value:
+        "$ref": "#/$defs/ComputedBooleanValue"
+  XorTwoBooleanValues:
+    title: Xor Boolean Value
+    description: A boolean value that is the result of a logical exclusive OR operation on two boolean values.
+    type: object
+    required:
+      - source
+      - kind
+      - left
+      - right
+    additionalProperties: false
+    properties:
+      source:
+        "$ref": "#/$defs/Source"
+      kind:
+        const: xor-boolean
+      left:
+        "$ref": "#/$defs/ComputedBooleanValue"
+      right:
+        "$ref": "#/$defs/ComputedBooleanValue"
+  NandTwoBooleanValues:
+    title: Nand Boolean Value
+    description: A boolean value that is the result of a logical NAND operation on two boolean values.
+    type: object
+    required:
+      - source
+      - kind
+      - left
+      - right
+    additionalProperties: false
+    properties:
+      source:
+        "$ref": "#/$defs/Source"
+      kind:
+        const: nand-boolean
+      left:
+        "$ref": "#/$defs/ComputedBooleanValue"
+      right:
+        "$ref": "#/$defs/ComputedBooleanValue"
+  NorTwoBooleanValues:
+    title: Nor Boolean Value
+    description: A boolean value that is the result of a logical NOR operation on two boolean values.
+    type: object
+    required:
+      - source
+      - kind
+      - left
+      - right
+    additionalProperties: false
+    properties:
+      source:
+        "$ref": "#/$defs/Source"
+      kind:
+        const: nor-boolean
+      left:
+        "$ref": "#/$defs/ComputedBooleanValue"
+      right:
+        "$ref": "#/$defs/ComputedBooleanValue"
+  XnorTwoBooleanValues:
+    title: Xnor Boolean Value
+    description: A boolean value that is the result of a logical XNOR operation on two boolean values.
+    type: object
+    required:
+      - source
+      - kind
+      - left
+      - right
+    additionalProperties: false
+    properties:
+      source:
+        "$ref": "#/$defs/Source"
+      kind:
+        const: xnor-boolean
+      left:
+        "$ref": "#/$defs/ComputedBooleanValue"
+      right:
+        "$ref": "#/$defs/ComputedBooleanValue"
+  ListIndexBooleanValue:
+    title: List Indexed Boolean Value
+    description: Extracts a single indexed boolean from a string list.  A default must be given, in case the index is out of bounds.
+    type: object
+    required:
+      - source
+      - kind
+      - list
+      - index
+      - default
+    additionalProperties: false
+    properties:
+      source:
+        "$ref": "#/$defs/Source"
+      kind:
+        const: list-index-boolean
+      list:
+        "$ref": "#/$defs/ComputedBooleanListValue"
+      index:
+        "$ref": "#/$defs/ComputedNumberValue"
+      default:
+        "$ref": "#/$defs/ComputedBooleanValue"
+  MapKeyBooleanValue:
+    title: Map Keyed Boolean Value
+    description: A key's boolean value from a map.  A default must be given, in case the key is not found.
+    type: object
+    required:
+      - source
+      - kind
+      - map
+      - key
+      - default
+    additionalProperties: false
+    properties:
+      source:
+        "$ref": "#/$defs/Source"
+      kind:
+        const: map-key-boolean
+      map:
+        "$ref": "#/$defs/ComputedBooleanMapValue"
+      key:
+        "$ref": "#/$defs/ComputedStringValue"
+      default:
+        "$ref": "#/$defs/ComputedBooleanValue"
+  ConstantBooleanValue:
+    title: Constant Boolean Value
+    description: A constant boolean value.
+    type: object
+    required:
+      - source
+      - kind
+      - value
+    additionalProperties: false
+    properties:
+      source:
+        "$ref": "#/$defs/Source"
+      kind:
+        const: constant-boolean
+      value:
+        type: boolean
+        description: The constant boolean value.
+
+  # -------------------------------------------------------------------
+  # String-List Values
+  ComputedStringListValue:
+    title: Computed List Value
+    description: A computed list value.
+    oneOf:
+      - "$ref": "#/$defs/LookupStringListValue"
+      - "$ref": "#/$defs/SplitStringValue"
+      - "$ref": "#/$defs/RangeStringListValue"
+      - "$ref": "#/$defs/ConstantStringListValue"
+      # TODO include 'contains-string'
+      # Note: operations like 'sort' and 'unique' belong in jobs.
+  LookupStringListValue:
+    title: Lookup String List Value
+    description: A string list value that is looked up from a node's state.
+    type: object
+    required:
+      - source
+      - kind
+      - job
+      - name
+    additionalProperties: false
+    properties:
+      source:
+        "$ref": "#/$defs/Source"
+      kind:
+        const: lookup-state-string-list
+      job:
+        "$ref": "#/$defs/JobRef"
+      name:
+        "$ref": "#/$defs/ParamName"
+  SplitStringValue:
+    title: Split-String Value
+    description: Turns a string into a string array, splitting items by a specific string.
+    type: object
+    required:
+      - source
+      - kind
+      - value
+      - separator
+    additionalProperties: false
+    properties:
+      source:
+        "$ref": "#/$defs/Source"
+      kind:
+        const: split-string
+      value:
+        "$ref": "#/$defs/ComputedStringValue"
+      separator:
+        "$ref": "#/$defs/ComputedStringValue"
+      maximumSplits:
+        "$ref": "#/$defs/ComputedNumberValue"
+  RangeStringListValue:
+    title: Range String List Value
+    description: >
+      Selects a sub-sequence of values from an array.  If the 'count' or 'end'
+      fields are not given, then it defaults to the end of the list.  If the
+      'start' field is not given, then it defaults to 0.
+    type: object
+    required:
+      - source
+      - kind
+      - list
+    additionalProperties: false
+    properties:
+      source:
+        "$ref": "#/$defs/Source"
+      kind:
+        const: range-string-list
+      list:
+        "$ref": "#/$defs/ComputedStringListValue"
+      start:
+        "$ref": "#/$defs/ComputedNumberValue"
+      count:
+        "$ref": "#/$defs/ComputedNumberValue"
+      end:
+        "$ref": "#/$defs/ComputedNumberValue"
+  ConstantStringListValue:
+    title: Constant String List Value
+    description: A constant string list value.  Can include expanding a sub-list within the list.
+    type: object
+    required:
+      - source
+      - kind
+      - value
+    additionalProperties: false
+    properties:
+      source:
+        "$ref": "#/$defs/Source"
+      kind:
+        const: constant-string-list
+      value:
+        type: array
+        description: The constant string list value.
+        items:
+          oneOf:
+            - "$ref": "#/$defs/ComputedStringValue"
+            - "$ref": "#/$defs/ComputedStringListValue"
+
+  # -------------------------------------------------------------------
+  # Number list values
+  ComputedNumberListValue:
+    title: Computed List Value
+    description: A computed list value.
+    oneOf:
+      - "$ref": "#/$defs/LookupNumberListValue"
+      - "$ref": "#/$defs/RangeNumberListValue"
+      - "$ref": "#/$defs/ConstantNumberListValue"
+      # TODO include 'contains-number'
+  LookupNumberListValue:
+    title: Lookup Number List Value
+    description: A number list value that is looked up from a node's state.
+    type: object
+    required:
+      - source
+      - kind
+      - job
+      - name
+    additionalProperties: false
+    properties:
+      source:
+        "$ref": "#/$defs/Source"
+      kind:
+        const: lookup-state-number-list
+      job:
+        "$ref": "#/$defs/JobRef"
+      name:
+        "$ref": "#/$defs/ParamName"
+  RangeNumberListValue:
+    title: Range Number List Value
+    description: >
+      Selects a sub-sequence of values from an array.  If the 'count'
+      or 'end' fields are not given, then it defaults to the end of the list.
+      If the 'start' field is not given, then it defaults to 0.
+    type: object
+    required:
+      - source
+      - kind
+      - list
+    additionalProperties: false
+    properties:
+      source:
+        "$ref": "#/$defs/Source"
+      kind:
+        const: range-number-list
+      list:
+        "$ref": "#/$defs/ComputedNumberListValue"
+      start:
+        "$ref": "#/$defs/ComputedNumberValue"
+      count:
+        "$ref": "#/$defs/ComputedNumberValue"
+      end:
+        "$ref": "#/$defs/ComputedNumberValue"
+  ConstantNumberListValue:
+    title: Constant Number List Value
+    description: A constant number list value.  Can include expanding a sub-list within the list.
+    type: object
+    required:
+      - source
+      - kind
+      - value
+    additionalProperties: false
+    properties:
+      source:
+        "$ref": "#/$defs/Source"
+      kind:
+        const: constant-number-list
+      value:
+        type: array
+        description: The constant number list value.
+        items:
+          oneOf:
+            - "$ref": "#/$defs/ComputedNumberValue"
+            - "$ref": "#/$defs/ComputedNumberListValue"
+
+  # -------------------------------------------------------------------
+  # Boolean list values
+  ComputedBooleanListValue:
+    title: Computed List Value
+    description: A computed list value.
+    oneOf:
+      - "$ref": "#/$defs/LookupBooleanListValue"
+      - "$ref": "#/$defs/RangeBooleanListValue"
+      - "$ref": "#/$defs/ConstantBooleanListValue"
+      # TODO include 'contains-boolean'
+  LookupBooleanListValue:
+    title: Lookup Boolean List Value
+    description: A boolean list value that is looked up from a node's state.
+    type: object
+    required:
+      - source
+      - kind
+      - job
+      - name
+    additionalProperties: false
+    properties:
+      source:
+        "$ref": "#/$defs/Source"
+      kind:
+        const: lookup-state-boolean-list
+      job:
+        "$ref": "#/$defs/JobRef"
+      name:
+        "$ref": "#/$defs/ParamName"
+  RangeBooleanListValue:
+    title: Range Boolean List Value
+    description: >
+      Selects a sub-sequence of values from an array.  If the 'count'
+      or 'end' fields are not given, then it defaults to the end of the
+      list.  If the 'start' field is not given, then it defaults to 0.
+    type: object
+    required:
+      - source
+      - kind
+      - list
+    additionalProperties: false
+    properties:
+      source:
+        "$ref": "#/$defs/Source"
+      kind:
+        const: range-boolean-list
+      list:
+        "$ref": "#/$defs/ComputedBooleanListValue"
+      start:
+        "$ref": "#/$defs/ComputedNumberValue"
+      count:
+        "$ref": "#/$defs/ComputedNumberValue"
+      end:
+        "$ref": "#/$defs/ComputedNumberValue"
+  ConstantBooleanListValue:
+    title: Constant Boolean List Value
+    description: A constant boolean list value.  Can include expanding a sub-list within the list.
+    type: object
+    required:
+      - source
+      - kind
+      - value
+    additionalProperties: false
+    properties:
+      source:
+        "$ref": "#/$defs/Source"
+      kind:
+        const: constant-boolean-list
+      value:
+        type: array
+        description: The constant boolean list value.
+        items:
+          oneOf:
+            - "$ref": "#/$defs/ComputedBooleanValue"
+            - "$ref": "#/$defs/ComputedBooleanListValue"
+
+  # -------------------------------------------------------------------
+  # String map values
+  ComputedStringMapValue:
+    title: Computed Map Value
+    description: A computed map value.
+    oneOf:
+      - "$ref": "#/$defs/LookupStringMapValue"
+      - "$ref": "#/$defs/UnionStringMapValue"
+      - "$ref": "#/$defs/ConstantStringMapValue"
+      # TODO include 'contains-key-string-map' and 'contains-value-string-map'
+  LookupStringMapValue:
+    title: Lookup String Map Value
+    description: A string map value that is looked up from a job's state.
+    type: object
+    required:
+      - source
+      - kind
+      - job
+      - name
+    additionalProperties: false
+    properties:
+      source:
+        "$ref": "#/$defs/Source"
+      kind:
+        const: lookup-string-map
+      job:
+        "$ref": "#/$defs/JobRef"
+      name:
+        "$ref": "#/$defs/ParamName"
+  UnionStringMapValue:
+    title: Union String Map Value
+    description: A string map value that is the union of multiple string map values.
+    type: object
+    required:
+      - source
+      - kind
+      - values
+    additionalProperties: false
+    properties:
+      source:
+        "$ref": "#/$defs/Source"
+      kind:
+        const: union-string-map
+      values:
+        type: array
+        description: The values to union.
+        items:
+          "$ref": "#/$defs/ComputedStringMapValue"
+  ConstantStringMapValue:
+    title: Constant String Map Value
+    description: >
+      A constant string map value.  Can include expanding a sub-map within the map.
+      This also includes a 'null' value for the key to allow blanking out values if used in a union.
+    type: object
+    required:
+      - source
+      - kind
+      - value
+    additionalProperties: false
+    properties:
+      source:
+        "$ref": "#/$defs/Source"
+      kind:
+        const: constant-string-map
+      value:
+        type: object
+        description: The constant string map value.
+        patternProperties:
+          ".*":
+            oneOf:
+              - "$ref": "#/$defs/ComputedStringValue"
+              - type: "null"
+
+  # -------------------------------------------------------------------
+  # Number Map values
+  ComputedNumberMapValue:
+    title: Computed Map Value
+    description: A computed map value.
+    oneOf:
+      - "$ref": "#/$defs/LookupNumberMapValue"
+      - "$ref": "#/$defs/UnionNumberMapValue"
+      - "$ref": "#/$defs/ConstantNumberMapValue"
+  LookupNumberMapValue:
+    title: Lookup Number Map Value
+    description: A number map value that is looked up from a job's state.
+    type: object
+    required:
+      - source
+      - kind
+      - job
+      - name
+    additionalProperties: false
+    properties:
+      source:
+        "$ref": "#/$defs/Source"
+      kind:
+        const: lookup-state-number-map
+      job:
+        "$ref": "#/$defs/JobRef"
+      name:
+        "$ref": "#/$defs/ParamName"
+  UnionNumberMapValue:
+    title: Union Number Map Value
+    description: A number map value that is the union of multiple number map values.
+    type: object
+    required:
+      - source
+      - kind
+      - values
+    additionalProperties: false
+    properties:
+      source:
+        "$ref": "#/$defs/Source"
+      kind:
+        const: union-number-map
+      values:
+        type: array
+        description: The values to union.
+        items:
+          "$ref": "#/$defs/ComputedNumberMapValue"
+  ConstantNumberMapValue:
+    title: Constant Number Map Value
+    description: >
+      A constant number map value.  Can include expanding a sub-map within the map.
+      This also includes a 'null' value for the key to allow blanking out values if used in a union.
+    type: object
+    required:
+      - source
+      - kind
+      - value
+    additionalProperties: false
+    properties:
+      source:
+        "$ref": "#/$defs/Source"
+      kind:
+        const: constant-number-map
+      value:
+        type: object
+        description: The constant number map value.
+        patternProperties:
+          ".*":
+            oneOf:
+              - "$ref": "#/$defs/ComputedNumberValue"
+              - type: "null"
+
+  # -------------------------------------------------------------------
+  # Boolean Maps
+  ComputedBooleanMapValue:
+    title: Computed Map Value
+    description: A computed map value.
+    oneOf:
+      - "$ref": "#/$defs/LookupBooleanMapValue"
+      - "$ref": "#/$defs/UnionBooleanMapValue"
+      - "$ref": "#/$defs/ConstantBooleanMapValue"
+      # TODO add 'only-true-boolan-map' and 'only-false-boolean-map'
+  LookupBooleanMapValue:
+    title: Lookup Boolean Map Value
+    description: A boolean map value that is looked up from a job's state.
+    type: object
+    required:
+      - source
+      - kind
+      - job
+      - name
+    additionalProperties: false
+    properties:
+      source:
+        "$ref": "#/$defs/Source"
+      kind:
+        const: lookup-state-boolean-map
+      job:
+        "$ref": "#/$defs/JobRef"
+      name:
+        "$ref": "#/$defs/ParamName"
+  UnionBooleanMapValue:
+    title: Union Boolean Map Value
+    description: A boolean map value that is the union of multiple boolean map values.
+    type: object
+    required:
+      - source
+      - kind
+      - values
+    additionalProperties: false
+    properties:
+      source:
+        "$ref": "#/$defs/Source"
+      kind:
+        const: union-boolean-map
+      values:
+        type: array
+        description: The values to union.
+        items:
+          "$ref": "#/$defs/ComputedBooleanMapValue"
+  ConstantBooleanMapValue:
+    title: Constant Boolean Map Value
+    description: >
+      A constant boolean map value.  Can include expanding a sub-map within the map.
+      This also includes a 'null' value for the key to allow blanking out values if used in a union.
+    type: object
+    required:
+      - source
+      - kind
+      - value
+    additionalProperties: false
+    properties:
+      source:
+        "$ref": "#/$defs/Source"
+      kind:
+        const: constant-boolean-map
+      value:
+        type: object
+        description: The constant boolean map value.
+        patternProperties:
+          ".*":
+            oneOf:
+              - "$ref": "#/$defs/ComputedBooleanValue"
+              - type: "null"

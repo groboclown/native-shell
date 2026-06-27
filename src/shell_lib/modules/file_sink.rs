@@ -6,12 +6,12 @@ use std::{
     os::fd::OwnedFd,
 };
 
-use crate::shell_lib::helpers::evt_fmt::send_log;
-use crate::shell_lib::structure::event::{EventRef, EventRegistrar};
+use crate::shell_lib::helpers::log::Logger;
 use crate::shell_lib::structure::meta::{
     FixedStreamDef, ModuleMeta, ModuleStreamStructure, ModuleStructure, NamedValue,
     StreamInterface, StreamType, ValueType,
 };
+use crate::shell_lib::structure::{ExecCtx, InitCtx, ScriptExit};
 use crate::shell_lib::{
     helpers::abort_handler,
     structure::{job, source::Source},
@@ -78,7 +78,7 @@ pub struct FileSinkModule {
     state: abort_handler::RunState<abort_handler::FdIn>,
     count: RwLock<f64>,
     source: Source,
-    error: EventRef,
+    logger: Logger,
 }
 
 #[derive(Clone, Debug)]
@@ -97,47 +97,49 @@ pub struct FileSinkModuleStream {
 }
 
 impl FileSinkModule {
-    pub fn new(source: Source, e_reg: &mut EventRegistrar) -> Self {
+    pub fn new(source: Source, ctx: &mut dyn InitCtx) -> Self {
         FileSinkModule {
+            logger: Logger::new(&source, ctx),
             state: abort_handler::RunState::new(),
             count: RwLock::new(0.0),
             source,
-            error: e_reg.add_event("error"),
         }
     }
 
     // The streams must be mut, as per the docs.
     pub fn exec(
         &self,
-        context: Box<dyn job::JobRunnerContext>,
+        ctx: &mut dyn ExecCtx,
         params: FileSinkModuleRuntimeParams,
         mut streams: FileSinkModuleStream,
-    ) -> Result<job::ExitCode, String> {
+    ) -> Result<(), ScriptExit> {
+        self.logger
+            .debug(ctx, format_args!("start write into {}", params.filename))?;
         let (inp, reader) = abort_handler::FdIn::new(streams.fd_0);
         self.state.start(inp);
 
         let mut ret: job::ExitCode = 0;
         if let Err(e) = self.exec_impl(&params, reader) {
-            let _ = send_log(
-                &context,
-                self.error,
-                &self.source,
-                format_args!("{}: {}", params.filename.clone(), e),
-            );
+            // Don't fail immediately; do that later.  Allow proper shutdown.
+            let _ = self
+                .logger
+                .error(ctx, format_args!("{}: {}", params.filename, e));
             ret = 1;
         }
 
         // The FD close happens in the stop, in order ensure the
         // FD close happen just once.
         if let Err(e) = self.stop() {
-            let _ = send_log(
-                &context,
-                self.error,
-                &self.source,
-                format_args!("Failed to clean up file sink: {}", e),
+            let _ = self.logger.error(
+                ctx,
+                format_args!(
+                    "Failed to clean up file sink for {}: {}",
+                    params.filename, e
+                ),
             );
+            ret = 1;
         }
-        Ok(ret)
+        if ret != 0 { Err(ret.into()) } else { Ok(()) }
     }
 
     fn exec_impl<R: std::io::Read>(
@@ -209,37 +211,18 @@ impl FileSinkModule {
 mod tests {
     use super::*;
     use crate::shell_lib::helpers::fd::{file_from_fd, mk_pipe, owned_from_file};
-    use crate::shell_lib::structure::event::{EventPayload, EventRef};
-    use crate::shell_lib::structure::job::ScriptExit;
+    use crate::shell_lib::internal::scheduler::eventbus::JobEventBuilder;
     use std::env;
     use std::sync::Arc;
     use std::{
-        cell::RefCell,
         fs,
         io::{Read, Write},
         thread,
         time::Duration,
     };
 
-    struct EventBus {
-        name: &'static str,
-        msgs: RefCell<Vec<(EventRef, EventPayload)>>,
-    }
-    impl job::JobRunnerContext for EventBus {
-        fn send_event(&self, event_ref: EventRef, payload: EventPayload) -> Result<(), ScriptExit> {
-            println!("{} {}: {}", self.name, event_ref, payload);
-            self.msgs.borrow_mut().push((event_ref.clone(), payload));
-            Ok(())
-        }
-    }
-
     #[test]
     fn test_file_sink_writes_data_to_file() {
-        let mut event_reg = EventRegistrar::new();
-        let context = Box::new(EventBus {
-            name: "00",
-            msgs: RefCell::new(vec![]),
-        });
         // Prepare input file
         let dir = env::temp_dir();
         let input_path = dir.join("00_in.txt");
@@ -249,9 +232,10 @@ mod tests {
             write!(f, "hello").unwrap();
         }
         // Setup module and streams
+        let mut evt_builder = JobEventBuilder::new();
         let input_file = fs::File::open(&input_path).unwrap();
         let fd = owned_from_file(input_file);
-        let module = FileSinkModule::new(Source::default(), &mut event_reg);
+        let module = FileSinkModule::new(Source::default(), evt_builder.as_ctx());
         let out_path = dir.join("00_out.txt");
         let _ = fs::remove_file(&out_path);
         let params = FileSinkModuleRuntimeParams {
@@ -259,8 +243,11 @@ mod tests {
             append: Some(false),
         };
         let streams = FileSinkModuleStream { fd_0: fd };
-        let res = module.exec(context, params, streams).unwrap();
-        assert_eq!(res, 0);
+
+        let events = evt_builder.close().1;
+        module
+            .exec(events.as_serial_sender().as_ctx(), params, streams)
+            .unwrap();
         // Verify output
         let mut contents = String::new();
         fs::File::open(&out_path)
@@ -274,11 +261,6 @@ mod tests {
 
     #[test]
     fn test_file_sink_appends_to_file() {
-        let mut event_reg = EventRegistrar::new();
-        let context = Box::new(EventBus {
-            name: "01",
-            msgs: RefCell::new(vec![]),
-        });
         let dir = env::temp_dir();
         let out_file = dir.join("01_out.txt");
         let _ = fs::remove_file(&out_file);
@@ -287,6 +269,7 @@ mod tests {
             write!(f, "foo").unwrap();
         }
         // Append new content
+        let mut evt_builder = JobEventBuilder::new();
         let input_path = dir.join("01_in.txt");
         let _ = fs::remove_file(&input_path);
         {
@@ -295,14 +278,17 @@ mod tests {
         }
         let in_file = fs::File::open(&input_path).unwrap();
         let fd = owned_from_file(in_file);
-        let module = FileSinkModule::new(Source::default(), &mut event_reg);
+        let module = FileSinkModule::new(Source::default(), evt_builder.as_ctx());
+
+        let events = evt_builder.close().1;
         let params = FileSinkModuleRuntimeParams {
             filename: out_file.to_str().unwrap().to_string(),
             append: Some(true),
         };
         let streams = FileSinkModuleStream { fd_0: fd };
-        let res = module.exec(context, params, streams).unwrap();
-        assert_eq!(res, 0);
+        module
+            .exec(events.as_serial_sender().as_ctx(), params, streams)
+            .unwrap();
         // Verify append
         let mut contents = String::new();
         fs::File::open(&out_file)
@@ -316,15 +302,11 @@ mod tests {
 
     #[test]
     fn test_file_sink_appends_to_non_existent_file() {
-        let mut event_reg = EventRegistrar::new();
-        let context = Box::new(EventBus {
-            name: "02",
-            msgs: RefCell::new(vec![]),
-        });
         let dir = env::temp_dir();
         let out_file = dir.join("02_out.txt");
         let _ = fs::remove_file(&out_file);
         // Append new content
+        let mut evt_builder = JobEventBuilder::new();
         let input_path = dir.join("02_in.txt");
         let _ = fs::remove_file(&input_path);
         {
@@ -333,14 +315,17 @@ mod tests {
         }
         let in_file = fs::File::open(&input_path).unwrap();
         let fd = owned_from_file(in_file);
-        let module = FileSinkModule::new(Source::default(), &mut event_reg);
+        let module = FileSinkModule::new(Source::default(), evt_builder.as_ctx());
         let params = FileSinkModuleRuntimeParams {
             filename: out_file.to_str().unwrap().to_string(),
             append: Some(true),
         };
         let streams = FileSinkModuleStream { fd_0: fd };
-        let res = module.exec(context, params, streams).unwrap();
-        assert_eq!(res, 0);
+
+        let events = evt_builder.close().1;
+        module
+            .exec(events.as_serial_sender().as_ctx(), params, streams)
+            .unwrap();
         // Verify append
         let mut contents = String::new();
         fs::File::open(&out_file)
@@ -354,11 +339,6 @@ mod tests {
 
     #[test]
     fn test_stop_async() {
-        let mut event_reg = EventRegistrar::new();
-        let context = Box::new(EventBus {
-            name: "03",
-            msgs: RefCell::new(vec![]),
-        });
         let dir = env::temp_dir();
         let target = dir.join("03_out.txt");
 
@@ -366,14 +346,18 @@ mod tests {
         let (r, w) = mk_pipe();
         let mut writer = file_from_fd(w);
 
+        let mut evt_builder = JobEventBuilder::new();
         let params = FileSinkModuleRuntimeParams {
             filename: target.to_str().unwrap().to_string(),
             append: Some(false),
         };
         let streams = FileSinkModuleStream { fd_0: r };
-        let module_arc = Arc::new(FileSinkModule::new(Source::default(), &mut event_reg));
+        let module_arc = Arc::new(FileSinkModule::new(Source::default(), evt_builder.as_ctx()));
         let spawned = module_arc.clone();
-        let handle = thread::spawn(move || spawned.exec(context, params, streams).unwrap());
+
+        let events = evt_builder.close().1;
+        let mut sender = events.as_serial_sender();
+        let handle = thread::spawn(move || spawned.exec(sender.as_ctx(), params, streams).unwrap());
 
         // Write small data after exec started.
         write!(writer, "data").unwrap();
@@ -391,8 +375,7 @@ mod tests {
         thread::sleep(Duration::from_millis(10));
         module_arc.stop().unwrap();
         drop(writer);
-        let res = handle.join().unwrap();
-        assert_eq!(res, 0);
+        handle.join().unwrap();
 
         // Verify output
         let mut contents = String::new();

@@ -1,6 +1,6 @@
-use core::fmt;
 use super::model;
-
+use core::fmt;
+use std::collections::HashMap;
 
 /// A validation error that contains a message and the source of the error.
 #[derive(Debug, Clone)]
@@ -12,7 +12,11 @@ pub struct ValidationError {
 
 impl fmt::Display for ValidationError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "{}@{},{}: {}", self.source.file, self.source.line, self.source.column, self.message)
+        write!(
+            f,
+            "{:?}@{},{}: {}",
+            self.source.file, self.source.line, self.source.column, self.message
+        )
     }
 }
 
@@ -33,39 +37,28 @@ impl ValidationError {
     }
 }
 
-
-pub fn validate(ast: &model::NativeShellAstSchema) -> Vec<ValidationError> {
+pub fn validate(lls: &model::NativeShellLowLevelScriptSchema) -> Vec<ValidationError> {
     let mut errors = Vec::new();
 
-    join_validation_vec(&mut errors, validate_nodes(&ast.source, &ast.nodes));
-    join_validation_vec(&mut errors, validate_has_main(&ast.source, &ast.nodes));
+    join_validation_vec(&mut errors, validate_jobs(&lls.meta.source, &lls.jobs));
+    join_validation_vec(
+        &mut errors,
+        validate_has_main(&lls.meta.source, &lls.threads),
+    );
 
     // TODO add more validations.
 
     errors
 }
 
-pub fn validate_nodes(root: &model::Source, nodes: &Vec<model::Node>) -> Vec<Option<ValidationError>> {
+pub fn validate_jobs(
+    root: &model::Source,
+    jobs: &HashMap<model::NativeShellLowLevelScriptSchemaJobsKey, model::Job>,
+) -> Vec<Option<ValidationError>> {
     let mut errors = Vec::new();
 
-    if nodes.is_empty() {
-        errors.push(Some(ValidationError::new_error(
-            "AST must have at least one node",
-            root,
-        )));
-    }
-
-    for node in nodes {
-        // Validate the process ID
-        errors.push(ensure_is_id(&node.name, &node.source));
-
-        // Validate the node's module
-        if node.module.is_empty() {
-            errors.push(Some(ValidationError::new_error(
-                "Node module cannot be empty",
-                &node.source,
-            )));
-        }
+    for job in jobs.values() {
+        // Validate the jobs's kind is registered
 
         // TODO more validations
     }
@@ -73,24 +66,24 @@ pub fn validate_nodes(root: &model::Source, nodes: &Vec<model::Node>) -> Vec<Opt
     errors
 }
 
-pub fn validate_has_main(root: &model::Source, nodes: &Vec<model::Node>) -> Vec<Option<ValidationError>> {
-    for node in nodes {
-        if node.name == "main" {
+pub fn validate_has_main(
+    root: &model::Source,
+    threads: &HashMap<model::NativeShellLowLevelScriptSchemaThreadsKey, model::Thread>,
+) -> Vec<Option<ValidationError>> {
+    for thread in threads.values() {
+        if thread.main.is_some() {
             return vec![None]; // Main node found, no error
         }
     }
     vec![Some(ValidationError::new_error(
-        "AST must have a node named 'main'",
+        "LLS must have at least one thread marked as 'main'",
         root,
     ))]
 }
 
 fn ensure_is_id(value: &String, source: &model::Source) -> Option<ValidationError> {
     if value.is_empty() {
-        return Some(ValidationError::new_error(
-            "ID cannot be empty",
-            source,
-        ));
+        return Some(ValidationError::new_error("ID cannot be empty", source));
     }
     if !value.chars().all(|c| c.is_alphanumeric() || c == '_') {
         return Some(ValidationError::new_error(
@@ -101,14 +94,12 @@ fn ensure_is_id(value: &String, source: &model::Source) -> Option<ValidationErro
     None
 }
 
-
 fn join_validation(mut src: Vec<ValidationError>, val: Option<ValidationError>) {
     match val {
         Some(v) => src.push(v.clone()),
         None => {}
     }
 }
-
 
 fn join_validation_slice(mut src: Vec<ValidationError>, vals: &[Option<ValidationError>]) {
     for v in vals {
@@ -118,7 +109,6 @@ fn join_validation_slice(mut src: Vec<ValidationError>, vals: &[Option<Validatio
         }
     }
 }
-
 
 fn join_validation_vec(src: &mut Vec<ValidationError>, vals: Vec<Option<ValidationError>>) {
     for v in vals {

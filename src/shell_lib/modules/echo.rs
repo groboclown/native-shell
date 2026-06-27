@@ -3,8 +3,8 @@
 use std::io::Write;
 
 use crate::shell_lib::{
-    runtime::event_bus,
-    structure::{job, meta, source::Source},
+    helpers::log::Logger,
+    structure::{ExecCtx, InitCtx, ScriptExit, job, meta, source::Source},
 };
 
 pub fn module_meta() -> meta::ModuleMeta {
@@ -58,27 +58,28 @@ pub struct EchoModuleStream {
 
 pub struct EchoModule {
     source: Source,
+    logger: Logger,
 }
 
 impl EchoModule {
-    pub fn new(source: Source) -> Self {
-        EchoModule { source }
+    pub fn new(source: Source, ctx: &mut dyn InitCtx) -> Self {
+        EchoModule {
+            logger: Logger::new(&source, ctx),
+            source,
+        }
     }
 
     pub fn exec(
         &self,
-        context: Box<dyn job::JobRunnerContext>,
+        ctx: &mut dyn ExecCtx,
         params: EchoModuleRuntimeParams,
         mut streams: EchoModuleStream,
-    ) -> Result<job::ExitCode, String> {
-        event_bus::send_debug_event(
-            &context,
-            &self.source,
-            format!("Echoing text: {}", params.text),
-        )?;
+    ) -> Result<job::ExitCode, ScriptExit> {
+        self.logger
+            .debug(ctx, format_args!("Echoing text: {}", params.text))?;
         match streams.fd_0.write_all(params.text.as_bytes()) {
             Ok(_) => Ok(0),
-            Err(e) => Err(format!("Failed to write to output stream: {}", e)),
+            Err(e) => Err(format!("Failed to write to output stream: {}", e).into()),
         }
     }
 

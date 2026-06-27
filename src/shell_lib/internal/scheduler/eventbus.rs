@@ -1,200 +1,215 @@
-//! Manages listeners in a event groups.
+//SPDX:MIT
 
-use std::{collections::HashMap, sync::RwLock};
+//! Handles sending event signals to jobs.
+//!
+//! A job will have implementation of an event handler which the glue system
+//! registers with this bus.
 
-use crate::shell_lib::structure::{event, job, thread};
+use std::sync::{Arc, RwLock, mpsc};
 
-/// The primary event bus.
-pub struct EventBus {
-    store: event::EventStore,
-    job_wait: RwLock<ExitListenersState<job::JobRef>>,
-    thread_wait: RwLock<ExitListenersState<thread::ThreadRef>>,
-    event_listeners: RwLock<EventListenersState>,
+use crate::shell_lib::helpers::async_signal::SignalNotice;
+use crate::shell_lib::{
+    helpers::mapvec::HashMapVec,
+    structure::{
+        Event, EventCallback, EventKind, EventPayload, EventRef, ExecCtx, InitCtx, ScriptExit,
+        event::{EventRegistrar, EventStore},
+        job::JobRunnerContext,
+        thread::EventCollection,
+    },
+};
+
+/// The event bus for job handlers.
+/// Because of the nature of jobs, handlers are only ever registered
+/// at the start.
+///
+/// The event bus doesn't send out events immediately, but instead it does it in batches.
+pub struct JobEventBus {
+    inner: Arc<JobEventBusInner>,
+    channels: HashMapVec<EventRef, Arc<mpsc::Sender<Event>>>,
+    callbacks: HashMapVec<EventRef, Arc<Box<dyn EventCallback>>>,
 }
 
-impl EventBus {
-    pub fn new(store: event::EventStore) -> Self {
+impl JobEventBus {
+    pub fn new(
+        channels: HashMapVec<EventRef, Arc<mpsc::Sender<Event>>>,
+        callbacks: HashMapVec<EventRef, Arc<Box<dyn EventCallback>>>,
+    ) -> Self {
         Self {
-            store,
-            job_wait: ExitListenersState::new(),
-            thread_wait: ExactSizeIterator::new(),
-            event_listeners: EventListenersState::new(),
+            channels,
+            callbacks,
+            inner: Arc::new(JobEventBusInner {
+                pending: Arc::new(RwLock::new(Vec::new())),
+            }),
         }
     }
 
-    pub fn add_listener_for_job(
-        &mut self,
-        for_job: buildup::job::JobRef,
-        listener: buildup::job::JobThreadRef,
-    ) {
-        self.job_wait
-            .get_mut()
-            .expect("job listener has poisoned lock")
-            .add_listener(for_job, listener);
+    /// Construct a thread sendable version of the bus for use as an exec context.
+    /// This does not allow for an asynchronous 'wait' operation on events.
+    pub fn as_serial_sender(&self) -> JobEventBusSerialContext {
+        JobEventBusSerialContext {
+            inner: self.inner.clone(),
+        }
     }
 
-    pub fn add_listener_for_thread(
-        &mut self,
-        for_thread: buildup::job::JobThreadRef,
-        listener: buildup::job::JobThreadRef,
-    ) {
-        self.thread_wait
-            .get_mut()
-            .expect("job thread listener has poisoned lock")
-            .add_listener(for_thread, listener);
+    pub fn as_async_sender(&self, notice: SignalNotice) -> JobEventBusAsyncContext {
+        JobEventBusAsyncContext {
+            signal: notice,
+            inner: self.inner.clone(),
+        }
     }
 
-    pub fn add_event_listener(
-        &mut self,
-        job: buildup::job::JobRef,
-        event: buildup::event::EventRef,
-    ) {
-        self.event_listeners
-            .get_mut()
-            .expect("event listener has poisoned lock")
-            .add_listener(event, job);
-    }
-
-    pub fn add_event_listeners(
-        &mut self,
-        job: buildup::job::JobRef,
-        events: Vec<buildup::event::EventRef>,
-    ) {
-        events.iter().for_each(|e| self.add_event_listener(job, *e));
-    }
-
-    /// Tells the bus that the job has exited, and returns (and clears) the list
-    /// of threads listening for that job to end.
-    pub fn on_job_exit(&mut self, job: buildup::job::JobRef) -> Vec<buildup::job::JobThreadRef> {
-        self.job_wait
-            .get_mut()
-            .expect("job listener has poisoned lock")
-            .on_exit(job)
-            .unwrap_or(Vec::new())
-    }
-
-    /// Tells the bus that the thread has exited, and returns (and clears) the list
-    /// of threads listening for that thread to end.
-    pub fn on_thread_exit(
-        &mut self,
-        thread: buildup::job::JobThreadRef,
-    ) -> Vec<buildup::job::JobThreadRef> {
-        self.thread_wait
-            .get_mut()
-            .expect("job thread listener has poisoned lock")
-            .on_exit(thread)
-            .unwrap_or(Vec::new())
-    }
-
-    /// Get the list of jobs listening for the event.
-    pub fn on_event(&mut self, event: buildup::event::EventRef) -> &Vec<buildup::job::JobRef> {
-        self.event_listeners
-            .get_mut()
-            .expect("event listener has poisoned lock")
-            .listeners(event)
-            .unwrap_or(&Vec::new())
+    /// Add an event to the ready-to-process list.
+    pub fn add_event(&self, event_ref: EventRef, payload: EventPayload) -> Result<(), ScriptExit> {
+        self.inner.add_event((event_ref, payload))
     }
 }
 
-impl buildup::create::EventRegistrar for EventBus {
-    fn add_event(&mut self, name: &str) -> buildup::event::EventDesc {
-        self.registrar.add_event(name)
+impl EventCollection for JobEventBus {
+    fn collect_and_handle(&mut self) -> Result<Vec<Event>, ScriptExit> {
+        let events = self.inner.extract()?;
+        let ctx = Box::new(JobEventBusSerialContext {
+            inner: self.inner.clone(),
+        });
+        let ctx = ctx as Box<dyn JobRunnerContext>;
+        for evt in &events {
+            for ch in self.channels.get_ref(evt.0) {
+                ch.send(evt.clone())?;
+            }
+            for ch in self.callbacks.get_ref(evt.0) {
+                ch.on(&ctx, evt.0, &evt.1)?;
+            }
+        }
+        Ok(events)
     }
 }
 
-/// All the job or job threads waiting on a job to complete.
-struct ExitListenersState<T> {
-    /// Map of the job that, when completed, will trigger these threads to awaken.
-    waiting_on: HashMap<T, Vec<buildup::job::JobThreadRef>>,
+struct JobEventBusInner {
+    pending: Arc<RwLock<Vec<Event>>>,
 }
 
-impl<T> ExitListenersState<T> {
-    pub fn new() -> RwLock<Self> {
-        RwLock::new(Self {
-            waiting_on: HashMap::new(),
-        })
+impl JobEventBusInner {
+    fn is_empty(&self) -> bool {
+        match self.pending.read() {
+            Ok(p) => p.is_empty(),
+            Err(_) => true, // assume the worst.
+        }
     }
 
-    pub fn add_listener(&mut self, on: T, listener: buildup::job::JobThreadRef) {
-        // For debugging,
+    /// Add the event to the pending list.
+    fn add_event(&self, event: Event) -> Result<(), ScriptExit> {
+        self.pending.write()?.push(event);
+        Ok(())
+    }
+
+    /// Get the events from the pending list and remove them.
+    fn extract(&self) -> Result<Vec<Event>, ScriptExit> {
+        let mut vec = self.pending.write()?;
+        let len = vec.len();
+        Ok(vec.drain(0..len).collect())
+    }
+}
+
+pub struct JobEventBusSerialContext {
+    inner: Arc<JobEventBusInner>,
+}
+
+impl JobEventBusSerialContext {
+    pub fn as_ctx(&mut self) -> &mut dyn ExecCtx {
+        self
+    }
+}
+
+impl JobRunnerContext for JobEventBusSerialContext {
+    fn send_event(&self, event_ref: EventRef, payload: EventPayload) -> Result<(), ScriptExit> {
+        self.inner.add_event((event_ref, payload))
+    }
+}
+
+impl ExecCtx for JobEventBusSerialContext {}
+
+pub struct JobEventBusAsyncContext {
+    signal: SignalNotice,
+    inner: Arc<JobEventBusInner>,
+}
+
+impl JobEventBusAsyncContext {
+    pub fn as_ctx(&mut self) -> &mut dyn ExecCtx {
+        self
+    }
+}
+
+impl JobRunnerContext for JobEventBusAsyncContext {
+    fn send_event(&self, event_ref: EventRef, payload: EventPayload) -> Result<(), ScriptExit> {
+        let res = self.inner.add_event((event_ref, payload));
+        // Send the notice *after* adding the event.
+        self.signal.notify();
+        res
+    }
+}
+
+impl ExecCtx for JobEventBusAsyncContext {}
+
+/// Constructs the listener wiring for events.
+/// Because of the nature of jobs, handlers are only ever registered
+/// at the start.
+pub struct JobEventBuilder {
+    registrar: EventRegistrar,
+    channels: HashMapVec<EventRef, Arc<mpsc::Sender<Event>>>,
+    callbacks: HashMapVec<EventRef, Arc<Box<dyn EventCallback>>>,
+}
+
+impl JobEventBuilder {
+    pub fn new() -> Self {
+        Self {
+            registrar: EventRegistrar::new(),
+            channels: HashMapVec::new(),
+            callbacks: HashMapVec::new(),
+        }
+    }
+
+    /// Allow using this instance as an InitCtx reference.
+    pub fn as_ctx(&mut self) -> &mut dyn InitCtx {
+        self
+    }
+
+    /// Close out the event system buildup.
+    pub fn close(self) -> (EventStore, JobEventBus) {
+        (
+            self.registrar.close(),
+            JobEventBus::new(self.channels, self.callbacks),
+        )
+    }
+}
+
+impl InitCtx for JobEventBuilder {
+    /// Get or add the event ID for the event name.
+    fn get_event(&mut self, name: &str, kind: &EventKind) -> EventRef {
+        self.registrar.add_event(name, kind)
+    }
+
+    /// Send events with the given ID to the channel.
+    fn channel_on(&mut self, e_ref: EventRef, _kind: &EventKind, ch: Arc<mpsc::Sender<Event>>) {
         #[cfg(test)]
-        self.ensure_not_listening(&on, listener);
-
-        match self.waiting_on.get_mut(&on) {
-            Some(v) => v.push(listener),
-            None => {
-                let mut v = Vec::new();
-                v.push(listener);
-                self.waiting_on.insert(on, v);
-            }
-        };
+        assert!(self.registrar.is_kind(e_ref, _kind));
+        self.channels.insert(e_ref, ch);
     }
 
-    pub fn on_exit(&mut self, exited: T) -> Option<Vec<buildup::job::JobThreadRef>> {
-        self.waiting_on.remove(&exited)
+    /// Send events with the given name to the channel.
+    fn channel_on_name(&mut self, event: &str, kind: &EventKind, ch: Arc<mpsc::Sender<Event>>) {
+        let evt = self.get_event(event, kind);
+        self.channel_on(evt, kind, ch)
     }
 
-    // Ensure that the listened-on does not already have the listener.
-    fn ensure_not_listening(&self, on: &T, listener: buildup::job::JobThreadRef) {
-        if let Some(existing) = self.waiting_on.get(on) {
-            for e in existing {
-                if e == listener {
-                    panic!("BUG double-registered listener {} for {}", listener, on);
-                }
-            }
-        }
-    }
-}
-
-/// Jobs that listen to specific events.
-/// This matches very closely to the ExitListenersState, but, because they have
-/// different usage characteristics, they are separate structures to keep from type confusion bugs.
-struct EventListenersState {
-    /// Map of the job that, when completed, will trigger these threads to awaken.
-    listeners: HashMap<buildup::event::EventRef, Vec<buildup::job::JobRef>>,
-}
-
-impl EventListenersState {
-    pub fn new() -> RwLock<Self> {
-        RwLock::new(Self {
-            listeners: HashMap::new(),
-        })
-    }
-
-    pub fn add_listener(&mut self, on: buildup::event::EventRef, listener: buildup::job::JobRef) {
-        // For debugging,
+    /// Send events with the given ID to the callback.
+    fn callback_on(&mut self, e_ref: EventRef, _kind: &EventKind, cb: Arc<Box<dyn EventCallback>>) {
         #[cfg(test)]
-        self.ensure_not_listening(on, listener);
-
-        match self.listeners.get_mut(&on) {
-            Some(v) => v.push(listener),
-            None => {
-                let mut v = Vec::new();
-                v.push(listener);
-                self.listeners.insert(on, v);
-            }
-        };
+        assert!(self.registrar.is_kind(e_ref, _kind));
+        self.callbacks.insert(e_ref, cb);
     }
 
-    pub fn listeners(&self, on: buildup::event::EventRef) -> Option<&Vec<buildup::job::JobRef>> {
-        self.listeners.get(&on)
-    }
-
-    // Ensure that the listened-on does not already have the listener.
-    fn ensure_not_listening(
-        &self,
-        on: buildup::event::EventRef,
-        listener: buildup::job::JobThreadRef,
-    ) {
-        if let Some(existing) = self.listeners.get(&on) {
-            for e in existing {
-                if e == listener {
-                    panic!(
-                        "BUG double-registered listener {} for event {}",
-                        listener, on
-                    );
-                }
-            }
-        }
+    /// Send events with the given name to the callback.
+    fn callback_on_name(&mut self, event: &str, kind: &EventKind, cb: Arc<Box<dyn EventCallback>>) {
+        let evt = self.get_event(event, kind);
+        self.callback_on(evt, kind, cb)
     }
 }

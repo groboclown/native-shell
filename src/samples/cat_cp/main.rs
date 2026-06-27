@@ -1,6 +1,6 @@
-//! Manually constructed code to show how the builder might turn the AST into a shell program.
-//! This shows the full connection in a single file.  Real scripts are expected to get very large,
-//! and will be broken into multiple files.
+//SPDX:MIT
+
+//! Manually constructed code to show how the builder might turn the LLS into a shell program.
 
 use std::collections::HashMap;
 use std::sync::{Arc, mpsc};
@@ -23,6 +23,23 @@ pub fn main(argv: Vec<String>, environ: HashMap<String, String>) -> i32 {
 }
 
 fn run_main(argv: Vec<String>, environ: HashMap<String, String>) -> Result<i32, String> {
+    // FIXME how to fix this.
+    //  1. Change the 'ast.yaml' to 'lls.yaml' and correct it to match the expected behavior.
+    //  2. Create a "jobs" module.
+    //     a. For each job needed, it creates a job file.
+    //     b. Note that the lls.yaml needs to define "synthetic" jobs that link connected
+    //        jobs' streams together before they run.
+    //     c. Create a central ScriptState struct in a separate file in the jobs module
+    //        that hosts the stateStruct objects for each job instance whose module has a stateStruct.
+    //     d. Create a central ScriptJobs struct in a separate file that stores the
+    //        ScriptState + the constructed jobs.  It has a 'new' function that creates the
+    //        initial state for the jobs.  This will need an event builder to also
+    //        initialize the jobs' event handlers.
+    //  3. Create a "threads" module file that defines all the threads within it.
+    //     For this example, that's just one thread.  It also creates a structure
+    //     that houses all the threads.
+    //  4. This file's contents simulates the explicit argument parsing +
+
     // Create the nodes that represent the modules.
     // This includes adding the compile-time / initial parameters.
     let nodes = Nodes {
@@ -31,7 +48,6 @@ fn run_main(argv: Vec<String>, environ: HashMap<String, String>) -> Result<i32, 
             description: Some("Sends the contents of a file through a pipe into another file.".to_string()),
             version: Some("1.0.0".to_string()),
             authors: None,
-            start_event: "start".to_string(),
             required_value_parameters: Some(vec!["source".to_string(), "target".to_string()]),
             optional_value_parameters: None,
             boolean_parameters: None,

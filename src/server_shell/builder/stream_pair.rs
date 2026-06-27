@@ -5,8 +5,8 @@ use super::node_graph;
 use super::parse_node;
 use super::sequence;
 use super::special;
-use crate::server_shell::ast::model;
 use crate::server_shell::builder::parse_node::ModuleNode;
+use crate::server_shell::lls::model;
 use crate::shell_lib::structure::meta;
 use std::rc::Rc;
 

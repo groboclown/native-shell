@@ -6,8 +6,8 @@
 use std::cell::RefCell;
 use std::rc::Rc;
 
-use super::event::{EventPayload, EventRef};
-use super::job::{ExitCode, JobRef, ScriptExit};
+use super::event::{Event, EventPayload, EventRef};
+use super::job::{ExitCode, JobRef, JobRunnerContext, ScriptExit};
 use super::source::Resource;
 
 pub type ThreadRef = usize;
@@ -201,6 +201,20 @@ impl ExitBehavior {
     }
 }
 
+/// Collects events over a short period of time, after which,
+/// when called, will pass out events to listeners and return
+/// all those collected events.
+pub trait EventCollection {
+    /// Gather up the events that happened since the previous call,
+    /// pass those to any of its own listeners, then return those events.
+    fn collect_and_handle(&mut self) -> Result<Vec<Event>, ScriptExit>;
+}
+
+/// In order to work with the ScheduleStep, thread runners utilize a mechanism
+/// to collect pending events which it can then use to evaluate the steps,
+/// in particular for the WaitForEvent step.
+pub trait EventCollector: EventCollection + JobRunnerContext {}
+
 /// A sequence of steps to run in the scheduler.
 /// A job thread is a singleton; it may be restarted or stopped, but it cannot be
 /// run multiple times in parallel.
@@ -215,12 +229,24 @@ pub struct ThreadDescription {
 }
 
 /// Maintains the read-only store of the script's threads.
+///
+/// The ThreadStore may be constructed through either the ThreadRegistrar, which
+/// gives a programmatic approach to creating jobs with correctly generated
+/// ThreadRef IDs for handling with other constructs, or through an explicit
+/// creation that requires the caller to keep track of ThreadRef IDs as the
+/// index in the passed-in list.
 #[derive(Clone, Debug)]
 pub struct ThreadStore {
     store: Vec<ThreadDescription>,
 }
 
 impl ThreadStore {
+    /// Create an explicit job store.  Only use this if the caller keeps
+    /// track of ThreadRef == index in the vector; otherwise, build the ThreadStore
+    /// through the ThreadRegistrar.
+    pub fn new_explicit(threads: Vec<ThreadDescription>) -> Self {
+        Self { store: threads }
+    }
     /// Get the thread by its reference.
     pub fn get(&self, t_ref: ThreadRef) -> Option<&ThreadDescription> {
         self.store.get(t_ref)
@@ -370,8 +396,8 @@ mod tests {
     fn test_std_build() {
         let (e0, e1) = {
             let mut reg = EventRegistrar::new();
-            let e0 = reg.add_event("abort");
-            let e1 = reg.add_event("sig");
+            let e0 = reg.add_event("abort", &EventKind::Signal);
+            let e1 = reg.add_event("sig", &EventKind::Signal);
             reg.close();
             (e0, e1)
         };
@@ -434,7 +460,7 @@ mod tests {
     fn test_invalid_build_many() {
         let e0 = {
             let mut reg = EventRegistrar::new();
-            let e0 = reg.add_event("abort");
+            let e0 = reg.add_event("abort", &EventKind::Signal);
             reg.close();
             e0
         };
@@ -453,10 +479,6 @@ mod tests {
     struct SampleJob {}
     impl JobRunner for SampleJob {
         fn run(&self, _: Box<dyn JobRunnerContext>) -> ScriptExit {
-            panic!("not runnable");
-        }
-
-        fn on_event(&self, _: EventRef, _: EventPayload) -> Result<(), ScriptExit> {
             panic!("not runnable");
         }
     }

@@ -1,4 +1,4 @@
-use crate::server_shell::{ast, builder};
+use crate::server_shell::lls;
 
 mod samples;
 mod server_shell;
@@ -18,15 +18,15 @@ fn main() {
         );
         println!("  help     - Show this help message");
     } else if action == "validate" {
-        match ast::astio::read_file(
+        match lls::llsio::read_file(
             std::env::args()
                 .nth(2)
-                .unwrap_or_else(|| "ast.json".to_string()),
+                .unwrap_or_else(|| "lls.json".to_string()),
         ) {
             Ok(ast) => {
-                let errors = ast::validate::validate(&ast);
+                let errors = lls::validate::validate(&ast);
                 if errors.is_empty() {
-                    println!("AST is valid.");
+                    println!("LLS is valid.");
                 } else {
                     for error in errors {
                         println!("{}", error);
@@ -40,13 +40,13 @@ fn main() {
             }
         }
     } else if action == "build" {
-        match ast::astio::read_file(
+        match lls::llsio::read_file(
             std::env::args()
                 .nth(2)
-                .unwrap_or_else(|| "ast.json".to_string()),
+                .unwrap_or_else(|| "lls.json".to_string()),
         ) {
             Ok(ast) => {
-                let errors = ast::validate::validate(&ast);
+                let errors = lls::validate::validate(&ast);
                 if !errors.is_empty() {
                     for error in errors {
                         println!("{}", error);
@@ -56,22 +56,23 @@ fn main() {
                 let script_dir = std::env::args()
                     .nth(3)
                     .unwrap_or_else(|| "script-source".to_string());
-                let write = match builder::writer::FileSourceWriter::new(&script_dir) {
-                    Ok(f) => f,
-                    Err(e) => {
-                        eprintln!("Error creating file {}: {}", script_dir, e);
-                        std::process::exit(3);
-                    }
-                };
-                match builder::from_ast::ast_to_module_source(&ast, write) {
-                    Ok(_) => (),
-                    Err(e) => {
-                        eprintln!("Error encountered with script");
-                        builder::errors::report_errors(&e);
-                        std::process::exit(4);
-                    }
-                }
-                println!("Module source written to {}", script_dir);
+                todo!();
+                //let write = match builder::writer::FileSourceWriter::new(&script_dir) {
+                //    Ok(f) => f,
+                //    Err(e) => {
+                //        eprintln!("Error creating file {}: {}", script_dir, e);
+                //        std::process::exit(3);
+                //    }
+                //};
+                //match builder::from_ast::ast_to_module_source(&ast, write) {
+                //    Ok(_) => (),
+                //    Err(e) => {
+                //        eprintln!("Error encountered with script");
+                //        builder::errors::report_errors(&e);
+                //        std::process::exit(4);
+                //    }
+                //}
+                //println!("Module source written to {}", script_dir);
             }
             Err(e) => {
                 eprintln!("Error loading AST: {}", e);

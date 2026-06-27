@@ -6,7 +6,8 @@
 
 use std::collections::HashSet;
 use std::ops::Range;
-use std::sync::Arc;
+use std::sync::mpsc::SendError;
+use std::sync::{Arc, PoisonError};
 
 use super::event::{EventPayload, EventRef};
 use super::source::Resource;
@@ -22,16 +23,119 @@ pub struct ScriptExit {
     pub message: Option<String>,
 }
 
-/// An abstract job execution handler.  The job handler *must* handle the 'abort' event,
-/// which should cause the runner to perform a best effort to stop the executing job.
+impl ScriptExit {
+    pub fn new(code: ExitCode, message: Option<String>) -> Self {
+        Self { code, message }
+    }
+
+    /// Join the slice of ScriptExit into a single ScriptExit.
+    pub fn join_slice(exits: &[ScriptExit]) -> ScriptExit {
+        if exits.len() <= 0 {
+            ScriptExit {
+                code: 0,
+                message: None,
+            }
+        } else if exits.len() == 1 {
+            exits[0].clone()
+        } else {
+            let mut m_first = true;
+            let mut msg = String::new();
+            let mut err_count: ExitCode = 0;
+            for e in exits {
+                if e.code != 0 {
+                    err_count += 1;
+                }
+                if let Some(m) = &e.message {
+                    if m_first {
+                        m_first = false;
+                    } else {
+                        msg.push('\n');
+                    }
+                    msg.push_str(m.as_str());
+                }
+            }
+            if m_first {
+                ScriptExit {
+                    code: err_count,
+                    message: None,
+                }
+            } else {
+                ScriptExit {
+                    code: err_count,
+                    message: Some(msg),
+                }
+            }
+        }
+    }
+}
+
+impl From<ExitCode> for ScriptExit {
+    fn from(value: ExitCode) -> Self {
+        Self {
+            code: value,
+            message: None,
+        }
+    }
+}
+
+impl From<&str> for ScriptExit {
+    fn from(value: &str) -> Self {
+        Self {
+            code: 1,
+            message: Some(value.to_string()),
+        }
+    }
+}
+
+/// Converts an String error into a ScriptExit.
+/// Because this conversion happens on errors, it will set the code to non-zero.
+impl From<String> for ScriptExit {
+    fn from(value: String) -> Self {
+        Self {
+            code: 1,
+            message: Some(value),
+        }
+    }
+}
+
+/// Converts an Option<String> error into a ScriptExit.
+/// Because this conversion happens on errors, it will set the code to non-zero.
+impl From<Option<String>> for ScriptExit {
+    fn from(value: Option<String>) -> Self {
+        Self {
+            code: 1,
+            message: value,
+        }
+    }
+}
+
+/// Convert a Lock poison error to a ScriptExit.
+impl<T> From<PoisonError<T>> for ScriptExit {
+    fn from(value: PoisonError<T>) -> Self {
+        Self {
+            code: 254,
+            message: Some(format!("lock poisoned: {:?}", value)),
+        }
+    }
+}
+
+/// Convert a channel send request error into a ScriptExit.
+impl<T> From<SendError<T>> for ScriptExit {
+    fn from(value: SendError<T>) -> Self {
+        Self {
+            code: 254,
+            message: Some(format!("async communication failed: {:?}", value)),
+        }
+    }
+}
+
+/// An abstract job execution handler.
+/// Note that the event system, to pass events to the JobRunner instances, must exist outside
+/// the base runtime handling.
 /// By its nature, a JobRunner is multi-threaded.
 pub trait JobRunner {
     /// Execute the job.
     fn run(&self, context: Box<dyn JobRunnerContext>) -> ScriptExit;
-
-    /// Handle an incoming event from the schedule system.  Only called while the 'run' is
-    /// in-progress.
-    fn on_event(&self, event_ref: EventRef, payload: EventPayload) -> Result<(), ScriptExit>;
 }
 
 /// Context sent to the job runner to allow it to have limited interaction with the scheduler.
@@ -73,11 +177,26 @@ impl std::fmt::Debug for JobDescription {
 }
 
 /// A read-only store of all registered job descriptions for a script.
+///
+/// The JobStore may be constructed through either the JobRegistrar, which
+/// gives a programmatic approach to creating jobs with correctly generated
+/// JobRef IDs for handling with other constructs, or through an explicit
+/// creation that requires the caller to keep track of JobRef IDs as the
+/// index in the passed-in list.
 pub struct JobStore {
     store: Vec<Arc<JobDescription>>,
 }
 
 impl JobStore {
+    /// Create an explicit job store.  Only use this if the caller keeps
+    /// track of JobRef == index in the vector; otherwise, build the JobStore
+    /// through the JobRegistrar.
+    pub fn new_explicit(jobs: Vec<JobDescription>) -> Self {
+        Self {
+            store: jobs.into_iter().map(|j| Arc::new(j)).collect(),
+        }
+    }
+
     /// Get the number of jobs stored in the store.
     pub fn len(&self) -> usize {
         self.store.len()
@@ -212,14 +331,14 @@ impl JobBuilder {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::shell_lib::structure::event::EventRegistrar;
+    use crate::shell_lib::structure::event::{EventKind, EventRegistrar};
 
     #[test]
     fn test_job_buildup() {
         let (e0, e1) = {
             let mut reg = EventRegistrar::new();
-            let e0 = reg.add_event("abort");
-            let e1 = reg.add_event("sig");
+            let e0 = reg.add_event("abort", &EventKind::Signal);
+            let e1 = reg.add_event("sig", &EventKind::Signal);
             reg.close();
             (e0, e1)
         };
@@ -264,10 +383,6 @@ mod tests {
     struct SampleJob {}
     impl JobRunner for SampleJob {
         fn run(&self, _: Box<dyn JobRunnerContext>) -> ScriptExit {
-            panic!("not runnable");
-        }
-
-        fn on_event(&self, _: EventRef, _: EventPayload) -> Result<(), ScriptExit> {
             panic!("not runnable");
         }
     }
