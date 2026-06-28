@@ -41,9 +41,7 @@ required:
   - schema-version
   - meta
   - threads
-  - module-jobs
-  - inline-jobs
-  - streams
+  - jobs
 additionalProperties: false
 
 # ===================================================================
@@ -132,14 +130,6 @@ properties:
     patternProperties:
       ".*":
         "$ref": "#/$defs/Job"
-  streams:
-    title: Streams List
-    description: The configuration of inter-connected streams for the jobs.
-    type: array
-    minItems: 0
-    maxItems: 10000
-    items:
-      "$ref": "#/$defs/Stream"
 
 # ===================================================================
 # ===================================================================
@@ -557,28 +547,74 @@ properties:
 
   # ===================================================================
   # ===================================================================
-  # Stream-Related Definitions
-
-  Stream:
+  # Job-Related Definitions
+  Job:
+    title: Job
+    description: >
+      A configured execution element.  The 'name' of the job is in the property key
+      of the owning object, which other objects may reference through a JobRef type.
     type: object
-    title: Stream
-    description: A connection between two jobs' streams.
     required:
       - source
-      - from
-      - to
+      - def
     additionalProperties: false
     properties:
       source:
         "$ref": "#/$defs/Source"
+      rerunnable:
+        type: boolean
+        default: true
+      def:
+        # All def values use the constant string 'kind' as the distinguisher.
+        # They do not have a source, because that comes from the parent (this object).
+        oneOf:
+          - "$ref": "#/$defs/ModuleJob"
+          - "$ref": "#/$defs/StreamJob"
+          - "$ref": "#/$defs/InlineJob"
+          - "$ref": "#/$defs/MacroJob"
+          - "$ref": "#/$defs/StateJob"
+
+  ModuleJob:
+    title: Module Job
+    description: >
+      A configuration for a pre-built execution path.  The shell comes with a set
+      of pre-installed modules in the 'shell_lib/modules' path.
+    type: object
+    required:
+      - kind
+      - module
+    additionalProperties: false
+    properties:
+      kind:
+        title: Kind
+        description: Job definition distinguisher
+        const: module
+      module:
+        type: string
+        description: The build implementation for the job.
+        minLength: 1
+        maxLength: 1000
+      initial-parameters:
+        "$ref": "#/$defs/InitialParameters"
+      runtime-parameters:
+        "$ref": "#/$defs/NamedParameters"
+  StreamJob:
+    title: "Stream Job"
+    description: A job that builds a stream connection between two module jobs.
+    type: object
+    required:
+      - kind
+      - from
+      - to
+    additionalProperties: false
+    properties:
       from:
         "$ref": "#/$defs/StreamLocation"
       to:
         "$ref": "#/$defs/StreamLocation"
-
   StreamLocation:
     oneOf:
-      - title: FD
+      - title: File Descriptor Stream
         description: The file descriptor reference associated with the owning job.
         type: object
         required:
@@ -614,59 +650,6 @@ properties:
             "$ref": "#/$defs/JobRef"
           name:
             "$ref": "#/$defs/StreamName"
-
-  # ===================================================================
-  # ===================================================================
-  # Job-Related Definitions
-  Job:
-    title: Job
-    description: >
-      A configured execution element.  The 'name' of the job is in the property key
-      of the owning object, which other objects may reference through a JobRef type.
-    type: object
-    required:
-      - source
-      - def
-    additionalProperties: false
-    properties:
-      source:
-        "$ref": "#/$defs/Source"
-      rerunnable:
-        type: boolean
-        default: true
-      def:
-        # All def values use the constant string 'kind' as the distinguisher.
-        # They do not have a source, because that comes from the parent (this object).
-        oneOf:
-          - "$ref": "#/$defs/ModuleJob"
-          - "$ref": "#/$defs/InlineJob"
-          - "$ref": "#/$defs/MacroJob"
-          - "$ref": "#/$defs/StateJob"
-
-  ModuleJob:
-    title: Module Job
-    description: >
-      A configuration for a pre-built execution path.  The shell comes with a set
-      of pre-installed modules in the 'shell_lib/modules' path.
-    type: object
-    required:
-      - kind
-      - module
-    additionalProperties: false
-    properties:
-      kind:
-        title: Kind
-        description: Job definition distinguisher
-        const: module
-      module:
-        type: string
-        description: The build implementation for the job.
-        minLength: 1
-        maxLength: 1000
-      initial-parameters:
-        "$ref": "#/$defs/InitialParameters"
-      runtime-parameters:
-        "$ref": "#/$defs/NamedParameters"
   InlineJob:
     title: Inline Job
     description: A job with explicit code that describes the execution behavior.

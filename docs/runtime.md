@@ -39,4 +39,8 @@ In another example, the script setup may include a logging job that listens to "
 
 The system considers each job as an individual unit of work.  It cannot run parallel with itself.  If a thread requests a job to run ("spawn") while it's already running, the spawn request will not do anything.  Some jobs can mark themselves as run once, so that if a job as already completed running, a second request to spawn it will also do nothing.  A "wait for job" request first looks at the current state of the job - if it isn't running, either because it has never started or it has already stopped, then the "wait for job" does not wait.
 
-Only when a job changes to running does it receive events.
+The system comes with many kinds of jobs, which defines how the builder turns the definition into a job execution task.
+
+### Stream Job
+
+The module jobs include a definition for a set of streams they either require or optionally allow.  These streams allow the job to communicate to another job through that stream.  However, by this nature, it means that the stream must exist before either job can start.  To that end. a stream job must launch before the connected-to jobs can start.

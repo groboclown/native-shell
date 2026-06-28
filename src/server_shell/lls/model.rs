@@ -3680,6 +3680,9 @@ impl<'de> ::serde::Deserialize<'de> for InlineJobCode {
 #[doc = "          \"$ref\": \"#/$defs/ModuleJob\""]
 #[doc = "        },"]
 #[doc = "        {"]
+#[doc = "          \"$ref\": \"#/$defs/StreamJob\""]
+#[doc = "        },"]
+#[doc = "        {"]
 #[doc = "          \"$ref\": \"#/$defs/InlineJob\""]
 #[doc = "        },"]
 #[doc = "        {"]
@@ -3731,6 +3734,9 @@ impl Job {
 #[doc = "      \"$ref\": \"#/$defs/ModuleJob\""]
 #[doc = "    },"]
 #[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/StreamJob\""]
+#[doc = "    },"]
+#[doc = "    {"]
 #[doc = "      \"$ref\": \"#/$defs/InlineJob\""]
 #[doc = "    },"]
 #[doc = "    {"]
@@ -3747,6 +3753,7 @@ impl Job {
 #[serde(untagged)]
 pub enum JobDef {
     ModuleJob(ModuleJob),
+    StreamJob(StreamJob),
     InlineJob(InlineJob),
     MacroJob(MacroJob),
     StateJob(StateJob),
@@ -3759,6 +3766,11 @@ impl ::std::convert::From<&Self> for JobDef {
 impl ::std::convert::From<ModuleJob> for JobDef {
     fn from(value: ModuleJob) -> Self {
         Self::ModuleJob(value)
+    }
+}
+impl ::std::convert::From<StreamJob> for JobDef {
+    fn from(value: StreamJob) -> Self {
+        Self::StreamJob(value)
     }
 }
 impl ::std::convert::From<InlineJob> for JobDef {
@@ -5443,11 +5455,9 @@ impl NandTwoBooleanValues {
 #[doc = "  \"description\": \"The low-level script schema for a Native Shell.  It describes in the most basic way the elements necessary to build the code that can compile into the shell program.\\n\","]
 #[doc = "  \"type\": \"object\","]
 #[doc = "  \"required\": ["]
-#[doc = "    \"inline-jobs\","]
+#[doc = "    \"jobs\","]
 #[doc = "    \"meta\","]
-#[doc = "    \"module-jobs\","]
 #[doc = "    \"schema-version\","]
-#[doc = "    \"streams\","]
 #[doc = "    \"threads\""]
 #[doc = "  ],"]
 #[doc = "  \"properties\": {"]
@@ -5534,16 +5544,6 @@ impl NandTwoBooleanValues {
 #[doc = "      \"description\": \"The version of the schema for this LLS.  This is used to ensure compatibility with the parser and runtime.\\n\","]
 #[doc = "      \"const\": \"1.0.0\""]
 #[doc = "    },"]
-#[doc = "    \"streams\": {"]
-#[doc = "      \"title\": \"Streams List\","]
-#[doc = "      \"description\": \"The configuration of inter-connected streams for the jobs.\","]
-#[doc = "      \"type\": \"array\","]
-#[doc = "      \"items\": {"]
-#[doc = "        \"$ref\": \"#/$defs/Stream\""]
-#[doc = "      },"]
-#[doc = "      \"maxItems\": 10000,"]
-#[doc = "      \"minItems\": 0"]
-#[doc = "    },"]
 #[doc = "    \"threads\": {"]
 #[doc = "      \"title\": \"Threads\","]
 #[doc = "      \"description\": \"All sequential instructions for execution.  These provide a form of instruction set.\\n\","]
@@ -5565,22 +5565,12 @@ impl NandTwoBooleanValues {
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
 pub struct NativeShellLowLevelScriptSchema {
-    #[serde(rename = "inline-jobs")]
-    pub inline_jobs: ::serde_json::Value,
     #[doc = "The set of all configured actions to take during execution."]
-    #[serde(
-        default,
-        skip_serializing_if = ":: std :: collections :: HashMap::is_empty"
-    )]
     pub jobs: ::std::collections::HashMap<NativeShellLowLevelScriptSchemaJobsKey, Job>,
     pub meta: Metadata,
-    #[serde(rename = "module-jobs")]
-    pub module_jobs: ::serde_json::Value,
     #[doc = "The version of the schema for this LLS.  This is used to ensure compatibility with the parser and runtime.\n"]
     #[serde(rename = "schema-version")]
     pub schema_version: ::serde_json::Value,
-    #[doc = "The configuration of inter-connected streams for the jobs."]
-    pub streams: ::std::vec::Vec<Stream>,
     #[doc = "All sequential instructions for execution.  These provide a form of instruction set.\n"]
     pub threads: ::std::collections::HashMap<NativeShellLowLevelScriptSchemaThreadsKey, Thread>,
 }
@@ -8612,26 +8602,23 @@ impl ::std::convert::From<&Self> for StepRun {
         value.clone()
     }
 }
-#[doc = "A connection between two jobs' streams."]
+#[doc = "A job that builds a stream connection between two module jobs."]
 #[doc = r""]
 #[doc = r" <details><summary>JSON schema</summary>"]
 #[doc = r""]
 #[doc = r" ```json"]
 #[doc = "{"]
-#[doc = "  \"title\": \"Stream\","]
-#[doc = "  \"description\": \"A connection between two jobs' streams.\","]
+#[doc = "  \"title\": \"Stream Job\","]
+#[doc = "  \"description\": \"A job that builds a stream connection between two module jobs.\","]
 #[doc = "  \"type\": \"object\","]
 #[doc = "  \"required\": ["]
 #[doc = "    \"from\","]
-#[doc = "    \"source\","]
+#[doc = "    \"kind\","]
 #[doc = "    \"to\""]
 #[doc = "  ],"]
 #[doc = "  \"properties\": {"]
 #[doc = "    \"from\": {"]
 #[doc = "      \"$ref\": \"#/$defs/StreamLocation\""]
-#[doc = "    },"]
-#[doc = "    \"source\": {"]
-#[doc = "      \"$ref\": \"#/$defs/Source\""]
 #[doc = "    },"]
 #[doc = "    \"to\": {"]
 #[doc = "      \"$ref\": \"#/$defs/StreamLocation\""]
@@ -8643,18 +8630,18 @@ impl ::std::convert::From<&Self> for StepRun {
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
-pub struct Stream {
+pub struct StreamJob {
     pub from: StreamLocation,
-    pub source: Source,
+    pub kind: ::serde_json::Value,
     pub to: StreamLocation,
 }
-impl ::std::convert::From<&Stream> for Stream {
-    fn from(value: &Stream) -> Self {
+impl ::std::convert::From<&StreamJob> for StreamJob {
+    fn from(value: &StreamJob) -> Self {
         value.clone()
     }
 }
-impl Stream {
-    pub fn builder() -> builder::Stream {
+impl StreamJob {
+    pub fn builder() -> builder::StreamJob {
         Default::default()
     }
 }
@@ -8666,7 +8653,7 @@ impl Stream {
 #[doc = "{"]
 #[doc = "  \"oneOf\": ["]
 #[doc = "    {"]
-#[doc = "      \"title\": \"FD\","]
+#[doc = "      \"title\": \"File Descriptor Stream\","]
 #[doc = "      \"description\": \"The file descriptor reference associated with the owning job.\","]
 #[doc = "      \"type\": \"object\","]
 #[doc = "      \"required\": ["]
@@ -8723,7 +8710,7 @@ impl Stream {
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(tag = "kind", deny_unknown_fields)]
 pub enum StreamLocation {
-    #[doc = "FD\n\nThe file descriptor reference associated with the owning job."]
+    #[doc = "File Descriptor Stream\n\nThe file descriptor reference associated with the owning job."]
     #[serde(rename = "fd")]
     Fd {
         fd: FileDescriptor,
@@ -13749,15 +13736,12 @@ pub mod builder {
     }
     #[derive(Clone, Debug)]
     pub struct NativeShellLowLevelScriptSchema {
-        inline_jobs: ::std::result::Result<::serde_json::Value, ::std::string::String>,
         jobs: ::std::result::Result<
             ::std::collections::HashMap<super::NativeShellLowLevelScriptSchemaJobsKey, super::Job>,
             ::std::string::String,
         >,
         meta: ::std::result::Result<super::Metadata, ::std::string::String>,
-        module_jobs: ::std::result::Result<::serde_json::Value, ::std::string::String>,
         schema_version: ::std::result::Result<::serde_json::Value, ::std::string::String>,
-        streams: ::std::result::Result<::std::vec::Vec<super::Stream>, ::std::string::String>,
         threads: ::std::result::Result<
             ::std::collections::HashMap<
                 super::NativeShellLowLevelScriptSchemaThreadsKey,
@@ -13769,27 +13753,14 @@ pub mod builder {
     impl ::std::default::Default for NativeShellLowLevelScriptSchema {
         fn default() -> Self {
             Self {
-                inline_jobs: Err("no value supplied for inline_jobs".to_string()),
-                jobs: Ok(Default::default()),
+                jobs: Err("no value supplied for jobs".to_string()),
                 meta: Err("no value supplied for meta".to_string()),
-                module_jobs: Err("no value supplied for module_jobs".to_string()),
                 schema_version: Err("no value supplied for schema_version".to_string()),
-                streams: Err("no value supplied for streams".to_string()),
                 threads: Err("no value supplied for threads".to_string()),
             }
         }
     }
     impl NativeShellLowLevelScriptSchema {
-        pub fn inline_jobs<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<::serde_json::Value>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.inline_jobs = value
-                .try_into()
-                .map_err(|e| format!("error converting supplied value for inline_jobs: {}", e));
-            self
-        }
         pub fn jobs<T>(mut self, value: T) -> Self
         where
             T: ::std::convert::TryInto<
@@ -13815,16 +13786,6 @@ pub mod builder {
                 .map_err(|e| format!("error converting supplied value for meta: {}", e));
             self
         }
-        pub fn module_jobs<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<::serde_json::Value>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.module_jobs = value
-                .try_into()
-                .map_err(|e| format!("error converting supplied value for module_jobs: {}", e));
-            self
-        }
         pub fn schema_version<T>(mut self, value: T) -> Self
         where
             T: ::std::convert::TryInto<::serde_json::Value>,
@@ -13833,16 +13794,6 @@ pub mod builder {
             self.schema_version = value
                 .try_into()
                 .map_err(|e| format!("error converting supplied value for schema_version: {}", e));
-            self
-        }
-        pub fn streams<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<::std::vec::Vec<super::Stream>>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.streams = value
-                .try_into()
-                .map_err(|e| format!("error converting supplied value for streams: {}", e));
             self
         }
         pub fn threads<T>(mut self, value: T) -> Self
@@ -13869,12 +13820,9 @@ pub mod builder {
             value: NativeShellLowLevelScriptSchema,
         ) -> ::std::result::Result<Self, super::error::ConversionError> {
             Ok(Self {
-                inline_jobs: value.inline_jobs?,
                 jobs: value.jobs?,
                 meta: value.meta?,
-                module_jobs: value.module_jobs?,
                 schema_version: value.schema_version?,
-                streams: value.streams?,
                 threads: value.threads?,
             })
         }
@@ -13884,12 +13832,9 @@ pub mod builder {
     {
         fn from(value: super::NativeShellLowLevelScriptSchema) -> Self {
             Self {
-                inline_jobs: Ok(value.inline_jobs),
                 jobs: Ok(value.jobs),
                 meta: Ok(value.meta),
-                module_jobs: Ok(value.module_jobs),
                 schema_version: Ok(value.schema_version),
-                streams: Ok(value.streams),
                 threads: Ok(value.threads),
             }
         }
@@ -15398,21 +15343,21 @@ pub mod builder {
         }
     }
     #[derive(Clone, Debug)]
-    pub struct Stream {
+    pub struct StreamJob {
         from: ::std::result::Result<super::StreamLocation, ::std::string::String>,
-        source: ::std::result::Result<super::Source, ::std::string::String>,
+        kind: ::std::result::Result<::serde_json::Value, ::std::string::String>,
         to: ::std::result::Result<super::StreamLocation, ::std::string::String>,
     }
-    impl ::std::default::Default for Stream {
+    impl ::std::default::Default for StreamJob {
         fn default() -> Self {
             Self {
                 from: Err("no value supplied for from".to_string()),
-                source: Err("no value supplied for source".to_string()),
+                kind: Err("no value supplied for kind".to_string()),
                 to: Err("no value supplied for to".to_string()),
             }
         }
     }
-    impl Stream {
+    impl StreamJob {
         pub fn from<T>(mut self, value: T) -> Self
         where
             T: ::std::convert::TryInto<super::StreamLocation>,
@@ -15423,14 +15368,14 @@ pub mod builder {
                 .map_err(|e| format!("error converting supplied value for from: {}", e));
             self
         }
-        pub fn source<T>(mut self, value: T) -> Self
+        pub fn kind<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<super::Source>,
+            T: ::std::convert::TryInto<::serde_json::Value>,
             T::Error: ::std::fmt::Display,
         {
-            self.source = value
+            self.kind = value
                 .try_into()
-                .map_err(|e| format!("error converting supplied value for source: {}", e));
+                .map_err(|e| format!("error converting supplied value for kind: {}", e));
             self
         }
         pub fn to<T>(mut self, value: T) -> Self
@@ -15444,21 +15389,23 @@ pub mod builder {
             self
         }
     }
-    impl ::std::convert::TryFrom<Stream> for super::Stream {
+    impl ::std::convert::TryFrom<StreamJob> for super::StreamJob {
         type Error = super::error::ConversionError;
-        fn try_from(value: Stream) -> ::std::result::Result<Self, super::error::ConversionError> {
+        fn try_from(
+            value: StreamJob,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
             Ok(Self {
                 from: value.from?,
-                source: value.source?,
+                kind: value.kind?,
                 to: value.to?,
             })
         }
     }
-    impl ::std::convert::From<super::Stream> for Stream {
-        fn from(value: super::Stream) -> Self {
+    impl ::std::convert::From<super::StreamJob> for StreamJob {
+        fn from(value: super::StreamJob) -> Self {
             Self {
                 from: Ok(value.from),
-                source: Ok(value.source),
+                kind: Ok(value.kind),
                 to: Ok(value.to),
             }
         }
