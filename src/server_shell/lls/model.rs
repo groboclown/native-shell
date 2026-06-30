@@ -453,6 +453,179 @@ impl CeilValue {
         Default::default()
     }
 }
+#[doc = "A description of a parameter that comes from the command-line. This will grant jobs to reference the value from runtime parameters.\n"]
+#[doc = r""]
+#[doc = r" <details><summary>JSON schema</summary>"]
+#[doc = r""]
+#[doc = r" ```json"]
+#[doc = "{"]
+#[doc = "  \"title\": \"Command-line Parameter\","]
+#[doc = "  \"description\": \"A description of a parameter that comes from the command-line. This will grant jobs to reference the value from runtime parameters.\\n\","]
+#[doc = "  \"type\": \"object\","]
+#[doc = "  \"required\": ["]
+#[doc = "    \"aliases\","]
+#[doc = "    \"kind\","]
+#[doc = "    \"name\","]
+#[doc = "    \"source\""]
+#[doc = "  ],"]
+#[doc = "  \"properties\": {"]
+#[doc = "    \"aliases\": {"]
+#[doc = "      \"title\": \"Alias List\","]
+#[doc = "      \"description\": \"A list of aliases the user can give to fill in the value.  Useful for allowing an environment variable in the form THE_NAME and the CLI parameters '--the-name' and '-n'.\\n\","]
+#[doc = "      \"type\": \"array\","]
+#[doc = "      \"items\": {"]
+#[doc = "        \"type\": \"string\","]
+#[doc = "        \"maxLength\": 100,"]
+#[doc = "        \"minLength\": 0"]
+#[doc = "      },"]
+#[doc = "      \"maxItems\": 1000,"]
+#[doc = "      \"minItems\": 0"]
+#[doc = "    },"]
+#[doc = "    \"description\": {"]
+#[doc = "      \"$ref\": \"#/$defs/UserHelp\""]
+#[doc = "    },"]
+#[doc = "    \"kind\": {"]
+#[doc = "      \"title\": \"Value type\","]
+#[doc = "      \"description\": \"Allowed type of value.  This determines how parser handles the argument. A \\\"-list\\\" means that the user may provide the parameter more than once, and they accumulate in a list.  \\\"flag\\\" means that setting the value assigns a boolean value to 'true', with a default value of 'false'.  \\\"count\\\" is similar to \\\"flag\\\", but it counts the number of times the user set it (such as '-v' for verbose and '-vv' for very verbose).  \\\"extra\\\" accumulates all arguments without a label (such as with the command \\\"cat a b\\\" uses extra arguments \\\"a\\\" and \\\"b\\\"). There can be only one argument with kind \\\"extra\\\".\\n\","]
+#[doc = "      \"enum\": ["]
+#[doc = "        \"string\","]
+#[doc = "        \"string-list\","]
+#[doc = "        \"int\","]
+#[doc = "        \"int-list\","]
+#[doc = "        \"flag\","]
+#[doc = "        \"count\","]
+#[doc = "        \"extra\""]
+#[doc = "      ]"]
+#[doc = "    },"]
+#[doc = "    \"name\": {"]
+#[doc = "      \"description\": \"the generated state variable name that stores the value.\","]
+#[doc = "      \"type\": \"string\","]
+#[doc = "      \"minLength\": 1,"]
+#[doc = "      \"maxLenght\": 100"]
+#[doc = "    },"]
+#[doc = "    \"required\": {"]
+#[doc = "      \"description\": \"Declares whether the user must pass in the argument.  This doesn't cover every use case, such as with \\\"copy\\\" requiring two or more arguments.  Those situations require extra, custom examination in the script.\\n\","]
+#[doc = "      \"default\": false,"]
+#[doc = "      \"type\": \"boolean\""]
+#[doc = "    },"]
+#[doc = "    \"source\": {"]
+#[doc = "      \"$ref\": \"#/$defs/Source\""]
+#[doc = "    },"]
+#[doc = "    \"var-name\": {"]
+#[doc = "      \"title\": \"Variable Name\","]
+#[doc = "      \"description\": \"The variable name to use in the help, such as '--format FORMAT-NAME', so that the help description may reference that.\\n\""]
+#[doc = "    }"]
+#[doc = "  }"]
+#[doc = "}"]
+#[doc = r" ```"]
+#[doc = r" </details>"]
+#[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
+pub struct CommandLineParameter {
+    #[doc = "A list of aliases the user can give to fill in the value.  Useful for allowing an environment variable in the form THE_NAME and the CLI parameters '--the-name' and '-n'.\n"]
+    pub aliases: ::std::vec::Vec<AliasListItem>,
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub description: ::std::option::Option<UserHelp>,
+    #[doc = "Allowed type of value.  This determines how parser handles the argument. A \"-list\" means that the user may provide the parameter more than once, and they accumulate in a list.  \"flag\" means that setting the value assigns a boolean value to 'true', with a default value of 'false'.  \"count\" is similar to \"flag\", but it counts the number of times the user set it (such as '-v' for verbose and '-vv' for very verbose).  \"extra\" accumulates all arguments without a label (such as with the command \"cat a b\" uses extra arguments \"a\" and \"b\"). There can be only one argument with kind \"extra\".\n"]
+    pub kind: ValueType,
+    #[doc = "the generated state variable name that stores the value."]
+    pub name: CommandLineParameterName,
+    #[doc = "Declares whether the user must pass in the argument.  This doesn't cover every use case, such as with \"copy\" requiring two or more arguments.  Those situations require extra, custom examination in the script.\n"]
+    #[serde(default)]
+    pub required: bool,
+    pub source: Source,
+    #[doc = "The variable name to use in the help, such as '--format FORMAT-NAME', so that the help description may reference that.\n"]
+    #[serde(
+        rename = "var-name",
+        default,
+        skip_serializing_if = "::std::option::Option::is_none"
+    )]
+    pub var_name: ::std::option::Option<::serde_json::Value>,
+}
+impl ::std::convert::From<&CommandLineParameter> for CommandLineParameter {
+    fn from(value: &CommandLineParameter) -> Self {
+        value.clone()
+    }
+}
+impl CommandLineParameter {
+    pub fn builder() -> builder::CommandLineParameter {
+        Default::default()
+    }
+}
+#[doc = "the generated state variable name that stores the value."]
+#[doc = r""]
+#[doc = r" <details><summary>JSON schema</summary>"]
+#[doc = r""]
+#[doc = r" ```json"]
+#[doc = "{"]
+#[doc = "  \"description\": \"the generated state variable name that stores the value.\","]
+#[doc = "  \"type\": \"string\","]
+#[doc = "  \"minLength\": 1,"]
+#[doc = "  \"maxLenght\": 100"]
+#[doc = "}"]
+#[doc = r" ```"]
+#[doc = r" </details>"]
+#[derive(:: serde :: Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct CommandLineParameterName(::std::string::String);
+impl ::std::ops::Deref for CommandLineParameterName {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<CommandLineParameterName> for ::std::string::String {
+    fn from(value: CommandLineParameterName) -> Self {
+        value.0
+    }
+}
+impl ::std::convert::From<&CommandLineParameterName> for CommandLineParameterName {
+    fn from(value: &CommandLineParameterName) -> Self {
+        value.clone()
+    }
+}
+impl ::std::str::FromStr for CommandLineParameterName {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() < 1usize {
+            return Err("shorter than 1 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for CommandLineParameterName {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<&::std::string::String> for CommandLineParameterName {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: &::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for CommandLineParameterName {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for CommandLineParameterName {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
 #[doc = "A computed list value."]
 #[doc = r""]
 #[doc = r" <details><summary>JSON schema</summary>"]
@@ -2276,83 +2449,6 @@ impl ConstantStringValue {
         Default::default()
     }
 }
-#[doc = "`DescriptionItem`"]
-#[doc = r""]
-#[doc = r" <details><summary>JSON schema</summary>"]
-#[doc = r""]
-#[doc = r" ```json"]
-#[doc = "{"]
-#[doc = "  \"type\": \"string\","]
-#[doc = "  \"maxLength\": 10000,"]
-#[doc = "  \"minLength\": 0"]
-#[doc = "}"]
-#[doc = r" ```"]
-#[doc = r" </details>"]
-#[derive(:: serde :: Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
-#[serde(transparent)]
-pub struct DescriptionItem(::std::string::String);
-impl ::std::ops::Deref for DescriptionItem {
-    type Target = ::std::string::String;
-    fn deref(&self) -> &::std::string::String {
-        &self.0
-    }
-}
-impl ::std::convert::From<DescriptionItem> for ::std::string::String {
-    fn from(value: DescriptionItem) -> Self {
-        value.0
-    }
-}
-impl ::std::convert::From<&DescriptionItem> for DescriptionItem {
-    fn from(value: &DescriptionItem) -> Self {
-        value.clone()
-    }
-}
-impl ::std::str::FromStr for DescriptionItem {
-    type Err = self::error::ConversionError;
-    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
-        if value.chars().count() > 10000usize {
-            return Err("longer than 10000 characters".into());
-        }
-        if value.chars().count() < 0usize {
-            return Err("shorter than 0 characters".into());
-        }
-        Ok(Self(value.to_string()))
-    }
-}
-impl ::std::convert::TryFrom<&str> for DescriptionItem {
-    type Error = self::error::ConversionError;
-    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
-        value.parse()
-    }
-}
-impl ::std::convert::TryFrom<&::std::string::String> for DescriptionItem {
-    type Error = self::error::ConversionError;
-    fn try_from(
-        value: &::std::string::String,
-    ) -> ::std::result::Result<Self, self::error::ConversionError> {
-        value.parse()
-    }
-}
-impl ::std::convert::TryFrom<::std::string::String> for DescriptionItem {
-    type Error = self::error::ConversionError;
-    fn try_from(
-        value: ::std::string::String,
-    ) -> ::std::result::Result<Self, self::error::ConversionError> {
-        value.parse()
-    }
-}
-impl<'de> ::serde::Deserialize<'de> for DescriptionItem {
-    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
-    where
-        D: ::serde::Deserializer<'de>,
-    {
-        ::std::string::String::deserialize(deserializer)?
-            .parse()
-            .map_err(|e: self::error::ConversionError| {
-                <D::Error as ::serde::de::Error>::custom(e.to_string())
-            })
-    }
-}
 #[doc = "A number value that is the quotient of two other number values."]
 #[doc = r""]
 #[doc = r" <details><summary>JSON schema</summary>"]
@@ -2404,54 +2500,34 @@ impl DivideTwoValues {
         Default::default()
     }
 }
-#[doc = "A description of a parameter that comes from the environment. This will grant jobs to reference the value from runtime parameters.\n"]
+#[doc = "Declaration for an environment variable, for end-user help.  If it does not provide a 'default' value (even empty), then the end-user must provide the variable.\n"]
 #[doc = r""]
 #[doc = r" <details><summary>JSON schema</summary>"]
 #[doc = r""]
 #[doc = r" ```json"]
 #[doc = "{"]
-#[doc = "  \"title\": \"Environment Parameter\","]
-#[doc = "  \"description\": \"A description of a parameter that comes from the environment. This will grant jobs to reference the value from runtime parameters.\\n\","]
+#[doc = "  \"title\": \"Environment Variable Declaration\","]
+#[doc = "  \"description\": \"Declaration for an environment variable, for end-user help.  If it does not provide a 'default' value (even empty), then the end-user must provide the variable.\\n\","]
 #[doc = "  \"type\": \"object\","]
 #[doc = "  \"required\": ["]
-#[doc = "    \"kind\","]
+#[doc = "    \"description\","]
 #[doc = "    \"source\""]
 #[doc = "  ],"]
 #[doc = "  \"properties\": {"]
-#[doc = "    \"aliases\": {"]
-#[doc = "      \"title\": \"Alias List\","]
-#[doc = "      \"description\": \"A list of aliases the user can give to fill in the value.  Useful for allowing an environment variable in the form THE_NAME and the CLI parameters '--the-name' and '-n'.\\n\","]
-#[doc = "      \"type\": \"array\","]
-#[doc = "      \"items\": {"]
-#[doc = "        \"type\": \"string\","]
-#[doc = "        \"maxLength\": 100,"]
-#[doc = "        \"minLength\": 0"]
-#[doc = "      },"]
-#[doc = "      \"maxItems\": 1000,"]
-#[doc = "      \"minItems\": 0"]
+#[doc = "    \"default\": {"]
+#[doc = "      \"oneOf\": ["]
+#[doc = "        {"]
+#[doc = "          \"type\": \"null\""]
+#[doc = "        },"]
+#[doc = "        {"]
+#[doc = "          \"type\": \"string\","]
+#[doc = "          \"maxLength\": 10000,"]
+#[doc = "          \"minLength\": 0"]
+#[doc = "        }"]
+#[doc = "      ]"]
 #[doc = "    },"]
 #[doc = "    \"description\": {"]
-#[doc = "      \"title\": \"Description\","]
-#[doc = "      \"description\": \"Help text for the parameter. Currently, only allows for a list of text for a single language.  Eventually may allow for multiple langauges.\\n\","]
-#[doc = "      \"type\": \"array\","]
-#[doc = "      \"items\": {"]
-#[doc = "        \"type\": \"string\","]
-#[doc = "        \"maxLength\": 10000,"]
-#[doc = "        \"minLength\": 0"]
-#[doc = "      },"]
-#[doc = "      \"maxItems\": 1000,"]
-#[doc = "      \"minItems\": 0"]
-#[doc = "    },"]
-#[doc = "    \"kind\": {"]
-#[doc = "      \"title\": \"Value type\","]
-#[doc = "      \"description\": \"Allowed type of value.\","]
-#[doc = "      \"enum\": ["]
-#[doc = "        \"string\","]
-#[doc = "        \"string-list\","]
-#[doc = "        \"int\","]
-#[doc = "        \"int-list\","]
-#[doc = "        \"flag\""]
-#[doc = "      ]"]
+#[doc = "      \"$ref\": \"#/$defs/UserHelp\""]
 #[doc = "    },"]
 #[doc = "    \"source\": {"]
 #[doc = "      \"$ref\": \"#/$defs/Source\""]
@@ -2461,25 +2537,99 @@ impl DivideTwoValues {
 #[doc = r" ```"]
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
-pub struct EnvironmentParameter {
-    #[doc = "A list of aliases the user can give to fill in the value.  Useful for allowing an environment variable in the form THE_NAME and the CLI parameters '--the-name' and '-n'.\n"]
-    #[serde(default, skip_serializing_if = "::std::vec::Vec::is_empty")]
-    pub aliases: ::std::vec::Vec<AliasListItem>,
-    #[doc = "Help text for the parameter. Currently, only allows for a list of text for a single language.  Eventually may allow for multiple langauges.\n"]
-    #[serde(default, skip_serializing_if = "::std::vec::Vec::is_empty")]
-    pub description: ::std::vec::Vec<DescriptionItem>,
-    #[doc = "Allowed type of value."]
-    pub kind: ValueType,
+pub struct EnvironmentVariableDeclaration {
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub default: ::std::option::Option<EnvironmentVariableDeclarationDefault>,
+    pub description: UserHelp,
     pub source: Source,
 }
-impl ::std::convert::From<&EnvironmentParameter> for EnvironmentParameter {
-    fn from(value: &EnvironmentParameter) -> Self {
+impl ::std::convert::From<&EnvironmentVariableDeclaration> for EnvironmentVariableDeclaration {
+    fn from(value: &EnvironmentVariableDeclaration) -> Self {
         value.clone()
     }
 }
-impl EnvironmentParameter {
-    pub fn builder() -> builder::EnvironmentParameter {
+impl EnvironmentVariableDeclaration {
+    pub fn builder() -> builder::EnvironmentVariableDeclaration {
         Default::default()
+    }
+}
+#[doc = "`EnvironmentVariableDeclarationDefault`"]
+#[doc = r""]
+#[doc = r" <details><summary>JSON schema</summary>"]
+#[doc = r""]
+#[doc = r" ```json"]
+#[doc = "{"]
+#[doc = "  \"type\": \"string\","]
+#[doc = "  \"maxLength\": 10000,"]
+#[doc = "  \"minLength\": 0"]
+#[doc = "}"]
+#[doc = r" ```"]
+#[doc = r" </details>"]
+#[derive(:: serde :: Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct EnvironmentVariableDeclarationDefault(::std::string::String);
+impl ::std::ops::Deref for EnvironmentVariableDeclarationDefault {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<EnvironmentVariableDeclarationDefault> for ::std::string::String {
+    fn from(value: EnvironmentVariableDeclarationDefault) -> Self {
+        value.0
+    }
+}
+impl ::std::convert::From<&EnvironmentVariableDeclarationDefault>
+    for EnvironmentVariableDeclarationDefault
+{
+    fn from(value: &EnvironmentVariableDeclarationDefault) -> Self {
+        value.clone()
+    }
+}
+impl ::std::str::FromStr for EnvironmentVariableDeclarationDefault {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 10000usize {
+            return Err("longer than 10000 characters".into());
+        }
+        if value.chars().count() < 0usize {
+            return Err("shorter than 0 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for EnvironmentVariableDeclarationDefault {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<&::std::string::String> for EnvironmentVariableDeclarationDefault {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: &::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for EnvironmentVariableDeclarationDefault {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for EnvironmentVariableDeclarationDefault {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
     }
 }
 #[doc = "The text payload for a message kind of event."]
@@ -3527,7 +3677,8 @@ impl<'de> ::serde::Deserialize<'de> for InitialParametersKey {
 #[doc = "  \"type\": \"object\","]
 #[doc = "  \"required\": ["]
 #[doc = "    \"code\","]
-#[doc = "    \"kind\""]
+#[doc = "    \"kind\","]
+#[doc = "    \"source\""]
 #[doc = "  ],"]
 #[doc = "  \"properties\": {"]
 #[doc = "    \"code\": {"]
@@ -3544,8 +3695,15 @@ impl<'de> ::serde::Deserialize<'de> for InitialParametersKey {
 #[doc = "      \"description\": \"Job definition distinguisher\","]
 #[doc = "      \"const\": \"inline\""]
 #[doc = "    },"]
+#[doc = "    \"rerunnable\": {"]
+#[doc = "      \"default\": true,"]
+#[doc = "      \"type\": \"boolean\""]
+#[doc = "    },"]
 #[doc = "    \"runtime-parameters\": {"]
 #[doc = "      \"$ref\": \"#/$defs/NamedParameters\""]
+#[doc = "    },"]
+#[doc = "    \"source\": {"]
+#[doc = "      \"$ref\": \"#/$defs/Source\""]
 #[doc = "    }"]
 #[doc = "  },"]
 #[doc = "  \"additionalProperties\": false"]
@@ -3565,12 +3723,15 @@ pub struct InlineJob {
     pub initial_parameters: ::std::option::Option<InitialParameters>,
     #[doc = "Job definition distinguisher"]
     pub kind: ::serde_json::Value,
+    #[serde(default = "defaults::default_bool::<true>")]
+    pub rerunnable: bool,
     #[serde(
         rename = "runtime-parameters",
         default,
         skip_serializing_if = "::std::option::Option::is_none"
     )]
     pub runtime_parameters: ::std::option::Option<NamedParameters>,
+    pub source: Source,
 }
 impl ::std::convert::From<&InlineJob> for InlineJob {
     fn from(value: &InlineJob) -> Self {
@@ -3660,70 +3821,7 @@ impl<'de> ::serde::Deserialize<'de> for InlineJobCode {
             })
     }
 }
-#[doc = "A configured execution element.  The 'name' of the job is in the property key of the owning object, which other objects may reference through a JobRef type.\n"]
-#[doc = r""]
-#[doc = r" <details><summary>JSON schema</summary>"]
-#[doc = r""]
-#[doc = r" ```json"]
-#[doc = "{"]
-#[doc = "  \"title\": \"Job\","]
-#[doc = "  \"description\": \"A configured execution element.  The 'name' of the job is in the property key of the owning object, which other objects may reference through a JobRef type.\\n\","]
-#[doc = "  \"type\": \"object\","]
-#[doc = "  \"required\": ["]
-#[doc = "    \"def\","]
-#[doc = "    \"source\""]
-#[doc = "  ],"]
-#[doc = "  \"properties\": {"]
-#[doc = "    \"def\": {"]
-#[doc = "      \"oneOf\": ["]
-#[doc = "        {"]
-#[doc = "          \"$ref\": \"#/$defs/ModuleJob\""]
-#[doc = "        },"]
-#[doc = "        {"]
-#[doc = "          \"$ref\": \"#/$defs/StreamJob\""]
-#[doc = "        },"]
-#[doc = "        {"]
-#[doc = "          \"$ref\": \"#/$defs/InlineJob\""]
-#[doc = "        },"]
-#[doc = "        {"]
-#[doc = "          \"$ref\": \"#/$defs/MacroJob\""]
-#[doc = "        },"]
-#[doc = "        {"]
-#[doc = "          \"$ref\": \"#/$defs/StateJob\""]
-#[doc = "        }"]
-#[doc = "      ]"]
-#[doc = "    },"]
-#[doc = "    \"rerunnable\": {"]
-#[doc = "      \"default\": true,"]
-#[doc = "      \"type\": \"boolean\""]
-#[doc = "    },"]
-#[doc = "    \"source\": {"]
-#[doc = "      \"$ref\": \"#/$defs/Source\""]
-#[doc = "    }"]
-#[doc = "  },"]
-#[doc = "  \"additionalProperties\": false"]
-#[doc = "}"]
-#[doc = r" ```"]
-#[doc = r" </details>"]
-#[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
-#[serde(deny_unknown_fields)]
-pub struct Job {
-    pub def: JobDef,
-    #[serde(default = "defaults::default_bool::<true>")]
-    pub rerunnable: bool,
-    pub source: Source,
-}
-impl ::std::convert::From<&Job> for Job {
-    fn from(value: &Job) -> Self {
-        value.clone()
-    }
-}
-impl Job {
-    pub fn builder() -> builder::Job {
-        Default::default()
-    }
-}
-#[doc = "`JobDef`"]
+#[doc = "`Job`"]
 #[doc = r""]
 #[doc = r" <details><summary>JSON schema</summary>"]
 #[doc = r""]
@@ -3741,9 +3839,6 @@ impl Job {
 #[doc = "    },"]
 #[doc = "    {"]
 #[doc = "      \"$ref\": \"#/$defs/MacroJob\""]
-#[doc = "    },"]
-#[doc = "    {"]
-#[doc = "      \"$ref\": \"#/$defs/StateJob\""]
 #[doc = "    }"]
 #[doc = "  ]"]
 #[doc = "}"]
@@ -3751,41 +3846,35 @@ impl Job {
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(untagged)]
-pub enum JobDef {
+pub enum Job {
     ModuleJob(ModuleJob),
     StreamJob(StreamJob),
     InlineJob(InlineJob),
     MacroJob(MacroJob),
-    StateJob(StateJob),
 }
-impl ::std::convert::From<&Self> for JobDef {
-    fn from(value: &JobDef) -> Self {
+impl ::std::convert::From<&Self> for Job {
+    fn from(value: &Job) -> Self {
         value.clone()
     }
 }
-impl ::std::convert::From<ModuleJob> for JobDef {
+impl ::std::convert::From<ModuleJob> for Job {
     fn from(value: ModuleJob) -> Self {
         Self::ModuleJob(value)
     }
 }
-impl ::std::convert::From<StreamJob> for JobDef {
+impl ::std::convert::From<StreamJob> for Job {
     fn from(value: StreamJob) -> Self {
         Self::StreamJob(value)
     }
 }
-impl ::std::convert::From<InlineJob> for JobDef {
+impl ::std::convert::From<InlineJob> for Job {
     fn from(value: InlineJob) -> Self {
         Self::InlineJob(value)
     }
 }
-impl ::std::convert::From<MacroJob> for JobDef {
+impl ::std::convert::From<MacroJob> for Job {
     fn from(value: MacroJob) -> Self {
         Self::MacroJob(value)
-    }
-}
-impl ::std::convert::From<StateJob> for JobDef {
-    fn from(value: StateJob) -> Self {
-        Self::StateJob(value)
     }
 }
 #[doc = "Reference to a job.  It must reference one of the keys in the \"job\" collection."]
@@ -4558,7 +4647,8 @@ impl LookupStringValue {
 #[doc = "  \"type\": \"object\","]
 #[doc = "  \"required\": ["]
 #[doc = "    \"kind\","]
-#[doc = "    \"macro\""]
+#[doc = "    \"macro\","]
+#[doc = "    \"source\""]
 #[doc = "  ],"]
 #[doc = "  \"properties\": {"]
 #[doc = "    \"kind\": {"]
@@ -4568,6 +4658,13 @@ impl LookupStringValue {
 #[doc = "      \"type\": \"string\","]
 #[doc = "      \"maxLength\": 1000,"]
 #[doc = "      \"minLength\": 1"]
+#[doc = "    },"]
+#[doc = "    \"rerunnable\": {"]
+#[doc = "      \"default\": true,"]
+#[doc = "      \"type\": \"boolean\""]
+#[doc = "    },"]
+#[doc = "    \"source\": {"]
+#[doc = "      \"$ref\": \"#/$defs/Source\""]
 #[doc = "    }"]
 #[doc = "  },"]
 #[doc = "  \"additionalProperties\": false"]
@@ -4580,6 +4677,9 @@ pub struct MacroJob {
     pub kind: ::serde_json::Value,
     #[serde(rename = "macro")]
     pub macro_: MacroJobMacro,
+    #[serde(default = "defaults::default_bool::<true>")]
+    pub rerunnable: bool,
+    pub source: Source,
 }
 impl ::std::convert::From<&MacroJob> for MacroJob {
     fn from(value: &MacroJob) -> Self {
@@ -4657,6 +4757,246 @@ impl ::std::convert::TryFrom<::std::string::String> for MacroJobMacro {
     }
 }
 impl<'de> ::serde::Deserialize<'de> for MacroJobMacro {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
+#[doc = "A thread which the user can include in the list of threads to start when the script begins running.  This will construct an implicit \"job\" with the name of the thread, which will hold the state generated by the parameters and environment-variables.\n"]
+#[doc = r""]
+#[doc = r" <details><summary>JSON schema</summary>"]
+#[doc = r""]
+#[doc = r" ```json"]
+#[doc = "{"]
+#[doc = "  \"title\": \"Main\","]
+#[doc = "  \"description\": \"A thread which the user can include in the list of threads to start when the script begins running.  This will construct an implicit \\\"job\\\" with the name of the thread, which will hold the state generated by the parameters and environment-variables.\\n\","]
+#[doc = "  \"type\": \"object\","]
+#[doc = "  \"required\": ["]
+#[doc = "    \"source\""]
+#[doc = "  ],"]
+#[doc = "  \"properties\": {"]
+#[doc = "    \"default\": {"]
+#[doc = "      \"title\": \"Default\","]
+#[doc = "      \"description\": \"If true, then this will run as a main thread if the user does not declare a main thread to run.\\n\","]
+#[doc = "      \"default\": false,"]
+#[doc = "      \"type\": \"boolean\""]
+#[doc = "    },"]
+#[doc = "    \"description\": {"]
+#[doc = "      \"$ref\": \"#/$defs/UserHelp\""]
+#[doc = "    },"]
+#[doc = "    \"environment-variables\": {"]
+#[doc = "      \"title\": \"Environment Variable Set\","]
+#[doc = "      \"description\": \"Environment variables used by the script.  If the environment variable does not have a default value, then the script fails when invoked without that environment variable present.\\n\","]
+#[doc = "      \"type\": \"object\","]
+#[doc = "      \"maxItems\": 1000,"]
+#[doc = "      \"minItems\": 0,"]
+#[doc = "      \"patternProperties\": {"]
+#[doc = "        \"^[a-zA-Z0-9_]+$\": {"]
+#[doc = "          \"title\": \"Environment Variable Declaration\","]
+#[doc = "          \"description\": \"Declaration for an environment variable, for end-user help.  If it does not provide a 'default' value (even empty), then the end-user must provide the variable.\\n\","]
+#[doc = "          \"type\": \"object\","]
+#[doc = "          \"required\": ["]
+#[doc = "            \"description\","]
+#[doc = "            \"source\""]
+#[doc = "          ],"]
+#[doc = "          \"properties\": {"]
+#[doc = "            \"default\": {"]
+#[doc = "              \"oneOf\": ["]
+#[doc = "                {"]
+#[doc = "                  \"type\": \"null\""]
+#[doc = "                },"]
+#[doc = "                {"]
+#[doc = "                  \"type\": \"string\","]
+#[doc = "                  \"maxLength\": 10000,"]
+#[doc = "                  \"minLength\": 0"]
+#[doc = "                }"]
+#[doc = "              ]"]
+#[doc = "            },"]
+#[doc = "            \"description\": {"]
+#[doc = "              \"$ref\": \"#/$defs/UserHelp\""]
+#[doc = "            },"]
+#[doc = "            \"source\": {"]
+#[doc = "              \"$ref\": \"#/$defs/Source\""]
+#[doc = "            }"]
+#[doc = "          }"]
+#[doc = "        }"]
+#[doc = "      }"]
+#[doc = "    },"]
+#[doc = "    \"parameters\": {"]
+#[doc = "      \"title\": \"Command-line Parameter List\","]
+#[doc = "      \"description\": \"The command-line parameters stored by this thread.\","]
+#[doc = "      \"type\": \"array\","]
+#[doc = "      \"items\": {"]
+#[doc = "        \"title\": \"Command-line Parameter\","]
+#[doc = "        \"description\": \"A description of a parameter that comes from the command-line. This will grant jobs to reference the value from runtime parameters.\\n\","]
+#[doc = "        \"type\": \"object\","]
+#[doc = "        \"required\": ["]
+#[doc = "          \"aliases\","]
+#[doc = "          \"kind\","]
+#[doc = "          \"name\","]
+#[doc = "          \"source\""]
+#[doc = "        ],"]
+#[doc = "        \"properties\": {"]
+#[doc = "          \"aliases\": {"]
+#[doc = "            \"title\": \"Alias List\","]
+#[doc = "            \"description\": \"A list of aliases the user can give to fill in the value.  Useful for allowing an environment variable in the form THE_NAME and the CLI parameters '--the-name' and '-n'.\\n\","]
+#[doc = "            \"type\": \"array\","]
+#[doc = "            \"items\": {"]
+#[doc = "              \"type\": \"string\","]
+#[doc = "              \"maxLength\": 100,"]
+#[doc = "              \"minLength\": 0"]
+#[doc = "            },"]
+#[doc = "            \"maxItems\": 1000,"]
+#[doc = "            \"minItems\": 0"]
+#[doc = "          },"]
+#[doc = "          \"description\": {"]
+#[doc = "            \"$ref\": \"#/$defs/UserHelp\""]
+#[doc = "          },"]
+#[doc = "          \"kind\": {"]
+#[doc = "            \"title\": \"Value type\","]
+#[doc = "            \"description\": \"Allowed type of value.  This determines how parser handles the argument. A \\\"-list\\\" means that the user may provide the parameter more than once, and they accumulate in a list.  \\\"flag\\\" means that setting the value assigns a boolean value to 'true', with a default value of 'false'.  \\\"count\\\" is similar to \\\"flag\\\", but it counts the number of times the user set it (such as '-v' for verbose and '-vv' for very verbose).  \\\"extra\\\" accumulates all arguments without a label (such as with the command \\\"cat a b\\\" uses extra arguments \\\"a\\\" and \\\"b\\\"). There can be only one argument with kind \\\"extra\\\".\\n\","]
+#[doc = "            \"enum\": ["]
+#[doc = "              \"string\","]
+#[doc = "              \"string-list\","]
+#[doc = "              \"int\","]
+#[doc = "              \"int-list\","]
+#[doc = "              \"flag\","]
+#[doc = "              \"count\","]
+#[doc = "              \"extra\""]
+#[doc = "            ]"]
+#[doc = "          },"]
+#[doc = "          \"name\": {"]
+#[doc = "            \"description\": \"the generated state variable name that stores the value.\","]
+#[doc = "            \"type\": \"string\","]
+#[doc = "            \"minLength\": 1,"]
+#[doc = "            \"maxLenght\": 100"]
+#[doc = "          },"]
+#[doc = "          \"required\": {"]
+#[doc = "            \"description\": \"Declares whether the user must pass in the argument.  This doesn't cover every use case, such as with \\\"copy\\\" requiring two or more arguments.  Those situations require extra, custom examination in the script.\\n\","]
+#[doc = "            \"default\": false,"]
+#[doc = "            \"type\": \"boolean\""]
+#[doc = "          },"]
+#[doc = "          \"source\": {"]
+#[doc = "            \"$ref\": \"#/$defs/Source\""]
+#[doc = "          },"]
+#[doc = "          \"var-name\": {"]
+#[doc = "            \"title\": \"Variable Name\","]
+#[doc = "            \"description\": \"The variable name to use in the help, such as '--format FORMAT-NAME', so that the help description may reference that.\\n\""]
+#[doc = "          }"]
+#[doc = "        }"]
+#[doc = "      },"]
+#[doc = "      \"maxItems\": 1000,"]
+#[doc = "      \"minItems\": 0"]
+#[doc = "    },"]
+#[doc = "    \"source\": {"]
+#[doc = "      \"$ref\": \"#/$defs/Source\""]
+#[doc = "    }"]
+#[doc = "  },"]
+#[doc = "  \"additionalProperties\": false"]
+#[doc = "}"]
+#[doc = r" ```"]
+#[doc = r" </details>"]
+#[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
+#[serde(deny_unknown_fields)]
+pub struct Main {
+    #[doc = "If true, then this will run as a main thread if the user does not declare a main thread to run.\n"]
+    #[serde(default)]
+    pub default: bool,
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub description: ::std::option::Option<UserHelp>,
+    #[doc = "Environment variables used by the script.  If the environment variable does not have a default value, then the script fails when invoked without that environment variable present.\n"]
+    #[serde(
+        rename = "environment-variables",
+        default,
+        skip_serializing_if = ":: std :: collections :: HashMap::is_empty"
+    )]
+    pub environment_variables:
+        ::std::collections::HashMap<MainEnvironmentVariablesKey, EnvironmentVariableDeclaration>,
+    #[doc = "The command-line parameters stored by this thread."]
+    #[serde(default, skip_serializing_if = "::std::vec::Vec::is_empty")]
+    pub parameters: ::std::vec::Vec<CommandLineParameter>,
+    pub source: Source,
+}
+impl ::std::convert::From<&Main> for Main {
+    fn from(value: &Main) -> Self {
+        value.clone()
+    }
+}
+impl Main {
+    pub fn builder() -> builder::Main {
+        Default::default()
+    }
+}
+#[doc = "`MainEnvironmentVariablesKey`"]
+#[doc = r""]
+#[doc = r" <details><summary>JSON schema</summary>"]
+#[doc = r""]
+#[doc = r" ```json"]
+#[doc = "{"]
+#[doc = "  \"type\": \"string\","]
+#[doc = "  \"pattern\": \"^[a-zA-Z0-9_]+$\""]
+#[doc = "}"]
+#[doc = r" ```"]
+#[doc = r" </details>"]
+#[derive(:: serde :: Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct MainEnvironmentVariablesKey(::std::string::String);
+impl ::std::ops::Deref for MainEnvironmentVariablesKey {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<MainEnvironmentVariablesKey> for ::std::string::String {
+    fn from(value: MainEnvironmentVariablesKey) -> Self {
+        value.0
+    }
+}
+impl ::std::convert::From<&MainEnvironmentVariablesKey> for MainEnvironmentVariablesKey {
+    fn from(value: &MainEnvironmentVariablesKey) -> Self {
+        value.clone()
+    }
+}
+impl ::std::str::FromStr for MainEnvironmentVariablesKey {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+            ::std::sync::LazyLock::new(|| ::regress::Regex::new("^[a-zA-Z0-9_]+$").unwrap());
+        if PATTERN.find(value).is_none() {
+            return Err("doesn't match pattern \"^[a-zA-Z0-9_]+$\"".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for MainEnvironmentVariablesKey {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<&::std::string::String> for MainEnvironmentVariablesKey {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: &::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for MainEnvironmentVariablesKey {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for MainEnvironmentVariablesKey {
     fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
     where
         D: ::serde::Deserializer<'de>,
@@ -4980,7 +5320,7 @@ impl MaxNumberListValue {
 #[doc = "      \"description\": \"The SPDX description of the script's license.\","]
 #[doc = "      \"type\": \"object\","]
 #[doc = "      \"required\": ["]
-#[doc = "        \"spdx\""]
+#[doc = "        \"spdx-id\""]
 #[doc = "      ],"]
 #[doc = "      \"properties\": {"]
 #[doc = "        \"copyright\": {"]
@@ -5100,7 +5440,8 @@ impl MinNumberListValue {
 #[doc = "  \"type\": \"object\","]
 #[doc = "  \"required\": ["]
 #[doc = "    \"kind\","]
-#[doc = "    \"module\""]
+#[doc = "    \"module\","]
+#[doc = "    \"source\""]
 #[doc = "  ],"]
 #[doc = "  \"properties\": {"]
 #[doc = "    \"initial-parameters\": {"]
@@ -5117,8 +5458,15 @@ impl MinNumberListValue {
 #[doc = "      \"maxLength\": 1000,"]
 #[doc = "      \"minLength\": 1"]
 #[doc = "    },"]
+#[doc = "    \"rerunnable\": {"]
+#[doc = "      \"default\": true,"]
+#[doc = "      \"type\": \"boolean\""]
+#[doc = "    },"]
 #[doc = "    \"runtime-parameters\": {"]
 #[doc = "      \"$ref\": \"#/$defs/NamedParameters\""]
+#[doc = "    },"]
+#[doc = "    \"source\": {"]
+#[doc = "      \"$ref\": \"#/$defs/Source\""]
 #[doc = "    }"]
 #[doc = "  },"]
 #[doc = "  \"additionalProperties\": false"]
@@ -5138,12 +5486,15 @@ pub struct ModuleJob {
     pub kind: ::serde_json::Value,
     #[doc = "The build implementation for the job."]
     pub module: ModuleJobModule,
+    #[serde(default = "defaults::default_bool::<true>")]
+    pub rerunnable: bool,
     #[serde(
         rename = "runtime-parameters",
         default,
         skip_serializing_if = "::std::option::Option::is_none"
     )]
     pub runtime_parameters: ::std::option::Option<NamedParameters>,
+    pub source: Source,
 }
 impl ::std::convert::From<&ModuleJob> for ModuleJob {
     fn from(value: &ModuleJob) -> Self {
@@ -5502,7 +5853,7 @@ impl NandTwoBooleanValues {
 #[doc = "          \"description\": \"The SPDX description of the script's license.\","]
 #[doc = "          \"type\": \"object\","]
 #[doc = "          \"required\": ["]
-#[doc = "            \"spdx\""]
+#[doc = "            \"spdx-id\""]
 #[doc = "          ],"]
 #[doc = "          \"properties\": {"]
 #[doc = "            \"copyright\": {"]
@@ -7431,7 +7782,7 @@ impl<'de> ::serde::Deserialize<'de> for ScriptExitMessage {
 #[doc = "  \"description\": \"The SPDX description of the script's license.\","]
 #[doc = "  \"type\": \"object\","]
 #[doc = "  \"required\": ["]
-#[doc = "    \"spdx\""]
+#[doc = "    \"spdx-id\""]
 #[doc = "  ],"]
 #[doc = "  \"properties\": {"]
 #[doc = "    \"copyright\": {"]
@@ -7456,14 +7807,9 @@ pub struct ScriptLicense {
     #[doc = "The copyright description that accompanies the license type.  This usually relates to the first line of the license text.\n"]
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub copyright: ::std::option::Option<::serde_json::Value>,
-    pub spdx: ::serde_json::Value,
     #[doc = "The formal SPDX identifier string for this license."]
-    #[serde(
-        rename = "spdx-id",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
-    pub spdx_id: ::std::option::Option<SpdxId>,
+    #[serde(rename = "spdx-id")]
+    pub spdx_id: SpdxId,
 }
 impl ::std::convert::From<&ScriptLicense> for ScriptLicense {
     fn from(value: &ScriptLicense) -> Self {
@@ -7633,86 +7979,6 @@ impl<'de> ::serde::Deserialize<'de> for ScriptVersion {
             })
     }
 }
-#[doc = "`SendEventPayload`"]
-#[doc = r""]
-#[doc = r" <details><summary>JSON schema</summary>"]
-#[doc = r""]
-#[doc = r" ```json"]
-#[doc = "{"]
-#[doc = "  \"oneOf\": ["]
-#[doc = "    {"]
-#[doc = "      \"$ref\": \"#/$defs/EventPayloadMessage\""]
-#[doc = "    },"]
-#[doc = "    {"]
-#[doc = "      \"$ref\": \"#/$defs/EventPayloadSignal\""]
-#[doc = "    }"]
-#[doc = "  ]"]
-#[doc = "}"]
-#[doc = r" ```"]
-#[doc = r" </details>"]
-#[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
-#[serde(untagged)]
-pub enum SendEventPayload {
-    Message(EventPayloadMessage),
-    Signal(EventPayloadSignal),
-}
-impl ::std::convert::From<&Self> for SendEventPayload {
-    fn from(value: &SendEventPayload) -> Self {
-        value.clone()
-    }
-}
-impl ::std::str::FromStr for SendEventPayload {
-    type Err = self::error::ConversionError;
-    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
-        if let Ok(v) = value.parse() {
-            Ok(Self::Message(v))
-        } else if let Ok(v) = value.parse() {
-            Ok(Self::Signal(v))
-        } else {
-            Err("string conversion failed for all variants".into())
-        }
-    }
-}
-impl ::std::convert::TryFrom<&str> for SendEventPayload {
-    type Error = self::error::ConversionError;
-    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
-        value.parse()
-    }
-}
-impl ::std::convert::TryFrom<&::std::string::String> for SendEventPayload {
-    type Error = self::error::ConversionError;
-    fn try_from(
-        value: &::std::string::String,
-    ) -> ::std::result::Result<Self, self::error::ConversionError> {
-        value.parse()
-    }
-}
-impl ::std::convert::TryFrom<::std::string::String> for SendEventPayload {
-    type Error = self::error::ConversionError;
-    fn try_from(
-        value: ::std::string::String,
-    ) -> ::std::result::Result<Self, self::error::ConversionError> {
-        value.parse()
-    }
-}
-impl ::std::fmt::Display for SendEventPayload {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        match self {
-            Self::Message(x) => x.fmt(f),
-            Self::Signal(x) => x.fmt(f),
-        }
-    }
-}
-impl ::std::convert::From<EventPayloadMessage> for SendEventPayload {
-    fn from(value: EventPayloadMessage) -> Self {
-        Self::Message(value)
-    }
-}
-impl ::std::convert::From<EventPayloadSignal> for SendEventPayload {
-    fn from(value: EventPayloadSignal) -> Self {
-        Self::Signal(value)
-    }
-}
 #[doc = "The source from the script.  Every object should include one."]
 #[doc = r""]
 #[doc = r" <details><summary>JSON schema</summary>"]
@@ -7723,9 +7989,7 @@ impl ::std::convert::From<EventPayloadSignal> for SendEventPayload {
 #[doc = "  \"description\": \"The source from the script.  Every object should include one.\","]
 #[doc = "  \"type\": \"object\","]
 #[doc = "  \"required\": ["]
-#[doc = "    \"column\","]
-#[doc = "    \"file\","]
-#[doc = "    \"line\""]
+#[doc = "    \"file\""]
 #[doc = "  ],"]
 #[doc = "  \"properties\": {"]
 #[doc = "    \"column\": {"]
@@ -7765,11 +8029,13 @@ impl ::std::convert::From<EventPayloadSignal> for SendEventPayload {
 #[serde(deny_unknown_fields)]
 pub struct Source {
     #[doc = "The column number where the node is defined."]
-    pub column: i64,
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub column: ::std::option::Option<i64>,
     #[doc = "The file where the node is defined."]
     pub file: File,
     #[doc = "The line number where the node is defined."]
-    pub line: i64,
+    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+    pub line: ::std::option::Option<i64>,
     #[doc = "The script's code.  If present, allows better error reporting by showing the related script text.\n"]
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub text: ::std::option::Option<Text>,
@@ -7921,201 +8187,6 @@ impl ::std::convert::From<&SplitStringValue> for SplitStringValue {
 impl SplitStringValue {
     pub fn builder() -> builder::SplitStringValue {
         Default::default()
-    }
-}
-#[doc = "A job that only defines a state, usable by other jobs.  This kind of job does not run anything.  Commonly, scripts use this to store command-line arguments and to provide the user feedback on those arguments and possible environment variable usage.\nThe job generates a shared state by forming a union of the initial-parameters, runtime-parameters, and environment-parameters. When the job runs, it will construct its shared state by loading first the initial-parameters, then the environment-parameters, then the runtime-parameters.\n"]
-#[doc = r""]
-#[doc = r" <details><summary>JSON schema</summary>"]
-#[doc = r""]
-#[doc = r" ```json"]
-#[doc = "{"]
-#[doc = "  \"title\": \"State Job\","]
-#[doc = "  \"description\": \"A job that only defines a state, usable by other jobs.  This kind of job does not run anything.  Commonly, scripts use this to store command-line arguments and to provide the user feedback on those arguments and possible environment variable usage.\\nThe job generates a shared state by forming a union of the initial-parameters, runtime-parameters, and environment-parameters. When the job runs, it will construct its shared state by loading first the initial-parameters, then the environment-parameters, then the runtime-parameters.\\n\","]
-#[doc = "  \"type\": \"object\","]
-#[doc = "  \"required\": ["]
-#[doc = "    \"kind\""]
-#[doc = "  ],"]
-#[doc = "  \"properties\": {"]
-#[doc = "    \"environment-parameters\": {"]
-#[doc = "      \"title\": \"Environment Parameter List\","]
-#[doc = "      \"description\": \"A list of parameters that come from the environment.\\n\","]
-#[doc = "      \"type\": \"object\","]
-#[doc = "      \"maxItems\": 1000,"]
-#[doc = "      \"minItems\": 0,"]
-#[doc = "      \"patternProperties\": {"]
-#[doc = "        \".*\": {"]
-#[doc = "          \"title\": \"Environment Parameter\","]
-#[doc = "          \"description\": \"A description of a parameter that comes from the environment. This will grant jobs to reference the value from runtime parameters.\\n\","]
-#[doc = "          \"type\": \"object\","]
-#[doc = "          \"required\": ["]
-#[doc = "            \"kind\","]
-#[doc = "            \"source\""]
-#[doc = "          ],"]
-#[doc = "          \"properties\": {"]
-#[doc = "            \"aliases\": {"]
-#[doc = "              \"title\": \"Alias List\","]
-#[doc = "              \"description\": \"A list of aliases the user can give to fill in the value.  Useful for allowing an environment variable in the form THE_NAME and the CLI parameters '--the-name' and '-n'.\\n\","]
-#[doc = "              \"type\": \"array\","]
-#[doc = "              \"items\": {"]
-#[doc = "                \"type\": \"string\","]
-#[doc = "                \"maxLength\": 100,"]
-#[doc = "                \"minLength\": 0"]
-#[doc = "              },"]
-#[doc = "              \"maxItems\": 1000,"]
-#[doc = "              \"minItems\": 0"]
-#[doc = "            },"]
-#[doc = "            \"description\": {"]
-#[doc = "              \"title\": \"Description\","]
-#[doc = "              \"description\": \"Help text for the parameter. Currently, only allows for a list of text for a single language.  Eventually may allow for multiple langauges.\\n\","]
-#[doc = "              \"type\": \"array\","]
-#[doc = "              \"items\": {"]
-#[doc = "                \"type\": \"string\","]
-#[doc = "                \"maxLength\": 10000,"]
-#[doc = "                \"minLength\": 0"]
-#[doc = "              },"]
-#[doc = "              \"maxItems\": 1000,"]
-#[doc = "              \"minItems\": 0"]
-#[doc = "            },"]
-#[doc = "            \"kind\": {"]
-#[doc = "              \"title\": \"Value type\","]
-#[doc = "              \"description\": \"Allowed type of value.\","]
-#[doc = "              \"enum\": ["]
-#[doc = "                \"string\","]
-#[doc = "                \"string-list\","]
-#[doc = "                \"int\","]
-#[doc = "                \"int-list\","]
-#[doc = "                \"flag\""]
-#[doc = "              ]"]
-#[doc = "            },"]
-#[doc = "            \"source\": {"]
-#[doc = "              \"$ref\": \"#/$defs/Source\""]
-#[doc = "            }"]
-#[doc = "          }"]
-#[doc = "        }"]
-#[doc = "      }"]
-#[doc = "    },"]
-#[doc = "    \"initial-parameters\": {"]
-#[doc = "      \"$ref\": \"#/$defs/InitialParameters\""]
-#[doc = "    },"]
-#[doc = "    \"kind\": {"]
-#[doc = "      \"const\": \"state\""]
-#[doc = "    },"]
-#[doc = "    \"runtime-parameters\": {"]
-#[doc = "      \"$ref\": \"#/$defs/NamedParameters\""]
-#[doc = "    }"]
-#[doc = "  },"]
-#[doc = "  \"additionalProperties\": false"]
-#[doc = "}"]
-#[doc = r" ```"]
-#[doc = r" </details>"]
-#[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
-#[serde(deny_unknown_fields)]
-pub struct StateJob {
-    #[doc = "A list of parameters that come from the environment.\n"]
-    #[serde(
-        rename = "environment-parameters",
-        default,
-        skip_serializing_if = ":: std :: collections :: HashMap::is_empty"
-    )]
-    pub environment_parameters:
-        ::std::collections::HashMap<StateJobEnvironmentParametersKey, EnvironmentParameter>,
-    #[serde(
-        rename = "initial-parameters",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
-    pub initial_parameters: ::std::option::Option<InitialParameters>,
-    pub kind: ::serde_json::Value,
-    #[serde(
-        rename = "runtime-parameters",
-        default,
-        skip_serializing_if = "::std::option::Option::is_none"
-    )]
-    pub runtime_parameters: ::std::option::Option<NamedParameters>,
-}
-impl ::std::convert::From<&StateJob> for StateJob {
-    fn from(value: &StateJob) -> Self {
-        value.clone()
-    }
-}
-impl StateJob {
-    pub fn builder() -> builder::StateJob {
-        Default::default()
-    }
-}
-#[doc = "`StateJobEnvironmentParametersKey`"]
-#[doc = r""]
-#[doc = r" <details><summary>JSON schema</summary>"]
-#[doc = r""]
-#[doc = r" ```json"]
-#[doc = "{"]
-#[doc = "  \"type\": \"string\","]
-#[doc = "  \"pattern\": \".*\""]
-#[doc = "}"]
-#[doc = r" ```"]
-#[doc = r" </details>"]
-#[derive(:: serde :: Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
-#[serde(transparent)]
-pub struct StateJobEnvironmentParametersKey(::std::string::String);
-impl ::std::ops::Deref for StateJobEnvironmentParametersKey {
-    type Target = ::std::string::String;
-    fn deref(&self) -> &::std::string::String {
-        &self.0
-    }
-}
-impl ::std::convert::From<StateJobEnvironmentParametersKey> for ::std::string::String {
-    fn from(value: StateJobEnvironmentParametersKey) -> Self {
-        value.0
-    }
-}
-impl ::std::convert::From<&StateJobEnvironmentParametersKey> for StateJobEnvironmentParametersKey {
-    fn from(value: &StateJobEnvironmentParametersKey) -> Self {
-        value.clone()
-    }
-}
-impl ::std::str::FromStr for StateJobEnvironmentParametersKey {
-    type Err = self::error::ConversionError;
-    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
-        static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
-            ::std::sync::LazyLock::new(|| ::regress::Regex::new(".*").unwrap());
-        if PATTERN.find(value).is_none() {
-            return Err("doesn't match pattern \".*\"".into());
-        }
-        Ok(Self(value.to_string()))
-    }
-}
-impl ::std::convert::TryFrom<&str> for StateJobEnvironmentParametersKey {
-    type Error = self::error::ConversionError;
-    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
-        value.parse()
-    }
-}
-impl ::std::convert::TryFrom<&::std::string::String> for StateJobEnvironmentParametersKey {
-    type Error = self::error::ConversionError;
-    fn try_from(
-        value: &::std::string::String,
-    ) -> ::std::result::Result<Self, self::error::ConversionError> {
-        value.parse()
-    }
-}
-impl ::std::convert::TryFrom<::std::string::String> for StateJobEnvironmentParametersKey {
-    type Error = self::error::ConversionError;
-    fn try_from(
-        value: ::std::string::String,
-    ) -> ::std::result::Result<Self, self::error::ConversionError> {
-        value.parse()
-    }
-}
-impl<'de> ::serde::Deserialize<'de> for StateJobEnvironmentParametersKey {
-    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
-    where
-        D: ::serde::Deserializer<'de>,
-    {
-        ::std::string::String::deserialize(deserializer)?
-            .parse()
-            .map_err(|e: self::error::ConversionError| {
-                <D::Error as ::serde::de::Error>::custom(e.to_string())
-            })
     }
 }
 #[doc = "A minimal unit of work to perform, which ties events and jobs together."]
@@ -8299,7 +8370,7 @@ impl<'de> ::serde::Deserialize<'de> for StateJobEnvironmentParametersKey {
 #[doc = "              \"minItems\": 0"]
 #[doc = "            },"]
 #[doc = "            \"kind\": {"]
-#[doc = "              \"const\": \"wait-for-thread\""]
+#[doc = "              \"const\": \"wait-for-all\""]
 #[doc = "            },"]
 #[doc = "            \"threads\": {"]
 #[doc = "              \"type\": \"array\","]
@@ -8521,7 +8592,7 @@ impl Step {
 #[doc = "          \"minItems\": 0"]
 #[doc = "        },"]
 #[doc = "        \"kind\": {"]
-#[doc = "          \"const\": \"wait-for-thread\""]
+#[doc = "          \"const\": \"wait-for-all\""]
 #[doc = "        },"]
 #[doc = "        \"threads\": {"]
 #[doc = "          \"type\": \"array\","]
@@ -8553,72 +8624,157 @@ impl Step {
 #[doc = r" ```"]
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
-#[serde(untagged, deny_unknown_fields)]
+#[serde(tag = "kind", deny_unknown_fields)]
 pub enum StepRun {
+    #[doc = "Send Event\n\nSend an event to the event broker.  It has either a string message, or an integer code."]
+    #[serde(rename = "send-event")]
     SendEvent {
-        kind: ::serde_json::Value,
         name: EventRef,
-        payload: SendEventPayload,
+        payload: StepRunPayload,
     },
+    #[doc = "Wait For Event\n\nWait for something to send an event *after* this starts listening for events. It can optionally also wait for a matching payload.\n"]
+    #[serde(rename = "wait-for-event")]
     WaitForEvent {
-        kind: ::serde_json::Value,
         name: EventRef,
         #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
-        payload: ::std::option::Option<WaitForEventPayload>,
+        payload: ::std::option::Option<StepRunPayload>,
     },
-    SpawnJob {
-        job: JobRef,
-        kind: ::serde_json::Value,
-    },
+    #[doc = "Spawn Job\n\nRequests the parallel execution of a job, either start it or restart it.  If it's currently running, this will do nothing.\n"]
+    #[serde(rename = "spawn-job")]
+    SpawnJob { job: JobRef },
+    #[doc = "Wait For Job\n\nWait for a job to finish executing.  This will block until the job's execution exits.  If it has already completed, this will continue without waiting.\n"]
+    #[serde(rename = "wait-for-job")]
     WaitForJob {
         #[serde(rename = "exit-behavior")]
         exit_behavior: ExitBehavior,
         job: JobRef,
-        kind: ::serde_json::Value,
     },
-    SpawnThread {
-        kind: ::serde_json::Value,
-        thread: ThreadRef,
-    },
+    #[doc = "Spawn Thread\n\nRequests the parallel execution of a thread, either start it or restart it.  If it's currently running, this will do nothing.\n"]
+    #[serde(rename = "spawn-thread")]
+    SpawnThread { thread: ThreadRef },
+    #[doc = "Wait For Thread\n\nWait for a thread to finish executing.  This will block until the thread's execution exits.  If it has already completed, this will continue without waiting.\n"]
+    #[serde(rename = "wait-for-thread")]
     WaitForThread {
         #[serde(rename = "exit-behavior")]
         exit_behavior: ExitBehavior,
-        kind: ::serde_json::Value,
         thread: ThreadRef,
     },
+    #[doc = "Wait For All\n\nWait for all the threads and jobs to finish."]
+    #[serde(rename = "wait-for-all")]
     WaitForAll {
         #[serde(rename = "exit-behavior")]
         exit_behavior: ExitBehavior,
         jobs: ::std::vec::Vec<JobRef>,
-        kind: ::serde_json::Value,
         threads: ::std::vec::Vec<ThreadRef>,
     },
-    DoNothing {
-        kind: ::serde_json::Value,
-    },
+    #[serde(rename = "noop")]
+    Noop,
 }
 impl ::std::convert::From<&Self> for StepRun {
     fn from(value: &StepRun) -> Self {
         value.clone()
     }
 }
-#[doc = "A job that builds a stream connection between two module jobs."]
+#[doc = "`StepRunPayload`"]
 #[doc = r""]
 #[doc = r" <details><summary>JSON schema</summary>"]
 #[doc = r""]
 #[doc = r" ```json"]
 #[doc = "{"]
-#[doc = "  \"title\": \"Stream Job\","]
-#[doc = "  \"description\": \"A job that builds a stream connection between two module jobs.\","]
+#[doc = "  \"oneOf\": ["]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/EventPayloadMessage\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/EventPayloadSignal\""]
+#[doc = "    }"]
+#[doc = "  ]"]
+#[doc = "}"]
+#[doc = r" ```"]
+#[doc = r" </details>"]
+#[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
+#[serde(untagged)]
+pub enum StepRunPayload {
+    Message(EventPayloadMessage),
+    Signal(EventPayloadSignal),
+}
+impl ::std::convert::From<&Self> for StepRunPayload {
+    fn from(value: &StepRunPayload) -> Self {
+        value.clone()
+    }
+}
+impl ::std::str::FromStr for StepRunPayload {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if let Ok(v) = value.parse() {
+            Ok(Self::Message(v))
+        } else if let Ok(v) = value.parse() {
+            Ok(Self::Signal(v))
+        } else {
+            Err("string conversion failed for all variants".into())
+        }
+    }
+}
+impl ::std::convert::TryFrom<&str> for StepRunPayload {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<&::std::string::String> for StepRunPayload {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: &::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for StepRunPayload {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::fmt::Display for StepRunPayload {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        match self {
+            Self::Message(x) => x.fmt(f),
+            Self::Signal(x) => x.fmt(f),
+        }
+    }
+}
+impl ::std::convert::From<EventPayloadMessage> for StepRunPayload {
+    fn from(value: EventPayloadMessage) -> Self {
+        Self::Message(value)
+    }
+}
+impl ::std::convert::From<EventPayloadSignal> for StepRunPayload {
+    fn from(value: EventPayloadSignal) -> Self {
+        Self::Signal(value)
+    }
+}
+#[doc = "A stream connecting the input from one job to the output of another job."]
+#[doc = r""]
+#[doc = r" <details><summary>JSON schema</summary>"]
+#[doc = r""]
+#[doc = r" ```json"]
+#[doc = "{"]
+#[doc = "  \"title\": \"Stream\","]
+#[doc = "  \"description\": \"A stream connecting the input from one job to the output of another job.\","]
 #[doc = "  \"type\": \"object\","]
 #[doc = "  \"required\": ["]
 #[doc = "    \"from\","]
-#[doc = "    \"kind\","]
+#[doc = "    \"source\","]
 #[doc = "    \"to\""]
 #[doc = "  ],"]
 #[doc = "  \"properties\": {"]
 #[doc = "    \"from\": {"]
 #[doc = "      \"$ref\": \"#/$defs/StreamLocation\""]
+#[doc = "    },"]
+#[doc = "    \"source\": {"]
+#[doc = "      \"$ref\": \"#/$defs/Source\""]
 #[doc = "    },"]
 #[doc = "    \"to\": {"]
 #[doc = "      \"$ref\": \"#/$defs/StreamLocation\""]
@@ -8630,10 +8786,86 @@ impl ::std::convert::From<&Self> for StepRun {
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
-pub struct StreamJob {
+pub struct Stream {
     pub from: StreamLocation,
-    pub kind: ::serde_json::Value,
+    pub source: Source,
     pub to: StreamLocation,
+}
+impl ::std::convert::From<&Stream> for Stream {
+    fn from(value: &Stream) -> Self {
+        value.clone()
+    }
+}
+impl Stream {
+    pub fn builder() -> builder::Stream {
+        Default::default()
+    }
+}
+#[doc = "A job that builds a stream connections between module jobs. Take care with this job.  While it may be possible to perform two stream jobs on the same jobs in parallel, that may lead to subtle bugs.\n"]
+#[doc = r""]
+#[doc = r" <details><summary>JSON schema</summary>"]
+#[doc = r""]
+#[doc = r" ```json"]
+#[doc = "{"]
+#[doc = "  \"title\": \"Stream Job\","]
+#[doc = "  \"description\": \"A job that builds a stream connections between module jobs. Take care with this job.  While it may be possible to perform two stream jobs on the same jobs in parallel, that may lead to subtle bugs.\\n\","]
+#[doc = "  \"type\": \"object\","]
+#[doc = "  \"required\": ["]
+#[doc = "    \"kind\","]
+#[doc = "    \"source\","]
+#[doc = "    \"streams\""]
+#[doc = "  ],"]
+#[doc = "  \"properties\": {"]
+#[doc = "    \"kind\": {"]
+#[doc = "      \"const\": \"stream\""]
+#[doc = "    },"]
+#[doc = "    \"rerunnable\": {"]
+#[doc = "      \"default\": true,"]
+#[doc = "      \"type\": \"boolean\""]
+#[doc = "    },"]
+#[doc = "    \"source\": {"]
+#[doc = "      \"$ref\": \"#/$defs/Source\""]
+#[doc = "    },"]
+#[doc = "    \"streams\": {"]
+#[doc = "      \"type\": \"array\","]
+#[doc = "      \"maxLength\": 10000,"]
+#[doc = "      \"minLength\": 1,"]
+#[doc = "      \"items\": {"]
+#[doc = "        \"title\": \"Stream\","]
+#[doc = "        \"description\": \"A stream connecting the input from one job to the output of another job.\","]
+#[doc = "        \"type\": \"object\","]
+#[doc = "        \"required\": ["]
+#[doc = "          \"from\","]
+#[doc = "          \"source\","]
+#[doc = "          \"to\""]
+#[doc = "        ],"]
+#[doc = "        \"properties\": {"]
+#[doc = "          \"from\": {"]
+#[doc = "            \"$ref\": \"#/$defs/StreamLocation\""]
+#[doc = "          },"]
+#[doc = "          \"source\": {"]
+#[doc = "            \"$ref\": \"#/$defs/Source\""]
+#[doc = "          },"]
+#[doc = "          \"to\": {"]
+#[doc = "            \"$ref\": \"#/$defs/StreamLocation\""]
+#[doc = "          }"]
+#[doc = "        },"]
+#[doc = "        \"additionalProperties\": false"]
+#[doc = "      }"]
+#[doc = "    }"]
+#[doc = "  },"]
+#[doc = "  \"additionalProperties\": false"]
+#[doc = "}"]
+#[doc = r" ```"]
+#[doc = r" </details>"]
+#[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
+#[serde(deny_unknown_fields)]
+pub struct StreamJob {
+    pub kind: ::serde_json::Value,
+    #[serde(default = "defaults::default_bool::<true>")]
+    pub rerunnable: bool,
+    pub source: Source,
+    pub streams: ::std::vec::Vec<Stream>,
 }
 impl ::std::convert::From<&StreamJob> for StreamJob {
     fn from(value: &StreamJob) -> Self {
@@ -8673,6 +8905,9 @@ impl StreamJob {
 #[doc = "          \"title\": \"Kind\","]
 #[doc = "          \"description\": \"Stream location distinguisher\","]
 #[doc = "          \"const\": \"fd\""]
+#[doc = "        },"]
+#[doc = "        \"source\": {"]
+#[doc = "          \"$ref\": \"#/$defs/Source\""]
 #[doc = "        }"]
 #[doc = "      },"]
 #[doc = "      \"additionalProperties\": false"]
@@ -8702,6 +8937,31 @@ impl StreamJob {
 #[doc = "        }"]
 #[doc = "      },"]
 #[doc = "      \"additionalProperties\": false"]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"title\": \"File\","]
+#[doc = "      \"description\": \"Use a file, either absolute or relative to the cwd, as the stream. The 'mode' only applies for targets; this sets the file's mode (read-write access). The 'mode' needs improvement, as this is very Unix-y.\\n\","]
+#[doc = "      \"type\": \"object\","]
+#[doc = "      \"required\": ["]
+#[doc = "        \"filename\","]
+#[doc = "        \"kind\","]
+#[doc = "        \"source\""]
+#[doc = "      ],"]
+#[doc = "      \"properties\": {"]
+#[doc = "        \"filename\": {"]
+#[doc = "          \"$ref\": \"#/$defs/ComputedStringValue\""]
+#[doc = "        },"]
+#[doc = "        \"kind\": {"]
+#[doc = "          \"const\": \"file\""]
+#[doc = "        },"]
+#[doc = "        \"mode\": {"]
+#[doc = "          \"$ref\": \"#/$defs/ComputedNumberValue\""]
+#[doc = "        },"]
+#[doc = "        \"source\": {"]
+#[doc = "          \"$ref\": \"#/$defs/Source\""]
+#[doc = "        }"]
+#[doc = "      },"]
+#[doc = "      \"additionalProperties\": false"]
 #[doc = "    }"]
 #[doc = "  ]"]
 #[doc = "}"]
@@ -8715,13 +8975,21 @@ pub enum StreamLocation {
     Fd {
         fd: FileDescriptor,
         job: JobRef,
-        source: ::serde_json::Value,
+        source: Source,
     },
     #[doc = "Named Stream\n\nThe named stream's name in the owning job."]
     #[serde(rename = "named")]
     Named {
         job: JobRef,
         name: StreamName,
+        source: Source,
+    },
+    #[doc = "File\n\nUse a file, either absolute or relative to the cwd, as the stream. The 'mode' only applies for targets; this sets the file's mode (read-write access). The 'mode' needs improvement, as this is very Unix-y.\n"]
+    #[serde(rename = "file")]
+    File {
+        filename: ComputedStringValue,
+        #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
+        mode: ::std::option::Option<::std::boxed::Box<ComputedNumberValue>>,
         source: Source,
     },
 }
@@ -9056,18 +9324,20 @@ impl<'de> ::serde::Deserialize<'de> for Text {
 #[doc = "  \"description\": \"A sequence of steps.  The name comes from the property key in the owning object.\","]
 #[doc = "  \"type\": \"object\","]
 #[doc = "  \"required\": ["]
-#[doc = "    \"source\""]
+#[doc = "    \"source\","]
+#[doc = "    \"steps\""]
 #[doc = "  ],"]
 #[doc = "  \"properties\": {"]
 #[doc = "    \"main\": {"]
 #[doc = "      \"oneOf\": ["]
-#[doc = "        {},"]
+#[doc = "        {"]
+#[doc = "          \"type\": \"null\""]
+#[doc = "        },"]
 #[doc = "        {"]
 #[doc = "          \"title\": \"Main\","]
-#[doc = "          \"description\": \"A thread which the user can include in the list of threads to start when the script begins running.  The 'job' reference field indicates a job whose initial parameters will come from the\\n\","]
+#[doc = "          \"description\": \"A thread which the user can include in the list of threads to start when the script begins running.  This will construct an implicit \\\"job\\\" with the name of the thread, which will hold the state generated by the parameters and environment-variables.\\n\","]
 #[doc = "          \"type\": \"object\","]
 #[doc = "          \"required\": ["]
-#[doc = "            \"job\","]
 #[doc = "            \"source\""]
 #[doc = "          ],"]
 #[doc = "          \"properties\": {"]
@@ -9077,8 +9347,112 @@ impl<'de> ::serde::Deserialize<'de> for Text {
 #[doc = "              \"default\": false,"]
 #[doc = "              \"type\": \"boolean\""]
 #[doc = "            },"]
-#[doc = "            \"job\": {"]
-#[doc = "              \"$ref\": \"#/$defs/JobRef\""]
+#[doc = "            \"description\": {"]
+#[doc = "              \"$ref\": \"#/$defs/UserHelp\""]
+#[doc = "            },"]
+#[doc = "            \"environment-variables\": {"]
+#[doc = "              \"title\": \"Environment Variable Set\","]
+#[doc = "              \"description\": \"Environment variables used by the script.  If the environment variable does not have a default value, then the script fails when invoked without that environment variable present.\\n\","]
+#[doc = "              \"type\": \"object\","]
+#[doc = "              \"maxItems\": 1000,"]
+#[doc = "              \"minItems\": 0,"]
+#[doc = "              \"patternProperties\": {"]
+#[doc = "                \"^[a-zA-Z0-9_]+$\": {"]
+#[doc = "                  \"title\": \"Environment Variable Declaration\","]
+#[doc = "                  \"description\": \"Declaration for an environment variable, for end-user help.  If it does not provide a 'default' value (even empty), then the end-user must provide the variable.\\n\","]
+#[doc = "                  \"type\": \"object\","]
+#[doc = "                  \"required\": ["]
+#[doc = "                    \"description\","]
+#[doc = "                    \"source\""]
+#[doc = "                  ],"]
+#[doc = "                  \"properties\": {"]
+#[doc = "                    \"default\": {"]
+#[doc = "                      \"oneOf\": ["]
+#[doc = "                        {"]
+#[doc = "                          \"type\": \"null\""]
+#[doc = "                        },"]
+#[doc = "                        {"]
+#[doc = "                          \"type\": \"string\","]
+#[doc = "                          \"maxLength\": 10000,"]
+#[doc = "                          \"minLength\": 0"]
+#[doc = "                        }"]
+#[doc = "                      ]"]
+#[doc = "                    },"]
+#[doc = "                    \"description\": {"]
+#[doc = "                      \"$ref\": \"#/$defs/UserHelp\""]
+#[doc = "                    },"]
+#[doc = "                    \"source\": {"]
+#[doc = "                      \"$ref\": \"#/$defs/Source\""]
+#[doc = "                    }"]
+#[doc = "                  }"]
+#[doc = "                }"]
+#[doc = "              }"]
+#[doc = "            },"]
+#[doc = "            \"parameters\": {"]
+#[doc = "              \"title\": \"Command-line Parameter List\","]
+#[doc = "              \"description\": \"The command-line parameters stored by this thread.\","]
+#[doc = "              \"type\": \"array\","]
+#[doc = "              \"items\": {"]
+#[doc = "                \"title\": \"Command-line Parameter\","]
+#[doc = "                \"description\": \"A description of a parameter that comes from the command-line. This will grant jobs to reference the value from runtime parameters.\\n\","]
+#[doc = "                \"type\": \"object\","]
+#[doc = "                \"required\": ["]
+#[doc = "                  \"aliases\","]
+#[doc = "                  \"kind\","]
+#[doc = "                  \"name\","]
+#[doc = "                  \"source\""]
+#[doc = "                ],"]
+#[doc = "                \"properties\": {"]
+#[doc = "                  \"aliases\": {"]
+#[doc = "                    \"title\": \"Alias List\","]
+#[doc = "                    \"description\": \"A list of aliases the user can give to fill in the value.  Useful for allowing an environment variable in the form THE_NAME and the CLI parameters '--the-name' and '-n'.\\n\","]
+#[doc = "                    \"type\": \"array\","]
+#[doc = "                    \"items\": {"]
+#[doc = "                      \"type\": \"string\","]
+#[doc = "                      \"maxLength\": 100,"]
+#[doc = "                      \"minLength\": 0"]
+#[doc = "                    },"]
+#[doc = "                    \"maxItems\": 1000,"]
+#[doc = "                    \"minItems\": 0"]
+#[doc = "                  },"]
+#[doc = "                  \"description\": {"]
+#[doc = "                    \"$ref\": \"#/$defs/UserHelp\""]
+#[doc = "                  },"]
+#[doc = "                  \"kind\": {"]
+#[doc = "                    \"title\": \"Value type\","]
+#[doc = "                    \"description\": \"Allowed type of value.  This determines how parser handles the argument. A \\\"-list\\\" means that the user may provide the parameter more than once, and they accumulate in a list.  \\\"flag\\\" means that setting the value assigns a boolean value to 'true', with a default value of 'false'.  \\\"count\\\" is similar to \\\"flag\\\", but it counts the number of times the user set it (such as '-v' for verbose and '-vv' for very verbose).  \\\"extra\\\" accumulates all arguments without a label (such as with the command \\\"cat a b\\\" uses extra arguments \\\"a\\\" and \\\"b\\\"). There can be only one argument with kind \\\"extra\\\".\\n\","]
+#[doc = "                    \"enum\": ["]
+#[doc = "                      \"string\","]
+#[doc = "                      \"string-list\","]
+#[doc = "                      \"int\","]
+#[doc = "                      \"int-list\","]
+#[doc = "                      \"flag\","]
+#[doc = "                      \"count\","]
+#[doc = "                      \"extra\""]
+#[doc = "                    ]"]
+#[doc = "                  },"]
+#[doc = "                  \"name\": {"]
+#[doc = "                    \"description\": \"the generated state variable name that stores the value.\","]
+#[doc = "                    \"type\": \"string\","]
+#[doc = "                    \"minLength\": 1,"]
+#[doc = "                    \"maxLenght\": 100"]
+#[doc = "                  },"]
+#[doc = "                  \"required\": {"]
+#[doc = "                    \"description\": \"Declares whether the user must pass in the argument.  This doesn't cover every use case, such as with \\\"copy\\\" requiring two or more arguments.  Those situations require extra, custom examination in the script.\\n\","]
+#[doc = "                    \"default\": false,"]
+#[doc = "                    \"type\": \"boolean\""]
+#[doc = "                  },"]
+#[doc = "                  \"source\": {"]
+#[doc = "                    \"$ref\": \"#/$defs/Source\""]
+#[doc = "                  },"]
+#[doc = "                  \"var-name\": {"]
+#[doc = "                    \"title\": \"Variable Name\","]
+#[doc = "                    \"description\": \"The variable name to use in the help, such as '--format FORMAT-NAME', so that the help description may reference that.\\n\""]
+#[doc = "                  }"]
+#[doc = "                }"]
+#[doc = "              },"]
+#[doc = "              \"maxItems\": 1000,"]
+#[doc = "              \"minItems\": 0"]
 #[doc = "            },"]
 #[doc = "            \"source\": {"]
 #[doc = "              \"$ref\": \"#/$defs/Source\""]
@@ -9108,10 +9482,9 @@ impl<'de> ::serde::Deserialize<'de> for Text {
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 pub struct Thread {
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
-    pub main: ::std::option::Option<ThreadMain>,
+    pub main: ::std::option::Option<Main>,
     pub source: Source,
     #[doc = "A list of ordered steps that run sequentially."]
-    #[serde(default, skip_serializing_if = "::std::vec::Vec::is_empty")]
     pub steps: ::std::vec::Vec<Step>,
 }
 impl ::std::convert::From<&Thread> for Thread {
@@ -9122,64 +9495,6 @@ impl ::std::convert::From<&Thread> for Thread {
 impl Thread {
     pub fn builder() -> builder::Thread {
         Default::default()
-    }
-}
-#[doc = "`ThreadMain`"]
-#[doc = r""]
-#[doc = r" <details><summary>JSON schema</summary>"]
-#[doc = r""]
-#[doc = r" ```json"]
-#[doc = "{"]
-#[doc = "  \"oneOf\": ["]
-#[doc = "    {},"]
-#[doc = "    {"]
-#[doc = "      \"title\": \"Main\","]
-#[doc = "      \"description\": \"A thread which the user can include in the list of threads to start when the script begins running.  The 'job' reference field indicates a job whose initial parameters will come from the\\n\","]
-#[doc = "      \"type\": \"object\","]
-#[doc = "      \"required\": ["]
-#[doc = "        \"job\","]
-#[doc = "        \"source\""]
-#[doc = "      ],"]
-#[doc = "      \"properties\": {"]
-#[doc = "        \"default\": {"]
-#[doc = "          \"title\": \"Default\","]
-#[doc = "          \"description\": \"If true, then this will run as a main thread if the user does not declare a main thread to run.\\n\","]
-#[doc = "          \"default\": false,"]
-#[doc = "          \"type\": \"boolean\""]
-#[doc = "        },"]
-#[doc = "        \"job\": {"]
-#[doc = "          \"$ref\": \"#/$defs/JobRef\""]
-#[doc = "        },"]
-#[doc = "        \"source\": {"]
-#[doc = "          \"$ref\": \"#/$defs/Source\""]
-#[doc = "        }"]
-#[doc = "      },"]
-#[doc = "      \"additionalProperties\": false"]
-#[doc = "    }"]
-#[doc = "  ]"]
-#[doc = "}"]
-#[doc = r" ```"]
-#[doc = r" </details>"]
-#[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
-#[serde(untagged, deny_unknown_fields)]
-pub enum ThreadMain {
-    Variant0(::serde_json::Value),
-    Variant1 {
-        #[doc = "If true, then this will run as a main thread if the user does not declare a main thread to run.\n"]
-        #[serde(default)]
-        default: bool,
-        job: JobRef,
-        source: Source,
-    },
-}
-impl ::std::convert::From<&Self> for ThreadMain {
-    fn from(value: &ThreadMain) -> Self {
-        value.clone()
-    }
-}
-impl ::std::convert::From<::serde_json::Value> for ThreadMain {
-    fn from(value: ::serde_json::Value) -> Self {
-        Self::Variant0(value)
     }
 }
 #[doc = "Reference to a thread.  It must reference one of the keys in the \"thread\" collection."]
@@ -9469,20 +9784,142 @@ impl UnionStringMapValue {
         Default::default()
     }
 }
-#[doc = "Allowed type of value."]
+#[doc = "Help text for the end-user.  Each line indicates a line of help text. Currently, only allows for a list of text for a single language.  Eventually may allow for multiple langauges.\n"]
+#[doc = r""]
+#[doc = r" <details><summary>JSON schema</summary>"]
+#[doc = r""]
+#[doc = r" ```json"]
+#[doc = "{"]
+#[doc = "  \"title\": \"User Help\","]
+#[doc = "  \"description\": \"Help text for the end-user.  Each line indicates a line of help text. Currently, only allows for a list of text for a single language.  Eventually may allow for multiple langauges.\\n\","]
+#[doc = "  \"type\": \"array\","]
+#[doc = "  \"items\": {"]
+#[doc = "    \"type\": \"string\","]
+#[doc = "    \"maxLength\": 10000,"]
+#[doc = "    \"minLength\": 0"]
+#[doc = "  },"]
+#[doc = "  \"maxItems\": 1000,"]
+#[doc = "  \"minItems\": 0"]
+#[doc = "}"]
+#[doc = r" ```"]
+#[doc = r" </details>"]
+#[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
+#[serde(transparent)]
+pub struct UserHelp(pub ::std::vec::Vec<UserHelpItem>);
+impl ::std::ops::Deref for UserHelp {
+    type Target = ::std::vec::Vec<UserHelpItem>;
+    fn deref(&self) -> &::std::vec::Vec<UserHelpItem> {
+        &self.0
+    }
+}
+impl ::std::convert::From<UserHelp> for ::std::vec::Vec<UserHelpItem> {
+    fn from(value: UserHelp) -> Self {
+        value.0
+    }
+}
+impl ::std::convert::From<&UserHelp> for UserHelp {
+    fn from(value: &UserHelp) -> Self {
+        value.clone()
+    }
+}
+impl ::std::convert::From<::std::vec::Vec<UserHelpItem>> for UserHelp {
+    fn from(value: ::std::vec::Vec<UserHelpItem>) -> Self {
+        Self(value)
+    }
+}
+#[doc = "`UserHelpItem`"]
+#[doc = r""]
+#[doc = r" <details><summary>JSON schema</summary>"]
+#[doc = r""]
+#[doc = r" ```json"]
+#[doc = "{"]
+#[doc = "  \"type\": \"string\","]
+#[doc = "  \"maxLength\": 10000,"]
+#[doc = "  \"minLength\": 0"]
+#[doc = "}"]
+#[doc = r" ```"]
+#[doc = r" </details>"]
+#[derive(:: serde :: Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct UserHelpItem(::std::string::String);
+impl ::std::ops::Deref for UserHelpItem {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<UserHelpItem> for ::std::string::String {
+    fn from(value: UserHelpItem) -> Self {
+        value.0
+    }
+}
+impl ::std::convert::From<&UserHelpItem> for UserHelpItem {
+    fn from(value: &UserHelpItem) -> Self {
+        value.clone()
+    }
+}
+impl ::std::str::FromStr for UserHelpItem {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        if value.chars().count() > 10000usize {
+            return Err("longer than 10000 characters".into());
+        }
+        if value.chars().count() < 0usize {
+            return Err("shorter than 0 characters".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for UserHelpItem {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<&::std::string::String> for UserHelpItem {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: &::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for UserHelpItem {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for UserHelpItem {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
+#[doc = "Allowed type of value.  This determines how parser handles the argument. A \"-list\" means that the user may provide the parameter more than once, and they accumulate in a list.  \"flag\" means that setting the value assigns a boolean value to 'true', with a default value of 'false'.  \"count\" is similar to \"flag\", but it counts the number of times the user set it (such as '-v' for verbose and '-vv' for very verbose).  \"extra\" accumulates all arguments without a label (such as with the command \"cat a b\" uses extra arguments \"a\" and \"b\"). There can be only one argument with kind \"extra\".\n"]
 #[doc = r""]
 #[doc = r" <details><summary>JSON schema</summary>"]
 #[doc = r""]
 #[doc = r" ```json"]
 #[doc = "{"]
 #[doc = "  \"title\": \"Value type\","]
-#[doc = "  \"description\": \"Allowed type of value.\","]
+#[doc = "  \"description\": \"Allowed type of value.  This determines how parser handles the argument. A \\\"-list\\\" means that the user may provide the parameter more than once, and they accumulate in a list.  \\\"flag\\\" means that setting the value assigns a boolean value to 'true', with a default value of 'false'.  \\\"count\\\" is similar to \\\"flag\\\", but it counts the number of times the user set it (such as '-v' for verbose and '-vv' for very verbose).  \\\"extra\\\" accumulates all arguments without a label (such as with the command \\\"cat a b\\\" uses extra arguments \\\"a\\\" and \\\"b\\\"). There can be only one argument with kind \\\"extra\\\".\\n\","]
 #[doc = "  \"enum\": ["]
 #[doc = "    \"string\","]
 #[doc = "    \"string-list\","]
 #[doc = "    \"int\","]
 #[doc = "    \"int-list\","]
-#[doc = "    \"flag\""]
+#[doc = "    \"flag\","]
+#[doc = "    \"count\","]
+#[doc = "    \"extra\""]
 #[doc = "  ]"]
 #[doc = "}"]
 #[doc = r" ```"]
@@ -9510,6 +9947,10 @@ pub enum ValueType {
     IntList,
     #[serde(rename = "flag")]
     Flag,
+    #[serde(rename = "count")]
+    Count,
+    #[serde(rename = "extra")]
+    Extra,
 }
 impl ::std::convert::From<&Self> for ValueType {
     fn from(value: &ValueType) -> Self {
@@ -9524,6 +9965,8 @@ impl ::std::fmt::Display for ValueType {
             Self::Int => f.write_str("int"),
             Self::IntList => f.write_str("int-list"),
             Self::Flag => f.write_str("flag"),
+            Self::Count => f.write_str("count"),
+            Self::Extra => f.write_str("extra"),
         }
     }
 }
@@ -9536,6 +9979,8 @@ impl ::std::str::FromStr for ValueType {
             "int" => Ok(Self::Int),
             "int-list" => Ok(Self::IntList),
             "flag" => Ok(Self::Flag),
+            "count" => Ok(Self::Count),
+            "extra" => Ok(Self::Extra),
             _ => Err("invalid value".into()),
         }
     }
@@ -9560,86 +10005,6 @@ impl ::std::convert::TryFrom<::std::string::String> for ValueType {
         value: ::std::string::String,
     ) -> ::std::result::Result<Self, self::error::ConversionError> {
         value.parse()
-    }
-}
-#[doc = "`WaitForEventPayload`"]
-#[doc = r""]
-#[doc = r" <details><summary>JSON schema</summary>"]
-#[doc = r""]
-#[doc = r" ```json"]
-#[doc = "{"]
-#[doc = "  \"oneOf\": ["]
-#[doc = "    {"]
-#[doc = "      \"$ref\": \"#/$defs/EventPayloadMessage\""]
-#[doc = "    },"]
-#[doc = "    {"]
-#[doc = "      \"$ref\": \"#/$defs/EventPayloadSignal\""]
-#[doc = "    }"]
-#[doc = "  ]"]
-#[doc = "}"]
-#[doc = r" ```"]
-#[doc = r" </details>"]
-#[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
-#[serde(untagged)]
-pub enum WaitForEventPayload {
-    Message(EventPayloadMessage),
-    Signal(EventPayloadSignal),
-}
-impl ::std::convert::From<&Self> for WaitForEventPayload {
-    fn from(value: &WaitForEventPayload) -> Self {
-        value.clone()
-    }
-}
-impl ::std::str::FromStr for WaitForEventPayload {
-    type Err = self::error::ConversionError;
-    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
-        if let Ok(v) = value.parse() {
-            Ok(Self::Message(v))
-        } else if let Ok(v) = value.parse() {
-            Ok(Self::Signal(v))
-        } else {
-            Err("string conversion failed for all variants".into())
-        }
-    }
-}
-impl ::std::convert::TryFrom<&str> for WaitForEventPayload {
-    type Error = self::error::ConversionError;
-    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
-        value.parse()
-    }
-}
-impl ::std::convert::TryFrom<&::std::string::String> for WaitForEventPayload {
-    type Error = self::error::ConversionError;
-    fn try_from(
-        value: &::std::string::String,
-    ) -> ::std::result::Result<Self, self::error::ConversionError> {
-        value.parse()
-    }
-}
-impl ::std::convert::TryFrom<::std::string::String> for WaitForEventPayload {
-    type Error = self::error::ConversionError;
-    fn try_from(
-        value: ::std::string::String,
-    ) -> ::std::result::Result<Self, self::error::ConversionError> {
-        value.parse()
-    }
-}
-impl ::std::fmt::Display for WaitForEventPayload {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        match self {
-            Self::Message(x) => x.fmt(f),
-            Self::Signal(x) => x.fmt(f),
-        }
-    }
-}
-impl ::std::convert::From<EventPayloadMessage> for WaitForEventPayload {
-    fn from(value: EventPayloadMessage) -> Self {
-        Self::Message(value)
-    }
-}
-impl ::std::convert::From<EventPayloadSignal> for WaitForEventPayload {
-    fn from(value: EventPayloadSignal) -> Self {
-        Self::Signal(value)
     }
 }
 #[doc = "A boolean value that is the result of a logical XNOR operation on two boolean values."]
@@ -10298,6 +10663,135 @@ pub mod builder {
                 kind: Ok(value.kind),
                 source: Ok(value.source),
                 value: Ok(value.value),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
+    pub struct CommandLineParameter {
+        aliases:
+            ::std::result::Result<::std::vec::Vec<super::AliasListItem>, ::std::string::String>,
+        description:
+            ::std::result::Result<::std::option::Option<super::UserHelp>, ::std::string::String>,
+        kind: ::std::result::Result<super::ValueType, ::std::string::String>,
+        name: ::std::result::Result<super::CommandLineParameterName, ::std::string::String>,
+        required: ::std::result::Result<bool, ::std::string::String>,
+        source: ::std::result::Result<super::Source, ::std::string::String>,
+        var_name: ::std::result::Result<
+            ::std::option::Option<::serde_json::Value>,
+            ::std::string::String,
+        >,
+    }
+    impl ::std::default::Default for CommandLineParameter {
+        fn default() -> Self {
+            Self {
+                aliases: Err("no value supplied for aliases".to_string()),
+                description: Ok(Default::default()),
+                kind: Err("no value supplied for kind".to_string()),
+                name: Err("no value supplied for name".to_string()),
+                required: Ok(Default::default()),
+                source: Err("no value supplied for source".to_string()),
+                var_name: Ok(Default::default()),
+            }
+        }
+    }
+    impl CommandLineParameter {
+        pub fn aliases<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::vec::Vec<super::AliasListItem>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.aliases = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for aliases: {}", e));
+            self
+        }
+        pub fn description<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::option::Option<super::UserHelp>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.description = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for description: {}", e));
+            self
+        }
+        pub fn kind<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<super::ValueType>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.kind = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for kind: {}", e));
+            self
+        }
+        pub fn name<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<super::CommandLineParameterName>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.name = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for name: {}", e));
+            self
+        }
+        pub fn required<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<bool>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.required = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for required: {}", e));
+            self
+        }
+        pub fn source<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<super::Source>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.source = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for source: {}", e));
+            self
+        }
+        pub fn var_name<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::option::Option<::serde_json::Value>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.var_name = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for var_name: {}", e));
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<CommandLineParameter> for super::CommandLineParameter {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: CommandLineParameter,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                aliases: value.aliases?,
+                description: value.description?,
+                kind: value.kind?,
+                name: value.name?,
+                required: value.required?,
+                source: value.source?,
+                var_name: value.var_name?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::CommandLineParameter> for CommandLineParameter {
+        fn from(value: super::CommandLineParameter) -> Self {
+            Self {
+                aliases: Ok(value.aliases),
+                description: Ok(value.description),
+                kind: Ok(value.kind),
+                name: Ok(value.name),
+                required: Ok(value.required),
+                source: Ok(value.source),
+                var_name: Ok(value.var_name),
             }
         }
     }
@@ -11044,53 +11538,44 @@ pub mod builder {
         }
     }
     #[derive(Clone, Debug)]
-    pub struct EnvironmentParameter {
-        aliases:
-            ::std::result::Result<::std::vec::Vec<super::AliasListItem>, ::std::string::String>,
-        description:
-            ::std::result::Result<::std::vec::Vec<super::DescriptionItem>, ::std::string::String>,
-        kind: ::std::result::Result<super::ValueType, ::std::string::String>,
+    pub struct EnvironmentVariableDeclaration {
+        default: ::std::result::Result<
+            ::std::option::Option<super::EnvironmentVariableDeclarationDefault>,
+            ::std::string::String,
+        >,
+        description: ::std::result::Result<super::UserHelp, ::std::string::String>,
         source: ::std::result::Result<super::Source, ::std::string::String>,
     }
-    impl ::std::default::Default for EnvironmentParameter {
+    impl ::std::default::Default for EnvironmentVariableDeclaration {
         fn default() -> Self {
             Self {
-                aliases: Ok(Default::default()),
-                description: Ok(Default::default()),
-                kind: Err("no value supplied for kind".to_string()),
+                default: Ok(Default::default()),
+                description: Err("no value supplied for description".to_string()),
                 source: Err("no value supplied for source".to_string()),
             }
         }
     }
-    impl EnvironmentParameter {
-        pub fn aliases<T>(mut self, value: T) -> Self
+    impl EnvironmentVariableDeclaration {
+        pub fn default<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::std::vec::Vec<super::AliasListItem>>,
+            T: ::std::convert::TryInto<
+                ::std::option::Option<super::EnvironmentVariableDeclarationDefault>,
+            >,
             T::Error: ::std::fmt::Display,
         {
-            self.aliases = value
+            self.default = value
                 .try_into()
-                .map_err(|e| format!("error converting supplied value for aliases: {}", e));
+                .map_err(|e| format!("error converting supplied value for default: {}", e));
             self
         }
         pub fn description<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::std::vec::Vec<super::DescriptionItem>>,
+            T: ::std::convert::TryInto<super::UserHelp>,
             T::Error: ::std::fmt::Display,
         {
             self.description = value
                 .try_into()
                 .map_err(|e| format!("error converting supplied value for description: {}", e));
-            self
-        }
-        pub fn kind<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<super::ValueType>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.kind = value
-                .try_into()
-                .map_err(|e| format!("error converting supplied value for kind: {}", e));
             self
         }
         pub fn source<T>(mut self, value: T) -> Self
@@ -11104,25 +11589,27 @@ pub mod builder {
             self
         }
     }
-    impl ::std::convert::TryFrom<EnvironmentParameter> for super::EnvironmentParameter {
+    impl ::std::convert::TryFrom<EnvironmentVariableDeclaration>
+        for super::EnvironmentVariableDeclaration
+    {
         type Error = super::error::ConversionError;
         fn try_from(
-            value: EnvironmentParameter,
+            value: EnvironmentVariableDeclaration,
         ) -> ::std::result::Result<Self, super::error::ConversionError> {
             Ok(Self {
-                aliases: value.aliases?,
+                default: value.default?,
                 description: value.description?,
-                kind: value.kind?,
                 source: value.source?,
             })
         }
     }
-    impl ::std::convert::From<super::EnvironmentParameter> for EnvironmentParameter {
-        fn from(value: super::EnvironmentParameter) -> Self {
+    impl ::std::convert::From<super::EnvironmentVariableDeclaration>
+        for EnvironmentVariableDeclaration
+    {
+        fn from(value: super::EnvironmentVariableDeclaration) -> Self {
             Self {
-                aliases: Ok(value.aliases),
+                default: Ok(value.default),
                 description: Ok(value.description),
-                kind: Ok(value.kind),
                 source: Ok(value.source),
             }
         }
@@ -11385,10 +11872,12 @@ pub mod builder {
             ::std::string::String,
         >,
         kind: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+        rerunnable: ::std::result::Result<bool, ::std::string::String>,
         runtime_parameters: ::std::result::Result<
             ::std::option::Option<super::NamedParameters>,
             ::std::string::String,
         >,
+        source: ::std::result::Result<super::Source, ::std::string::String>,
     }
     impl ::std::default::Default for InlineJob {
         fn default() -> Self {
@@ -11396,7 +11885,9 @@ pub mod builder {
                 code: Err("no value supplied for code".to_string()),
                 initial_parameters: Ok(Default::default()),
                 kind: Err("no value supplied for kind".to_string()),
+                rerunnable: Ok(super::defaults::default_bool::<true>()),
                 runtime_parameters: Ok(Default::default()),
+                source: Err("no value supplied for source".to_string()),
             }
         }
     }
@@ -11434,6 +11925,16 @@ pub mod builder {
                 .map_err(|e| format!("error converting supplied value for kind: {}", e));
             self
         }
+        pub fn rerunnable<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<bool>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.rerunnable = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for rerunnable: {}", e));
+            self
+        }
         pub fn runtime_parameters<T>(mut self, value: T) -> Self
         where
             T: ::std::convert::TryInto<::std::option::Option<super::NamedParameters>>,
@@ -11447,66 +11948,6 @@ pub mod builder {
             });
             self
         }
-    }
-    impl ::std::convert::TryFrom<InlineJob> for super::InlineJob {
-        type Error = super::error::ConversionError;
-        fn try_from(
-            value: InlineJob,
-        ) -> ::std::result::Result<Self, super::error::ConversionError> {
-            Ok(Self {
-                code: value.code?,
-                initial_parameters: value.initial_parameters?,
-                kind: value.kind?,
-                runtime_parameters: value.runtime_parameters?,
-            })
-        }
-    }
-    impl ::std::convert::From<super::InlineJob> for InlineJob {
-        fn from(value: super::InlineJob) -> Self {
-            Self {
-                code: Ok(value.code),
-                initial_parameters: Ok(value.initial_parameters),
-                kind: Ok(value.kind),
-                runtime_parameters: Ok(value.runtime_parameters),
-            }
-        }
-    }
-    #[derive(Clone, Debug)]
-    pub struct Job {
-        def: ::std::result::Result<super::JobDef, ::std::string::String>,
-        rerunnable: ::std::result::Result<bool, ::std::string::String>,
-        source: ::std::result::Result<super::Source, ::std::string::String>,
-    }
-    impl ::std::default::Default for Job {
-        fn default() -> Self {
-            Self {
-                def: Err("no value supplied for def".to_string()),
-                rerunnable: Ok(super::defaults::default_bool::<true>()),
-                source: Err("no value supplied for source".to_string()),
-            }
-        }
-    }
-    impl Job {
-        pub fn def<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<super::JobDef>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.def = value
-                .try_into()
-                .map_err(|e| format!("error converting supplied value for def: {}", e));
-            self
-        }
-        pub fn rerunnable<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<bool>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.rerunnable = value
-                .try_into()
-                .map_err(|e| format!("error converting supplied value for rerunnable: {}", e));
-            self
-        }
         pub fn source<T>(mut self, value: T) -> Self
         where
             T: ::std::convert::TryInto<super::Source>,
@@ -11518,21 +11959,29 @@ pub mod builder {
             self
         }
     }
-    impl ::std::convert::TryFrom<Job> for super::Job {
+    impl ::std::convert::TryFrom<InlineJob> for super::InlineJob {
         type Error = super::error::ConversionError;
-        fn try_from(value: Job) -> ::std::result::Result<Self, super::error::ConversionError> {
+        fn try_from(
+            value: InlineJob,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
             Ok(Self {
-                def: value.def?,
+                code: value.code?,
+                initial_parameters: value.initial_parameters?,
+                kind: value.kind?,
                 rerunnable: value.rerunnable?,
+                runtime_parameters: value.runtime_parameters?,
                 source: value.source?,
             })
         }
     }
-    impl ::std::convert::From<super::Job> for Job {
-        fn from(value: super::Job) -> Self {
+    impl ::std::convert::From<super::InlineJob> for InlineJob {
+        fn from(value: super::InlineJob) -> Self {
             Self {
-                def: Ok(value.def),
+                code: Ok(value.code),
+                initial_parameters: Ok(value.initial_parameters),
+                kind: Ok(value.kind),
                 rerunnable: Ok(value.rerunnable),
+                runtime_parameters: Ok(value.runtime_parameters),
                 source: Ok(value.source),
             }
         }
@@ -12686,12 +13135,16 @@ pub mod builder {
     pub struct MacroJob {
         kind: ::std::result::Result<::serde_json::Value, ::std::string::String>,
         macro_: ::std::result::Result<super::MacroJobMacro, ::std::string::String>,
+        rerunnable: ::std::result::Result<bool, ::std::string::String>,
+        source: ::std::result::Result<super::Source, ::std::string::String>,
     }
     impl ::std::default::Default for MacroJob {
         fn default() -> Self {
             Self {
                 kind: Err("no value supplied for kind".to_string()),
                 macro_: Err("no value supplied for macro_".to_string()),
+                rerunnable: Ok(super::defaults::default_bool::<true>()),
+                source: Err("no value supplied for source".to_string()),
             }
         }
     }
@@ -12716,6 +13169,26 @@ pub mod builder {
                 .map_err(|e| format!("error converting supplied value for macro_: {}", e));
             self
         }
+        pub fn rerunnable<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<bool>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.rerunnable = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for rerunnable: {}", e));
+            self
+        }
+        pub fn source<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<super::Source>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.source = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for source: {}", e));
+            self
+        }
     }
     impl ::std::convert::TryFrom<MacroJob> for super::MacroJob {
         type Error = super::error::ConversionError;
@@ -12723,6 +13196,8 @@ pub mod builder {
             Ok(Self {
                 kind: value.kind?,
                 macro_: value.macro_?,
+                rerunnable: value.rerunnable?,
+                source: value.source?,
             })
         }
     }
@@ -12731,6 +13206,120 @@ pub mod builder {
             Self {
                 kind: Ok(value.kind),
                 macro_: Ok(value.macro_),
+                rerunnable: Ok(value.rerunnable),
+                source: Ok(value.source),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
+    pub struct Main {
+        default: ::std::result::Result<bool, ::std::string::String>,
+        description:
+            ::std::result::Result<::std::option::Option<super::UserHelp>, ::std::string::String>,
+        environment_variables: ::std::result::Result<
+            ::std::collections::HashMap<
+                super::MainEnvironmentVariablesKey,
+                super::EnvironmentVariableDeclaration,
+            >,
+            ::std::string::String,
+        >,
+        parameters: ::std::result::Result<
+            ::std::vec::Vec<super::CommandLineParameter>,
+            ::std::string::String,
+        >,
+        source: ::std::result::Result<super::Source, ::std::string::String>,
+    }
+    impl ::std::default::Default for Main {
+        fn default() -> Self {
+            Self {
+                default: Ok(Default::default()),
+                description: Ok(Default::default()),
+                environment_variables: Ok(Default::default()),
+                parameters: Ok(Default::default()),
+                source: Err("no value supplied for source".to_string()),
+            }
+        }
+    }
+    impl Main {
+        pub fn default<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<bool>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.default = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for default: {}", e));
+            self
+        }
+        pub fn description<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::option::Option<super::UserHelp>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.description = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for description: {}", e));
+            self
+        }
+        pub fn environment_variables<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<
+                ::std::collections::HashMap<
+                    super::MainEnvironmentVariablesKey,
+                    super::EnvironmentVariableDeclaration,
+                >,
+            >,
+            T::Error: ::std::fmt::Display,
+        {
+            self.environment_variables = value.try_into().map_err(|e| {
+                format!(
+                    "error converting supplied value for environment_variables: {}",
+                    e
+                )
+            });
+            self
+        }
+        pub fn parameters<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::vec::Vec<super::CommandLineParameter>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.parameters = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for parameters: {}", e));
+            self
+        }
+        pub fn source<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<super::Source>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.source = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for source: {}", e));
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<Main> for super::Main {
+        type Error = super::error::ConversionError;
+        fn try_from(value: Main) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                default: value.default?,
+                description: value.description?,
+                environment_variables: value.environment_variables?,
+                parameters: value.parameters?,
+                source: value.source?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::Main> for Main {
+        fn from(value: super::Main) -> Self {
+            Self {
+                default: Ok(value.default),
+                description: Ok(value.description),
+                environment_variables: Ok(value.environment_variables),
+                parameters: Ok(value.parameters),
+                source: Ok(value.source),
             }
         }
     }
@@ -13384,10 +13973,12 @@ pub mod builder {
         >,
         kind: ::std::result::Result<::serde_json::Value, ::std::string::String>,
         module: ::std::result::Result<super::ModuleJobModule, ::std::string::String>,
+        rerunnable: ::std::result::Result<bool, ::std::string::String>,
         runtime_parameters: ::std::result::Result<
             ::std::option::Option<super::NamedParameters>,
             ::std::string::String,
         >,
+        source: ::std::result::Result<super::Source, ::std::string::String>,
     }
     impl ::std::default::Default for ModuleJob {
         fn default() -> Self {
@@ -13395,7 +13986,9 @@ pub mod builder {
                 initial_parameters: Ok(Default::default()),
                 kind: Err("no value supplied for kind".to_string()),
                 module: Err("no value supplied for module".to_string()),
+                rerunnable: Ok(super::defaults::default_bool::<true>()),
                 runtime_parameters: Ok(Default::default()),
+                source: Err("no value supplied for source".to_string()),
             }
         }
     }
@@ -13433,6 +14026,16 @@ pub mod builder {
                 .map_err(|e| format!("error converting supplied value for module: {}", e));
             self
         }
+        pub fn rerunnable<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<bool>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.rerunnable = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for rerunnable: {}", e));
+            self
+        }
         pub fn runtime_parameters<T>(mut self, value: T) -> Self
         where
             T: ::std::convert::TryInto<::std::option::Option<super::NamedParameters>>,
@@ -13446,6 +14049,16 @@ pub mod builder {
             });
             self
         }
+        pub fn source<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<super::Source>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.source = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for source: {}", e));
+            self
+        }
     }
     impl ::std::convert::TryFrom<ModuleJob> for super::ModuleJob {
         type Error = super::error::ConversionError;
@@ -13456,7 +14069,9 @@ pub mod builder {
                 initial_parameters: value.initial_parameters?,
                 kind: value.kind?,
                 module: value.module?,
+                rerunnable: value.rerunnable?,
                 runtime_parameters: value.runtime_parameters?,
+                source: value.source?,
             })
         }
     }
@@ -13466,7 +14081,9 @@ pub mod builder {
                 initial_parameters: Ok(value.initial_parameters),
                 kind: Ok(value.kind),
                 module: Ok(value.module),
+                rerunnable: Ok(value.rerunnable),
                 runtime_parameters: Ok(value.runtime_parameters),
+                source: Ok(value.source),
             }
         }
     }
@@ -14918,15 +15535,13 @@ pub mod builder {
             ::std::option::Option<::serde_json::Value>,
             ::std::string::String,
         >,
-        spdx: ::std::result::Result<::serde_json::Value, ::std::string::String>,
-        spdx_id: ::std::result::Result<::std::option::Option<super::SpdxId>, ::std::string::String>,
+        spdx_id: ::std::result::Result<super::SpdxId, ::std::string::String>,
     }
     impl ::std::default::Default for ScriptLicense {
         fn default() -> Self {
             Self {
                 copyright: Ok(Default::default()),
-                spdx: Err("no value supplied for spdx".to_string()),
-                spdx_id: Ok(Default::default()),
+                spdx_id: Err("no value supplied for spdx_id".to_string()),
             }
         }
     }
@@ -14941,19 +15556,9 @@ pub mod builder {
                 .map_err(|e| format!("error converting supplied value for copyright: {}", e));
             self
         }
-        pub fn spdx<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<::serde_json::Value>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.spdx = value
-                .try_into()
-                .map_err(|e| format!("error converting supplied value for spdx: {}", e));
-            self
-        }
         pub fn spdx_id<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::std::option::Option<super::SpdxId>>,
+            T: ::std::convert::TryInto<super::SpdxId>,
             T::Error: ::std::fmt::Display,
         {
             self.spdx_id = value
@@ -14969,7 +15574,6 @@ pub mod builder {
         ) -> ::std::result::Result<Self, super::error::ConversionError> {
             Ok(Self {
                 copyright: value.copyright?,
-                spdx: value.spdx?,
                 spdx_id: value.spdx_id?,
             })
         }
@@ -14978,24 +15582,23 @@ pub mod builder {
         fn from(value: super::ScriptLicense) -> Self {
             Self {
                 copyright: Ok(value.copyright),
-                spdx: Ok(value.spdx),
                 spdx_id: Ok(value.spdx_id),
             }
         }
     }
     #[derive(Clone, Debug)]
     pub struct Source {
-        column: ::std::result::Result<i64, ::std::string::String>,
+        column: ::std::result::Result<::std::option::Option<i64>, ::std::string::String>,
         file: ::std::result::Result<super::File, ::std::string::String>,
-        line: ::std::result::Result<i64, ::std::string::String>,
+        line: ::std::result::Result<::std::option::Option<i64>, ::std::string::String>,
         text: ::std::result::Result<::std::option::Option<super::Text>, ::std::string::String>,
     }
     impl ::std::default::Default for Source {
         fn default() -> Self {
             Self {
-                column: Err("no value supplied for column".to_string()),
+                column: Ok(Default::default()),
                 file: Err("no value supplied for file".to_string()),
-                line: Err("no value supplied for line".to_string()),
+                line: Ok(Default::default()),
                 text: Ok(Default::default()),
             }
         }
@@ -15003,7 +15606,7 @@ pub mod builder {
     impl Source {
         pub fn column<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<i64>,
+            T: ::std::convert::TryInto<::std::option::Option<i64>>,
             T::Error: ::std::fmt::Display,
         {
             self.column = value
@@ -15023,7 +15626,7 @@ pub mod builder {
         }
         pub fn line<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<i64>,
+            T: ::std::convert::TryInto<::std::option::Option<i64>>,
             T::Error: ::std::fmt::Display,
         {
             self.line = value
@@ -15171,112 +15774,6 @@ pub mod builder {
         }
     }
     #[derive(Clone, Debug)]
-    pub struct StateJob {
-        environment_parameters: ::std::result::Result<
-            ::std::collections::HashMap<
-                super::StateJobEnvironmentParametersKey,
-                super::EnvironmentParameter,
-            >,
-            ::std::string::String,
-        >,
-        initial_parameters: ::std::result::Result<
-            ::std::option::Option<super::InitialParameters>,
-            ::std::string::String,
-        >,
-        kind: ::std::result::Result<::serde_json::Value, ::std::string::String>,
-        runtime_parameters: ::std::result::Result<
-            ::std::option::Option<super::NamedParameters>,
-            ::std::string::String,
-        >,
-    }
-    impl ::std::default::Default for StateJob {
-        fn default() -> Self {
-            Self {
-                environment_parameters: Ok(Default::default()),
-                initial_parameters: Ok(Default::default()),
-                kind: Err("no value supplied for kind".to_string()),
-                runtime_parameters: Ok(Default::default()),
-            }
-        }
-    }
-    impl StateJob {
-        pub fn environment_parameters<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<
-                ::std::collections::HashMap<
-                    super::StateJobEnvironmentParametersKey,
-                    super::EnvironmentParameter,
-                >,
-            >,
-            T::Error: ::std::fmt::Display,
-        {
-            self.environment_parameters = value.try_into().map_err(|e| {
-                format!(
-                    "error converting supplied value for environment_parameters: {}",
-                    e
-                )
-            });
-            self
-        }
-        pub fn initial_parameters<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<::std::option::Option<super::InitialParameters>>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.initial_parameters = value.try_into().map_err(|e| {
-                format!(
-                    "error converting supplied value for initial_parameters: {}",
-                    e
-                )
-            });
-            self
-        }
-        pub fn kind<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<::serde_json::Value>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.kind = value
-                .try_into()
-                .map_err(|e| format!("error converting supplied value for kind: {}", e));
-            self
-        }
-        pub fn runtime_parameters<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<::std::option::Option<super::NamedParameters>>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.runtime_parameters = value.try_into().map_err(|e| {
-                format!(
-                    "error converting supplied value for runtime_parameters: {}",
-                    e
-                )
-            });
-            self
-        }
-    }
-    impl ::std::convert::TryFrom<StateJob> for super::StateJob {
-        type Error = super::error::ConversionError;
-        fn try_from(value: StateJob) -> ::std::result::Result<Self, super::error::ConversionError> {
-            Ok(Self {
-                environment_parameters: value.environment_parameters?,
-                initial_parameters: value.initial_parameters?,
-                kind: value.kind?,
-                runtime_parameters: value.runtime_parameters?,
-            })
-        }
-    }
-    impl ::std::convert::From<super::StateJob> for StateJob {
-        fn from(value: super::StateJob) -> Self {
-            Self {
-                environment_parameters: Ok(value.environment_parameters),
-                initial_parameters: Ok(value.initial_parameters),
-                kind: Ok(value.kind),
-                runtime_parameters: Ok(value.runtime_parameters),
-            }
-        }
-    }
-    #[derive(Clone, Debug)]
     pub struct Step {
         name: ::std::result::Result<::std::string::String, ::std::string::String>,
         run: ::std::result::Result<super::StepRun, ::std::string::String>,
@@ -15343,21 +15840,21 @@ pub mod builder {
         }
     }
     #[derive(Clone, Debug)]
-    pub struct StreamJob {
+    pub struct Stream {
         from: ::std::result::Result<super::StreamLocation, ::std::string::String>,
-        kind: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+        source: ::std::result::Result<super::Source, ::std::string::String>,
         to: ::std::result::Result<super::StreamLocation, ::std::string::String>,
     }
-    impl ::std::default::Default for StreamJob {
+    impl ::std::default::Default for Stream {
         fn default() -> Self {
             Self {
                 from: Err("no value supplied for from".to_string()),
-                kind: Err("no value supplied for kind".to_string()),
+                source: Err("no value supplied for source".to_string()),
                 to: Err("no value supplied for to".to_string()),
             }
         }
     }
-    impl StreamJob {
+    impl Stream {
         pub fn from<T>(mut self, value: T) -> Self
         where
             T: ::std::convert::TryInto<super::StreamLocation>,
@@ -15368,14 +15865,14 @@ pub mod builder {
                 .map_err(|e| format!("error converting supplied value for from: {}", e));
             self
         }
-        pub fn kind<T>(mut self, value: T) -> Self
+        pub fn source<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::serde_json::Value>,
+            T: ::std::convert::TryInto<super::Source>,
             T::Error: ::std::fmt::Display,
         {
-            self.kind = value
+            self.source = value
                 .try_into()
-                .map_err(|e| format!("error converting supplied value for kind: {}", e));
+                .map_err(|e| format!("error converting supplied value for source: {}", e));
             self
         }
         pub fn to<T>(mut self, value: T) -> Self
@@ -15389,24 +15886,104 @@ pub mod builder {
             self
         }
     }
+    impl ::std::convert::TryFrom<Stream> for super::Stream {
+        type Error = super::error::ConversionError;
+        fn try_from(value: Stream) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                from: value.from?,
+                source: value.source?,
+                to: value.to?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::Stream> for Stream {
+        fn from(value: super::Stream) -> Self {
+            Self {
+                from: Ok(value.from),
+                source: Ok(value.source),
+                to: Ok(value.to),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
+    pub struct StreamJob {
+        kind: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+        rerunnable: ::std::result::Result<bool, ::std::string::String>,
+        source: ::std::result::Result<super::Source, ::std::string::String>,
+        streams: ::std::result::Result<::std::vec::Vec<super::Stream>, ::std::string::String>,
+    }
+    impl ::std::default::Default for StreamJob {
+        fn default() -> Self {
+            Self {
+                kind: Err("no value supplied for kind".to_string()),
+                rerunnable: Ok(super::defaults::default_bool::<true>()),
+                source: Err("no value supplied for source".to_string()),
+                streams: Err("no value supplied for streams".to_string()),
+            }
+        }
+    }
+    impl StreamJob {
+        pub fn kind<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::serde_json::Value>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.kind = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for kind: {}", e));
+            self
+        }
+        pub fn rerunnable<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<bool>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.rerunnable = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for rerunnable: {}", e));
+            self
+        }
+        pub fn source<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<super::Source>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.source = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for source: {}", e));
+            self
+        }
+        pub fn streams<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::vec::Vec<super::Stream>>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.streams = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for streams: {}", e));
+            self
+        }
+    }
     impl ::std::convert::TryFrom<StreamJob> for super::StreamJob {
         type Error = super::error::ConversionError;
         fn try_from(
             value: StreamJob,
         ) -> ::std::result::Result<Self, super::error::ConversionError> {
             Ok(Self {
-                from: value.from?,
                 kind: value.kind?,
-                to: value.to?,
+                rerunnable: value.rerunnable?,
+                source: value.source?,
+                streams: value.streams?,
             })
         }
     }
     impl ::std::convert::From<super::StreamJob> for StreamJob {
         fn from(value: super::StreamJob) -> Self {
             Self {
-                from: Ok(value.from),
                 kind: Ok(value.kind),
-                to: Ok(value.to),
+                rerunnable: Ok(value.rerunnable),
+                source: Ok(value.source),
+                streams: Ok(value.streams),
             }
         }
     }
@@ -15696,8 +16273,7 @@ pub mod builder {
     }
     #[derive(Clone, Debug)]
     pub struct Thread {
-        main:
-            ::std::result::Result<::std::option::Option<super::ThreadMain>, ::std::string::String>,
+        main: ::std::result::Result<::std::option::Option<super::Main>, ::std::string::String>,
         source: ::std::result::Result<super::Source, ::std::string::String>,
         steps: ::std::result::Result<::std::vec::Vec<super::Step>, ::std::string::String>,
     }
@@ -15706,14 +16282,14 @@ pub mod builder {
             Self {
                 main: Ok(Default::default()),
                 source: Err("no value supplied for source".to_string()),
-                steps: Ok(Default::default()),
+                steps: Err("no value supplied for steps".to_string()),
             }
         }
     }
     impl Thread {
         pub fn main<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::std::option::Option<super::ThreadMain>>,
+            T: ::std::convert::TryInto<::std::option::Option<super::Main>>,
             T::Error: ::std::fmt::Display,
         {
             self.main = value

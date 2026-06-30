@@ -31,6 +31,12 @@ impl ScriptExitCollector {
         }
     }
 
+    pub fn add_result<T>(&mut self, res: Result<T, ScriptExit>) {
+        if let Err(exit) = res {
+            self.add(&exit)
+        }
+    }
+
     pub fn add(&mut self, exit: &ScriptExit) {
         self.total += 1;
         if let Some(message) = &exit.message {
@@ -59,5 +65,10 @@ impl ScriptExitCollector {
                 message: Some(self.msg),
             }
         }
+    }
+
+    pub fn close_ok(self) -> Result<(), ScriptExit> {
+        let res = self.close();
+        if res.code == 0 { Ok(()) } else { Err(res) }
     }
 }

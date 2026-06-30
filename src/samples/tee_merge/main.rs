@@ -1,4 +1,4 @@
-//! Manually constructed code to show how the builder might turn the AST into a shell program.
+//! Manually constructed code to show how the builder might turn the LLS into a shell program.
 
 use std::collections::HashMap;
 use std::sync::{Arc, mpsc};

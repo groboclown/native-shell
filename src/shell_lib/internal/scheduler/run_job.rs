@@ -127,7 +127,10 @@ impl JobStateInner {
             // we don't have a race condition of multiple threads running before one
             // can start.
             // The job runs outside the lock.
-            let res = job.runner.run(ctx);
+            let res = match job.runner.run(ctx) {
+                Ok(r) => r,
+                Err(r) => r,
+            };
 
             // Run completed, so update the state in the lock.
             {

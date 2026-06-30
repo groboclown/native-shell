@@ -3,253 +3,187 @@
 
 schema-version: "1.0.0"
 
-name: cat-cp
-version: "1.0.0"
-source:
-  file: "script.ns"
-  line: 1
-  column: 1
-events:
-  - name: start
-    text: "Start of the shell script execution."
-    source:
-      file: "script.ns"
-      line: 2
-      column: 1
-nodes:
-  # The main node.  It must use a module that conforms to the builder's requirements.
-  - name: main
-    source:
-      file: "script.ns"
-      line: 1
-      column: 1
-    module: shell
-    initial-parameters:
-      description:
-        source:
-          file: "script.ns"
-          line: 1
-          column: 1
-        value:
-          source:
-            file: "script.ns"
-            line: 1
-            column: 1
-          type: string
-          value: "Sends the contents of a file through a pipe into another file."
-      version:
-        source:
-          file: "script.ns"
-          line: 1
-          column: 1
-        value:
-          source:
-            file: "script.ns"
-            line: 1
-            column: 1
-          type: string
-          value: "1.0.0"
-      start_event:
-        source:
-          file: "script.ns"
-          line: 1
-          column: 1
-        value:
-          source:
-            file: "script.ns"
-            line: 1
-            column: 1
-          type: string
-          value: "start"
-      required_value_parameters:
-        source:
-          file: "script.ns"
-          line: 1
-          column: 1
-        value:
-          source:
-            file: "script.ns"
-            line: 1
-            column: 1
-          type: string-list
-          value:
-            - source
-            - target
-      usage_line:
-        source:
-          file: "script.ns"
-          line: 1
-          column: 1
-        value:
-          source:
-            file: "script.ns"
-            line: 1
-            column: 1
-          type: string
-          value: "--source=SOURCE --target=TARGET"
-      parameter_help:
-        source:
-          file: "script.ns"
-          line: 1
-          column: 1
-        value:
-          source:
-            file: "script.ns"
-            line: 1
-            column: 1
-          type: string-map
-          value:
-            "--source": (required) The file to read from.
-            "--target": (required) The file to write to.
-      end_help:
-        source:
-          file: "script.ns"
-          line: 1
-          column: 1
-        value:
-          source:
-            file: "script.ns"
-            line: 1
-            column: 1
-          type: string-list
-          value:
-            - Copies the contents of the source file to the target file.
-            - It does not create directories, but will overwrite the target file if it exists.
-    exit-actions: []
-    runtime-parameters: []
-    streams: []
-    event-listeners:
-      # The CLI action to run, as specified by the start_event field.
-      - name: start
-        source:
-          file: "script.ns"
-          line: 1
-          column: 1
-        actions:
-          - name: "Script execution"
-            source:
-              file: "script.ns"
-              line: 1
-              column: 1
-            run:
-              source:
-                file: "script.ns"
-                line: 1
-                column: 1
-              type: spawn-node
-              node: cat
-  - name: cat
-    source:
-      file: "script.ns"
-      line: 3
-      column: 1
+meta:
+  name: cat-cp
+  version: "1.0.0"
+  source:
+    file: "script.ns"
+    line: 1
+    column: 1
+  authors:
+    - The Native Shell Team
+  license:
+    spdx-id: MIT
+
+threads:
+  default:
+    source: { file: "script.ns" }
+
+    # Main thread starts the copy job thread.
+    # It exits the script with an error if the copy job thread exits with an error.
+    main:
+      source: { file: "script.ns" }
+      description: >
+        Copy the SOURCE file to the TARGET file.  This will not create the
+        directory containing the TARGET file.
+      default: true
+      parameters:
+        - name: source
+          aliases: [source, s]
+          var-name: SOURCE
+          description: >
+            Path to the source file to copy.
+          kind: string
+        - name: target
+          aliases: [target, t]
+          var-name: TARGET
+          description: >
+            Path to the target file.
+          kind: string
+    steps:
+      - name: main_s0
+        source: { file: "script.ns" }
+        run:
+          kind: spawn-thread
+          thread: jt1
+      - name: main_s1
+        source: { file: "script.ns" }
+        run:
+          kind: wait-for-thread
+          thread: jt1
+          exit-behavior:
+            source: { file: "script.ns" }
+            never-started:
+              source: { file: "script.ns" }
+              kind: abort-script
+            default-behavior:
+              # on-error - anything that isn't exit code 0.
+              # Pass the error on to the user.
+              source: { file: "script.ns" }
+              kind: abort-script
+            exit-code-behaviors:
+              - source: { file: "script.ns" }
+                min-code: 0
+                max-code: 0
+                behavior:
+                  source: { file: "script.ns" }
+                  kind: stop-script
+
+  # The copy job web.
+  # It first runs the job that prepares the streams for the jobs.
+  # Then it runs the jobs async.
+  # Then it waits for all the jobs to finish.
+  jt1:
+    source: { file: "script.ns" }
+    steps:
+      - name: jt1_j0x0_start
+        source: { file: "script.ns" }
+        run:
+          kind: spawn-job
+          job: j0x0
+      - name: jt1_j0_stop
+        source: { file: "script.ns" }
+        run:
+          kind: wait-for-job
+          job: j0x0
+          exit-behavior:
+            source: { file: "script.ns" }
+            never-started:
+              source: { file: "script.ns" }
+              kind: abort-script
+            default-behavior:
+              # on-error - anything that isn't exit code 0.
+              # Pass the error on to the user.
+              source: { file: "script.ns" }
+              kind: stop-script
+            exit-code-behaviors:
+              # on-success - keep going.
+              - source: { file: "script.ns" }
+                min-code: 0
+                max-code: 0
+                behavior:
+                  source: { file: "script.ns" }
+                  kind: jump
+                  by: 1
+      - name: jt1_j1_start
+        source: { file: "script.ns" }
+        run:
+          kind: spawn-job
+          job: j0x1
+      # There's just the one job to start, so, there you go.
+
+      # Wait for all the launched jobs to stop.
+      - name: jt1_stop
+        source: { file: "script.ns" }
+        run:
+          # A script compiler can simplify this by just creating a wait-for-job,
+          # but this is for testing.
+          kind: wait-for-all
+          jobs:
+            - j0x1
+          threads: []
+          exit-behavior:
+            source: { file: "script.ns" }
+            never-started:
+              source: { file: "script.ns" }
+              kind: abort-script
+            default-behavior:
+              # on-error - anything that isn't exit code 0.
+              # Pass the error on to the user.
+              source: { file: "script.ns" }
+              kind: stop-script
+            exit-code-behaviors:
+              # on-success - step ahead by 1 which, because this is
+              # the last step in the thread, means end the thread.
+              - source: { file: "script.ns" }
+                min-code: 0
+                max-code: 0
+                behavior:
+                  source: { file: "script.ns" }
+                  kind: jump
+                  by: 1
+
+jobs:
+  j0x0:
+    # The first stream assembly job for the jobs in its tread's web.
+    source: { file: "script.ns" }
+    kind: stream
+    streams:
+      - source: { file: "script.ns" }
+        from:
+          # from the cat job.  cat uses a fd as the output.
+          source: { file: "script.ns" }
+          kind: fd
+          job: j0x1
+          fd: 0
+        to:
+          # pipe it directly into a file.
+          source: { file: "script.ns" }
+          kind: file
+          filename:
+            source: { file: "script.ns" }
+            kind: lookup-string
+            # 'default' references the thread named 'default', which
+            # creates an implicit job that initializes before the thread starts.
+            job: default
+            name: target
+  j0x1:
+    # The cat module, which loads the source file and pipes it to the module's fd_0,
+    # which the job j0x0 connected to the target file.
+    source: { file: "script.ns" }
+    kind: module
     module: cat
     initial-parameters: {}
     runtime-parameters:
-      - name: filenames
-        source:
-          file: "script.ns"
-          line: 1
-          column: 1
+      - source: { file: "script.ns" }
+        name: filenames
         value:
-          type: constant-string-list
-          source:
-            file: "script.ns"
-            line: 1
-            column: 1
+          source: { file: "script.ns" }
+          kind: constant-string-list
           value:
-            - type: map-key-string
-              source:
-                file: "script.ns"
-                line: 1
-                column: 1
-              map:
-                source:
-                  file: "script.ns"
-                  line: 1
-                  column: 1
-                type: lookup-string-map
-                node: main
-                name: value_params
-              key:
-                type: constant-string
-                source:
-                  file: "script.ns"
-                  line: 1
-                  column: 1
-                value: "source"
-              default:
-                type: constant-string
-                source:
-                  file: "script.ns"
-                  line: 1
-                  column: 1
-                value: ""
-    exit-actions: []
-    streams:
-      - name: output
-        source:
-          file: "script.ns"
-          line: 4
-          column: 1
-        mode: output
-        to-node: output
-        to-stream: input
-    event-listeners: []
-
-  - name: output
-    source:
-      file: "script.ns"
-      line: 5
-      column: 1
-    module: file_sink
-    initial-parameters: {}
-    runtime-parameters:
-      - name: filename
-        source:
-          file: "script.ns"
-          line: 6
-          column: 1
-        value:
-          type: map-key-string
-          source:
-            file: "script.ns"
-            line: 7
-            column: 1
-          map:
-            source:
-              file: "script.ns"
-              line: 8
-              column: 1
-            type: lookup-string-map
-            node: main
-            name: value_params
-          key:
-            type: constant-string
-            source:
-              file: "script.ns"
-              line: 11
-              column: 1
-            value: "target"
-          default:
-            type: constant-string
-            source:
-              file: "script.ns"
-              line: 12
-              column: 1
-            value: ""
-      - name: append
-        source:
-          file: "script.ns"
-          line: 13
-          column: 1
-        value:
-          type: constant-boolean
-          source:
-            file: "script.ns"
-            line: 14
-            column: 1
-          value: false
-    exit-actions: []
-    streams: []
-    event-listeners: []
+            - source: { file: "script.ns" }
+              kind: lookup-string
+              # 'default' references the thread named 'default', which
+              # creates an implicit job that initializes before the thread starts.
+              job: default
+              name: source

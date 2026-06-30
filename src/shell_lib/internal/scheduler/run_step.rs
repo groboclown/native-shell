@@ -164,7 +164,7 @@ impl ThreadManager {
                 #[cfg(test)]
                 assert_eq!(*job_ref, _w_ref);
 
-                self.handle_exit_behavior(t, &w_exit, &mut run_state, Some(exit));
+                self.handle_exit_behavior(t, &w_exit, &mut run_state, Some(exit))?;
             }
         }
 

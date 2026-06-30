@@ -2,424 +2,78 @@
 
 //! Manually constructed code to show how the builder might turn the LLS into a shell program.
 
-use std::collections::HashMap;
-use std::sync::{Arc, mpsc};
+use crate::shell_lib::{internal::scheduler, structure};
+use std::{collections::HashMap, sync::Arc};
 
-use crate::shell_lib::helpers;
-use crate::shell_lib::helpers::state_guard::StateGuard;
-use crate::shell_lib::internal::scheduler;
-use crate::shell_lib::modules::{cat, file_sink, shell};
-use crate::shell_lib::structure::source::Source;
-use crate::shell_lib::structure::{job, source};
+mod jobs;
+mod modules;
+mod threads;
 
 pub fn main(argv: Vec<String>, environ: HashMap<String, String>) -> i32 {
     // Run the main function and handle any errors.
     env_logger::init();
-    let res = run_main(argv, environ);
-    if let Err(e) = &res {
-        eprintln!("Error: {}", e);
+    let res = match run_main(argv, environ) {
+        Ok(e) => e,
+        Err(e) => e,
+    };
+    if let Some(m) = &res.message {
+        if (res.code != 0) {
+            eprintln!("Error: {}", m);
+        } else {
+            eprintln!("{}", m);
+        }
     }
-    std::process::exit(res.unwrap_or(1));
+    std::process::exit(res.code);
 }
 
-fn run_main(argv: Vec<String>, environ: HashMap<String, String>) -> Result<i32, String> {
-    // FIXME how to fix this.
-    //  1. Change the 'ast.yaml' to 'lls.yaml' and correct it to match the expected behavior.
-    //  2. Create a "jobs" module.
-    //     a. For each job needed, it creates a job file.
-    //     b. Note that the lls.yaml needs to define "synthetic" jobs that link connected
-    //        jobs' streams together before they run.
-    //     c. Create a central ScriptState struct in a separate file in the jobs module
-    //        that hosts the stateStruct objects for each job instance whose module has a stateStruct.
-    //     d. Create a central ScriptJobs struct in a separate file that stores the
-    //        ScriptState + the constructed jobs.  It has a 'new' function that creates the
-    //        initial state for the jobs.  This will need an event builder to also
-    //        initialize the jobs' event handlers.
-    //  3. Create a "threads" module file that defines all the threads within it.
-    //     For this example, that's just one thread.  It also creates a structure
-    //     that houses all the threads.
-    //  4. This file's contents simulates the explicit argument parsing +
+fn run_main(
+    argv: Vec<String>,
+    environ: HashMap<String, String>,
+) -> Result<structure::ScriptExit, structure::ScriptExit> {
+    // 1. Parse the arguments based on the possible set of main threads.
+    // TODO have a proper argument parser.
+    let params = modules::default::JobdefaultParameters {
+        source: argv.get(1).expect("required 'source'").into(),
+        target: argv.get(2).expect("required 'target'").into(),
+    };
 
-    // Create the nodes that represent the modules.
-    // This includes adding the compile-time / initial parameters.
-    let nodes = Nodes {
-        main: shell::ShellModule::new(source::Source::new("script.ns", 1, 1), shell::ShellModuleCompileParams {
-            name: None,
-            description: Some("Sends the contents of a file through a pipe into another file.".to_string()),
-            version: Some("1.0.0".to_string()),
-            authors: None,
-            required_value_parameters: Some(vec!["source".to_string(), "target".to_string()]),
-            optional_value_parameters: None,
-            boolean_parameters: None,
-            position_parameter_min: None,
-            position_parameter_max: None,
-            usage_line: Some("--source=SOURCE --target=TARGET".to_string()),
-            parameter_help: Some(HashMap::from([
-                ("--source".to_string(), "(required) The file to read from.".to_string()),
-                ("--target".to_string(), "(required) The file to write to.".to_string()),
-            ])),
-            start_help: None,
-            end_help: Some(vec!["Copies the contents of the source file to the target file.  It does not create directories, but will overwrite the target file if it exists.".to_string()]),
-            argv: Some(argv),
-            environ: Some(environ),
+    let mut event_builder = scheduler::eventbus::JobEventBuilder::new();
+
+    // 2. Create the job objects.
+    let runtime = jobs::runtime::Runtime {
+        jobs: Arc::new(jobs::runtime::Jobs {
+            default: jobs::default::Jobdefault::new(event_builder.as_ctx(), params)?,
+            j0x0: jobs::j0x0::Jobj0x0::new(event_builder.as_ctx())?,
+            j0x1: jobs::j0x1::Jobj0x1::new(event_builder.as_ctx())?,
         }),
-        cat: cat::CatModule::new(source::Source::new("script.ns", 1, 1)),
-        output: file_sink::FileSinkModule::new(source::Source::new("script.ns", 1, 1)),
     };
 
-    // Create the runtime parameters for the modules.
-    // Module execution can dynamically update these.
-    let runtime_params = RuntimeParams {
-        cat: cat::CatModuleRuntimeParams {
-            // This will reach into the shell module's parameters to get the filename.
-            filenames: vec![],
-        },
-        output: file_sink::FileSinkModuleRuntimeParams {
-            // This will reach into the shell module's parameters to get the filename.
-            filename: "output.txt".to_string(),
-            // Hard-coded to false.
-            append: Some(false),
-        },
-    };
+    // 4. Create the threads.
+    let threads = threads::create_threads();
 
-    // Implementation will probably initialize all this in this single block.
-    let runtime = Runtime {
-        nodes: Arc::new(nodes),
-        params: StateGuard::new(runtime_params),
-    };
-
-    // Construct the job groups from the node groups.
-    let seq0_state = Seq0State::new(Seq0StateInner {
-        streams_cat: None,
-        streams_output: None,
-    });
-
-    // Construct the job scheduler.
-    // This comes from splitting the AST into job groups based on discovering connected graphs.
-    // What this will look like:
-    //    - The cat node links to the output, so that represents a job sequence.
-    //    - A single node kicks off the job sequence by creating the stream between the two,
-    //      and stores each half in separate job objects.  It also populates the runtime parameters.
-    let scheduler = scheduler::run_state::Scheduler::new(
+    // 5. Run it!
+    let (_, bus) = event_builder.close();
+    let mut runner = scheduler::runner::ScheduleRunner::new(
+        vec![0], // start_threads; default == 0
         vec![
-            // job0: coordinator for the cat -> file sink node group.
-            job::JobDescription {
-                name: "@cat-output".to_string(),
-                source: Source::new("script.ns", 1, 1),
-                listen: None,
-                runner: Box::new(Seq0Job0 {
-                    runtime: runtime.clone(),
-                    state: seq0_state.clone(),
-                }),
-            },
-            // job1: cat
-            job::JobDescription {
-                name: "cat".to_string(),
-                source: Source::new("script.ns", 1, 1),
-                listen: None,
-                runner: Box::new(Seq0Job1 {
-                    runtime: runtime.clone(),
-                    state: seq0_state.clone(),
-                }),
-            },
-            // job2: file sink
-            job::JobDescription {
-                name: "output".to_string(),
-                source: Source::new("script.ns", 1, 1),
-                listen: None,
-                runner: Box::new(Seq0Job2 {
-                    runtime: runtime.clone(),
-                    state: seq0_state.clone(),
-                }),
-            },
+            // jobs, in order.  Note that the 'default' job isn't present.
+            // 'default' is a main thread state, so never has a job associated with it.
+            //
+            // TODO the 'default' job should be a real job.
+            //      It should run in parallel to every other job.
+            //      It installs OS signal listeners, registers stdin and stdout and stderr
+            //      as its streams, and so on.
+            //
+            runtime.jobs.j0x0.runner(runtime.clone()), // job id 0: j0x0
+            runtime.jobs.j0x1.runner(runtime.clone()), // job id 1: j0x1
         ],
-        vec![
-            // Job sequences represent two distinct types of action lists.
-            // The first is a one-for-one with the OrderedAction type as
-            // defined in the AST.
-            // The second represents a node group, which all connect via
-            // streams (minus shell output streams).  The sequence
-            // has an initial job to construct the streams, then
-            // one job per node execution to construct the runtime
-            // parameters and run the job.
-            // This isn't 100% accurate.  The event listeners must each
-            // have their own sequence, but with no associated jobs.
+        threads,
+        bus,
+    )?;
+    Ok(runner.run(std::time::Duration::from_mins(100)))
 
-            // seq0: cat -> file sink node group
-            job::JobThreadDescription {
-                name: "@seq0".to_string(),
-                source: Source::new("script.ns", 1, 1),
-                steps: vec![
-                    // Start the coordinator job and wait for it to finish.
-                    // Automatically added, and not part of the AST.
-                    job::ScheduleStep::SpawnJob(0),
-                    job::ScheduleStep::WaitForJob(
-                        0,
-                        job::ExitBehavior {
-                            never_started: job::OnExitBehavior::AbortScript,
-                            exit_code_behaviors: vec![job::ExitCodeRangeBehavior {
-                                code: job::ExitCodeRange::Exact(0),
-                                behavior: job::OnExitBehavior::RunNext,
-                            }],
-                            default_behavior: job::OnExitBehavior::AbortScript,
-                        },
-                    ),
-                    // AST defines the sequence as spawning the cat node and waiting for
-                    // the cat node to finish.
-                    // This is where the complex logic of the builder comes into play.
-                    // Because job sequences represent a job group, when an action requests
-                    // starting one job in the group, all jobs in the group are started.
-                    // Likewise, the job sequence waits for all jobs in the group to finish.
-                    // It's possible for a sequence to wait on a job in another group,
-                    // in which case it only waits on that one job.
-                    job::ScheduleStep::SpawnJob(1),
-                    job::ScheduleStep::SpawnJob(2),
-                    job::ScheduleStep::WaitForJob(
-                        1,
-                        job::ExitBehavior {
-                            never_started: job::OnExitBehavior::AbortScript,
-                            exit_code_behaviors: vec![job::ExitCodeRangeBehavior {
-                                code: job::ExitCodeRange::Exact(0),
-                                behavior: job::OnExitBehavior::RunNext,
-                            }],
-                            default_behavior: job::OnExitBehavior::AbortScript,
-                        },
-                    ),
-                    job::ScheduleStep::WaitForJob(
-                        2,
-                        job::ExitBehavior {
-                            never_started: job::OnExitBehavior::AbortScript,
-                            exit_code_behaviors: vec![job::ExitCodeRangeBehavior {
-                                code: job::ExitCodeRange::Exact(0),
-                                behavior: job::OnExitBehavior::RunNext,
-                            }],
-                            default_behavior: job::OnExitBehavior::AbortScript,
-                        },
-                    ),
-                ],
-            },
-            // seq1: the 'main' node 'start' pseudo event listener.
-            job::JobThreadDescription {
-                name: "start".to_string(),
-                source: Source::new("script.ns", 1, 1),
-                steps: vec![
-                    // The start has one action, which starts a single node.
-                    // Starting a node means starting its associated node group,
-                    // which is a job sequence.
-                    // The scheduler will implicitly wait for it to stop async of
-                    // the sequence that started it.
-                    job::ScheduleStep::SpawnJobThread(0),
-                ],
-            },
-        ],
-        vec![], // TODO: event groups
-    );
-
-    // TODO this should register the main event listeners.
-
-    // Start the main node's run function, to start monitoring OS interactions.
-    let (completion_tx, on_exit) = mpsc::channel();
-    let start_event = runtime
-        .nodes
-        .main
-        .start(Box::new(scheduler.context(0)), on_exit)?;
-    scheduler.add_global_completion_listener(completion_tx);
-    let (tx, rx) = std::sync::mpsc::channel();
-    scheduler.add_global_completion_listener(tx);
-
-    scheduler.start_job_sequence_named(&start_event)?;
-
-    let codes = rx
-        .recv()
-        .map_err(|e| format!("Failed to receive completion: {}", e))?;
-
-    let mut exit_code = 0;
-    for code in codes {
-        if let Some(code) = code {
-            if code > exit_code {
-                exit_code = code as i32;
-            }
-        }
-    }
-    Ok(exit_code)
-}
-
-/// All the nodes described by the AST.
-struct Nodes {
-    main: shell::ShellModule,
-    cat: cat::CatModule,
-    output: file_sink::FileSinkModule,
-}
-
-/// All the runtime parameters described by the AST.
-struct RuntimeParams {
-    // shell defines these as None
-    cat: cat::CatModuleRuntimeParams,
-    output: file_sink::FileSinkModuleRuntimeParams,
-}
-
-#[derive(Clone)]
-struct Runtime {
-    nodes: Arc<Nodes>,
-    params: helpers::state_guard::StateGuard<RuntimeParams>,
-}
-
-struct Seq0StateInner {
-    streams_cat: Option<cat::CatModuleStream>,
-    streams_output: Option<file_sink::FileSinkModuleStream>,
-}
-
-type Seq0State = helpers::state_guard::StateGuard<Seq0StateInner>;
-
-/// The first job in the sequence: the connector between the nodes.
-struct Seq0Job0 {
-    runtime: Runtime,
-    state: Seq0State,
-}
-
-impl job::JobRunner for Seq0Job0 {
-    fn run(&self, _context: Box<dyn job::JobRunnerContext>) -> Result<job::ExitCode, String> {
-        // Regardless of the current stream state, overwrite it.
-        let (r, w) = helpers::fd::mk_pipe();
-        match self.state.run_mut(|state| {
-            state.streams_cat.replace(cat::CatModuleStream { fd_0: w });
-            state
-                .streams_output
-                .replace(file_sink::FileSinkModuleStream { fd_0: r });
-            Ok::<(), String>(())
-        }) {
-            helpers::state_guard::ExecState::LockContention => {
-                return Err("Failed to acquire lock on state".to_string());
-            }
-            helpers::state_guard::ExecState::Ran(_) => {}
-        }
-
-        // Lookups happen outside the runtime.params.run_mut.
-
-        // map-key-string:
-        //    map: lookup-string-map (main, value_params)
-        //    key: constant-string (source)
-        //    default: ""
-        let main_source = self
-            .runtime
-            .nodes
-            .main
-            .state()
-            .value_params
-            .get("source")
-            .unwrap_or(&"".to_string())
-            .clone();
-
-        // map-key-string:
-        //    map: lookup-string-map (main, value_params)
-        //    key: constant-string (target)
-        //    default: ""
-        let main_target = self
-            .runtime
-            .nodes
-            .main
-            .state()
-            .value_params
-            .get("target")
-            .unwrap_or(&"".to_string())
-            .clone();
-        match self.runtime.params.run_mut(move |params| {
-            // Constant construction happens inside the runtime.params.run_mut.
-            params.cat.filenames = vec![main_source];
-            params.output.filename = main_target;
-            params.output.append = Some(false);
-            Ok::<(), String>(())
-        }) {
-            helpers::state_guard::ExecState::LockContention => {
-                return Err("Failed to acquire lock on runtime parameters".to_string());
-            }
-            helpers::state_guard::ExecState::Ran(_) => {}
-        }
-
-        Ok(0)
-    }
-
-    fn abort(&self) -> Result<(), String> {
-        // Nothing to abort.
-        Ok(())
-    }
-}
-
-// The first job sequence, the 'cat' node.
-struct Seq0Job1 {
-    runtime: Runtime,
-    state: Seq0State,
-}
-
-impl job::JobRunner for Seq0Job1 {
-    fn run(&self, context: Box<dyn job::JobRunnerContext>) -> Result<job::ExitCode, String> {
-        let params = match self
-            .runtime
-            .params
-            .run_mut(|params| Ok::<cat::CatModuleRuntimeParams, String>(params.cat.clone()))
-        {
-            helpers::state_guard::ExecState::LockContention => {
-                return Err("Failed to acquire lock on runtime parameters".to_string());
-            }
-            helpers::state_guard::ExecState::Ran(params) => params?,
-        };
-        let streams = match self
-            .state
-            .run_mut(|state| Ok::<Option<cat::CatModuleStream>, String>(state.streams_cat.take()))
-        {
-            helpers::state_guard::ExecState::LockContention => {
-                return Err("Failed to acquire lock on state".to_string());
-            }
-            helpers::state_guard::ExecState::Ran(stream) => stream?.expect("stream not found"),
-        };
-        self.runtime.nodes.cat.exec(context, params, streams)
-    }
-
-    fn abort(&self) -> Result<(), String> {
-        let success = self.runtime.nodes.cat.abort();
-        // May want to do this differently?
-        if success {
-            Ok(())
-        } else {
-            Err("Failed to abort cat job".to_string())
-        }
-    }
-}
-
-// The first job sequence, the 'output' node.
-struct Seq0Job2 {
-    runtime: Runtime,
-    state: Seq0State,
-}
-
-impl job::JobRunner for Seq0Job2 {
-    fn run(&self, context: Box<dyn job::JobRunnerContext>) -> Result<job::ExitCode, String> {
-        let params = match self.runtime.params.run_mut(|params| {
-            Ok::<file_sink::FileSinkModuleRuntimeParams, String>(params.output.clone())
-        }) {
-            helpers::state_guard::ExecState::LockContention => {
-                return Err("Failed to acquire lock on runtime parameters".to_string());
-            }
-            helpers::state_guard::ExecState::Ran(params) => params?,
-        };
-        let streams = match self.state.run_mut(|state| {
-            Ok::<Option<file_sink::FileSinkModuleStream>, String>(state.streams_output.take())
-        }) {
-            helpers::state_guard::ExecState::LockContention => {
-                return Err("Failed to acquire lock on state".to_string());
-            }
-            helpers::state_guard::ExecState::Ran(stream) => stream?.expect("stream not found"),
-        };
-        self.runtime.nodes.output.exec(context, params, streams)
-    }
-
-    fn abort(&self) -> Result<(), String> {
-        let success = self.runtime.nodes.output.abort();
-        // May want to do this differently?
-        if success {
-            Ok(())
-        } else {
-            Err("Failed to abort cat job".to_string())
-        }
-    }
+    // TODO:
+    //    This should collect the 'run' result.
+    //    Then call the 'abort' event.
+    //    Then call runner.wait_for_jobs()
 }

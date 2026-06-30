@@ -89,7 +89,7 @@ impl CatModule {
         context: &mut dyn ExecCtx,
         params: CatModuleRuntimeParams,
         mut streams: CatModuleStream,
-    ) -> Result<job::ExitCode, ScriptExit> {
+    ) -> Result<ScriptExit, ScriptExit> {
         self.logger.debug(
             context,
             format_args!("Executing cat over {:?}", params.filenames),
@@ -108,7 +108,7 @@ impl CatModule {
                     Err(e) if e.kind() == std::io::ErrorKind::BrokenPipe => {
                         // If the output pipe is broken, this must stop writing.
                         // Note that this isn't an error, just a signal to stop.
-                        return Ok(0);
+                        return Ok(0.into());
                     }
                     Err(e) if e.kind() == std::io::ErrorKind::Interrupted => {
                         // Take interrupted problems as notices to the
@@ -125,6 +125,6 @@ impl CatModule {
                 }
             }
         }
-        Ok(0)
+        Ok(0.into())
     }
 }

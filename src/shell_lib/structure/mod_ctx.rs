@@ -47,3 +47,19 @@ pub trait EventCallback {
 
 /// Passed during execution.
 pub trait ExecCtx: JobRunnerContext {}
+
+pub struct JobRunnerCtx(Box<dyn JobRunnerContext>);
+
+impl JobRunnerCtx {
+    pub fn new(ctx: Box<dyn JobRunnerContext>) -> Self {
+        Self(ctx)
+    }
+}
+
+impl JobRunnerContext for JobRunnerCtx {
+    fn send_event(&self, event_ref: EventRef, payload: EventPayload) -> Result<(), ScriptExit> {
+        self.0.send_event(event_ref, payload)
+    }
+}
+
+impl ExecCtx for JobRunnerCtx {}

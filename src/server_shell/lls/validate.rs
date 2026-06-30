@@ -14,7 +14,7 @@ impl fmt::Display for ValidationError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(
             f,
-            "{:?}@{},{}: {}",
+            "{:?}@{:?},{:?}: {}",
             self.source.file, self.source.line, self.source.column, self.message
         )
     }

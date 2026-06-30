@@ -478,7 +478,7 @@ mod tests {
 
     struct SampleJob {}
     impl JobRunner for SampleJob {
-        fn run(&self, _: Box<dyn JobRunnerContext>) -> ScriptExit {
+        fn run(&self, _: Box<dyn JobRunnerContext>) -> Result<ScriptExit, ScriptExit> {
             panic!("not runnable");
         }
     }

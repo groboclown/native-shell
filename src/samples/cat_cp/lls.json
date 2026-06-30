@@ -1,344 +1,293 @@
 {
-  "events": [
-    {
-      "name": "start",
+  "jobs": {
+    "j0x0": {
+      "kind": "stream",
       "source": {
-        "column": 1,
-        "file": "script.ns",
-        "line": 2
+        "file": "script.ns"
       },
-      "text": "Start of the shell script execution."
-    }
-  ],
-  "name": "cat-cp",
-  "nodes": [
-    {
-      "event-listeners": [
+      "streams": [
         {
-          "actions": [
-            {
-              "name": "Script execution",
-              "run": {
-                "node": "cat",
-                "source": {
-                  "column": 1,
-                  "file": "script.ns",
-                  "line": 1
-                },
-                "type": "spawn-node"
-              },
+          "from": {
+            "fd": 0,
+            "job": "j0x1",
+            "kind": "fd",
+            "source": {
+              "file": "script.ns"
+            }
+          },
+          "source": {
+            "file": "script.ns"
+          },
+          "to": {
+            "filename": {
+              "job": "default",
+              "kind": "lookup-string",
+              "name": "target",
               "source": {
-                "column": 1,
-                "file": "script.ns",
-                "line": 1
+                "file": "script.ns"
               }
-            }
-          ],
-          "name": "start",
-          "source": {
-            "column": 1,
-            "file": "script.ns",
-            "line": 1
-          }
-        }
-      ],
-      "exit-actions": [],
-      "initial-parameters": {
-        "description": {
-          "source": {
-            "column": 1,
-            "file": "script.ns",
-            "line": 1
-          },
-          "value": {
-            "source": {
-              "column": 1,
-              "file": "script.ns",
-              "line": 1
             },
-            "type": "string",
-            "value": "Sends the contents of a file through a pipe into another file."
-          }
-        },
-        "end_help": {
-          "source": {
-            "column": 1,
-            "file": "script.ns",
-            "line": 1
-          },
-          "value": {
+            "kind": "file",
             "source": {
-              "column": 1,
-              "file": "script.ns",
-              "line": 1
-            },
-            "type": "string-list",
-            "value": [
-              "Copies the contents of the source file to the target file.",
-              "It does not create directories, but will overwrite the target file if it exists."
-            ]
-          }
-        },
-        "parameter_help": {
-          "source": {
-            "column": 1,
-            "file": "script.ns",
-            "line": 1
-          },
-          "value": {
-            "source": {
-              "column": 1,
-              "file": "script.ns",
-              "line": 1
-            },
-            "type": "string-map",
-            "value": {
-              "--source": "(required) The file to read from.",
-              "--target": "(required) The file to write to."
+              "file": "script.ns"
             }
           }
-        },
-        "required_value_parameters": {
-          "source": {
-            "column": 1,
-            "file": "script.ns",
-            "line": 1
-          },
-          "value": {
-            "source": {
-              "column": 1,
-              "file": "script.ns",
-              "line": 1
-            },
-            "type": "string-list",
-            "value": [
-              "source",
-              "target"
-            ]
-          }
-        },
-        "start_event": {
-          "source": {
-            "column": 1,
-            "file": "script.ns",
-            "line": 1
-          },
-          "value": {
-            "source": {
-              "column": 1,
-              "file": "script.ns",
-              "line": 1
-            },
-            "type": "string",
-            "value": "start"
-          }
-        },
-        "usage_line": {
-          "source": {
-            "column": 1,
-            "file": "script.ns",
-            "line": 1
-          },
-          "value": {
-            "source": {
-              "column": 1,
-              "file": "script.ns",
-              "line": 1
-            },
-            "type": "string",
-            "value": "--source=SOURCE --target=TARGET"
-          }
-        },
-        "version": {
-          "source": {
-            "column": 1,
-            "file": "script.ns",
-            "line": 1
-          },
-          "value": {
-            "source": {
-              "column": 1,
-              "file": "script.ns",
-              "line": 1
-            },
-            "type": "string",
-            "value": "1.0.0"
-          }
         }
-      },
-      "module": "shell",
-      "name": "main",
-      "runtime-parameters": [],
-      "source": {
-        "column": 1,
-        "file": "script.ns",
-        "line": 1
-      },
-      "streams": []
+      ]
     },
-    {
-      "event-listeners": [],
-      "exit-actions": [],
+    "j0x1": {
       "initial-parameters": {},
+      "kind": "module",
       "module": "cat",
-      "name": "cat",
       "runtime-parameters": [
         {
           "name": "filenames",
           "source": {
-            "column": 1,
-            "file": "script.ns",
-            "line": 1
+            "file": "script.ns"
           },
           "value": {
+            "kind": "constant-string-list",
             "source": {
-              "column": 1,
-              "file": "script.ns",
-              "line": 1
+              "file": "script.ns"
             },
-            "type": "constant-string-list",
             "value": [
               {
-                "default": {
-                  "source": {
-                    "column": 1,
-                    "file": "script.ns",
-                    "line": 1
-                  },
-                  "type": "constant-string",
-                  "value": ""
-                },
-                "key": {
-                  "source": {
-                    "column": 1,
-                    "file": "script.ns",
-                    "line": 1
-                  },
-                  "type": "constant-string",
-                  "value": "source"
-                },
-                "map": {
-                  "name": "value_params",
-                  "node": "main",
-                  "source": {
-                    "column": 1,
-                    "file": "script.ns",
-                    "line": 1
-                  },
-                  "type": "lookup-string-map"
-                },
+                "job": "default",
+                "kind": "lookup-string",
+                "name": "source",
                 "source": {
-                  "column": 1,
-                  "file": "script.ns",
-                  "line": 1
-                },
-                "type": "map-key-string"
+                  "file": "script.ns"
+                }
               }
             ]
           }
         }
       ],
       "source": {
-        "column": 1,
-        "file": "script.ns",
-        "line": 3
-      },
-      "streams": [
-        {
-          "mode": "output",
-          "name": "output",
-          "source": {
-            "column": 1,
-            "file": "script.ns",
-            "line": 4
-          },
-          "to-node": "output",
-          "to-stream": "input"
-        }
-      ]
+        "file": "script.ns"
+      }
+    }
+  },
+  "meta": {
+    "authors": [
+      "The Native Shell Team"
+    ],
+    "license": {
+      "spdx-id": "MIT"
     },
-    {
-      "event-listeners": [],
-      "exit-actions": [],
-      "initial-parameters": {},
-      "module": "file_sink",
-      "name": "output",
-      "runtime-parameters": [
-        {
-          "name": "filename",
-          "source": {
-            "column": 1,
-            "file": "script.ns",
-            "line": 6
+    "name": "cat-cp",
+    "source": {
+      "column": 1,
+      "file": "script.ns",
+      "line": 1
+    },
+    "version": "1.0.0"
+  },
+  "schema-version": "1.0.0",
+  "threads": {
+    "default": {
+      "main": {
+        "default": true,
+        "description": "Copy the SOURCE file to the TARGET file.  This will not create the directory containing the TARGET file.\n",
+        "parameters": [
+          {
+            "aliases": [
+              "source",
+              "s"
+            ],
+            "description": "Path to the source file to copy.\n",
+            "kind": "string",
+            "name": "source",
+            "var-name": "SOURCE"
           },
-          "value": {
-            "default": {
-              "source": {
-                "column": 1,
-                "file": "script.ns",
-                "line": 12
-              },
-              "type": "constant-string",
-              "value": ""
-            },
-            "key": {
-              "source": {
-                "column": 1,
-                "file": "script.ns",
-                "line": 11
-              },
-              "type": "constant-string",
-              "value": "target"
-            },
-            "map": {
-              "name": "value_params",
-              "node": "main",
-              "source": {
-                "column": 1,
-                "file": "script.ns",
-                "line": 8
-              },
-              "type": "lookup-string-map"
-            },
-            "source": {
-              "column": 1,
-              "file": "script.ns",
-              "line": 7
-            },
-            "type": "map-key-string"
+          {
+            "aliases": [
+              "target",
+              "t"
+            ],
+            "description": "Path to the target file.\n",
+            "kind": "string",
+            "name": "target",
+            "var-name": "TARGET"
+          }
+        ],
+        "source": {
+          "file": "script.ns"
+        }
+      },
+      "source": {
+        "file": "script.ns"
+      },
+      "steps": [
+        {
+          "name": "main_s0",
+          "run": {
+            "kind": "spawn-thread",
+            "thread": "jt1"
+          },
+          "source": {
+            "file": "script.ns"
           }
         },
         {
-          "name": "append",
-          "source": {
-            "column": 1,
-            "file": "script.ns",
-            "line": 13
-          },
-          "value": {
-            "source": {
-              "column": 1,
-              "file": "script.ns",
-              "line": 14
+          "name": "main_s1",
+          "run": {
+            "exit-behavior": {
+              "default-behavior": {
+                "kind": "abort-script",
+                "source": {
+                  "file": "script.ns"
+                }
+              },
+              "exit-code-behaviors": [
+                {
+                  "behavior": {
+                    "kind": "stop-script",
+                    "source": {
+                      "file": "script.ns"
+                    }
+                  },
+                  "max-code": 0,
+                  "min-code": 0,
+                  "source": {
+                    "file": "script.ns"
+                  }
+                }
+              ],
+              "never-started": {
+                "kind": "abort-script",
+                "source": {
+                  "file": "script.ns"
+                }
+              },
+              "source": {
+                "file": "script.ns"
+              }
             },
-            "type": "constant-boolean",
-            "value": false
+            "kind": "wait-for-thread",
+            "thread": "jt1"
+          },
+          "source": {
+            "file": "script.ns"
           }
         }
-      ],
+      ]
+    },
+    "jt1": {
       "source": {
-        "column": 1,
-        "file": "script.ns",
-        "line": 5
+        "file": "script.ns"
       },
-      "streams": []
+      "steps": [
+        {
+          "name": "jt1_j0x0_start",
+          "run": {
+            "job": "j0x0",
+            "kind": "spawn-job"
+          },
+          "source": {
+            "file": "script.ns"
+          }
+        },
+        {
+          "name": "jt1_j0_stop",
+          "run": {
+            "exit-behavior": {
+              "default-behavior": {
+                "kind": "stop-script",
+                "source": {
+                  "file": "script.ns"
+                }
+              },
+              "exit-code-behaviors": [
+                {
+                  "behavior": {
+                    "by": 1,
+                    "kind": "jump",
+                    "source": {
+                      "file": "script.ns"
+                    }
+                  },
+                  "max-code": 0,
+                  "min-code": 0,
+                  "source": {
+                    "file": "script.ns"
+                  }
+                }
+              ],
+              "never-started": {
+                "kind": "abort-script",
+                "source": {
+                  "file": "script.ns"
+                }
+              },
+              "source": {
+                "file": "script.ns"
+              }
+            },
+            "job": "j0x0",
+            "kind": "wait-for-job"
+          },
+          "source": {
+            "file": "script.ns"
+          }
+        },
+        {
+          "name": "jt1_j1_start",
+          "run": {
+            "job": "j0x1",
+            "kind": "spawn-job"
+          },
+          "source": {
+            "file": "script.ns"
+          }
+        },
+        {
+          "name": "jt1_stop",
+          "run": {
+            "exit-behavior": {
+              "default-behavior": {
+                "kind": "stop-script",
+                "source": {
+                  "file": "script.ns"
+                }
+              },
+              "exit-code-behaviors": [
+                {
+                  "behavior": {
+                    "by": 1,
+                    "kind": "jump",
+                    "source": {
+                      "file": "script.ns"
+                    }
+                  },
+                  "max-code": 0,
+                  "min-code": 0,
+                  "source": {
+                    "file": "script.ns"
+                  }
+                }
+              ],
+              "never-started": {
+                "kind": "abort-script",
+                "source": {
+                  "file": "script.ns"
+                }
+              },
+              "source": {
+                "file": "script.ns"
+              }
+            },
+            "jobs": [
+              "j0x1"
+            ],
+            "kind": "wait-for-all",
+            "threads": []
+          },
+          "source": {
+            "file": "script.ns"
+          }
+        }
+      ]
     }
-  ],
-  "schema-version": "1.0.0",
-  "source": {
-    "column": 1,
-    "file": "script.ns",
-    "line": 1
-  },
-  "version": "1.0.0"
+  }
 }

@@ -134,11 +134,11 @@ impl ScheduleRunner {
         // 4. Handle the newly spawned things from the threads.
         for j in resp.spawned_jobs {
             let ctx = Box::new(self.events.as_async_sender(self.signal_notice.clone()));
-            self.jobs.start_job(j, ctx, self.signal_notice.clone());
+            self.jobs.start_job(j, ctx, self.signal_notice.clone())?;
         }
         if !resp.generated_events.is_empty() {
             for e in resp.generated_events {
-                self.events.add_event(e.0, e.1);
+                self.events.add_event(e.0, e.1)?;
             }
             self.events.collect_and_handle()?;
         }

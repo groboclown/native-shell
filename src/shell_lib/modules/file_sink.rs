@@ -7,6 +7,7 @@ use std::{
 };
 
 use crate::shell_lib::helpers::log::Logger;
+use crate::shell_lib::stream::fd::FdCloser;
 use crate::shell_lib::structure::meta::{
     FixedStreamDef, ModuleMeta, ModuleStreamStructure, ModuleStructure, NamedValue,
     StreamInterface, StreamType, ValueType,
@@ -75,7 +76,7 @@ pub fn module_meta() -> ModuleMeta {
 }
 
 pub struct FileSinkModule {
-    state: abort_handler::RunState<abort_handler::FdIn>,
+    state: abort_handler::RunState<FdCloser>,
     count: RwLock<f64>,
     source: Source,
     logger: Logger,
@@ -115,7 +116,7 @@ impl FileSinkModule {
     ) -> Result<(), ScriptExit> {
         self.logger
             .debug(ctx, format_args!("start write into {}", params.filename))?;
-        let (inp, reader) = abort_handler::FdIn::new(streams.fd_0);
+        let (inp, reader) = FdCloser::new_reader(streams.fd_0);
         self.state.start(inp);
 
         let mut ret: job::ExitCode = 0;
@@ -133,7 +134,7 @@ impl FileSinkModule {
             let _ = self.logger.error(
                 ctx,
                 format_args!(
-                    "Failed to clean up file sink for {}: {}",
+                    "Failed to clean up file sink for {}: {:?}",
                     params.filename, e
                 ),
             );
@@ -202,7 +203,7 @@ impl FileSinkModule {
     }
 
     /// Stop the stream reading.
-    fn stop(&self) -> Result<(), String> {
+    fn stop(&self) -> Result<(), ScriptExit> {
         self.state.on_stop(|e| e.stop())
     }
 }

@@ -129,13 +129,24 @@ impl<T> From<SendError<T>> for ScriptExit {
     }
 }
 
+impl From<std::io::Error> for ScriptExit {
+    fn from(value: std::io::Error) -> Self {
+        Self {
+            code: value.raw_os_error().unwrap_or(1),
+            message: Some(value.to_string()),
+        }
+    }
+}
+
 /// An abstract job execution handler.
 /// Note that the event system, to pass events to the JobRunner instances, must exist outside
 /// the base runtime handling.
 /// By its nature, a JobRunner is multi-threaded.
+/// This returns a result with both values being a ScriptExit to allow for '?' expressions for
+/// easy return short-cuts.
 pub trait JobRunner {
     /// Execute the job.
-    fn run(&self, context: Box<dyn JobRunnerContext>) -> ScriptExit;
+    fn run(&self, context: Box<dyn JobRunnerContext>) -> Result<ScriptExit, ScriptExit>;
 }
 
 /// Context sent to the job runner to allow it to have limited interaction with the scheduler.
@@ -159,9 +170,6 @@ pub struct JobDescription {
     /// execution.
     pub rerunable: bool,
 
-    /// Set of event IDs that the job, while running, receives events.
-    pub listens_to: HashSet<EventRef>,
-
     /// Job handler.
     pub runner: Box<dyn JobRunner + Sync + Send>,
 }
@@ -171,7 +179,6 @@ impl std::fmt::Debug for JobDescription {
         f.debug_struct("JobDescription")
             .field("source", &self.source)
             .field("rerunable", &self.rerunable)
-            .field("listens_to", &self.listens_to)
             .finish()
     }
 }
@@ -319,7 +326,6 @@ impl JobBuilder {
         match self.runner.take() {
             Some(runner) => Ok(JobDescription {
                 source: self.source.clone(),
-                listens_to: self.listens_to.clone(),
                 rerunable: self.rerunnable,
                 runner,
             }),
@@ -382,7 +388,7 @@ mod tests {
 
     struct SampleJob {}
     impl JobRunner for SampleJob {
-        fn run(&self, _: Box<dyn JobRunnerContext>) -> ScriptExit {
+        fn run(&self, _: Box<dyn JobRunnerContext>) -> Result<ScriptExit, ScriptExit> {
             panic!("not runnable");
         }
     }

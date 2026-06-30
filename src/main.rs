@@ -87,8 +87,7 @@ fn main() {
         for arg in arg_itr {
             argv.push(arg);
         }
-        //crate::samples::cat_cp::main::main(argv, std::env::vars().collect());
-        todo!();
+        crate::samples::cat_cp::main::main(argv, std::env::vars().collect());
     } else if action == "tee-sample" {
         // Capture the command line arguments for the sample, skipping over the 'sample' action argument.
         let mut arg_itr = std::env::args().into_iter();

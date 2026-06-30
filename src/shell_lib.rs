@@ -6,6 +6,7 @@
 
 pub mod helpers;
 pub mod modules;
+pub mod stream;
 pub mod structure;
 
-pub mod internal;
+pub(crate) mod internal;
