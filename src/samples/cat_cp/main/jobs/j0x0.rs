@@ -60,9 +60,15 @@ impl structure::job::JobRunner for Jobj0x0Runner {
     ) -> Result<structure::ScriptExit, structure::ScriptExit> {
         // Create the streams.
 
+        // This uses the command state, so it needs to pull in the command state first.
+        // This allows for borrowing references rather than performing more data copies.
+        let command_state = self.runtime.command_state();
+
         // stream0
         //   to: filename: lookup from default.target
-        let stream0_filename = &self.runtime.jobs.default.state().target;
+        let stream0_filename = match &command_state {
+            runtime::CommandState::Cdefault(c) => &c.args.target,
+        };
         let stream0_file = std::fs::File::open(stream0_filename)?;
         let (stream0, stream0_out) = stream::fd::FdOut::from_file(stream0_file).into_fd();
 

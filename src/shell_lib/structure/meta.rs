@@ -17,6 +17,8 @@ pub enum ValueType {
     StringMap,
     FloatMap,
     BooleanMap,
+    StringListMap, // HashMap<String, Vec<String>>
+    StringMapList, // Vec<HashMap<String, String>>
     Enum(Vec<String>),
 }
 
@@ -113,8 +115,10 @@ pub struct FixedStreamDef {
 
 /// Defines a variable stream field for the module's stream structure.
 /// If the StreamInterface is `Fd`, then the field must be a `Vec<std::os::fd::OwnedFd>`.
-/// If the StreamInterface is `ReadWrite` and an input stream, then the field must be a `Vec<Box<dyn std::io::Read + Send + Sync>>`.
-/// If the StreamInterface is `ReadWrite` and an output stream, then the field must be a `Vec<Box<dyn std::io::Write + Send + Sync>>`.
+/// If the StreamInterface is `ReadWrite` and an input stream, then the field must be a
+///    `Vec<Box<dyn std::io::Read + Send + Sync>>`.
+/// If the StreamInterface is `ReadWrite` and an output stream, then the field must be a
+///    `Vec<Box<dyn std::io::Write + Send + Sync>>`.
 #[derive(Clone, Debug)]
 pub struct VariableStreamField {
     pub field_name: String,
@@ -154,10 +158,13 @@ pub struct CrateDependency {
     pub features: Vec<String>,
 }
 
+/// Meta-information about a function that receives events.
 pub struct EventFunc {
     pub func_name: String,
     pub event_name: String,
     pub kind: EventKind,
+
+    // TODO can this compile fine if the caller always passes mut if the receiver does not use it?
     pub mutable: bool,
 }
 
@@ -201,75 +208,6 @@ impl EventFunc {
 /// This describes basic information about the module itself, as well as
 /// information used to generate Rust code to interact with the module.
 ///
-/// Each module must have these items defined:
-///
-/// * `mod_name`: Used to construct the module's Rust mod name.
-///     It will be joined with `::` to form the full path.
-/// * `instance_struct`: The name of the module's instance `struct`.
-///     It must implement the `new()`, `exec()`, `state()` and actions.
-///     * `new() -> Self`: The constructor for the module.
-///         Parameter order:
-///           * `source: shell_lib::structure::source::Source`: The source of the module, used for debugging.
-///           * `ctx: &mut dyn shell_lib::structure::mod_ctx::InitCtx': The event ID registration.
-///           * `params: #[compile_param_struct.name]`: The compile-time parameters.
-///             Only passed if the compile_param_struct is Some.
-///     * `exec(&self) -> Result<i16, String>`: The function that executes the module.
-///         Parameter order:
-///           * `ctx: &mut dyn shell_lib::structure::mod_ctx::ExecInit`: Allows for limited interaction with the engine.
-///           * `params: #[runtime_param_struct.name]`: The runtime parameters.
-///             Only passed if the runtime_param_struct is Some.
-///           * `mut streams: #[stream_struct.name]`: The stream structure.
-///             Only passed if the stream_struct is Some.
-///         This function returns the exit code of the module, or an error if the
-///         parameter setup was wrong and the module could not start.
-///         The function is required to clean up its state on exit, including closing all
-///         streams passed to it.
-///     * `state(&self) -> #[state_struct.name]`: The function that returns the module's state.
-///         Only needed if the `state_struct` is Some.
-///         The state returns the result of the most recent execution of the module instance.
-///     * Each event handler in the 'handlers' list must also have a function, to allow for easier
-///         binding of the event callback at setup time.  See the 'handlers' field below for details
-///         on the event handler function parameters.
-/// * `state_struct`: The name of the module's state `type strut`.
-///     It's returned by the module's `get_state()` method.
-/// * `state_fields`: A list of states the module reports, for use by the compiled code to get.
-///     These must be public fields in the state structure.
-/// * `compile_param_struct`: The module's parameter structure, passed into the struct's `new()` function.
-///     These will be compile-time parameters, so script authors will have little flexibility
-///     in using them.  Therefore, use them sparingly.
-/// * `runtime_param_struct`: The module's runtime value structure, passed into the struct's `exec()` function.
-///     This is in addition to the standard environment values provided by the shell.
-/// * `stream_struct`: The name of the structure that contains the stream instance information.
-/// * `handlers`: A list of available handlers and their parameters.
-///     The first element is the action's method name which matches with the name of the action available to the script author,
-///     the second is the list of parameters the script author passes to the action.
-/// * `dependencies`: A list of the Cargo.toml `[dependencies]` lines this module depends on.
-/// * `os_dependencies`: A list of the Cargo.toml OS dependencies this module requires, where the first item is the
-///     `[target.'cfg(target_os = "NAME")'.dependencies]` NAME value, and the second is the dependency line in that section.
-///
-/// It's the responsibility of the module to close all streams passed to it.
-///
-/// Separate from this is the "main" module.  Each AST must have exactly one node named "main", which follows the
-/// rules of a main module:
-///
-/// * The module may include `argv` parameter, which will be populated with the script's command line arguments.  If included,
-///   it must be of type StringList.  This must be `optional`, because the AST must not include it.
-/// * The module may include `environ` parameter, which will be populated with the script's environment variables.
-///   If included, it must be of type StringMap.  This must be `optional`, because the AST must not include it.
-/// * If the main module provides other nodes access to the standard input, output, and error streams, then they
-///   must exist with fd indices 0, 1, and 2 respectively.  Note that, because these are consumed by other nodes,
-///   they have the opposite kind than usually thought of - stdin is an output stream (because other nodes read from it),
-///   and stdout and stderr are input streams (because other nodes write to them).
-/// * The module does not use the `exec()` function like a normal module.  Instead, it has a `start()` function whose signature is:
-///     `fn start(&self, context: Box<dyn JobRunnerContext>, on_exit: std::sync::mpsc::Receiver<Vec<Option<job::ExitCode>>>) -> Result<String, String>`
-///   The result string is the name of the event that starts the process.  The `on_exit` receiver is a channel that the module
-///   must monitor to know when the script has ended, so it can clean up its state.  This allows the module to implement
-///   signal handling and other OS interactions.
-/// * Because the main does not support the `exec()`, it does not use a runtime parameter structure, and it will be ignored.
-/// * Under review: the argument parsing could be done through the compilation step, rather than at runtime by the module.
-///   If so, this means that the main module needs some method to describe arguments passed to compile parameters.  Though, this
-///   may be just a generic feature that all modules can support.  Same goes for CLI help text.
-///
 pub struct ModuleMeta {
     /// The human readable module name.
     pub name: String,
@@ -281,13 +219,170 @@ pub struct ModuleMeta {
     pub authors: Vec<String>,
 
     // Below here are Rust reflection of the module's source.
+    /// A list of the Cargo.toml `[dependencies]` lines this module depends on.
     pub dependencies: Vec<CrateDependency>,
+
+    /// A list of the Cargo.toml OS dependencies this module requires, where the first item is the
+    /// `[target.'cfg(target_os = "NAME")'.dependencies]` NAME value, and the second is the
+    /// dependency line in that section.
     pub os_dependencies: Vec<(String, String)>,
 
-    /// The module's mod name, divided along paths.
+    /// The module's Rust mod name, divided along paths.
+    /// The builder uses this to construct the module's Rust mod name.
+    /// The builder will join it with `::` to form the full path.
     pub mod_name: Vec<String>,
 
+    /// If the module works in the Job role, then it adds this structure.
+    pub job: Option<JobModuleStruct>,
+
+    /// If the module works in the Command role, then it adds this structure.
+    pub command: Option<CommandModuleStruct>,
+}
+
+/// Modules that take on the Job role define this meta-structure.
+pub struct JobModuleStruct {
     /// The module's instance struct name.
+    ///
+    /// ### The 'new' function
+    ///
+    /// The struct's impl must include a `new(#[parameter list]) -> Self` function, whose
+    /// arguments depend upon the contents of this structure:
+    ///
+    /// * if `compile_param_struct` is None, then the signature will look like:
+    ///     ```rust
+    ///     pub fn new(
+    ///       source: shell_lib::structure::Source,
+    ///       ctx: &mut dyn shell_lib::structure::InitCtx,
+    ///     ) -> Self
+    ///     ```
+    /// * if `compile_param_struct` is Some, then the signature will look like:
+    ///   ```rust
+    ///     pub fn new(
+    ///       source: shell_lib::structure::Source,
+    ///       ctx: &mut dyn shell_lib::structure::InitCtx,
+    ///       params: #[compile_param_struct.name],
+    ///     ) -> Self
+    ///   ```
+    /// where:
+    ///
+    /// * `source`: the location in the source script that defined this job.  This allows
+    ///   the module to enhance its debugging.
+    /// * `ctx`: context for initializing the module with the larger system.
+    /// * `params`: parameters provided by the user script.
+    ///
+    /// The `new` function does not allow for error returning.
+    /// Errors should come during the execution of the job - if execution ends up not running
+    /// the job, then setup errors should not stop the script from running.
+    /// `panic` should happen only in cases of issues arising from the builder or other
+    /// critical script usage problems.
+    ///
+    /// ### The 'exec' function
+    ///
+    /// The struct's impl must include a method `exec` that runs the job's behavior.  It
+    /// signature depends upon the contents of this structure:
+    ///
+    /// * if `runtime_param_struct` and `stream_struct` are None, then it must look like:
+    ///     ```rust
+    ///     pub fn exec(
+    ///       &self,
+    ///       ctx: &mut dyn shell_lib::structure::ExecInit,
+    ///     ) -> Result<shell_lib::structure::ScriptExit, shell_lib::structure::ScriptExit>
+    ///     ```
+    /// * if `runtime_param_struct` is Some and `stream_struct` is None, then it must look like:
+    ///     ```rust
+    ///     pub fn exec(
+    ///       &self,
+    ///       ctx: &mut dyn shell_lib::structure::ExecInit,
+    ///       runtime: #[runtime_param_struct.name],
+    ///     ) -> Result<shell_lib::structure::ScriptExit, shell_lib::structure::ScriptExit>
+    ///     ```
+    /// * if `runtime_param_struct` is None and `stream_struct` is Some, then it must look like:
+    ///     ```rust
+    ///     pub fn exec(
+    ///       &self,
+    ///       ctx: &mut dyn shell_lib::structure::ExecInit,
+    ///       mut streams: #[stream_struct.name],
+    ///     ) -> Result<shell_lib::structure::ScriptExit, shell_lib::structure::ScriptExit>
+    ///     ```
+    ///     It's the responsibility of the `exec` function to close all streams passed to it.
+    /// * if `runtime_param_struct` and `stream_struct` are Some, then it must look like:
+    ///     ```rust
+    ///     pub fn exec(
+    ///       &self,
+    ///       ctx: &mut dyn shell_lib::structure::ExecInit,
+    ///       runtime: #[runtime_param_struct.name],
+    ///       streams: #[stream_struct.name],
+    ///     ) -> Result<shell_lib::structure::ScriptExit, shell_lib::structure::ScriptExit>
+    ///     ```
+    ///     It's the responsibility of the `exec` function to close all streams passed to it.
+    ///
+    /// The method returns a result with the same type for both the ok and err result.
+    /// This allows for easier use of `?` for early exit scenarios.
+    ///
+    /// ### The `state` function
+    ///
+    /// If the job includes Some for its `state_struct`, then the struct's impl must also
+    /// include the `state` method with the signature:
+    ///
+    ///     ```rust
+    ///     pub fn state(&self) -> #[state_struct.name]
+    ///     ```
+    ///
+    /// This returns a copy of the internal state of the job, which may change as the
+    /// `exec` runs.  The struct must take caution to make the method thread safe.
+    pub instance_struct: String,
+
+    /// The module's state structure definition.
+    /// Leave as `None` to note that the module does not maintain state outside of job runs.
+    /// If Some, it must exist in the module's `mod_name` module.
+    pub state_struct: Option<ModuleStructure>,
+
+    /// The compile-time parameter structure accepted by the module's `new` call.
+    /// Leave as None to indicate that the module does not accept a parameter.
+    /// If Some, it must exist in the module's `mod_name` module.
+    pub compile_param_struct: Option<ModuleStructure>,
+
+    /// The runtime parameter value structure name accepted by the module's `exec` call.
+    /// If Some, it must exist in the module's `mod_name` module.
+    pub runtime_param_struct: Option<ModuleStructure>,
+
+    /// The name of the structure that contains the stream instance information.
+    /// Other jobs build the contents of the stream.  The `exec` method will take this
+    /// as a parameter.
+    /// If Some, it must exist in the module's `mod_name` module.
+    pub stream_struct: Option<ModuleStreamStructure>,
+
+    /// List of event handlers to automatically bind.
+    /// Without this, the `new` function must explicitly bind handlers.
+    /// When a handler is given, the 'func_name' must exist as a function in the
+    /// module structure, and, depending on the 'mutable' and 'kind' values, one of:
+    ///   ```rust
+    ///   pub fn #[event.func_name](&self, &mut dyn ExecCtx, EventRef, &String) -> Result<(), ScriptExit>
+    ///   pub fn #[event.func_name](&self, &mut dyn ExecCtx, EventRef, SignalCode) -> Result<(), ScriptExit>
+    ///   pub fn #[event.func_name](&mut self, &mut dyn ExecCtx, EventRef, &String) -> Result<(), ScriptExit>
+    ///   pub fn #[event.func_name](&mut self, &mut dyn ExecCtx, EventRef, SignalCode) -> Result<(), ScriptExit>
+    ///   ```
+    pub handlers: Vec<EventFunc>,
+}
+
+/// Modules that take on the command role define this meta-structure.
+///
+/// * The module may include `argv` parameter, which will be populated with the script's command line arguments.  If included,
+///   it must be of type StringList.
+/// * The module may include `environ` parameter, which will be populated with the script's environment variables.
+///   If included, it must be of type StringMap.
+/// * The module does not use the `exec()` function like a normal module.  Instead, it must
+///   implement the trait `CommandImpl`.
+/// * In the final compiled version, the module's streams will create:
+///   * writer stream fd 0 (stdin),
+///   * reader stream fd 1 (stdout),
+///   * reader stream fd 2 (stderr).
+///   (the read/write are reversed so that jobs that use them will have the correct write/read direction).
+/// * If the struct has a Some state_struct, then the function must provide a
+///   `pub fn state(&self) -> &#[state_struct.name]` function.
+pub struct CommandModuleStruct {
+    /// The module's instance struct name.
+    /// It must implement the `CommandImpl` trait and exist in the module's `mod_name` module.
     pub instance_struct: String,
 
     /// The module's state structure definition.
@@ -297,23 +392,20 @@ pub struct ModuleMeta {
     /// Leave as None to indicate that the module does not accept a parameter.
     pub compile_param_struct: Option<ModuleStructure>,
 
-    /// The runtime parameter value structure name accepted by the module's `exec` call.
-    pub runtime_param_struct: Option<ModuleStructure>,
-
-    /// The name of the structure that contains the stream instance information.
-    pub stream_struct: Option<ModuleStreamStructure>,
-
     /// List of event handlers to automatically bind.
     /// Without this, the `new` function must explicitly bind handlers.
     /// When a handler is given, the 'func_name' must exist as a function in the
     /// module structure, and, depending on the 'mutable' and 'kind' values, one of:
-    ///   (&self, &mut dyn ExecCtx, EventRef, &String) -> Result<(), ScriptExit>
-    ///   (&self, &mut dyn ExecCtx, EventRef, SignalCode) -> Result<(), ScriptExit>
-    ///   (&mut self, &mut dyn ExecCtx, EventRef, &String) -> Result<(), ScriptExit>
-    ///   (&mut self, &mut dyn ExecCtx, EventRef, SignalCode) -> Result<(), ScriptExit>
+    ///   ```rust
+    ///   pub fn #[event.func_name](&self, &mut dyn ExecCtx, EventRef, &String) -> Result<(), ScriptExit>
+    ///   pub fn #[event.func_name](&self, &mut dyn ExecCtx, EventRef, SignalCode) -> Result<(), ScriptExit>
+    ///   pub fn #[event.func_name](&mut self, &mut dyn ExecCtx, EventRef, &String) -> Result<(), ScriptExit>
+    ///   pub fn #[event.func_name](&mut self, &mut dyn ExecCtx, EventRef, SignalCode) -> Result<(), ScriptExit>
+    ///   ```
     pub handlers: Vec<EventFunc>,
 }
 
+/// Helper function to create a crate dependency that uses the latest version.
 pub fn as_latest_crate_dependency<'a>(name: &'a str) -> CrateDependency {
     CrateDependency {
         name: name.to_string(),

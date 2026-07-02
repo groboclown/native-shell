@@ -1,24 +1,56 @@
+//SPDX:MIT
+
 //! Encapsulates the shell program that the OS interacts with.
-//! It hosts the input and output streams to the OS, environment variables, and the command arguments.
+//! It hosts the input and output streams to the OS (implicitly),
+//! environment variables, and the command arguments.
+//!
 //! Its setup allows for configuring argument parsing and environment variable defaults.
 //! It also constructs the signal handlers that send OS signals to the event bus.
-//! Every script includes a shell module (it can be replaced with a custom version), and call the
-//! module as a job as the first item, but it won't be re-runnable.
-//! The intended use of the script is for a default operation with no arguments,
-//! so the script cannot mark an argument as required.
-//! The builder will require exactly one shell-like module to be present in the AST, and
-//! it must be named 'main'.
+//!
+//! TODO document the input values.
 
-use std::collections::{HashMap, HashSet};
+use super::super::meta;
 
-use crate::shell_lib::structure::meta::{
-    EventFunc, FixedStreamDef, ModuleMeta, ModuleStreamStructure, ModuleStructure, NamedValue,
-    StreamInterface, StreamType, ValueType, VariableStreamField, as_latest_crate_dependency,
-};
-use crate::shell_lib::structure::source::Source;
-use crate::shell_lib::structure::{EventRef, ExecCtx, InitCtx, ScriptExit};
+pub fn macro_meta() -> Box<dyn meta::MacroMeta> {
+    Box::new(ShellMacro {})
+}
 
-pub fn module_meta() -> ModuleMeta {
+pub struct ShellMacro {}
+
+impl meta::MacroMeta for ShellMacro {
+    fn supports_jobs(&self) -> bool {
+        false
+    }
+
+    fn supports_commands(&self) -> bool {
+        true
+    }
+
+    fn build_job(
+        &self,
+        _script: &super::super::lls::model::Metadata,
+        _mod_name: Vec<String>,
+        _input: serde_json::Value,
+        _writer: &dyn std::io::Write,
+    ) -> Result<meta::MacroModule, String> {
+        Err("does not support building job".into())
+    }
+
+    fn build_command(
+        &self,
+        _script: &super::super::lls::model::Metadata,
+        mod_name: Vec<String>,
+        input: serde_json::Value,
+        writer: &dyn std::io::Write,
+    ) -> Result<meta::MacroModule, String> {
+        // This will use 'clap' to construct a mod that parses the arguments.
+        //   It requires adding the feature 'derive'.
+        // This requires for non-Windows OS the 'signal_hook' crate.
+        todo!()
+    }
+}
+
+/*
     ModuleMeta {
         name: "shell".to_string(),
         description: "The shell program that interacts with the OS".to_string(),
@@ -30,181 +62,154 @@ pub fn module_meta() -> ModuleMeta {
             "shell".to_string(),
         ],
         dependencies: vec![
+            as_latest_crate_dependency("clap"),
             as_latest_crate_dependency("termion"),
             as_latest_crate_dependency("textwrap"),
             as_latest_crate_dependency("env_logger"),
             as_latest_crate_dependency("log"),
         ],
         os_dependencies: vec![],
-        instance_struct: "ShellModule".to_string(),
-        compile_param_struct: Some(ModuleStructure {
-            name: "ShellModuleCompileParams".to_string(),
-            new: Some("new".to_string()),
-            fields: vec![
-                NamedValue {
-                    name: "name".to_string(),
-                    value_type: ValueType::String,
-                    optional: true,
-                },
-                NamedValue {
-                    name: "description".to_string(),
-                    value_type: ValueType::String,
-                    optional: true,
-                },
-                NamedValue {
-                    name: "version".to_string(),
-                    value_type: ValueType::String,
-                    optional: true,
-                },
-                NamedValue {
-                    name: "authors".to_string(),
-                    value_type: ValueType::StringList,
-                    optional: true,
-                },
-                NamedValue {
-                    name: "required_value_parameters".to_string(),
-                    value_type: ValueType::StringList,
-                    optional: true,
-                },
-                NamedValue {
-                    name: "optional_value_parameters".to_string(),
-                    value_type: ValueType::StringList,
-                    optional: true,
-                },
-                NamedValue {
-                    // boolean parameters are always optional and default to false.
-                    name: "boolean_parameters".to_string(),
-                    value_type: ValueType::StringList,
-                    optional: true,
-                },
-                NamedValue {
-                    // Unset means 0.
-                    name: "position_parameter_min".to_string(),
-                    value_type: ValueType::Float,
-                    optional: true,
-                },
-                NamedValue {
-                    // Unset is the same as min value.
-                    name: "position_parameter_max".to_string(),
-                    value_type: ValueType::Float,
-                    optional: true,
-                },
-                NamedValue {
-                    // The 'usage' line.  Must not include a 'Usage:' prefix or the command name.
-                    name: "usage_line".to_string(),
-                    value_type: ValueType::String,
-                    optional: true,
-                },
-                NamedValue {
-                    // Help for each value parameter.
-                    // The key is the parameter column, the value is the help text.
-                    name: "parameter_help".to_string(),
-                    value_type: ValueType::StringMap,
-                    optional: true,
-                },
-                NamedValue {
-                    name: "start_help".to_string(),
-                    value_type: ValueType::StringList,
-                    optional: true,
-                },
-                NamedValue {
-                    name: "end_help".to_string(),
-                    value_type: ValueType::StringList,
-                    optional: true,
-                },
-                // main() provided only; script users do not provide these.
-                NamedValue {
-                    name: "argv".to_string(),
-                    value_type: ValueType::StringList,
-                    optional: true,
-                },
-                NamedValue {
-                    name: "environ".to_string(),
-                    value_type: ValueType::StringMap,
-                    optional: true,
-                },
-            ],
-        }),
-        runtime_param_struct: None,
+        job: None,
+        command: Some(CommandModuleStruct {
+            instance_struct: "ShellModule".to_string(),
+            compile_param_struct: Some(ModuleStructure {
+                name: "ShellModuleCompileParams".to_string(),
+                new: Some("new".to_string()),
+                fields: vec![
+                    NamedValue {
+                        name: "name".to_string(),
+                        value_type: ValueType::String,
+                        optional: true,
+                    },
+                    NamedValue {
+                        name: "description".to_string(),
+                        value_type: ValueType::String,
+                        optional: true,
+                    },
+                    NamedValue {
+                        name: "version".to_string(),
+                        value_type: ValueType::String,
+                        optional: true,
+                    },
+                    NamedValue {
+                        name: "authors".to_string(),
+                        value_type: ValueType::StringList,
+                        optional: true,
+                    },
+                    NamedValue {
+                        // The 'usage' line.  Must not include a 'Usage:' prefix or the command name.
+                        // TODO may not need this; will need to inspect what kind of CLI
+                        // argument libraries exist.
+                        name: "usage_line".to_string(),
+                        value_type: ValueType::String,
+                        optional: true,
+                    },
+                    NamedValue {
+                        name: "start_help".to_string(),
+                        value_type: ValueType::StringList,
+                        optional: true,
+                    },
+                    NamedValue {
+                        name: "end_help".to_string(),
+                        value_type: ValueType::StringList,
+                        optional: true,
+                    },
+                    NamedValue {
+                        name: "parameters".to_string(),
+                        value_type: ValueType::StringMapList,
+                        optional: true,
+                    },
+                    // main() provided only; script users do not provide these.
+                    NamedValue {
+                        name: "argv".to_string(),
+                        value_type: ValueType::StringList,
+                        optional: false,
+                    },
+                    NamedValue {
+                        name: "environ".to_string(),
+                        value_type: ValueType::StringMap,
+                        optional: false,
+                    },
+                ],
+            }),
 
-        // The shell module provides streams in a weird way, because
-        // the are intended for other modules to read or write, so they look backwards.
-        // This puts extra pressure on the builder to have a hard-coded logic for
-        // tying the streams in this specific module to the OS.  However, as the
-        // shell module can only exist once, this isn't too much of a trouble.
-        stream_struct: Some(ModuleStreamStructure {
-            name: "ShellModuleStreams".to_string(),
-            fixed_streams: vec![
-                FixedStreamDef {
-                    name: Some("stdin".to_string()),
-                    fd_index: Some(0),
-                    // Other nodes read from the stdin provided by the shell.
-                    stream_type: StreamType::Output(StreamInterface::Fd),
-                    required: false,
-                },
-                FixedStreamDef {
-                    name: Some("stdout".to_string()),
-                    fd_index: Some(1),
-                    // The shell "consumes" stdout from other nodes.
-                    stream_type: StreamType::Input(StreamInterface::Fd),
-                    required: false,
-                },
-                FixedStreamDef {
-                    name: Some("stderr".to_string()),
-                    fd_index: Some(2),
-                    stream_type: StreamType::Input(StreamInterface::Fd),
-                    required: false,
-                },
-            ],
-            input_variable: Some(VariableStreamField {
-                field_name: "input_fds".to_string(),
-                stream_type: StreamInterface::Fd,
-                min_count: 0,
-                max_count: u16::MAX,
+            // The main modules themselves don't declare the streams.  Instead,
+            // the constructed job provides it.
+            // BUT! need to double check that logic.
+            //stream_struct: Some(ModuleStreamStructure {
+            //    name: "ShellModuleStreams".to_string(),
+            //    fixed_streams: vec![
+            //        FixedStreamDef {
+            //            name: Some("stdin".to_string()),
+            //            fd_index: Some(0),
+            //            // Other nodes read from the stdin provided by the shell.
+            //            stream_type: StreamType::Output(StreamInterface::Fd),
+            //            required: false,
+            //        },
+            //        FixedStreamDef {
+            //            name: Some("stdout".to_string()),
+            //            fd_index: Some(1),
+            //            // The shell "consumes" stdout from other nodes.
+            //            stream_type: StreamType::Input(StreamInterface::Fd),
+            //            required: false,
+            //        },
+            //        FixedStreamDef {
+            //            name: Some("stderr".to_string()),
+            //            fd_index: Some(2),
+            //            stream_type: StreamType::Input(StreamInterface::Fd),
+            //            required: false,
+            //        },
+            //    ],
+            //    input_variable: Some(VariableStreamField {
+            //        field_name: "input_fds".to_string(),
+            //        stream_type: StreamInterface::Fd,
+            //        min_count: 0,
+            //        max_count: u16::MAX,
+            //    }),
+            //    output_variable: Some(VariableStreamField {
+            //        field_name: "output_fds".to_string(),
+            //        stream_type: StreamInterface::Fd,
+            //        min_count: 0,
+            //        max_count: u16::MAX,
+            //    }),
+            //}),
+            state_struct: Some(ModuleStructure {
+                name: "ShellModuleState".to_string(),
+                new: Some("new".to_string()),
+                fields: vec![
+                    NamedValue {
+                        name: "environ".to_string(),
+                        value_type: ValueType::StringMap,
+                        optional: false,
+                    },
+                    NamedValue {
+                        name: "value_params".to_string(),
+                        value_type: ValueType::StringMap,
+                        optional: false,
+                    },
+                    NamedValue {
+                        name: "bool_params".to_string(),
+                        value_type: ValueType::BooleanMap,
+                        optional: false,
+                    },
+                    NamedValue {
+                        name: "position_params".to_string(),
+                        value_type: ValueType::StringList,
+                        optional: false,
+                    },
+                ],
             }),
-            output_variable: Some(VariableStreamField {
-                field_name: "output_fds".to_string(),
-                stream_type: StreamInterface::Fd,
-                min_count: 0,
-                max_count: u16::MAX,
-            }),
-        }),
-        state_struct: Some(ModuleStructure {
-            name: "ShellModuleState".to_string(),
-            new: Some("new".to_string()),
-            fields: vec![
-                NamedValue {
-                    name: "environ".to_string(),
-                    value_type: ValueType::StringMap,
-                    optional: false,
-                },
-                NamedValue {
-                    name: "value_params".to_string(),
-                    value_type: ValueType::StringMap,
-                    optional: false,
-                },
-                NamedValue {
-                    name: "bool_params".to_string(),
-                    value_type: ValueType::BooleanMap,
-                    optional: false,
-                },
-                NamedValue {
-                    name: "position_params".to_string(),
-                    value_type: ValueType::StringList,
-                    optional: false,
-                },
+            handlers: vec![
+                // The logging handlers.
+                EventFunc::imm_msg("trace"),
+                EventFunc::imm_msg("debug"),
+                EventFunc::imm_msg("verbose"),
+                EventFunc::imm_msg("info"),
+                EventFunc::imm_msg("notice"),
+                EventFunc::imm_msg("warning"),
+                EventFunc::imm_msg("error"),
             ],
         }),
-        handlers: vec![
-            // The logging handlers.
-            EventFunc::imm_msg("trace"),
-            EventFunc::imm_msg("debug"),
-            EventFunc::imm_msg("verbose"),
-            EventFunc::imm_msg("info"),
-            EventFunc::imm_msg("notice"),
-            EventFunc::imm_msg("warning"),
-            EventFunc::imm_msg("error"),
-        ],
     }
 }
 
@@ -213,39 +218,18 @@ pub struct ShellModuleCompileParams {
     pub description: Option<String>,
     pub version: Option<String>,
     pub authors: Option<Vec<String>>,
-    pub required_value_parameters: Option<Vec<String>>,
-    pub optional_value_parameters: Option<Vec<String>>,
-    pub boolean_parameters: Option<Vec<String>>,
-    pub position_parameter_min: Option<f64>,
-    pub position_parameter_max: Option<f64>,
     pub usage_line: Option<String>,
-    pub parameter_help: Option<HashMap<String, String>>,
     pub start_help: Option<Vec<String>>,
     pub end_help: Option<Vec<String>>,
-    pub argv: Option<Vec<String>>,
-    pub environ: Option<HashMap<String, String>>,
-}
 
-impl ShellModuleCompileParams {
-    pub fn new() -> Self {
-        ShellModuleCompileParams {
-            name: None,
-            description: None,
-            version: None,
-            authors: None,
-            required_value_parameters: None,
-            optional_value_parameters: None,
-            boolean_parameters: None,
-            position_parameter_min: None,
-            position_parameter_max: None,
-            usage_line: None,
-            parameter_help: None,
-            start_help: None,
-            end_help: None,
-            argv: None,
-            environ: None,
-        }
-    }
+    /// Defines
+    pub parameters: Vec<HashMap<String, String>>,
+
+    /// Parameter for the main program to pass to this module the command-line arguments.
+    pub argv: Vec<String>,
+
+    /// Parameter for the main program to pass to this module the environment variables.
+    pub environ: HashMap<String, String>,
 }
 
 pub struct ShellModuleStreams {
@@ -258,10 +242,10 @@ pub struct ShellModuleStreams {
 
 #[derive(Clone, Debug)]
 pub struct ShellModuleState {
-    pub environ: std::collections::HashMap<String, String>,
-    pub value_params: std::collections::HashMap<String, String>,
-    pub bool_params: std::collections::HashMap<String, bool>,
-    pub position_params: Vec<String>,
+    pub string_parameters: std::collections::HashMap<String, String>,
+    pub list_parameters: HashMap<String, Vec<String>>,
+    pub flag_parameters: HashMap<String, u16>,
+    pub problem: Option<ScriptExit>,
 }
 
 pub struct ShellModule {
@@ -276,30 +260,12 @@ impl ShellModule {
         compile_params: ShellModuleCompileParams,
     ) -> Self {
         let width = termion::terminal_size().map_or(80, |(w, _)| w as usize);
-        let environ = compile_params
-            .environ
-            .clone()
-            .expect("main must set environ");
-        let params = parse_params(compile_params, &mut std::io::stderr(), width);
-        if let Err(code) = params {
-            std::process::exit(code);
-        }
-        let params = params.unwrap();
-        let state = ShellModuleState {
-            environ: environ,
-            value_params: params.0,
-            bool_params: params.1,
-            position_params: params.2,
-        };
+        let state = parse_params(compile_params, &mut std::io::stderr(), width);
         ShellModule { state, source }
     }
 
     pub fn state(&self) -> ShellModuleState {
         self.state.clone()
-    }
-
-    pub fn exec(&self, context: &mut dyn ExecCtx) -> Result<(), ScriptExit> {
-        Ok(())
     }
 
     /// Event listener
@@ -367,20 +333,35 @@ impl ShellModule {
     }
 }
 
-/// Parse command line arguments.
-/// If the user requests help, or if the parameters are invalid, it returns an error.
-/// TODO in the future, this should be generated code, which may mean a special
-/// 'main' module meta, or just more special naming conventions for compile parameters.
+struct ParameterArgs {
+    params: ShellModuleCompileParams,
+    state: ShellModuleState,
+}
+
+impl clap::FromArgMatches for ShellModuleState {
+    fn from_arg_matches(matches: &clap::ArgMatches) -> Result<Self, clap::Error> {}
+
+    fn update_from_arg_matches(&mut self, matches: &clap::ArgMatches) -> Result<(), clap::Error> {
+        todo!()
+    }
+}
+
+impl clap::Args for ShellModuleState {
+    fn augment_args(cmd: clap::Command) -> clap::Command {
+        todo!()
+    }
+
+    fn augment_args_for_update(cmd: clap::Command) -> clap::Command {
+        todo!()
+    }
+}
+
+/// Parse command line arguments + environment variables.
 fn parse_params<W: std::io::Write>(
     params: ShellModuleCompileParams,
     out: &mut W,
     width: usize,
-) -> Result<(HashMap<String, String>, HashMap<String, bool>, Vec<String>), i32> {
-    let mut value_param_names: HashSet<String> = HashSet::new();
-    let mut bool_param_names = HashSet::new();
-    let mut value_params = HashMap::new();
-    let mut bool_params = HashMap::new();
-    let mut position_params = Vec::new();
+) -> ShellModuleState {
     let mut problems: Vec<String> = vec![];
     let mut requested_help = false;
 
@@ -604,3 +585,4 @@ fn find_max_width(vals: &Option<Vec<String>>) -> usize {
         None => 0,
     }
 }
+*/

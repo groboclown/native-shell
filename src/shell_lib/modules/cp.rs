@@ -3,9 +3,8 @@
 use crate::shell_lib::{
     helpers::log::Logger,
     structure::{
-        ExecCtx, InitCtx, ScriptExit,
-        meta::{ModuleMeta, ModuleStructure, NamedValue, ValueType},
-        source::Source,
+        ExecCtx, InitCtx, ScriptExit, Source,
+        meta::{JobModuleStruct, ModuleMeta, ModuleStructure, NamedValue, ValueType},
     },
 };
 
@@ -22,77 +21,81 @@ pub fn module_meta() -> ModuleMeta {
         ],
         dependencies: vec![],
         os_dependencies: vec![],
-        instance_struct: "CpModule".to_string(),
-        compile_param_struct: None,
-        runtime_param_struct: Some(ModuleStructure {
-            name: "CpModuleRuntimeParams".to_string(),
-            new: None,
-            fields: vec![
-                NamedValue {
-                    name: "source".to_string(),
-                    value_type: ValueType::String,
-                    optional: false,
-                },
-                NamedValue {
-                    name: "destination".to_string(),
-                    value_type: ValueType::String,
-                    optional: false,
-                },
-                NamedValue {
-                    name: "overwrite".to_string(),
-                    value_type: ValueType::Boolean,
-                    optional: true,
-                },
-                NamedValue {
-                    name: "preserve_timestamps".to_string(),
-                    value_type: ValueType::Boolean,
-                    optional: true,
-                },
-                NamedValue {
-                    name: "preserve_permissions".to_string(),
-                    value_type: ValueType::Boolean,
-                    optional: true,
-                },
-                NamedValue {
-                    name: "preserve_ownership".to_string(),
-                    value_type: ValueType::Boolean,
-                    optional: true,
-                },
-                NamedValue {
-                    name: "preserve_symlinks".to_string(),
-                    value_type: ValueType::Boolean,
-                    optional: true,
-                },
-                NamedValue {
-                    name: "recursive".to_string(),
-                    value_type: ValueType::Boolean,
-                    optional: true,
-                },
-            ],
+
+        job: Some(JobModuleStruct {
+            instance_struct: "CpModule".to_string(),
+            compile_param_struct: None,
+            runtime_param_struct: Some(ModuleStructure {
+                name: "CpModuleRuntimeParams".to_string(),
+                new: None,
+                fields: vec![
+                    NamedValue {
+                        name: "source".to_string(),
+                        value_type: ValueType::String,
+                        optional: false,
+                    },
+                    NamedValue {
+                        name: "destination".to_string(),
+                        value_type: ValueType::String,
+                        optional: false,
+                    },
+                    NamedValue {
+                        name: "overwrite".to_string(),
+                        value_type: ValueType::Boolean,
+                        optional: true,
+                    },
+                    NamedValue {
+                        name: "preserve_timestamps".to_string(),
+                        value_type: ValueType::Boolean,
+                        optional: true,
+                    },
+                    NamedValue {
+                        name: "preserve_permissions".to_string(),
+                        value_type: ValueType::Boolean,
+                        optional: true,
+                    },
+                    NamedValue {
+                        name: "preserve_ownership".to_string(),
+                        value_type: ValueType::Boolean,
+                        optional: true,
+                    },
+                    NamedValue {
+                        name: "preserve_symlinks".to_string(),
+                        value_type: ValueType::Boolean,
+                        optional: true,
+                    },
+                    NamedValue {
+                        name: "recursive".to_string(),
+                        value_type: ValueType::Boolean,
+                        optional: true,
+                    },
+                ],
+            }),
+            stream_struct: None,
+            state_struct: Some(ModuleStructure {
+                name: "CpModuleState".to_string(),
+                new: None,
+                fields: vec![
+                    NamedValue {
+                        name: "files_copied".to_string(),
+                        value_type: ValueType::Float,
+                        optional: false,
+                    },
+                    NamedValue {
+                        name: "exit_code".to_string(),
+                        value_type: ValueType::Float,
+                        optional: true,
+                    },
+                    NamedValue {
+                        name: "error_message".to_string(),
+                        value_type: ValueType::String,
+                        optional: true,
+                    },
+                ],
+            }),
+            handlers: Vec::new(),
         }),
-        stream_struct: None,
-        state_struct: Some(ModuleStructure {
-            name: "CpModuleState".to_string(),
-            new: None,
-            fields: vec![
-                NamedValue {
-                    name: "files_copied".to_string(),
-                    value_type: ValueType::Float,
-                    optional: false,
-                },
-                NamedValue {
-                    name: "exit_code".to_string(),
-                    value_type: ValueType::Float,
-                    optional: true,
-                },
-                NamedValue {
-                    name: "error_message".to_string(),
-                    value_type: ValueType::String,
-                    optional: true,
-                },
-            ],
-        }),
-        handlers: Vec::new(),
+        command: None,
     }
 }
 

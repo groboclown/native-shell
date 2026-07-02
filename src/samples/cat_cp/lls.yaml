@@ -6,6 +6,7 @@ schema-version: "1.0.0"
 meta:
   name: cat-cp
   version: "1.0.0"
+  description: "Copies the contents of a source file to a target file."
   source:
     file: "script.ns"
     line: 1
@@ -14,6 +15,45 @@ meta:
     - The Native Shell Team
   license:
     spdx-id: MIT
+
+commands:
+  default:
+    source: { file: "script.ns" }
+    thread: jt1
+    # reuse the description from the meta section.
+    definition:
+      source: { file: "script.ns" }
+      kind: macro
+      macro: shell
+      input:
+        start_help:
+          source: { file: "script.ns" }
+          kind: string
+          value: "Copy the contents of the SOURCE file into the TARGET file."
+        parameters:
+          source: { file: "script.ns" }
+          kind: string-map-list
+          value:
+            - field: source
+              kind: required
+              source: parameter
+              long-form: source
+              short-form: s
+              variable: SOURCE
+              help: The path to the source file, whose contents will copy into TARGET.
+            - field: target
+              kind: required
+              source: parameter
+              long-form: target
+              short-form: t
+              variable: TARGET
+              help: The path to the target file, which will store the contents from SOURCE.
+            #- field: append
+            #  kind: flag
+            #  source: parameter
+            #  long-form: append
+            #  short-form: a
+            #  help: Appends SOURCE to the end of TARGET; without this, the copy will replace the contents of TARGET.
 
 threads:
   default:

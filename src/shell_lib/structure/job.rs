@@ -69,6 +69,20 @@ impl ScriptExit {
     }
 }
 
+impl std::fmt::Display for ScriptExit {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match &self.message {
+            Some(m) => {
+                m.fmt(f)?;
+                f.write_str(" (")?;
+                self.code.fmt(f)?;
+                f.write_str(")")
+            }
+            None => self.code.fmt(f),
+        }
+    }
+}
+
 impl From<ExitCode> for ScriptExit {
     fn from(value: ExitCode) -> Self {
         Self {
@@ -152,7 +166,7 @@ pub trait JobRunner {
 /// Context sent to the job runner to allow it to have limited interaction with the scheduler.
 /// Note that the job itself should not manage job state (start and wait), as that's handled by the job sequences.
 /// If a job needs to handle things like conditions, then use the exit code behavior.
-pub trait JobRunnerContext {
+pub trait JobRunnerContext: Send {
     /// Send an event to the event group.
     fn send_event(&self, event_ref: EventRef, payload: EventPayload) -> Result<(), ScriptExit>;
 }

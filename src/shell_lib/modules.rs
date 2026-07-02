@@ -4,7 +4,6 @@ pub mod cp;
 pub mod echo;
 pub mod file_sink;
 //pub mod merge;
-pub mod shell;
 //pub mod tee;
 
 /// Get all available modules for use by scripts.
@@ -15,7 +14,6 @@ pub fn available_modules() -> Vec<super::structure::meta::ModuleMeta> {
         echo::module_meta(),
         file_sink::module_meta(),
         //merge::module_meta(),
-        shell::module_meta(),
         //tee::module_meta(),
     ]
 }

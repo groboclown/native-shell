@@ -1,4 +1,54 @@
 {
+  "commands": {
+    "default": {
+      "definition": {
+        "input": {
+          "parameters": {
+            "kind": "string-map-list",
+            "source": {
+              "file": "script.ns"
+            },
+            "value": [
+              {
+                "field": "source",
+                "help": "The path to the source file, whose contents will copy into TARGET.",
+                "kind": "required",
+                "long-form": "source",
+                "short-form": "s",
+                "source": "parameter",
+                "variable": "SOURCE"
+              },
+              {
+                "field": "target",
+                "help": "The path to the target file, which will store the contents from SOURCE.",
+                "kind": "required",
+                "long-form": "target",
+                "short-form": "t",
+                "source": "parameter",
+                "variable": "TARGET"
+              }
+            ]
+          },
+          "start_help": {
+            "kind": "string",
+            "source": {
+              "file": "script.ns"
+            },
+            "value": "Copy the contents of the SOURCE file into the TARGET file."
+          }
+        },
+        "kind": "macro",
+        "macro": "shell",
+        "source": {
+          "file": "script.ns"
+        }
+      },
+      "source": {
+        "file": "script.ns"
+      },
+      "thread": "jt1"
+    }
+  },
   "jobs": {
     "j0x0": {
       "kind": "stream",
@@ -72,6 +122,7 @@
     "authors": [
       "The Native Shell Team"
     ],
+    "description": "Copies the contents of a source file to a target file.",
     "license": {
       "spdx-id": "MIT"
     },

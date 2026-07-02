@@ -7,6 +7,7 @@ use super::run_step::{JobRunStatus, LoopState, Requests};
 use crate::shell_lib::helpers::async_signal;
 use crate::shell_lib::helpers::se_collect::ScriptExitCollector;
 use crate::shell_lib::structure::job::JobDescription;
+use crate::shell_lib::structure::mod_impl::CommandHandler;
 use crate::shell_lib::structure::thread::{EventCollection, ThreadStore};
 use crate::shell_lib::structure::{JobRef, ScriptExit, ThreadRef};
 
@@ -43,6 +44,49 @@ impl ScheduleRunner {
             previously_running_jobs: HashSet::new(),
             started: false,
         })
+    }
+
+    /// Perform the full run process.
+    /// This runs the command's start,
+    /// executes the 'run',
+    /// runs the command's on_exit,
+    /// waits for jobs to finish (up to the initial timeout),
+    /// then runs the command's on_shutdown.
+    pub fn full_run(
+        &mut self,
+        timeout: time::Duration,
+        command: &dyn CommandHandler,
+    ) -> ScriptExit {
+        let final_end = time::Instant::now() + timeout;
+
+        {
+            let ctx = Box::new(self.events.as_async_sender(self.signal_notice.clone()));
+            let exit = match command.start(ctx) {
+                Ok(e) => e,
+                Err(e) => e,
+            };
+            if exit.code != 0 {
+                return exit;
+            }
+        }
+
+        let exit = self.run(timeout);
+        let mut col = ScriptExitCollector::new();
+        col.add(&exit);
+        {
+            let ctx = Box::new(self.events.as_async_sender(self.signal_notice.clone()));
+            if let Err(e) = command.on_exit(ctx, exit) {
+                col.add(&ScriptExit::new(1, Some(e)));
+            }
+        }
+        match self.wait_for_jobs(final_end - time::Instant::now()) {
+            Ok(exit) => col.add(&exit),
+            Err(msg) => col.add(&msg.into()),
+        }
+        if let Err(e) = command.on_shutdown() {
+            col.add(&ScriptExit::new(1, Some(e)));
+        }
+        col.close()
     }
 
     /// Run the threads to completion, or until the timeout.

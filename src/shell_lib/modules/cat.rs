@@ -8,10 +8,10 @@ use std::{
 use crate::shell_lib::{
     helpers::{fd::file_from_fd, log::Logger},
     structure::{
-        ExecCtx, InitCtx, ScriptExit, Source, job,
+        ExecCtx, InitCtx, ScriptExit, Source,
         meta::{
-            FixedStreamDef, ModuleMeta, ModuleStreamStructure, ModuleStructure, NamedValue,
-            StreamInterface, StreamType, ValueType,
+            FixedStreamDef, JobModuleStruct, ModuleMeta, ModuleStreamStructure, ModuleStructure,
+            NamedValue, StreamInterface, StreamType, ValueType,
         },
     },
 };
@@ -32,30 +32,34 @@ pub fn module_meta() -> ModuleMeta {
         ],
         dependencies: Vec::new(),
         os_dependencies: Vec::new(),
-        instance_struct: "CatModule".to_string(),
-        compile_param_struct: None,
-        runtime_param_struct: Some(ModuleStructure {
-            name: "CatModuleRuntimeParams".to_string(),
-            new: None,
-            fields: vec![NamedValue {
-                name: "filenames".to_string(),
-                value_type: ValueType::StringList,
-                optional: false,
-            }],
+
+        job: Some(JobModuleStruct {
+            instance_struct: "CatModule".to_string(),
+            compile_param_struct: None,
+            runtime_param_struct: Some(ModuleStructure {
+                name: "CatModuleRuntimeParams".to_string(),
+                new: None,
+                fields: vec![NamedValue {
+                    name: "filenames".to_string(),
+                    value_type: ValueType::StringList,
+                    optional: false,
+                }],
+            }),
+            state_struct: None,
+            stream_struct: Some(ModuleStreamStructure {
+                name: "CatModuleStream".to_string(),
+                fixed_streams: vec![FixedStreamDef {
+                    name: Some("output".to_string()),
+                    fd_index: Some(0),
+                    stream_type: StreamType::Output(StreamInterface::Fd),
+                    required: true,
+                }],
+                input_variable: None,
+                output_variable: None,
+            }),
+            handlers: Vec::new(),
         }),
-        state_struct: None,
-        stream_struct: Some(ModuleStreamStructure {
-            name: "CatModuleStream".to_string(),
-            fixed_streams: vec![FixedStreamDef {
-                name: Some("output".to_string()),
-                fd_index: Some(0),
-                stream_type: StreamType::Output(StreamInterface::Fd),
-                required: true,
-            }],
-            input_variable: None,
-            output_variable: None,
-        }),
-        handlers: Vec::new(),
+        command: None,
     }
 }
 

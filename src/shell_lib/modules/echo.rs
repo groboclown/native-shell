@@ -4,7 +4,7 @@ use std::io::Write;
 
 use crate::shell_lib::{
     helpers::log::Logger,
-    structure::{ExecCtx, InitCtx, ScriptExit, job, meta, source::Source},
+    structure::{ExecCtx, InitCtx, ScriptExit, Source, job, meta},
 };
 
 pub fn module_meta() -> meta::ModuleMeta {
@@ -20,30 +20,33 @@ pub fn module_meta() -> meta::ModuleMeta {
         ],
         dependencies: vec![],
         os_dependencies: vec![],
-        instance_struct: "EchoModule".to_string(),
-        compile_param_struct: None,
-        runtime_param_struct: Some(meta::ModuleStructure {
-            name: "EchoModuleRuntimeParams".to_string(),
-            new: None,
-            fields: vec![meta::NamedValue {
-                name: "text".to_string(),
-                value_type: meta::ValueType::String,
-                optional: false,
-            }],
+        job: Some(meta::JobModuleStruct {
+            instance_struct: "EchoModule".to_string(),
+            compile_param_struct: None,
+            runtime_param_struct: Some(meta::ModuleStructure {
+                name: "EchoModuleRuntimeParams".to_string(),
+                new: None,
+                fields: vec![meta::NamedValue {
+                    name: "text".to_string(),
+                    value_type: meta::ValueType::String,
+                    optional: false,
+                }],
+            }),
+            state_struct: None,
+            stream_struct: Some(meta::ModuleStreamStructure {
+                name: "EchoModuleStream".to_string(),
+                fixed_streams: vec![meta::FixedStreamDef {
+                    name: Some("output".to_string()),
+                    fd_index: Some(0),
+                    stream_type: meta::StreamType::Output(meta::StreamInterface::ReadWrite),
+                    required: true,
+                }],
+                input_variable: None,
+                output_variable: None,
+            }),
+            handlers: vec![],
         }),
-        state_struct: None,
-        stream_struct: Some(meta::ModuleStreamStructure {
-            name: "EchoModuleStream".to_string(),
-            fixed_streams: vec![meta::FixedStreamDef {
-                name: Some("output".to_string()),
-                fd_index: Some(0),
-                stream_type: meta::StreamType::Output(meta::StreamInterface::ReadWrite),
-                required: true,
-            }],
-            input_variable: None,
-            output_variable: None,
-        }),
-        handlers: vec![],
+        command: None,
     }
 }
 
@@ -81,11 +84,5 @@ impl EchoModule {
             Ok(_) => Ok(0),
             Err(e) => Err(format!("Failed to write to output stream: {}", e).into()),
         }
-    }
-
-    pub fn abort(&self) -> bool {
-        // This module does not have any state to abort.
-        // It will stop writing when the output pipe is closed.
-        true
     }
 }

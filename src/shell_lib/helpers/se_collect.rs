@@ -37,6 +37,13 @@ impl ScriptExitCollector {
         }
     }
 
+    pub fn add_se_result(&mut self, res: Result<ScriptExit, ScriptExit>) {
+        self.add(match &res {
+            Ok(e) => e,
+            Err(e) => e,
+        });
+    }
+
     pub fn add(&mut self, exit: &ScriptExit) {
         self.total += 1;
         if let Some(message) = &exit.message {

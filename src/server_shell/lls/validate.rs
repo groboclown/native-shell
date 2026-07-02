@@ -41,10 +41,6 @@ pub fn validate(lls: &model::NativeShellLowLevelScriptSchema) -> Vec<ValidationE
     let mut errors = Vec::new();
 
     join_validation_vec(&mut errors, validate_jobs(&lls.meta.source, &lls.jobs));
-    join_validation_vec(
-        &mut errors,
-        validate_has_main(&lls.meta.source, &lls.threads),
-    );
 
     // TODO add more validations.
 
@@ -64,21 +60,6 @@ pub fn validate_jobs(
     }
 
     errors
-}
-
-pub fn validate_has_main(
-    root: &model::Source,
-    threads: &HashMap<model::NativeShellLowLevelScriptSchemaThreadsKey, model::Thread>,
-) -> Vec<Option<ValidationError>> {
-    for thread in threads.values() {
-        if thread.main.is_some() {
-            return vec![None]; // Main node found, no error
-        }
-    }
-    vec![Some(ValidationError::new_error(
-        "LLS must have at least one thread marked as 'main'",
-        root,
-    ))]
 }
 
 fn ensure_is_id(value: &String, source: &model::Source) -> Option<ValidationError> {

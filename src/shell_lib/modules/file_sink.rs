@@ -9,10 +9,10 @@ use std::{
 use crate::shell_lib::helpers::log::Logger;
 use crate::shell_lib::stream::fd::FdCloser;
 use crate::shell_lib::structure::meta::{
-    FixedStreamDef, ModuleMeta, ModuleStreamStructure, ModuleStructure, NamedValue,
-    StreamInterface, StreamType, ValueType,
+    FixedStreamDef, JobModuleStruct, ModuleMeta, ModuleStreamStructure, ModuleStructure,
+    NamedValue, StreamInterface, StreamType, ValueType,
 };
-use crate::shell_lib::structure::{ExecCtx, InitCtx, ScriptExit};
+use crate::shell_lib::structure::{ExecCtx, ExitCode, InitCtx, ScriptExit};
 use crate::shell_lib::{
     helpers::abort_handler,
     structure::{job, source::Source},
@@ -33,45 +33,48 @@ pub fn module_meta() -> ModuleMeta {
         ],
         dependencies: vec![],
         os_dependencies: vec![],
-        instance_struct: "FileSinkModule".to_string(),
-        compile_param_struct: None,
-        runtime_param_struct: Some(ModuleStructure {
-            name: "FileSinkModuleRuntimeParams".to_string(),
-            new: None,
-            fields: vec![
-                NamedValue {
-                    name: "filename".to_string(),
-                    value_type: ValueType::String,
+        job: Some(JobModuleStruct {
+            instance_struct: "FileSinkModule".to_string(),
+            compile_param_struct: None,
+            runtime_param_struct: Some(ModuleStructure {
+                name: "FileSinkModuleRuntimeParams".to_string(),
+                new: None,
+                fields: vec![
+                    NamedValue {
+                        name: "filename".to_string(),
+                        value_type: ValueType::String,
+                        optional: false,
+                    },
+                    NamedValue {
+                        name: "append".to_string(),
+                        value_type: ValueType::Boolean,
+                        optional: true,
+                    },
+                ],
+            }),
+            state_struct: Some(ModuleStructure {
+                name: "FileSinkModuleState".to_string(),
+                new: None,
+                fields: vec![NamedValue {
+                    name: "size".to_string(),
+                    value_type: ValueType::Float,
                     optional: false,
-                },
-                NamedValue {
-                    name: "append".to_string(),
-                    value_type: ValueType::Boolean,
-                    optional: true,
-                },
-            ],
+                }],
+            }),
+            stream_struct: Some(ModuleStreamStructure {
+                name: "FileSinkModuleStream".to_string(),
+                fixed_streams: vec![FixedStreamDef {
+                    name: Some("input".to_string()),
+                    fd_index: Some(0),
+                    stream_type: StreamType::Input(StreamInterface::Fd),
+                    required: true,
+                }],
+                input_variable: None,
+                output_variable: None,
+            }),
+            handlers: vec![],
         }),
-        state_struct: Some(ModuleStructure {
-            name: "FileSinkModuleState".to_string(),
-            new: None,
-            fields: vec![NamedValue {
-                name: "size".to_string(),
-                value_type: ValueType::Float,
-                optional: false,
-            }],
-        }),
-        stream_struct: Some(ModuleStreamStructure {
-            name: "FileSinkModuleStream".to_string(),
-            fixed_streams: vec![FixedStreamDef {
-                name: Some("input".to_string()),
-                fd_index: Some(0),
-                stream_type: StreamType::Input(StreamInterface::Fd),
-                required: true,
-            }],
-            input_variable: None,
-            output_variable: None,
-        }),
-        handlers: vec![],
+        command: None,
     }
 }
 
@@ -119,7 +122,7 @@ impl FileSinkModule {
         let (inp, reader) = FdCloser::new_reader(streams.fd_0);
         self.state.start(inp);
 
-        let mut ret: job::ExitCode = 0;
+        let mut ret: ExitCode = 0;
         if let Err(e) = self.exec_impl(&params, reader) {
             // Don't fail immediately; do that later.  Allow proper shutdown.
             let _ = self

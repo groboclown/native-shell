@@ -245,6 +245,8 @@ impl ThreadStore {
     /// track of ThreadRef == index in the vector; otherwise, build the ThreadStore
     /// through the ThreadRegistrar.
     pub fn new_explicit(threads: Vec<ThreadDescription>) -> Self {
+        #[cfg(test)]
+        assert!(threads.len() <= MAX_STEPS);
         Self { store: threads }
     }
     /// Get the thread by its reference.

@@ -54,7 +54,9 @@ impl structure::job::JobRunner for Jobj0x1Runner {
         let params = cat::CatModuleRuntimeParams {
             filenames: vec![
                 // filenames[0] is lookup from default.source
-                self.runtime.jobs.default.state().source.clone(),
+                match self.runtime.command_state() {
+                    runtime::CommandState::Cdefault(c) => c.args.source.clone(),
+                },
             ],
         };
         let stream0_out: std::io::Result<OwnedFd> =
