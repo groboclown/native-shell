@@ -453,7 +453,7 @@ mod tests {
         let mut reg = ThreadRegistrar::new();
         reg.register("t0", "thread", "s.sh", 1, 1);
         assert_eq!(
-            "".to_string(),
+            "thread t0 (thread) in s.sh@1:1 has no steps".to_string(),
             reg.close().expect_err("closing did not create an error")
         );
     }
@@ -468,12 +468,12 @@ mod tests {
         };
 
         let mut reg = ThreadRegistrar::new();
-        let mut t0 = reg.register("t0", "thread", "s.sh", 1, 1);
+        let mut t0 = reg.register("t0", "thread", "s.sh", 6, 12);
         for _ in 0..(MAX_STEPS + 1) {
             t0.push_step(ScheduleStep::SendEvent(e0, EventPayload::Signal(0)));
         }
         assert_eq!(
-            "".to_string(),
+            "thread t0 (thread) in s.sh@6:12 has too many steps (32768, limit 32767)".to_string(),
             reg.close().expect_err("closing did not create an error")
         );
     }

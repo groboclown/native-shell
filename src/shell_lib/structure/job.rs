@@ -354,6 +354,38 @@ mod tests {
     use crate::shell_lib::structure::event::{EventKind, EventRegistrar};
 
     #[test]
+    fn test_script_exit_join_0() {
+        let se = ScriptExit::join_slice(&[]);
+        assert_eq!(se.code, 0);
+        assert!(se.message.is_none())
+    }
+
+    #[test]
+    fn test_script_exit_join_1err() {
+        let se = ScriptExit::join_slice(&[ScriptExit::new(1, None)]);
+        assert_eq!(se.code, 1);
+        assert!(se.message.is_none())
+    }
+
+    #[test]
+    fn test_script_exit_join_1ok() {
+        let se = ScriptExit::join_slice(&[ScriptExit::new(0, Some("ok".into()))]);
+        assert_eq!(se.code, 0);
+        assert_eq!("ok".to_string(), se.message.unwrap())
+    }
+
+    #[test]
+    fn test_script_exit_join_mix() {
+        let se = ScriptExit::join_slice(&[
+            ScriptExit::new(0, Some("ok".into())),
+            ScriptExit::new(12, Some("err".into())),
+            ScriptExit::new(1, None),
+        ]);
+        assert_eq!(se.code, 2);
+        assert_eq!("ok\nerr".to_string(), se.message.unwrap())
+    }
+
+    #[test]
     fn test_job_buildup() {
         let (e0, e1) = {
             let mut reg = EventRegistrar::new();
@@ -387,14 +419,14 @@ mod tests {
         assert_eq!("j0".to_string(), j0.source.name);
 
         let j1 = store.job(j1_ref).expect("j1 should be registered");
-        assert_eq!("j0".to_string(), j1.source.name);
+        assert_eq!("j1".to_string(), j1.source.name);
     }
 
     #[test]
     fn test_job_not_configured() {
         assert_eq!(
-            "".to_string(),
-            JobBuilder::new("j0", "job", "s.sh", 1, 1)
+            "Did not set runner for j0 (job) in s.sh@1:3".to_string(),
+            JobBuilder::new("j0", "job", "s.sh", 1, 3)
                 .close()
                 .expect_err("did not report setup error")
         );

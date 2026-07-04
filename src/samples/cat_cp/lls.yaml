@@ -6,7 +6,8 @@ schema-version: "1.0.0"
 meta:
   name: cat-cp
   version: "1.0.0"
-  description: "Copies the contents of a source file to a target file."
+  description:
+    - "Copies the contents of a source file to a target file."
   source:
     file: "script.ns"
     line: 1
@@ -29,7 +30,8 @@ commands:
         start_help:
           source: { file: "script.ns" }
           kind: string
-          value: "Copy the contents of the SOURCE file into the TARGET file."
+          value:
+            - "Copy the contents of the SOURCE file into the TARGET file."
         parameters:
           source: { file: "script.ns" }
           kind: string-map-list
@@ -40,14 +42,16 @@ commands:
               long-form: source
               short-form: s
               variable: SOURCE
-              help: The path to the source file, whose contents will copy into TARGET.
+              help:
+                - The path to the source file, whose contents will copy into TARGET.
             - field: target
               kind: required
               source: parameter
               long-form: target
               short-form: t
               variable: TARGET
-              help: The path to the target file, which will store the contents from SOURCE.
+              help:
+                - The path to the target file, which will store the contents from SOURCE.
             #- field: append
             #  kind: flag
             #  source: parameter
@@ -58,28 +62,6 @@ commands:
 threads:
   default:
     source: { file: "script.ns" }
-
-    # Main thread starts the copy job thread.
-    # It exits the script with an error if the copy job thread exits with an error.
-    main:
-      source: { file: "script.ns" }
-      description: >
-        Copy the SOURCE file to the TARGET file.  This will not create the
-        directory containing the TARGET file.
-      default: true
-      parameters:
-        - name: source
-          aliases: [source, s]
-          var-name: SOURCE
-          description: >
-            Path to the source file to copy.
-          kind: string
-        - name: target
-          aliases: [target, t]
-          var-name: TARGET
-          description: >
-            Path to the target file.
-          kind: string
     steps:
       - name: main_s0
         source: { file: "script.ns" }
@@ -107,7 +89,7 @@ threads:
                 max-code: 0
                 behavior:
                   source: { file: "script.ns" }
-                  kind: stop-script
+                  kind: stop-thread
 
   # The copy job web.
   # It first runs the job that prepares the streams for the jobs.
@@ -135,7 +117,7 @@ threads:
               # on-error - anything that isn't exit code 0.
               # Pass the error on to the user.
               source: { file: "script.ns" }
-              kind: stop-script
+              kind: stop-thread
             exit-code-behaviors:
               # on-success - keep going.
               - source: { file: "script.ns" }
@@ -171,7 +153,7 @@ threads:
               # on-error - anything that isn't exit code 0.
               # Pass the error on to the user.
               source: { file: "script.ns" }
-              kind: stop-script
+              kind: stop-thread
             exit-code-behaviors:
               # on-success - step ahead by 1 which, because this is
               # the last step in the thread, means end the thread.

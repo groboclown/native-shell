@@ -40,6 +40,7 @@ pub mod error {
 #[doc = "  ],"]
 #[doc = "  \"properties\": {"]
 #[doc = "    \"kind\": {"]
+#[doc = "      \"type\": \"string\","]
 #[doc = "      \"const\": \"abs-number\""]
 #[doc = "    },"]
 #[doc = "    \"source\": {"]
@@ -49,14 +50,17 @@ pub mod error {
 #[doc = "      \"$ref\": \"#/$defs/ComputedNumberValue\""]
 #[doc = "    }"]
 #[doc = "  },"]
-#[doc = "  \"additionalProperties\": false"]
+#[doc = "  \"additionalProperties\": false,"]
+#[doc = "  \"discriminator\": {"]
+#[doc = "    \"propertyName\": \"kind\""]
+#[doc = "  }"]
 #[doc = "}"]
 #[doc = r" ```"]
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
 pub struct AbsValue {
-    pub kind: ::serde_json::Value,
+    pub kind: ::std::string::String,
     pub source: Source,
     pub value: ComputedNumberValue,
 }
@@ -135,6 +139,7 @@ impl ActionParameter {
 #[doc = "  ],"]
 #[doc = "  \"properties\": {"]
 #[doc = "    \"kind\": {"]
+#[doc = "      \"type\": \"string\","]
 #[doc = "      \"const\": \"add-number\""]
 #[doc = "    },"]
 #[doc = "    \"left\": {"]
@@ -147,14 +152,17 @@ impl ActionParameter {
 #[doc = "      \"$ref\": \"#/$defs/Source\""]
 #[doc = "    }"]
 #[doc = "  },"]
-#[doc = "  \"additionalProperties\": false"]
+#[doc = "  \"additionalProperties\": false,"]
+#[doc = "  \"discriminator\": {"]
+#[doc = "    \"propertyName\": \"kind\""]
+#[doc = "  }"]
 #[doc = "}"]
 #[doc = r" ```"]
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
 pub struct AddTwoValues {
-    pub kind: ::serde_json::Value,
+    pub kind: ::std::string::String,
     pub left: ::std::boxed::Box<ComputedNumberValue>,
     pub right: ::std::boxed::Box<ComputedNumberValue>,
     pub source: Source,
@@ -186,6 +194,7 @@ impl AddTwoValues {
 #[doc = "  ],"]
 #[doc = "  \"properties\": {"]
 #[doc = "    \"kind\": {"]
+#[doc = "      \"type\": \"string\","]
 #[doc = "      \"const\": \"and-boolean\""]
 #[doc = "    },"]
 #[doc = "    \"left\": {"]
@@ -198,14 +207,17 @@ impl AddTwoValues {
 #[doc = "      \"$ref\": \"#/$defs/Source\""]
 #[doc = "    }"]
 #[doc = "  },"]
-#[doc = "  \"additionalProperties\": false"]
+#[doc = "  \"additionalProperties\": false,"]
+#[doc = "  \"discriminator\": {"]
+#[doc = "    \"propertyName\": \"kind\""]
+#[doc = "  }"]
 #[doc = "}"]
 #[doc = r" ```"]
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
 pub struct AndTwoBooleanValues {
-    pub kind: ::serde_json::Value,
+    pub kind: ::std::string::String,
     pub left: ::std::boxed::Box<ComputedBooleanValue>,
     pub right: ::std::boxed::Box<ComputedBooleanValue>,
     pub source: Source,
@@ -236,6 +248,7 @@ impl AndTwoBooleanValues {
 #[doc = "  ],"]
 #[doc = "  \"properties\": {"]
 #[doc = "    \"kind\": {"]
+#[doc = "      \"type\": \"string\","]
 #[doc = "      \"const\": \"average-number-list\""]
 #[doc = "    },"]
 #[doc = "    \"source\": {"]
@@ -245,14 +258,17 @@ impl AndTwoBooleanValues {
 #[doc = "      \"$ref\": \"#/$defs/ComputedNumberListValue\""]
 #[doc = "    }"]
 #[doc = "  },"]
-#[doc = "  \"additionalProperties\": false"]
+#[doc = "  \"additionalProperties\": false,"]
+#[doc = "  \"discriminator\": {"]
+#[doc = "    \"propertyName\": \"kind\""]
+#[doc = "  }"]
 #[doc = "}"]
 #[doc = r" ```"]
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
 pub struct AverageNumberListValue {
-    pub kind: ::serde_json::Value,
+    pub kind: ::std::string::String,
     pub source: Source,
     pub value: ComputedNumberListValue,
 }
@@ -274,6 +290,7 @@ impl AverageNumberListValue {
 #[doc = "{"]
 #[doc = "  \"title\": \"Boolean List Index Number Value\","]
 #[doc = "  \"description\": \"Find the first index in the boolean-list that equals the given boolean. If it does not exist, the index will be -1.\\n\","]
+#[doc = "  \"type\": \"object\","]
 #[doc = "  \"required\": ["]
 #[doc = "    \"kind\","]
 #[doc = "    \"list\","]
@@ -282,6 +299,7 @@ impl AverageNumberListValue {
 #[doc = "  ],"]
 #[doc = "  \"properties\": {"]
 #[doc = "    \"kind\": {"]
+#[doc = "      \"type\": \"string\","]
 #[doc = "      \"const\": \"boolean-list-index-number\""]
 #[doc = "    },"]
 #[doc = "    \"list\": {"]
@@ -294,14 +312,17 @@ impl AverageNumberListValue {
 #[doc = "      \"$ref\": \"#/$defs/Source\""]
 #[doc = "    }"]
 #[doc = "  },"]
-#[doc = "  \"additionalProperties\": false"]
+#[doc = "  \"additionalProperties\": false,"]
+#[doc = "  \"discriminator\": {"]
+#[doc = "    \"propertyName\": \"kind\""]
+#[doc = "  }"]
 #[doc = "}"]
 #[doc = r" ```"]
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
 pub struct BooleanListIndexNumberValue {
-    pub kind: ::serde_json::Value,
+    pub kind: ::std::string::String,
     pub list: ComputedBooleanListValue,
     pub needle: ComputedBooleanValue,
     pub source: Source,
@@ -335,6 +356,7 @@ impl BooleanListIndexNumberValue {
 #[doc = "      \"$ref\": \"#/$defs/ComputedStringValue\""]
 #[doc = "    },"]
 #[doc = "    \"kind\": {"]
+#[doc = "      \"type\": \"string\","]
 #[doc = "      \"const\": \"boolean-to-string\""]
 #[doc = "    },"]
 #[doc = "    \"source\": {"]
@@ -347,7 +369,10 @@ impl BooleanListIndexNumberValue {
 #[doc = "      \"$ref\": \"#/$defs/ComputedBooleanValue\""]
 #[doc = "    }"]
 #[doc = "  },"]
-#[doc = "  \"additionalProperties\": false"]
+#[doc = "  \"additionalProperties\": false,"]
+#[doc = "  \"discriminator\": {"]
+#[doc = "    \"propertyName\": \"kind\""]
+#[doc = "  }"]
 #[doc = "}"]
 #[doc = r" ```"]
 #[doc = r" </details>"]
@@ -360,7 +385,7 @@ pub struct BooleanToStringValue {
         skip_serializing_if = "::std::option::Option::is_none"
     )]
     pub false_string: ::std::option::Option<::std::boxed::Box<ComputedStringValue>>,
-    pub kind: ::serde_json::Value,
+    pub kind: ::std::string::String,
     pub source: Source,
     #[serde(
         rename = "true-string",
@@ -396,6 +421,7 @@ impl BooleanToStringValue {
 #[doc = "  ],"]
 #[doc = "  \"properties\": {"]
 #[doc = "    \"kind\": {"]
+#[doc = "      \"type\": \"string\","]
 #[doc = "      \"const\": \"ceil-number\""]
 #[doc = "    },"]
 #[doc = "    \"source\": {"]
@@ -405,14 +431,17 @@ impl BooleanToStringValue {
 #[doc = "      \"$ref\": \"#/$defs/ComputedNumberValue\""]
 #[doc = "    }"]
 #[doc = "  },"]
-#[doc = "  \"additionalProperties\": false"]
+#[doc = "  \"additionalProperties\": false,"]
+#[doc = "  \"discriminator\": {"]
+#[doc = "    \"propertyName\": \"kind\""]
+#[doc = "  }"]
 #[doc = "}"]
 #[doc = r" ```"]
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
 pub struct CeilValue {
-    pub kind: ::serde_json::Value,
+    pub kind: ::std::string::String,
     pub source: Source,
     pub value: ::std::boxed::Box<ComputedNumberValue>,
 }
@@ -442,6 +471,7 @@ impl CeilValue {
 #[doc = "  ],"]
 #[doc = "  \"properties\": {"]
 #[doc = "    \"kind\": {"]
+#[doc = "      \"type\": \"string\","]
 #[doc = "      \"const\": \"collection-size-number\""]
 #[doc = "    },"]
 #[doc = "    \"source\": {"]
@@ -450,40 +480,106 @@ impl CeilValue {
 #[doc = "    \"value\": {"]
 #[doc = "      \"oneOf\": ["]
 #[doc = "        {"]
-#[doc = "          \"$ref\": \"#/$defs/ComputedStringListValue\""]
+#[doc = "          \"$ref\": \"#/$defs/LookupStringListValue\""]
 #[doc = "        },"]
 #[doc = "        {"]
-#[doc = "          \"$ref\": \"#/$defs/ComputedNumberListValue\""]
+#[doc = "          \"$ref\": \"#/$defs/SplitStringValue\""]
 #[doc = "        },"]
 #[doc = "        {"]
-#[doc = "          \"$ref\": \"#/$defs/ComputedBooleanListValue\""]
+#[doc = "          \"$ref\": \"#/$defs/RangeStringListValue\""]
 #[doc = "        },"]
 #[doc = "        {"]
-#[doc = "          \"$ref\": \"#/$defs/ComputedStringMapValue\""]
+#[doc = "          \"$ref\": \"#/$defs/StringListMapKeyValue\""]
 #[doc = "        },"]
 #[doc = "        {"]
-#[doc = "          \"$ref\": \"#/$defs/ComputedNumberMapValue\""]
+#[doc = "          \"$ref\": \"#/$defs/MapKeysStringListValue\""]
 #[doc = "        },"]
 #[doc = "        {"]
-#[doc = "          \"$ref\": \"#/$defs/ComputedBooleanMapValue\""]
+#[doc = "          \"$ref\": \"#/$defs/ConstantStringListValue\""]
 #[doc = "        },"]
 #[doc = "        {"]
-#[doc = "          \"$ref\": \"#/$defs/ComputedStringListMapValue\""]
+#[doc = "          \"$ref\": \"#/$defs/LookupNumberListValue\""]
 #[doc = "        },"]
 #[doc = "        {"]
-#[doc = "          \"$ref\": \"#/$defs/ComputedStringMapListValue\""]
+#[doc = "          \"$ref\": \"#/$defs/RangeNumberListValue\""]
+#[doc = "        },"]
+#[doc = "        {"]
+#[doc = "          \"$ref\": \"#/$defs/ConstantNumberListValue\""]
+#[doc = "        },"]
+#[doc = "        {"]
+#[doc = "          \"$ref\": \"#/$defs/LookupStringMapValue\""]
+#[doc = "        },"]
+#[doc = "        {"]
+#[doc = "          \"$ref\": \"#/$defs/UnionStringMapValue\""]
+#[doc = "        },"]
+#[doc = "        {"]
+#[doc = "          \"$ref\": \"#/$defs/StringMapListIndexValue\""]
+#[doc = "        },"]
+#[doc = "        {"]
+#[doc = "          \"$ref\": \"#/$defs/ConstantStringMapValue\""]
+#[doc = "        },"]
+#[doc = "        {"]
+#[doc = "          \"$ref\": \"#/$defs/LookupNumberMapValue\""]
+#[doc = "        },"]
+#[doc = "        {"]
+#[doc = "          \"$ref\": \"#/$defs/UnionNumberMapValue\""]
+#[doc = "        },"]
+#[doc = "        {"]
+#[doc = "          \"$ref\": \"#/$defs/ConstantNumberMapValue\""]
+#[doc = "        },"]
+#[doc = "        {"]
+#[doc = "          \"$ref\": \"#/$defs/LookupBooleanListValue\""]
+#[doc = "        },"]
+#[doc = "        {"]
+#[doc = "          \"$ref\": \"#/$defs/RangeBooleanListValue\""]
+#[doc = "        },"]
+#[doc = "        {"]
+#[doc = "          \"$ref\": \"#/$defs/ConstantBooleanListValue\""]
+#[doc = "        },"]
+#[doc = "        {"]
+#[doc = "          \"$ref\": \"#/$defs/LookupBooleanMapValue\""]
+#[doc = "        },"]
+#[doc = "        {"]
+#[doc = "          \"$ref\": \"#/$defs/UnionBooleanMapValue\""]
+#[doc = "        },"]
+#[doc = "        {"]
+#[doc = "          \"$ref\": \"#/$defs/ConstantBooleanMapValue\""]
+#[doc = "        },"]
+#[doc = "        {"]
+#[doc = "          \"$ref\": \"#/$defs/LookupStringListMapValue\""]
+#[doc = "        },"]
+#[doc = "        {"]
+#[doc = "          \"$ref\": \"#/$defs/UnionStringListMapValue\""]
+#[doc = "        },"]
+#[doc = "        {"]
+#[doc = "          \"$ref\": \"#/$defs/ConstantStringListMapValue\""]
+#[doc = "        },"]
+#[doc = "        {"]
+#[doc = "          \"$ref\": \"#/$defs/LookupStringMapListValue\""]
+#[doc = "        },"]
+#[doc = "        {"]
+#[doc = "          \"$ref\": \"#/$defs/RangeStringMapListValue\""]
+#[doc = "        },"]
+#[doc = "        {"]
+#[doc = "          \"$ref\": \"#/$defs/ConstantStringMapListValue\""]
 #[doc = "        }"]
-#[doc = "      ]"]
+#[doc = "      ],"]
+#[doc = "      \"discriminator\": {"]
+#[doc = "        \"propertyName\": \"kind\""]
+#[doc = "      }"]
 #[doc = "    }"]
 #[doc = "  },"]
-#[doc = "  \"additionalProperties\": false"]
+#[doc = "  \"additionalProperties\": false,"]
+#[doc = "  \"discriminator\": {"]
+#[doc = "    \"propertyName\": \"kind\""]
+#[doc = "  }"]
 #[doc = "}"]
 #[doc = r" ```"]
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
 pub struct CollectionSizeNumberValue {
-    pub kind: ::serde_json::Value,
+    pub kind: ::std::string::String,
     pub source: Source,
     pub value: CollectionSizeNumberValueValue,
 }
@@ -505,88 +601,271 @@ impl CollectionSizeNumberValue {
 #[doc = "{"]
 #[doc = "  \"oneOf\": ["]
 #[doc = "    {"]
-#[doc = "      \"$ref\": \"#/$defs/ComputedStringListValue\""]
+#[doc = "      \"$ref\": \"#/$defs/LookupStringListValue\""]
 #[doc = "    },"]
 #[doc = "    {"]
-#[doc = "      \"$ref\": \"#/$defs/ComputedNumberListValue\""]
+#[doc = "      \"$ref\": \"#/$defs/SplitStringValue\""]
 #[doc = "    },"]
 #[doc = "    {"]
-#[doc = "      \"$ref\": \"#/$defs/ComputedBooleanListValue\""]
+#[doc = "      \"$ref\": \"#/$defs/RangeStringListValue\""]
 #[doc = "    },"]
 #[doc = "    {"]
-#[doc = "      \"$ref\": \"#/$defs/ComputedStringMapValue\""]
+#[doc = "      \"$ref\": \"#/$defs/StringListMapKeyValue\""]
 #[doc = "    },"]
 #[doc = "    {"]
-#[doc = "      \"$ref\": \"#/$defs/ComputedNumberMapValue\""]
+#[doc = "      \"$ref\": \"#/$defs/MapKeysStringListValue\""]
 #[doc = "    },"]
 #[doc = "    {"]
-#[doc = "      \"$ref\": \"#/$defs/ComputedBooleanMapValue\""]
+#[doc = "      \"$ref\": \"#/$defs/ConstantStringListValue\""]
 #[doc = "    },"]
 #[doc = "    {"]
-#[doc = "      \"$ref\": \"#/$defs/ComputedStringListMapValue\""]
+#[doc = "      \"$ref\": \"#/$defs/LookupNumberListValue\""]
 #[doc = "    },"]
 #[doc = "    {"]
-#[doc = "      \"$ref\": \"#/$defs/ComputedStringMapListValue\""]
+#[doc = "      \"$ref\": \"#/$defs/RangeNumberListValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/ConstantNumberListValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/LookupStringMapValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/UnionStringMapValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/StringMapListIndexValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/ConstantStringMapValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/LookupNumberMapValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/UnionNumberMapValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/ConstantNumberMapValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/LookupBooleanListValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/RangeBooleanListValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/ConstantBooleanListValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/LookupBooleanMapValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/UnionBooleanMapValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/ConstantBooleanMapValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/LookupStringListMapValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/UnionStringListMapValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/ConstantStringListMapValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/LookupStringMapListValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/RangeStringMapListValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/ConstantStringMapListValue\""]
 #[doc = "    }"]
-#[doc = "  ]"]
+#[doc = "  ],"]
+#[doc = "  \"discriminator\": {"]
+#[doc = "    \"propertyName\": \"kind\""]
+#[doc = "  }"]
 #[doc = "}"]
 #[doc = r" ```"]
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(untagged)]
 pub enum CollectionSizeNumberValueValue {
-    StringListValue(ComputedStringListValue),
-    NumberListValue(ComputedNumberListValue),
-    BooleanListValue(ComputedBooleanListValue),
-    StringMapValue(ComputedStringMapValue),
-    NumberMapValue(ComputedNumberMapValue),
-    BooleanMapValue(ComputedBooleanMapValue),
-    StringListMapValue(ComputedStringListMapValue),
-    StringMapListValue(ComputedStringMapListValue),
+    LookupStringListValue(LookupStringListValue),
+    SplitStringValue(SplitStringValue),
+    RangeStringListValue(RangeStringListValue),
+    StringListMapKeyValue(StringListMapKeyValue),
+    MapKeysStringListValue(MapKeysStringListValue),
+    ConstantStringListValue(ConstantStringListValue),
+    LookupNumberListValue(LookupNumberListValue),
+    RangeNumberListValue(RangeNumberListValue),
+    ConstantNumberListValue(ConstantNumberListValue),
+    LookupStringMapValue(LookupStringMapValue),
+    UnionStringMapValue(UnionStringMapValue),
+    StringMapListIndexValue(StringMapListIndexValue),
+    ConstantStringMapValue(ConstantStringMapValue),
+    LookupNumberMapValue(LookupNumberMapValue),
+    UnionNumberMapValue(UnionNumberMapValue),
+    ConstantNumberMapValue(ConstantNumberMapValue),
+    LookupBooleanListValue(LookupBooleanListValue),
+    RangeBooleanListValue(RangeBooleanListValue),
+    ConstantBooleanListValue(ConstantBooleanListValue),
+    LookupBooleanMapValue(LookupBooleanMapValue),
+    UnionBooleanMapValue(UnionBooleanMapValue),
+    ConstantBooleanMapValue(ConstantBooleanMapValue),
+    LookupStringListMapValue(LookupStringListMapValue),
+    UnionStringListMapValue(UnionStringListMapValue),
+    ConstantStringListMapValue(ConstantStringListMapValue),
+    LookupStringMapListValue(LookupStringMapListValue),
+    RangeStringMapListValue(RangeStringMapListValue),
+    ConstantStringMapListValue(ConstantStringMapListValue),
 }
 impl ::std::convert::From<&Self> for CollectionSizeNumberValueValue {
     fn from(value: &CollectionSizeNumberValueValue) -> Self {
         value.clone()
     }
 }
-impl ::std::convert::From<ComputedStringListValue> for CollectionSizeNumberValueValue {
-    fn from(value: ComputedStringListValue) -> Self {
-        Self::StringListValue(value)
+impl ::std::convert::From<LookupStringListValue> for CollectionSizeNumberValueValue {
+    fn from(value: LookupStringListValue) -> Self {
+        Self::LookupStringListValue(value)
     }
 }
-impl ::std::convert::From<ComputedNumberListValue> for CollectionSizeNumberValueValue {
-    fn from(value: ComputedNumberListValue) -> Self {
-        Self::NumberListValue(value)
+impl ::std::convert::From<SplitStringValue> for CollectionSizeNumberValueValue {
+    fn from(value: SplitStringValue) -> Self {
+        Self::SplitStringValue(value)
     }
 }
-impl ::std::convert::From<ComputedBooleanListValue> for CollectionSizeNumberValueValue {
-    fn from(value: ComputedBooleanListValue) -> Self {
-        Self::BooleanListValue(value)
+impl ::std::convert::From<RangeStringListValue> for CollectionSizeNumberValueValue {
+    fn from(value: RangeStringListValue) -> Self {
+        Self::RangeStringListValue(value)
     }
 }
-impl ::std::convert::From<ComputedStringMapValue> for CollectionSizeNumberValueValue {
-    fn from(value: ComputedStringMapValue) -> Self {
-        Self::StringMapValue(value)
+impl ::std::convert::From<StringListMapKeyValue> for CollectionSizeNumberValueValue {
+    fn from(value: StringListMapKeyValue) -> Self {
+        Self::StringListMapKeyValue(value)
     }
 }
-impl ::std::convert::From<ComputedNumberMapValue> for CollectionSizeNumberValueValue {
-    fn from(value: ComputedNumberMapValue) -> Self {
-        Self::NumberMapValue(value)
+impl ::std::convert::From<MapKeysStringListValue> for CollectionSizeNumberValueValue {
+    fn from(value: MapKeysStringListValue) -> Self {
+        Self::MapKeysStringListValue(value)
     }
 }
-impl ::std::convert::From<ComputedBooleanMapValue> for CollectionSizeNumberValueValue {
-    fn from(value: ComputedBooleanMapValue) -> Self {
-        Self::BooleanMapValue(value)
+impl ::std::convert::From<ConstantStringListValue> for CollectionSizeNumberValueValue {
+    fn from(value: ConstantStringListValue) -> Self {
+        Self::ConstantStringListValue(value)
     }
 }
-impl ::std::convert::From<ComputedStringListMapValue> for CollectionSizeNumberValueValue {
-    fn from(value: ComputedStringListMapValue) -> Self {
-        Self::StringListMapValue(value)
+impl ::std::convert::From<LookupNumberListValue> for CollectionSizeNumberValueValue {
+    fn from(value: LookupNumberListValue) -> Self {
+        Self::LookupNumberListValue(value)
     }
 }
-impl ::std::convert::From<ComputedStringMapListValue> for CollectionSizeNumberValueValue {
-    fn from(value: ComputedStringMapListValue) -> Self {
-        Self::StringMapListValue(value)
+impl ::std::convert::From<RangeNumberListValue> for CollectionSizeNumberValueValue {
+    fn from(value: RangeNumberListValue) -> Self {
+        Self::RangeNumberListValue(value)
+    }
+}
+impl ::std::convert::From<ConstantNumberListValue> for CollectionSizeNumberValueValue {
+    fn from(value: ConstantNumberListValue) -> Self {
+        Self::ConstantNumberListValue(value)
+    }
+}
+impl ::std::convert::From<LookupStringMapValue> for CollectionSizeNumberValueValue {
+    fn from(value: LookupStringMapValue) -> Self {
+        Self::LookupStringMapValue(value)
+    }
+}
+impl ::std::convert::From<UnionStringMapValue> for CollectionSizeNumberValueValue {
+    fn from(value: UnionStringMapValue) -> Self {
+        Self::UnionStringMapValue(value)
+    }
+}
+impl ::std::convert::From<StringMapListIndexValue> for CollectionSizeNumberValueValue {
+    fn from(value: StringMapListIndexValue) -> Self {
+        Self::StringMapListIndexValue(value)
+    }
+}
+impl ::std::convert::From<ConstantStringMapValue> for CollectionSizeNumberValueValue {
+    fn from(value: ConstantStringMapValue) -> Self {
+        Self::ConstantStringMapValue(value)
+    }
+}
+impl ::std::convert::From<LookupNumberMapValue> for CollectionSizeNumberValueValue {
+    fn from(value: LookupNumberMapValue) -> Self {
+        Self::LookupNumberMapValue(value)
+    }
+}
+impl ::std::convert::From<UnionNumberMapValue> for CollectionSizeNumberValueValue {
+    fn from(value: UnionNumberMapValue) -> Self {
+        Self::UnionNumberMapValue(value)
+    }
+}
+impl ::std::convert::From<ConstantNumberMapValue> for CollectionSizeNumberValueValue {
+    fn from(value: ConstantNumberMapValue) -> Self {
+        Self::ConstantNumberMapValue(value)
+    }
+}
+impl ::std::convert::From<LookupBooleanListValue> for CollectionSizeNumberValueValue {
+    fn from(value: LookupBooleanListValue) -> Self {
+        Self::LookupBooleanListValue(value)
+    }
+}
+impl ::std::convert::From<RangeBooleanListValue> for CollectionSizeNumberValueValue {
+    fn from(value: RangeBooleanListValue) -> Self {
+        Self::RangeBooleanListValue(value)
+    }
+}
+impl ::std::convert::From<ConstantBooleanListValue> for CollectionSizeNumberValueValue {
+    fn from(value: ConstantBooleanListValue) -> Self {
+        Self::ConstantBooleanListValue(value)
+    }
+}
+impl ::std::convert::From<LookupBooleanMapValue> for CollectionSizeNumberValueValue {
+    fn from(value: LookupBooleanMapValue) -> Self {
+        Self::LookupBooleanMapValue(value)
+    }
+}
+impl ::std::convert::From<UnionBooleanMapValue> for CollectionSizeNumberValueValue {
+    fn from(value: UnionBooleanMapValue) -> Self {
+        Self::UnionBooleanMapValue(value)
+    }
+}
+impl ::std::convert::From<ConstantBooleanMapValue> for CollectionSizeNumberValueValue {
+    fn from(value: ConstantBooleanMapValue) -> Self {
+        Self::ConstantBooleanMapValue(value)
+    }
+}
+impl ::std::convert::From<LookupStringListMapValue> for CollectionSizeNumberValueValue {
+    fn from(value: LookupStringListMapValue) -> Self {
+        Self::LookupStringListMapValue(value)
+    }
+}
+impl ::std::convert::From<UnionStringListMapValue> for CollectionSizeNumberValueValue {
+    fn from(value: UnionStringListMapValue) -> Self {
+        Self::UnionStringListMapValue(value)
+    }
+}
+impl ::std::convert::From<ConstantStringListMapValue> for CollectionSizeNumberValueValue {
+    fn from(value: ConstantStringListMapValue) -> Self {
+        Self::ConstantStringListMapValue(value)
+    }
+}
+impl ::std::convert::From<LookupStringMapListValue> for CollectionSizeNumberValueValue {
+    fn from(value: LookupStringMapListValue) -> Self {
+        Self::LookupStringMapListValue(value)
+    }
+}
+impl ::std::convert::From<RangeStringMapListValue> for CollectionSizeNumberValueValue {
+    fn from(value: RangeStringMapListValue) -> Self {
+        Self::RangeStringMapListValue(value)
+    }
+}
+impl ::std::convert::From<ConstantStringMapListValue> for CollectionSizeNumberValueValue {
+    fn from(value: ConstantStringMapListValue) -> Self {
+        Self::ConstantStringMapListValue(value)
     }
 }
 #[doc = "A command to run.\nIt will use the module to construct the primary shell interface - argument + environment parsing and signal connection and so on.\nIt will run the thread as the series of steps to take.\n"]
@@ -605,14 +884,7 @@ impl ::std::convert::From<ComputedStringMapListValue> for CollectionSizeNumberVa
 #[doc = "  ],"]
 #[doc = "  \"properties\": {"]
 #[doc = "    \"definition\": {"]
-#[doc = "      \"oneOf\": ["]
-#[doc = "        {"]
-#[doc = "          \"$ref\": \"#/$defs/ModuleJob\""]
-#[doc = "        },"]
-#[doc = "        {"]
-#[doc = "          \"$ref\": \"#/$defs/MacroJob\""]
-#[doc = "        }"]
-#[doc = "      ]"]
+#[doc = "      \"$ref\": \"#/$defs/CommandDef\""]
 #[doc = "    },"]
 #[doc = "    \"description\": {"]
 #[doc = "      \"$ref\": \"#/$defs/UserHelp\""]
@@ -631,7 +903,7 @@ impl ::std::convert::From<ComputedStringMapListValue> for CollectionSizeNumberVa
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
 pub struct Command {
-    pub definition: CommandDefinition,
+    pub definition: CommandDef,
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub description: ::std::option::Option<UserHelp>,
     pub source: Source,
@@ -647,12 +919,14 @@ impl Command {
         Default::default()
     }
 }
-#[doc = "`CommandDefinition`"]
+#[doc = "The construction parameters for the command."]
 #[doc = r""]
 #[doc = r" <details><summary>JSON schema</summary>"]
 #[doc = r""]
 #[doc = r" ```json"]
 #[doc = "{"]
+#[doc = "  \"title\": \"Command Definition\","]
+#[doc = "  \"description\": \"The construction parameters for the command.\","]
 #[doc = "  \"oneOf\": ["]
 #[doc = "    {"]
 #[doc = "      \"$ref\": \"#/$defs/ModuleJob\""]
@@ -660,27 +934,34 @@ impl Command {
 #[doc = "    {"]
 #[doc = "      \"$ref\": \"#/$defs/MacroJob\""]
 #[doc = "    }"]
-#[doc = "  ]"]
+#[doc = "  ],"]
+#[doc = "  \"discriminator\": {"]
+#[doc = "    \"mapping\": {"]
+#[doc = "      \"macro\": \"#/$defs/MacroJob\","]
+#[doc = "      \"module\": \"#/$defs/ModuleJob\""]
+#[doc = "    },"]
+#[doc = "    \"propertyName\": \"kind\""]
+#[doc = "  }"]
 #[doc = "}"]
 #[doc = r" ```"]
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(untagged)]
-pub enum CommandDefinition {
+pub enum CommandDef {
     ModuleJob(ModuleJob),
     MacroJob(MacroJob),
 }
-impl ::std::convert::From<&Self> for CommandDefinition {
-    fn from(value: &CommandDefinition) -> Self {
+impl ::std::convert::From<&Self> for CommandDef {
+    fn from(value: &CommandDef) -> Self {
         value.clone()
     }
 }
-impl ::std::convert::From<ModuleJob> for CommandDefinition {
+impl ::std::convert::From<ModuleJob> for CommandDef {
     fn from(value: ModuleJob) -> Self {
         Self::ModuleJob(value)
     }
 }
-impl ::std::convert::From<MacroJob> for CommandDefinition {
+impl ::std::convert::From<MacroJob> for CommandDef {
     fn from(value: MacroJob) -> Self {
         Self::MacroJob(value)
     }
@@ -711,7 +992,7 @@ impl ::std::convert::From<MacroJob> for CommandDefinition {
 #[serde(untagged)]
 pub enum ComputedBooleanListValue {
     LookupBooleanListValue(LookupBooleanListValue),
-    RangeBooleanListValue(RangeBooleanListValue),
+    RangeBooleanListValue(::std::boxed::Box<RangeBooleanListValue>),
     ConstantBooleanListValue(ConstantBooleanListValue),
 }
 impl ::std::convert::From<&Self> for ComputedBooleanListValue {
@@ -724,8 +1005,8 @@ impl ::std::convert::From<LookupBooleanListValue> for ComputedBooleanListValue {
         Self::LookupBooleanListValue(value)
     }
 }
-impl ::std::convert::From<RangeBooleanListValue> for ComputedBooleanListValue {
-    fn from(value: RangeBooleanListValue) -> Self {
+impl ::std::convert::From<::std::boxed::Box<RangeBooleanListValue>> for ComputedBooleanListValue {
+    fn from(value: ::std::boxed::Box<RangeBooleanListValue>) -> Self {
         Self::RangeBooleanListValue(value)
     }
 }
@@ -1489,7 +1770,7 @@ impl ::std::convert::From<ConstantStringMapListValue> for ComputedStringMapListV
 pub enum ComputedStringMapValue {
     LookupStringMapValue(LookupStringMapValue),
     UnionStringMapValue(UnionStringMapValue),
-    StringMapListIndexValue(StringMapListIndexValue),
+    StringMapListIndexValue(::std::boxed::Box<StringMapListIndexValue>),
     ConstantStringMapValue(ConstantStringMapValue),
 }
 impl ::std::convert::From<&Self> for ComputedStringMapValue {
@@ -1507,8 +1788,8 @@ impl ::std::convert::From<UnionStringMapValue> for ComputedStringMapValue {
         Self::UnionStringMapValue(value)
     }
 }
-impl ::std::convert::From<StringMapListIndexValue> for ComputedStringMapValue {
-    fn from(value: StringMapListIndexValue) -> Self {
+impl ::std::convert::From<::std::boxed::Box<StringMapListIndexValue>> for ComputedStringMapValue {
+    fn from(value: ::std::boxed::Box<StringMapListIndexValue>) -> Self {
         Self::StringMapListIndexValue(value)
     }
 }
@@ -1639,115 +1920,721 @@ impl ::std::convert::From<ConstantStringValue> for ComputedStringValue {
 #[doc = "  \"description\": \"A value that is computed at runtime.  This can be a constant value, a lookup from a job's state, or an array of values, or an operation on a list of values.\\n\","]
 #[doc = "  \"oneOf\": ["]
 #[doc = "    {"]
-#[doc = "      \"$ref\": \"#/$defs/ComputedStringValue\""]
+#[doc = "      \"$ref\": \"#/$defs/LookupStringValue\""]
 #[doc = "    },"]
 #[doc = "    {"]
-#[doc = "      \"$ref\": \"#/$defs/ComputedNumberValue\""]
+#[doc = "      \"$ref\": \"#/$defs/ListIndexStringValue\""]
 #[doc = "    },"]
 #[doc = "    {"]
-#[doc = "      \"$ref\": \"#/$defs/ComputedBooleanValue\""]
+#[doc = "      \"$ref\": \"#/$defs/MapKeyStringValue\""]
 #[doc = "    },"]
 #[doc = "    {"]
-#[doc = "      \"$ref\": \"#/$defs/ComputedStringListValue\""]
+#[doc = "      \"$ref\": \"#/$defs/SubStringValue\""]
 #[doc = "    },"]
 #[doc = "    {"]
-#[doc = "      \"$ref\": \"#/$defs/ComputedNumberListValue\""]
+#[doc = "      \"$ref\": \"#/$defs/TrimStringValue\""]
 #[doc = "    },"]
 #[doc = "    {"]
-#[doc = "      \"$ref\": \"#/$defs/ComputedBooleanListValue\""]
+#[doc = "      \"$ref\": \"#/$defs/NumberToStringValue\""]
 #[doc = "    },"]
 #[doc = "    {"]
-#[doc = "      \"$ref\": \"#/$defs/ComputedStringMapValue\""]
+#[doc = "      \"$ref\": \"#/$defs/BooleanToStringValue\""]
 #[doc = "    },"]
 #[doc = "    {"]
-#[doc = "      \"$ref\": \"#/$defs/ComputedNumberMapValue\""]
+#[doc = "      \"$ref\": \"#/$defs/ListToStringValue\""]
 #[doc = "    },"]
 #[doc = "    {"]
-#[doc = "      \"$ref\": \"#/$defs/ComputedBooleanMapValue\""]
+#[doc = "      \"$ref\": \"#/$defs/MapToStringValue\""]
 #[doc = "    },"]
 #[doc = "    {"]
-#[doc = "      \"$ref\": \"#/$defs/ComputedStringListMapValue\""]
+#[doc = "      \"$ref\": \"#/$defs/ConstantStringValue\""]
 #[doc = "    },"]
 #[doc = "    {"]
-#[doc = "      \"$ref\": \"#/$defs/ComputedStringMapListValue\""]
+#[doc = "      \"$ref\": \"#/$defs/LookupNumberValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/AddTwoValues\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/SubtractTwoValues\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/MultiplyTwoValues\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/DivideTwoValues\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/ModulusTwoValues\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/PowerTwoValues\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/RoundValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/FloorValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/CeilValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/AbsValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/SumNumberListValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/ProductNumberListValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/AverageNumberListValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/MinNumberListValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/MaxNumberListValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/ListIndexNumberValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/MapKeyNumberValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/CollectionSizeNumberValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/StringLeftIndexNumberValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/StringRightIndexNumberValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/StringListIndexNumberValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/NumberListIndexNumberValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/BooleanListIndexNumberValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/ConstantNumberValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/LookupBooleanValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/AndTwoBooleanValues\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/OrTwoBooleanValues\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/NotBooleanValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/XorTwoBooleanValues\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/NandTwoBooleanValues\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/NorTwoBooleanValues\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/XnorTwoBooleanValues\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/ListIndexBooleanValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/MapKeyBooleanValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/MapContainsKeyBooleanValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/ListContainsIndexBooleanValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/StringEqualBooleanValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/NumberEqualBooleanValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/ConstantBooleanValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/LookupStringListValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/SplitStringValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/RangeStringListValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/StringListMapKeyValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/MapKeysStringListValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/ConstantStringListValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/LookupNumberListValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/RangeNumberListValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/ConstantNumberListValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/LookupBooleanListValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/RangeBooleanListValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/ConstantBooleanListValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/LookupStringMapValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/UnionStringMapValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/StringMapListIndexValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/ConstantStringMapValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/LookupNumberMapValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/UnionNumberMapValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/ConstantNumberMapValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/LookupBooleanMapValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/UnionBooleanMapValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/ConstantBooleanMapValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/LookupStringListMapValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/UnionStringListMapValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/ConstantStringListMapValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/LookupStringMapListValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/RangeStringMapListValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/ConstantStringMapListValue\""]
 #[doc = "    }"]
-#[doc = "  ]"]
+#[doc = "  ],"]
+#[doc = "  \"discriminator\": {"]
+#[doc = "    \"propertyName\": \"kind\""]
+#[doc = "  }"]
 #[doc = "}"]
 #[doc = r" ```"]
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(untagged)]
 pub enum ComputedValue {
-    StringValue(ComputedStringValue),
-    NumberValue(ComputedNumberValue),
-    BooleanValue(ComputedBooleanValue),
-    StringListValue(ComputedStringListValue),
-    NumberListValue(ComputedNumberListValue),
-    BooleanListValue(ComputedBooleanListValue),
-    StringMapValue(ComputedStringMapValue),
-    NumberMapValue(ComputedNumberMapValue),
-    BooleanMapValue(ComputedBooleanMapValue),
-    StringListMapValue(ComputedStringListMapValue),
-    StringMapListValue(ComputedStringMapListValue),
+    LookupStringValue(LookupStringValue),
+    ListIndexStringValue(ListIndexStringValue),
+    MapKeyStringValue(MapKeyStringValue),
+    SubStringValue(SubStringValue),
+    TrimStringValue(TrimStringValue),
+    NumberToStringValue(NumberToStringValue),
+    BooleanToStringValue(BooleanToStringValue),
+    ListToStringValue(ListToStringValue),
+    MapToStringValue(MapToStringValue),
+    ConstantStringValue(ConstantStringValue),
+    LookupNumberValue(LookupNumberValue),
+    AddTwoValues(AddTwoValues),
+    SubtractTwoValues(SubtractTwoValues),
+    MultiplyTwoValues(MultiplyTwoValues),
+    DivideTwoValues(DivideTwoValues),
+    ModulusTwoValues(ModulusTwoValues),
+    PowerTwoValues(PowerTwoValues),
+    RoundValue(RoundValue),
+    FloorValue(FloorValue),
+    CeilValue(CeilValue),
+    AbsValue(AbsValue),
+    SumNumberListValue(SumNumberListValue),
+    ProductNumberListValue(ProductNumberListValue),
+    AverageNumberListValue(AverageNumberListValue),
+    MinNumberListValue(MinNumberListValue),
+    MaxNumberListValue(MaxNumberListValue),
+    ListIndexNumberValue(ListIndexNumberValue),
+    MapKeyNumberValue(MapKeyNumberValue),
+    CollectionSizeNumberValue(CollectionSizeNumberValue),
+    StringLeftIndexNumberValue(StringLeftIndexNumberValue),
+    StringRightIndexNumberValue(StringRightIndexNumberValue),
+    StringListIndexNumberValue(StringListIndexNumberValue),
+    NumberListIndexNumberValue(NumberListIndexNumberValue),
+    BooleanListIndexNumberValue(BooleanListIndexNumberValue),
+    ConstantNumberValue(ConstantNumberValue),
+    LookupBooleanValue(LookupBooleanValue),
+    AndTwoBooleanValues(AndTwoBooleanValues),
+    OrTwoBooleanValues(OrTwoBooleanValues),
+    NotBooleanValue(NotBooleanValue),
+    XorTwoBooleanValues(XorTwoBooleanValues),
+    NandTwoBooleanValues(NandTwoBooleanValues),
+    NorTwoBooleanValues(NorTwoBooleanValues),
+    XnorTwoBooleanValues(XnorTwoBooleanValues),
+    ListIndexBooleanValue(ListIndexBooleanValue),
+    MapKeyBooleanValue(MapKeyBooleanValue),
+    MapContainsKeyBooleanValue(MapContainsKeyBooleanValue),
+    ListContainsIndexBooleanValue(ListContainsIndexBooleanValue),
+    StringEqualBooleanValue(StringEqualBooleanValue),
+    NumberEqualBooleanValue(NumberEqualBooleanValue),
+    ConstantBooleanValue(ConstantBooleanValue),
+    LookupStringListValue(LookupStringListValue),
+    SplitStringValue(SplitStringValue),
+    RangeStringListValue(RangeStringListValue),
+    StringListMapKeyValue(StringListMapKeyValue),
+    MapKeysStringListValue(MapKeysStringListValue),
+    ConstantStringListValue(ConstantStringListValue),
+    LookupNumberListValue(LookupNumberListValue),
+    RangeNumberListValue(RangeNumberListValue),
+    ConstantNumberListValue(ConstantNumberListValue),
+    LookupBooleanListValue(LookupBooleanListValue),
+    RangeBooleanListValue(RangeBooleanListValue),
+    ConstantBooleanListValue(ConstantBooleanListValue),
+    LookupStringMapValue(LookupStringMapValue),
+    UnionStringMapValue(UnionStringMapValue),
+    StringMapListIndexValue(StringMapListIndexValue),
+    ConstantStringMapValue(ConstantStringMapValue),
+    LookupNumberMapValue(LookupNumberMapValue),
+    UnionNumberMapValue(UnionNumberMapValue),
+    ConstantNumberMapValue(ConstantNumberMapValue),
+    LookupBooleanMapValue(LookupBooleanMapValue),
+    UnionBooleanMapValue(UnionBooleanMapValue),
+    ConstantBooleanMapValue(ConstantBooleanMapValue),
+    LookupStringListMapValue(LookupStringListMapValue),
+    UnionStringListMapValue(UnionStringListMapValue),
+    ConstantStringListMapValue(ConstantStringListMapValue),
+    LookupStringMapListValue(LookupStringMapListValue),
+    RangeStringMapListValue(RangeStringMapListValue),
+    ConstantStringMapListValue(ConstantStringMapListValue),
 }
 impl ::std::convert::From<&Self> for ComputedValue {
     fn from(value: &ComputedValue) -> Self {
         value.clone()
     }
 }
-impl ::std::convert::From<ComputedStringValue> for ComputedValue {
-    fn from(value: ComputedStringValue) -> Self {
-        Self::StringValue(value)
+impl ::std::convert::From<LookupStringValue> for ComputedValue {
+    fn from(value: LookupStringValue) -> Self {
+        Self::LookupStringValue(value)
     }
 }
-impl ::std::convert::From<ComputedNumberValue> for ComputedValue {
-    fn from(value: ComputedNumberValue) -> Self {
-        Self::NumberValue(value)
+impl ::std::convert::From<ListIndexStringValue> for ComputedValue {
+    fn from(value: ListIndexStringValue) -> Self {
+        Self::ListIndexStringValue(value)
     }
 }
-impl ::std::convert::From<ComputedBooleanValue> for ComputedValue {
-    fn from(value: ComputedBooleanValue) -> Self {
-        Self::BooleanValue(value)
+impl ::std::convert::From<MapKeyStringValue> for ComputedValue {
+    fn from(value: MapKeyStringValue) -> Self {
+        Self::MapKeyStringValue(value)
     }
 }
-impl ::std::convert::From<ComputedStringListValue> for ComputedValue {
-    fn from(value: ComputedStringListValue) -> Self {
-        Self::StringListValue(value)
+impl ::std::convert::From<SubStringValue> for ComputedValue {
+    fn from(value: SubStringValue) -> Self {
+        Self::SubStringValue(value)
     }
 }
-impl ::std::convert::From<ComputedNumberListValue> for ComputedValue {
-    fn from(value: ComputedNumberListValue) -> Self {
-        Self::NumberListValue(value)
+impl ::std::convert::From<TrimStringValue> for ComputedValue {
+    fn from(value: TrimStringValue) -> Self {
+        Self::TrimStringValue(value)
     }
 }
-impl ::std::convert::From<ComputedBooleanListValue> for ComputedValue {
-    fn from(value: ComputedBooleanListValue) -> Self {
-        Self::BooleanListValue(value)
+impl ::std::convert::From<NumberToStringValue> for ComputedValue {
+    fn from(value: NumberToStringValue) -> Self {
+        Self::NumberToStringValue(value)
     }
 }
-impl ::std::convert::From<ComputedStringMapValue> for ComputedValue {
-    fn from(value: ComputedStringMapValue) -> Self {
-        Self::StringMapValue(value)
+impl ::std::convert::From<BooleanToStringValue> for ComputedValue {
+    fn from(value: BooleanToStringValue) -> Self {
+        Self::BooleanToStringValue(value)
     }
 }
-impl ::std::convert::From<ComputedNumberMapValue> for ComputedValue {
-    fn from(value: ComputedNumberMapValue) -> Self {
-        Self::NumberMapValue(value)
+impl ::std::convert::From<ListToStringValue> for ComputedValue {
+    fn from(value: ListToStringValue) -> Self {
+        Self::ListToStringValue(value)
     }
 }
-impl ::std::convert::From<ComputedBooleanMapValue> for ComputedValue {
-    fn from(value: ComputedBooleanMapValue) -> Self {
-        Self::BooleanMapValue(value)
+impl ::std::convert::From<MapToStringValue> for ComputedValue {
+    fn from(value: MapToStringValue) -> Self {
+        Self::MapToStringValue(value)
     }
 }
-impl ::std::convert::From<ComputedStringListMapValue> for ComputedValue {
-    fn from(value: ComputedStringListMapValue) -> Self {
-        Self::StringListMapValue(value)
+impl ::std::convert::From<ConstantStringValue> for ComputedValue {
+    fn from(value: ConstantStringValue) -> Self {
+        Self::ConstantStringValue(value)
     }
 }
-impl ::std::convert::From<ComputedStringMapListValue> for ComputedValue {
-    fn from(value: ComputedStringMapListValue) -> Self {
-        Self::StringMapListValue(value)
+impl ::std::convert::From<LookupNumberValue> for ComputedValue {
+    fn from(value: LookupNumberValue) -> Self {
+        Self::LookupNumberValue(value)
+    }
+}
+impl ::std::convert::From<AddTwoValues> for ComputedValue {
+    fn from(value: AddTwoValues) -> Self {
+        Self::AddTwoValues(value)
+    }
+}
+impl ::std::convert::From<SubtractTwoValues> for ComputedValue {
+    fn from(value: SubtractTwoValues) -> Self {
+        Self::SubtractTwoValues(value)
+    }
+}
+impl ::std::convert::From<MultiplyTwoValues> for ComputedValue {
+    fn from(value: MultiplyTwoValues) -> Self {
+        Self::MultiplyTwoValues(value)
+    }
+}
+impl ::std::convert::From<DivideTwoValues> for ComputedValue {
+    fn from(value: DivideTwoValues) -> Self {
+        Self::DivideTwoValues(value)
+    }
+}
+impl ::std::convert::From<ModulusTwoValues> for ComputedValue {
+    fn from(value: ModulusTwoValues) -> Self {
+        Self::ModulusTwoValues(value)
+    }
+}
+impl ::std::convert::From<PowerTwoValues> for ComputedValue {
+    fn from(value: PowerTwoValues) -> Self {
+        Self::PowerTwoValues(value)
+    }
+}
+impl ::std::convert::From<RoundValue> for ComputedValue {
+    fn from(value: RoundValue) -> Self {
+        Self::RoundValue(value)
+    }
+}
+impl ::std::convert::From<FloorValue> for ComputedValue {
+    fn from(value: FloorValue) -> Self {
+        Self::FloorValue(value)
+    }
+}
+impl ::std::convert::From<CeilValue> for ComputedValue {
+    fn from(value: CeilValue) -> Self {
+        Self::CeilValue(value)
+    }
+}
+impl ::std::convert::From<AbsValue> for ComputedValue {
+    fn from(value: AbsValue) -> Self {
+        Self::AbsValue(value)
+    }
+}
+impl ::std::convert::From<SumNumberListValue> for ComputedValue {
+    fn from(value: SumNumberListValue) -> Self {
+        Self::SumNumberListValue(value)
+    }
+}
+impl ::std::convert::From<ProductNumberListValue> for ComputedValue {
+    fn from(value: ProductNumberListValue) -> Self {
+        Self::ProductNumberListValue(value)
+    }
+}
+impl ::std::convert::From<AverageNumberListValue> for ComputedValue {
+    fn from(value: AverageNumberListValue) -> Self {
+        Self::AverageNumberListValue(value)
+    }
+}
+impl ::std::convert::From<MinNumberListValue> for ComputedValue {
+    fn from(value: MinNumberListValue) -> Self {
+        Self::MinNumberListValue(value)
+    }
+}
+impl ::std::convert::From<MaxNumberListValue> for ComputedValue {
+    fn from(value: MaxNumberListValue) -> Self {
+        Self::MaxNumberListValue(value)
+    }
+}
+impl ::std::convert::From<ListIndexNumberValue> for ComputedValue {
+    fn from(value: ListIndexNumberValue) -> Self {
+        Self::ListIndexNumberValue(value)
+    }
+}
+impl ::std::convert::From<MapKeyNumberValue> for ComputedValue {
+    fn from(value: MapKeyNumberValue) -> Self {
+        Self::MapKeyNumberValue(value)
+    }
+}
+impl ::std::convert::From<CollectionSizeNumberValue> for ComputedValue {
+    fn from(value: CollectionSizeNumberValue) -> Self {
+        Self::CollectionSizeNumberValue(value)
+    }
+}
+impl ::std::convert::From<StringLeftIndexNumberValue> for ComputedValue {
+    fn from(value: StringLeftIndexNumberValue) -> Self {
+        Self::StringLeftIndexNumberValue(value)
+    }
+}
+impl ::std::convert::From<StringRightIndexNumberValue> for ComputedValue {
+    fn from(value: StringRightIndexNumberValue) -> Self {
+        Self::StringRightIndexNumberValue(value)
+    }
+}
+impl ::std::convert::From<StringListIndexNumberValue> for ComputedValue {
+    fn from(value: StringListIndexNumberValue) -> Self {
+        Self::StringListIndexNumberValue(value)
+    }
+}
+impl ::std::convert::From<NumberListIndexNumberValue> for ComputedValue {
+    fn from(value: NumberListIndexNumberValue) -> Self {
+        Self::NumberListIndexNumberValue(value)
+    }
+}
+impl ::std::convert::From<BooleanListIndexNumberValue> for ComputedValue {
+    fn from(value: BooleanListIndexNumberValue) -> Self {
+        Self::BooleanListIndexNumberValue(value)
+    }
+}
+impl ::std::convert::From<ConstantNumberValue> for ComputedValue {
+    fn from(value: ConstantNumberValue) -> Self {
+        Self::ConstantNumberValue(value)
+    }
+}
+impl ::std::convert::From<LookupBooleanValue> for ComputedValue {
+    fn from(value: LookupBooleanValue) -> Self {
+        Self::LookupBooleanValue(value)
+    }
+}
+impl ::std::convert::From<AndTwoBooleanValues> for ComputedValue {
+    fn from(value: AndTwoBooleanValues) -> Self {
+        Self::AndTwoBooleanValues(value)
+    }
+}
+impl ::std::convert::From<OrTwoBooleanValues> for ComputedValue {
+    fn from(value: OrTwoBooleanValues) -> Self {
+        Self::OrTwoBooleanValues(value)
+    }
+}
+impl ::std::convert::From<NotBooleanValue> for ComputedValue {
+    fn from(value: NotBooleanValue) -> Self {
+        Self::NotBooleanValue(value)
+    }
+}
+impl ::std::convert::From<XorTwoBooleanValues> for ComputedValue {
+    fn from(value: XorTwoBooleanValues) -> Self {
+        Self::XorTwoBooleanValues(value)
+    }
+}
+impl ::std::convert::From<NandTwoBooleanValues> for ComputedValue {
+    fn from(value: NandTwoBooleanValues) -> Self {
+        Self::NandTwoBooleanValues(value)
+    }
+}
+impl ::std::convert::From<NorTwoBooleanValues> for ComputedValue {
+    fn from(value: NorTwoBooleanValues) -> Self {
+        Self::NorTwoBooleanValues(value)
+    }
+}
+impl ::std::convert::From<XnorTwoBooleanValues> for ComputedValue {
+    fn from(value: XnorTwoBooleanValues) -> Self {
+        Self::XnorTwoBooleanValues(value)
+    }
+}
+impl ::std::convert::From<ListIndexBooleanValue> for ComputedValue {
+    fn from(value: ListIndexBooleanValue) -> Self {
+        Self::ListIndexBooleanValue(value)
+    }
+}
+impl ::std::convert::From<MapKeyBooleanValue> for ComputedValue {
+    fn from(value: MapKeyBooleanValue) -> Self {
+        Self::MapKeyBooleanValue(value)
+    }
+}
+impl ::std::convert::From<MapContainsKeyBooleanValue> for ComputedValue {
+    fn from(value: MapContainsKeyBooleanValue) -> Self {
+        Self::MapContainsKeyBooleanValue(value)
+    }
+}
+impl ::std::convert::From<ListContainsIndexBooleanValue> for ComputedValue {
+    fn from(value: ListContainsIndexBooleanValue) -> Self {
+        Self::ListContainsIndexBooleanValue(value)
+    }
+}
+impl ::std::convert::From<StringEqualBooleanValue> for ComputedValue {
+    fn from(value: StringEqualBooleanValue) -> Self {
+        Self::StringEqualBooleanValue(value)
+    }
+}
+impl ::std::convert::From<NumberEqualBooleanValue> for ComputedValue {
+    fn from(value: NumberEqualBooleanValue) -> Self {
+        Self::NumberEqualBooleanValue(value)
+    }
+}
+impl ::std::convert::From<ConstantBooleanValue> for ComputedValue {
+    fn from(value: ConstantBooleanValue) -> Self {
+        Self::ConstantBooleanValue(value)
+    }
+}
+impl ::std::convert::From<LookupStringListValue> for ComputedValue {
+    fn from(value: LookupStringListValue) -> Self {
+        Self::LookupStringListValue(value)
+    }
+}
+impl ::std::convert::From<SplitStringValue> for ComputedValue {
+    fn from(value: SplitStringValue) -> Self {
+        Self::SplitStringValue(value)
+    }
+}
+impl ::std::convert::From<RangeStringListValue> for ComputedValue {
+    fn from(value: RangeStringListValue) -> Self {
+        Self::RangeStringListValue(value)
+    }
+}
+impl ::std::convert::From<StringListMapKeyValue> for ComputedValue {
+    fn from(value: StringListMapKeyValue) -> Self {
+        Self::StringListMapKeyValue(value)
+    }
+}
+impl ::std::convert::From<MapKeysStringListValue> for ComputedValue {
+    fn from(value: MapKeysStringListValue) -> Self {
+        Self::MapKeysStringListValue(value)
+    }
+}
+impl ::std::convert::From<ConstantStringListValue> for ComputedValue {
+    fn from(value: ConstantStringListValue) -> Self {
+        Self::ConstantStringListValue(value)
+    }
+}
+impl ::std::convert::From<LookupNumberListValue> for ComputedValue {
+    fn from(value: LookupNumberListValue) -> Self {
+        Self::LookupNumberListValue(value)
+    }
+}
+impl ::std::convert::From<RangeNumberListValue> for ComputedValue {
+    fn from(value: RangeNumberListValue) -> Self {
+        Self::RangeNumberListValue(value)
+    }
+}
+impl ::std::convert::From<ConstantNumberListValue> for ComputedValue {
+    fn from(value: ConstantNumberListValue) -> Self {
+        Self::ConstantNumberListValue(value)
+    }
+}
+impl ::std::convert::From<LookupBooleanListValue> for ComputedValue {
+    fn from(value: LookupBooleanListValue) -> Self {
+        Self::LookupBooleanListValue(value)
+    }
+}
+impl ::std::convert::From<RangeBooleanListValue> for ComputedValue {
+    fn from(value: RangeBooleanListValue) -> Self {
+        Self::RangeBooleanListValue(value)
+    }
+}
+impl ::std::convert::From<ConstantBooleanListValue> for ComputedValue {
+    fn from(value: ConstantBooleanListValue) -> Self {
+        Self::ConstantBooleanListValue(value)
+    }
+}
+impl ::std::convert::From<LookupStringMapValue> for ComputedValue {
+    fn from(value: LookupStringMapValue) -> Self {
+        Self::LookupStringMapValue(value)
+    }
+}
+impl ::std::convert::From<UnionStringMapValue> for ComputedValue {
+    fn from(value: UnionStringMapValue) -> Self {
+        Self::UnionStringMapValue(value)
+    }
+}
+impl ::std::convert::From<StringMapListIndexValue> for ComputedValue {
+    fn from(value: StringMapListIndexValue) -> Self {
+        Self::StringMapListIndexValue(value)
+    }
+}
+impl ::std::convert::From<ConstantStringMapValue> for ComputedValue {
+    fn from(value: ConstantStringMapValue) -> Self {
+        Self::ConstantStringMapValue(value)
+    }
+}
+impl ::std::convert::From<LookupNumberMapValue> for ComputedValue {
+    fn from(value: LookupNumberMapValue) -> Self {
+        Self::LookupNumberMapValue(value)
+    }
+}
+impl ::std::convert::From<UnionNumberMapValue> for ComputedValue {
+    fn from(value: UnionNumberMapValue) -> Self {
+        Self::UnionNumberMapValue(value)
+    }
+}
+impl ::std::convert::From<ConstantNumberMapValue> for ComputedValue {
+    fn from(value: ConstantNumberMapValue) -> Self {
+        Self::ConstantNumberMapValue(value)
+    }
+}
+impl ::std::convert::From<LookupBooleanMapValue> for ComputedValue {
+    fn from(value: LookupBooleanMapValue) -> Self {
+        Self::LookupBooleanMapValue(value)
+    }
+}
+impl ::std::convert::From<UnionBooleanMapValue> for ComputedValue {
+    fn from(value: UnionBooleanMapValue) -> Self {
+        Self::UnionBooleanMapValue(value)
+    }
+}
+impl ::std::convert::From<ConstantBooleanMapValue> for ComputedValue {
+    fn from(value: ConstantBooleanMapValue) -> Self {
+        Self::ConstantBooleanMapValue(value)
+    }
+}
+impl ::std::convert::From<LookupStringListMapValue> for ComputedValue {
+    fn from(value: LookupStringListMapValue) -> Self {
+        Self::LookupStringListMapValue(value)
+    }
+}
+impl ::std::convert::From<UnionStringListMapValue> for ComputedValue {
+    fn from(value: UnionStringListMapValue) -> Self {
+        Self::UnionStringListMapValue(value)
+    }
+}
+impl ::std::convert::From<ConstantStringListMapValue> for ComputedValue {
+    fn from(value: ConstantStringListMapValue) -> Self {
+        Self::ConstantStringListMapValue(value)
+    }
+}
+impl ::std::convert::From<LookupStringMapListValue> for ComputedValue {
+    fn from(value: LookupStringMapListValue) -> Self {
+        Self::LookupStringMapListValue(value)
+    }
+}
+impl ::std::convert::From<RangeStringMapListValue> for ComputedValue {
+    fn from(value: RangeStringMapListValue) -> Self {
+        Self::RangeStringMapListValue(value)
+    }
+}
+impl ::std::convert::From<ConstantStringMapListValue> for ComputedValue {
+    fn from(value: ConstantStringMapListValue) -> Self {
+        Self::ConstantStringMapListValue(value)
     }
 }
 #[doc = "A constant integer value declared within the script.  Used as an inline value.\n"]
@@ -1912,6 +2799,7 @@ impl<'de> ::serde::Deserialize<'de> for ConstString {
 #[doc = "  ],"]
 #[doc = "  \"properties\": {"]
 #[doc = "    \"kind\": {"]
+#[doc = "      \"type\": \"string\","]
 #[doc = "      \"const\": \"constant-boolean-list\""]
 #[doc = "    },"]
 #[doc = "    \"source\": {"]
@@ -1923,23 +2811,74 @@ impl<'de> ::serde::Deserialize<'de> for ConstString {
 #[doc = "      \"items\": {"]
 #[doc = "        \"oneOf\": ["]
 #[doc = "          {"]
-#[doc = "            \"$ref\": \"#/$defs/ComputedBooleanValue\""]
+#[doc = "            \"$ref\": \"#/$defs/LookupBooleanValue\""]
 #[doc = "          },"]
 #[doc = "          {"]
-#[doc = "            \"$ref\": \"#/$defs/ComputedBooleanListValue\""]
+#[doc = "            \"$ref\": \"#/$defs/AndTwoBooleanValues\""]
+#[doc = "          },"]
+#[doc = "          {"]
+#[doc = "            \"$ref\": \"#/$defs/OrTwoBooleanValues\""]
+#[doc = "          },"]
+#[doc = "          {"]
+#[doc = "            \"$ref\": \"#/$defs/NotBooleanValue\""]
+#[doc = "          },"]
+#[doc = "          {"]
+#[doc = "            \"$ref\": \"#/$defs/XorTwoBooleanValues\""]
+#[doc = "          },"]
+#[doc = "          {"]
+#[doc = "            \"$ref\": \"#/$defs/NandTwoBooleanValues\""]
+#[doc = "          },"]
+#[doc = "          {"]
+#[doc = "            \"$ref\": \"#/$defs/NorTwoBooleanValues\""]
+#[doc = "          },"]
+#[doc = "          {"]
+#[doc = "            \"$ref\": \"#/$defs/XnorTwoBooleanValues\""]
+#[doc = "          },"]
+#[doc = "          {"]
+#[doc = "            \"$ref\": \"#/$defs/ListIndexBooleanValue\""]
+#[doc = "          },"]
+#[doc = "          {"]
+#[doc = "            \"$ref\": \"#/$defs/MapKeyBooleanValue\""]
+#[doc = "          },"]
+#[doc = "          {"]
+#[doc = "            \"$ref\": \"#/$defs/MapContainsKeyBooleanValue\""]
+#[doc = "          },"]
+#[doc = "          {"]
+#[doc = "            \"$ref\": \"#/$defs/ListContainsIndexBooleanValue\""]
+#[doc = "          },"]
+#[doc = "          {"]
+#[doc = "            \"$ref\": \"#/$defs/StringEqualBooleanValue\""]
+#[doc = "          },"]
+#[doc = "          {"]
+#[doc = "            \"$ref\": \"#/$defs/NumberEqualBooleanValue\""]
+#[doc = "          },"]
+#[doc = "          {"]
+#[doc = "            \"$ref\": \"#/$defs/ConstantBooleanValue\""]
+#[doc = "          },"]
+#[doc = "          {"]
+#[doc = "            \"$ref\": \"#/$defs/LookupBooleanListValue\""]
+#[doc = "          },"]
+#[doc = "          {"]
+#[doc = "            \"$ref\": \"#/$defs/RangeBooleanListValue\""]
+#[doc = "          },"]
+#[doc = "          {"]
+#[doc = "            \"$ref\": \"#/$defs/ConstantBooleanListValue\""]
 #[doc = "          }"]
 #[doc = "        ]"]
 #[doc = "      }"]
 #[doc = "    }"]
 #[doc = "  },"]
-#[doc = "  \"additionalProperties\": false"]
+#[doc = "  \"additionalProperties\": false,"]
+#[doc = "  \"discriminator\": {"]
+#[doc = "    \"propertyName\": \"kind\""]
+#[doc = "  }"]
 #[doc = "}"]
 #[doc = r" ```"]
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
 pub struct ConstantBooleanListValue {
-    pub kind: ::serde_json::Value,
+    pub kind: ::std::string::String,
     pub source: Source,
     #[doc = "The constant boolean list value."]
     pub value: ::std::vec::Vec<ConstantBooleanListValueValueItem>,
@@ -1962,10 +2901,58 @@ impl ConstantBooleanListValue {
 #[doc = "{"]
 #[doc = "  \"oneOf\": ["]
 #[doc = "    {"]
-#[doc = "      \"$ref\": \"#/$defs/ComputedBooleanValue\""]
+#[doc = "      \"$ref\": \"#/$defs/LookupBooleanValue\""]
 #[doc = "    },"]
 #[doc = "    {"]
-#[doc = "      \"$ref\": \"#/$defs/ComputedBooleanListValue\""]
+#[doc = "      \"$ref\": \"#/$defs/AndTwoBooleanValues\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/OrTwoBooleanValues\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/NotBooleanValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/XorTwoBooleanValues\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/NandTwoBooleanValues\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/NorTwoBooleanValues\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/XnorTwoBooleanValues\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/ListIndexBooleanValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/MapKeyBooleanValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/MapContainsKeyBooleanValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/ListContainsIndexBooleanValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/StringEqualBooleanValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/NumberEqualBooleanValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/ConstantBooleanValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/LookupBooleanListValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/RangeBooleanListValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/ConstantBooleanListValue\""]
 #[doc = "    }"]
 #[doc = "  ]"]
 #[doc = "}"]
@@ -1974,22 +2961,118 @@ impl ConstantBooleanListValue {
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(untagged)]
 pub enum ConstantBooleanListValueValueItem {
-    Value(ComputedBooleanValue),
-    ListValue(ComputedBooleanListValue),
+    LookupBooleanValue(LookupBooleanValue),
+    AndTwoBooleanValues(AndTwoBooleanValues),
+    OrTwoBooleanValues(OrTwoBooleanValues),
+    NotBooleanValue(NotBooleanValue),
+    XorTwoBooleanValues(XorTwoBooleanValues),
+    NandTwoBooleanValues(NandTwoBooleanValues),
+    NorTwoBooleanValues(NorTwoBooleanValues),
+    XnorTwoBooleanValues(XnorTwoBooleanValues),
+    ListIndexBooleanValue(ListIndexBooleanValue),
+    MapKeyBooleanValue(MapKeyBooleanValue),
+    MapContainsKeyBooleanValue(MapContainsKeyBooleanValue),
+    ListContainsIndexBooleanValue(ListContainsIndexBooleanValue),
+    StringEqualBooleanValue(StringEqualBooleanValue),
+    NumberEqualBooleanValue(NumberEqualBooleanValue),
+    ConstantBooleanValue(ConstantBooleanValue),
+    LookupBooleanListValue(LookupBooleanListValue),
+    RangeBooleanListValue(RangeBooleanListValue),
+    ConstantBooleanListValue(ConstantBooleanListValue),
 }
 impl ::std::convert::From<&Self> for ConstantBooleanListValueValueItem {
     fn from(value: &ConstantBooleanListValueValueItem) -> Self {
         value.clone()
     }
 }
-impl ::std::convert::From<ComputedBooleanValue> for ConstantBooleanListValueValueItem {
-    fn from(value: ComputedBooleanValue) -> Self {
-        Self::Value(value)
+impl ::std::convert::From<LookupBooleanValue> for ConstantBooleanListValueValueItem {
+    fn from(value: LookupBooleanValue) -> Self {
+        Self::LookupBooleanValue(value)
     }
 }
-impl ::std::convert::From<ComputedBooleanListValue> for ConstantBooleanListValueValueItem {
-    fn from(value: ComputedBooleanListValue) -> Self {
-        Self::ListValue(value)
+impl ::std::convert::From<AndTwoBooleanValues> for ConstantBooleanListValueValueItem {
+    fn from(value: AndTwoBooleanValues) -> Self {
+        Self::AndTwoBooleanValues(value)
+    }
+}
+impl ::std::convert::From<OrTwoBooleanValues> for ConstantBooleanListValueValueItem {
+    fn from(value: OrTwoBooleanValues) -> Self {
+        Self::OrTwoBooleanValues(value)
+    }
+}
+impl ::std::convert::From<NotBooleanValue> for ConstantBooleanListValueValueItem {
+    fn from(value: NotBooleanValue) -> Self {
+        Self::NotBooleanValue(value)
+    }
+}
+impl ::std::convert::From<XorTwoBooleanValues> for ConstantBooleanListValueValueItem {
+    fn from(value: XorTwoBooleanValues) -> Self {
+        Self::XorTwoBooleanValues(value)
+    }
+}
+impl ::std::convert::From<NandTwoBooleanValues> for ConstantBooleanListValueValueItem {
+    fn from(value: NandTwoBooleanValues) -> Self {
+        Self::NandTwoBooleanValues(value)
+    }
+}
+impl ::std::convert::From<NorTwoBooleanValues> for ConstantBooleanListValueValueItem {
+    fn from(value: NorTwoBooleanValues) -> Self {
+        Self::NorTwoBooleanValues(value)
+    }
+}
+impl ::std::convert::From<XnorTwoBooleanValues> for ConstantBooleanListValueValueItem {
+    fn from(value: XnorTwoBooleanValues) -> Self {
+        Self::XnorTwoBooleanValues(value)
+    }
+}
+impl ::std::convert::From<ListIndexBooleanValue> for ConstantBooleanListValueValueItem {
+    fn from(value: ListIndexBooleanValue) -> Self {
+        Self::ListIndexBooleanValue(value)
+    }
+}
+impl ::std::convert::From<MapKeyBooleanValue> for ConstantBooleanListValueValueItem {
+    fn from(value: MapKeyBooleanValue) -> Self {
+        Self::MapKeyBooleanValue(value)
+    }
+}
+impl ::std::convert::From<MapContainsKeyBooleanValue> for ConstantBooleanListValueValueItem {
+    fn from(value: MapContainsKeyBooleanValue) -> Self {
+        Self::MapContainsKeyBooleanValue(value)
+    }
+}
+impl ::std::convert::From<ListContainsIndexBooleanValue> for ConstantBooleanListValueValueItem {
+    fn from(value: ListContainsIndexBooleanValue) -> Self {
+        Self::ListContainsIndexBooleanValue(value)
+    }
+}
+impl ::std::convert::From<StringEqualBooleanValue> for ConstantBooleanListValueValueItem {
+    fn from(value: StringEqualBooleanValue) -> Self {
+        Self::StringEqualBooleanValue(value)
+    }
+}
+impl ::std::convert::From<NumberEqualBooleanValue> for ConstantBooleanListValueValueItem {
+    fn from(value: NumberEqualBooleanValue) -> Self {
+        Self::NumberEqualBooleanValue(value)
+    }
+}
+impl ::std::convert::From<ConstantBooleanValue> for ConstantBooleanListValueValueItem {
+    fn from(value: ConstantBooleanValue) -> Self {
+        Self::ConstantBooleanValue(value)
+    }
+}
+impl ::std::convert::From<LookupBooleanListValue> for ConstantBooleanListValueValueItem {
+    fn from(value: LookupBooleanListValue) -> Self {
+        Self::LookupBooleanListValue(value)
+    }
+}
+impl ::std::convert::From<RangeBooleanListValue> for ConstantBooleanListValueValueItem {
+    fn from(value: RangeBooleanListValue) -> Self {
+        Self::RangeBooleanListValue(value)
+    }
+}
+impl ::std::convert::From<ConstantBooleanListValue> for ConstantBooleanListValueValueItem {
+    fn from(value: ConstantBooleanListValue) -> Self {
+        Self::ConstantBooleanListValue(value)
     }
 }
 #[doc = "A constant boolean map value.  Can include expanding a sub-map within the map. This also includes a 'null' value for the key to allow blanking out values if used in a union.\n"]
@@ -2008,6 +3091,7 @@ impl ::std::convert::From<ComputedBooleanListValue> for ConstantBooleanListValue
 #[doc = "  ],"]
 #[doc = "  \"properties\": {"]
 #[doc = "    \"kind\": {"]
+#[doc = "      \"type\": \"string\","]
 #[doc = "      \"const\": \"constant-boolean-map\""]
 #[doc = "    },"]
 #[doc = "    \"source\": {"]
@@ -2022,29 +3106,74 @@ impl ::std::convert::From<ComputedBooleanListValue> for ConstantBooleanListValue
 #[doc = "        \".*\": {"]
 #[doc = "          \"oneOf\": ["]
 #[doc = "            {"]
-#[doc = "              \"$ref\": \"#/$defs/ComputedBooleanValue\""]
+#[doc = "              \"$ref\": \"#/$defs/LookupBooleanValue\""]
 #[doc = "            },"]
 #[doc = "            {"]
-#[doc = "              \"type\": \"null\""]
+#[doc = "              \"$ref\": \"#/$defs/AndTwoBooleanValues\""]
+#[doc = "            },"]
+#[doc = "            {"]
+#[doc = "              \"$ref\": \"#/$defs/OrTwoBooleanValues\""]
+#[doc = "            },"]
+#[doc = "            {"]
+#[doc = "              \"$ref\": \"#/$defs/NotBooleanValue\""]
+#[doc = "            },"]
+#[doc = "            {"]
+#[doc = "              \"$ref\": \"#/$defs/XorTwoBooleanValues\""]
+#[doc = "            },"]
+#[doc = "            {"]
+#[doc = "              \"$ref\": \"#/$defs/NandTwoBooleanValues\""]
+#[doc = "            },"]
+#[doc = "            {"]
+#[doc = "              \"$ref\": \"#/$defs/NorTwoBooleanValues\""]
+#[doc = "            },"]
+#[doc = "            {"]
+#[doc = "              \"$ref\": \"#/$defs/XnorTwoBooleanValues\""]
+#[doc = "            },"]
+#[doc = "            {"]
+#[doc = "              \"$ref\": \"#/$defs/ListIndexBooleanValue\""]
+#[doc = "            },"]
+#[doc = "            {"]
+#[doc = "              \"$ref\": \"#/$defs/MapKeyBooleanValue\""]
+#[doc = "            },"]
+#[doc = "            {"]
+#[doc = "              \"$ref\": \"#/$defs/MapContainsKeyBooleanValue\""]
+#[doc = "            },"]
+#[doc = "            {"]
+#[doc = "              \"$ref\": \"#/$defs/ListContainsIndexBooleanValue\""]
+#[doc = "            },"]
+#[doc = "            {"]
+#[doc = "              \"$ref\": \"#/$defs/StringEqualBooleanValue\""]
+#[doc = "            },"]
+#[doc = "            {"]
+#[doc = "              \"$ref\": \"#/$defs/NumberEqualBooleanValue\""]
+#[doc = "            },"]
+#[doc = "            {"]
+#[doc = "              \"$ref\": \"#/$defs/ConstantBooleanValue\""]
+#[doc = "            },"]
+#[doc = "            {"]
+#[doc = "              \"$ref\": \"#/$defs/RemoveMapEntry\""]
 #[doc = "            }"]
 #[doc = "          ]"]
 #[doc = "        }"]
 #[doc = "      }"]
 #[doc = "    }"]
 #[doc = "  },"]
-#[doc = "  \"additionalProperties\": false"]
+#[doc = "  \"additionalProperties\": false,"]
+#[doc = "  \"discriminator\": {"]
+#[doc = "    \"propertyName\": \"kind\""]
+#[doc = "  }"]
 #[doc = "}"]
 #[doc = r" ```"]
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
 pub struct ConstantBooleanMapValue {
-    pub kind: ::serde_json::Value,
+    pub kind: ::std::string::String,
     pub source: Source,
     #[doc = "The constant boolean map value."]
     pub value: ::std::collections::HashMap<
         ConstantBooleanMapValueValueKey,
-        ::std::option::Option<ComputedBooleanValue>,
+        ConstantBooleanMapValueValueValue,
     >,
 }
 impl ::std::convert::From<&ConstantBooleanMapValue> for ConstantBooleanMapValue {
@@ -2132,6 +3261,170 @@ impl<'de> ::serde::Deserialize<'de> for ConstantBooleanMapValueValueKey {
             })
     }
 }
+#[doc = "`ConstantBooleanMapValueValueValue`"]
+#[doc = r""]
+#[doc = r" <details><summary>JSON schema</summary>"]
+#[doc = r""]
+#[doc = r" ```json"]
+#[doc = "{"]
+#[doc = "  \"oneOf\": ["]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/LookupBooleanValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/AndTwoBooleanValues\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/OrTwoBooleanValues\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/NotBooleanValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/XorTwoBooleanValues\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/NandTwoBooleanValues\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/NorTwoBooleanValues\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/XnorTwoBooleanValues\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/ListIndexBooleanValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/MapKeyBooleanValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/MapContainsKeyBooleanValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/ListContainsIndexBooleanValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/StringEqualBooleanValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/NumberEqualBooleanValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/ConstantBooleanValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/RemoveMapEntry\""]
+#[doc = "    }"]
+#[doc = "  ]"]
+#[doc = "}"]
+#[doc = r" ```"]
+#[doc = r" </details>"]
+#[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
+#[serde(untagged)]
+pub enum ConstantBooleanMapValueValueValue {
+    LookupBooleanValue(LookupBooleanValue),
+    AndTwoBooleanValues(AndTwoBooleanValues),
+    OrTwoBooleanValues(OrTwoBooleanValues),
+    NotBooleanValue(NotBooleanValue),
+    XorTwoBooleanValues(XorTwoBooleanValues),
+    NandTwoBooleanValues(NandTwoBooleanValues),
+    NorTwoBooleanValues(NorTwoBooleanValues),
+    XnorTwoBooleanValues(XnorTwoBooleanValues),
+    ListIndexBooleanValue(ListIndexBooleanValue),
+    MapKeyBooleanValue(MapKeyBooleanValue),
+    MapContainsKeyBooleanValue(MapContainsKeyBooleanValue),
+    ListContainsIndexBooleanValue(ListContainsIndexBooleanValue),
+    StringEqualBooleanValue(StringEqualBooleanValue),
+    NumberEqualBooleanValue(NumberEqualBooleanValue),
+    ConstantBooleanValue(ConstantBooleanValue),
+    RemoveMapEntry(RemoveMapEntry),
+}
+impl ::std::convert::From<&Self> for ConstantBooleanMapValueValueValue {
+    fn from(value: &ConstantBooleanMapValueValueValue) -> Self {
+        value.clone()
+    }
+}
+impl ::std::convert::From<LookupBooleanValue> for ConstantBooleanMapValueValueValue {
+    fn from(value: LookupBooleanValue) -> Self {
+        Self::LookupBooleanValue(value)
+    }
+}
+impl ::std::convert::From<AndTwoBooleanValues> for ConstantBooleanMapValueValueValue {
+    fn from(value: AndTwoBooleanValues) -> Self {
+        Self::AndTwoBooleanValues(value)
+    }
+}
+impl ::std::convert::From<OrTwoBooleanValues> for ConstantBooleanMapValueValueValue {
+    fn from(value: OrTwoBooleanValues) -> Self {
+        Self::OrTwoBooleanValues(value)
+    }
+}
+impl ::std::convert::From<NotBooleanValue> for ConstantBooleanMapValueValueValue {
+    fn from(value: NotBooleanValue) -> Self {
+        Self::NotBooleanValue(value)
+    }
+}
+impl ::std::convert::From<XorTwoBooleanValues> for ConstantBooleanMapValueValueValue {
+    fn from(value: XorTwoBooleanValues) -> Self {
+        Self::XorTwoBooleanValues(value)
+    }
+}
+impl ::std::convert::From<NandTwoBooleanValues> for ConstantBooleanMapValueValueValue {
+    fn from(value: NandTwoBooleanValues) -> Self {
+        Self::NandTwoBooleanValues(value)
+    }
+}
+impl ::std::convert::From<NorTwoBooleanValues> for ConstantBooleanMapValueValueValue {
+    fn from(value: NorTwoBooleanValues) -> Self {
+        Self::NorTwoBooleanValues(value)
+    }
+}
+impl ::std::convert::From<XnorTwoBooleanValues> for ConstantBooleanMapValueValueValue {
+    fn from(value: XnorTwoBooleanValues) -> Self {
+        Self::XnorTwoBooleanValues(value)
+    }
+}
+impl ::std::convert::From<ListIndexBooleanValue> for ConstantBooleanMapValueValueValue {
+    fn from(value: ListIndexBooleanValue) -> Self {
+        Self::ListIndexBooleanValue(value)
+    }
+}
+impl ::std::convert::From<MapKeyBooleanValue> for ConstantBooleanMapValueValueValue {
+    fn from(value: MapKeyBooleanValue) -> Self {
+        Self::MapKeyBooleanValue(value)
+    }
+}
+impl ::std::convert::From<MapContainsKeyBooleanValue> for ConstantBooleanMapValueValueValue {
+    fn from(value: MapContainsKeyBooleanValue) -> Self {
+        Self::MapContainsKeyBooleanValue(value)
+    }
+}
+impl ::std::convert::From<ListContainsIndexBooleanValue> for ConstantBooleanMapValueValueValue {
+    fn from(value: ListContainsIndexBooleanValue) -> Self {
+        Self::ListContainsIndexBooleanValue(value)
+    }
+}
+impl ::std::convert::From<StringEqualBooleanValue> for ConstantBooleanMapValueValueValue {
+    fn from(value: StringEqualBooleanValue) -> Self {
+        Self::StringEqualBooleanValue(value)
+    }
+}
+impl ::std::convert::From<NumberEqualBooleanValue> for ConstantBooleanMapValueValueValue {
+    fn from(value: NumberEqualBooleanValue) -> Self {
+        Self::NumberEqualBooleanValue(value)
+    }
+}
+impl ::std::convert::From<ConstantBooleanValue> for ConstantBooleanMapValueValueValue {
+    fn from(value: ConstantBooleanValue) -> Self {
+        Self::ConstantBooleanValue(value)
+    }
+}
+impl ::std::convert::From<RemoveMapEntry> for ConstantBooleanMapValueValueValue {
+    fn from(value: RemoveMapEntry) -> Self {
+        Self::RemoveMapEntry(value)
+    }
+}
 #[doc = "A constant boolean value."]
 #[doc = r""]
 #[doc = r" <details><summary>JSON schema</summary>"]
@@ -2148,6 +3441,7 @@ impl<'de> ::serde::Deserialize<'de> for ConstantBooleanMapValueValueKey {
 #[doc = "  ],"]
 #[doc = "  \"properties\": {"]
 #[doc = "    \"kind\": {"]
+#[doc = "      \"type\": \"string\","]
 #[doc = "      \"const\": \"constant-boolean\""]
 #[doc = "    },"]
 #[doc = "    \"source\": {"]
@@ -2158,14 +3452,17 @@ impl<'de> ::serde::Deserialize<'de> for ConstantBooleanMapValueValueKey {
 #[doc = "      \"type\": \"boolean\""]
 #[doc = "    }"]
 #[doc = "  },"]
-#[doc = "  \"additionalProperties\": false"]
+#[doc = "  \"additionalProperties\": false,"]
+#[doc = "  \"discriminator\": {"]
+#[doc = "    \"propertyName\": \"kind\""]
+#[doc = "  }"]
 #[doc = "}"]
 #[doc = r" ```"]
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
 pub struct ConstantBooleanValue {
-    pub kind: ::serde_json::Value,
+    pub kind: ::std::string::String,
     pub source: Source,
     #[doc = "The constant boolean value."]
     pub value: bool,
@@ -2196,6 +3493,7 @@ impl ConstantBooleanValue {
 #[doc = "  ],"]
 #[doc = "  \"properties\": {"]
 #[doc = "    \"kind\": {"]
+#[doc = "      \"type\": \"string\","]
 #[doc = "      \"const\": \"constant-number-list\""]
 #[doc = "    },"]
 #[doc = "    \"source\": {"]
@@ -2207,23 +3505,104 @@ impl ConstantBooleanValue {
 #[doc = "      \"items\": {"]
 #[doc = "        \"oneOf\": ["]
 #[doc = "          {"]
-#[doc = "            \"$ref\": \"#/$defs/ComputedNumberValue\""]
+#[doc = "            \"$ref\": \"#/$defs/LookupNumberValue\""]
 #[doc = "          },"]
 #[doc = "          {"]
-#[doc = "            \"$ref\": \"#/$defs/ComputedNumberListValue\""]
+#[doc = "            \"$ref\": \"#/$defs/AddTwoValues\""]
+#[doc = "          },"]
+#[doc = "          {"]
+#[doc = "            \"$ref\": \"#/$defs/SubtractTwoValues\""]
+#[doc = "          },"]
+#[doc = "          {"]
+#[doc = "            \"$ref\": \"#/$defs/MultiplyTwoValues\""]
+#[doc = "          },"]
+#[doc = "          {"]
+#[doc = "            \"$ref\": \"#/$defs/DivideTwoValues\""]
+#[doc = "          },"]
+#[doc = "          {"]
+#[doc = "            \"$ref\": \"#/$defs/ModulusTwoValues\""]
+#[doc = "          },"]
+#[doc = "          {"]
+#[doc = "            \"$ref\": \"#/$defs/PowerTwoValues\""]
+#[doc = "          },"]
+#[doc = "          {"]
+#[doc = "            \"$ref\": \"#/$defs/RoundValue\""]
+#[doc = "          },"]
+#[doc = "          {"]
+#[doc = "            \"$ref\": \"#/$defs/FloorValue\""]
+#[doc = "          },"]
+#[doc = "          {"]
+#[doc = "            \"$ref\": \"#/$defs/CeilValue\""]
+#[doc = "          },"]
+#[doc = "          {"]
+#[doc = "            \"$ref\": \"#/$defs/AbsValue\""]
+#[doc = "          },"]
+#[doc = "          {"]
+#[doc = "            \"$ref\": \"#/$defs/SumNumberListValue\""]
+#[doc = "          },"]
+#[doc = "          {"]
+#[doc = "            \"$ref\": \"#/$defs/ProductNumberListValue\""]
+#[doc = "          },"]
+#[doc = "          {"]
+#[doc = "            \"$ref\": \"#/$defs/AverageNumberListValue\""]
+#[doc = "          },"]
+#[doc = "          {"]
+#[doc = "            \"$ref\": \"#/$defs/MinNumberListValue\""]
+#[doc = "          },"]
+#[doc = "          {"]
+#[doc = "            \"$ref\": \"#/$defs/MaxNumberListValue\""]
+#[doc = "          },"]
+#[doc = "          {"]
+#[doc = "            \"$ref\": \"#/$defs/ListIndexNumberValue\""]
+#[doc = "          },"]
+#[doc = "          {"]
+#[doc = "            \"$ref\": \"#/$defs/MapKeyNumberValue\""]
+#[doc = "          },"]
+#[doc = "          {"]
+#[doc = "            \"$ref\": \"#/$defs/CollectionSizeNumberValue\""]
+#[doc = "          },"]
+#[doc = "          {"]
+#[doc = "            \"$ref\": \"#/$defs/StringLeftIndexNumberValue\""]
+#[doc = "          },"]
+#[doc = "          {"]
+#[doc = "            \"$ref\": \"#/$defs/StringRightIndexNumberValue\""]
+#[doc = "          },"]
+#[doc = "          {"]
+#[doc = "            \"$ref\": \"#/$defs/StringListIndexNumberValue\""]
+#[doc = "          },"]
+#[doc = "          {"]
+#[doc = "            \"$ref\": \"#/$defs/NumberListIndexNumberValue\""]
+#[doc = "          },"]
+#[doc = "          {"]
+#[doc = "            \"$ref\": \"#/$defs/BooleanListIndexNumberValue\""]
+#[doc = "          },"]
+#[doc = "          {"]
+#[doc = "            \"$ref\": \"#/$defs/ConstantNumberValue\""]
+#[doc = "          },"]
+#[doc = "          {"]
+#[doc = "            \"$ref\": \"#/$defs/LookupNumberListValue\""]
+#[doc = "          },"]
+#[doc = "          {"]
+#[doc = "            \"$ref\": \"#/$defs/RangeNumberListValue\""]
+#[doc = "          },"]
+#[doc = "          {"]
+#[doc = "            \"$ref\": \"#/$defs/ConstantNumberListValue\""]
 #[doc = "          }"]
 #[doc = "        ]"]
 #[doc = "      }"]
 #[doc = "    }"]
 #[doc = "  },"]
-#[doc = "  \"additionalProperties\": false"]
+#[doc = "  \"additionalProperties\": false,"]
+#[doc = "  \"discriminator\": {"]
+#[doc = "    \"propertyName\": \"kind\""]
+#[doc = "  }"]
 #[doc = "}"]
 #[doc = r" ```"]
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
 pub struct ConstantNumberListValue {
-    pub kind: ::serde_json::Value,
+    pub kind: ::std::string::String,
     pub source: Source,
     #[doc = "The constant number list value."]
     pub value: ::std::vec::Vec<ConstantNumberListValueValueItem>,
@@ -2246,10 +3625,88 @@ impl ConstantNumberListValue {
 #[doc = "{"]
 #[doc = "  \"oneOf\": ["]
 #[doc = "    {"]
-#[doc = "      \"$ref\": \"#/$defs/ComputedNumberValue\""]
+#[doc = "      \"$ref\": \"#/$defs/LookupNumberValue\""]
 #[doc = "    },"]
 #[doc = "    {"]
-#[doc = "      \"$ref\": \"#/$defs/ComputedNumberListValue\""]
+#[doc = "      \"$ref\": \"#/$defs/AddTwoValues\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/SubtractTwoValues\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/MultiplyTwoValues\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/DivideTwoValues\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/ModulusTwoValues\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/PowerTwoValues\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/RoundValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/FloorValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/CeilValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/AbsValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/SumNumberListValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/ProductNumberListValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/AverageNumberListValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/MinNumberListValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/MaxNumberListValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/ListIndexNumberValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/MapKeyNumberValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/CollectionSizeNumberValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/StringLeftIndexNumberValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/StringRightIndexNumberValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/StringListIndexNumberValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/NumberListIndexNumberValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/BooleanListIndexNumberValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/ConstantNumberValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/LookupNumberListValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/RangeNumberListValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/ConstantNumberListValue\""]
 #[doc = "    }"]
 #[doc = "  ]"]
 #[doc = "}"]
@@ -2258,22 +3715,178 @@ impl ConstantNumberListValue {
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(untagged)]
 pub enum ConstantNumberListValueValueItem {
-    Value(ComputedNumberValue),
-    ListValue(ComputedNumberListValue),
+    LookupNumberValue(LookupNumberValue),
+    AddTwoValues(AddTwoValues),
+    SubtractTwoValues(SubtractTwoValues),
+    MultiplyTwoValues(MultiplyTwoValues),
+    DivideTwoValues(DivideTwoValues),
+    ModulusTwoValues(ModulusTwoValues),
+    PowerTwoValues(PowerTwoValues),
+    RoundValue(RoundValue),
+    FloorValue(FloorValue),
+    CeilValue(CeilValue),
+    AbsValue(AbsValue),
+    SumNumberListValue(SumNumberListValue),
+    ProductNumberListValue(ProductNumberListValue),
+    AverageNumberListValue(AverageNumberListValue),
+    MinNumberListValue(MinNumberListValue),
+    MaxNumberListValue(MaxNumberListValue),
+    ListIndexNumberValue(ListIndexNumberValue),
+    MapKeyNumberValue(MapKeyNumberValue),
+    CollectionSizeNumberValue(CollectionSizeNumberValue),
+    StringLeftIndexNumberValue(StringLeftIndexNumberValue),
+    StringRightIndexNumberValue(StringRightIndexNumberValue),
+    StringListIndexNumberValue(StringListIndexNumberValue),
+    NumberListIndexNumberValue(NumberListIndexNumberValue),
+    BooleanListIndexNumberValue(BooleanListIndexNumberValue),
+    ConstantNumberValue(ConstantNumberValue),
+    LookupNumberListValue(LookupNumberListValue),
+    RangeNumberListValue(RangeNumberListValue),
+    ConstantNumberListValue(ConstantNumberListValue),
 }
 impl ::std::convert::From<&Self> for ConstantNumberListValueValueItem {
     fn from(value: &ConstantNumberListValueValueItem) -> Self {
         value.clone()
     }
 }
-impl ::std::convert::From<ComputedNumberValue> for ConstantNumberListValueValueItem {
-    fn from(value: ComputedNumberValue) -> Self {
-        Self::Value(value)
+impl ::std::convert::From<LookupNumberValue> for ConstantNumberListValueValueItem {
+    fn from(value: LookupNumberValue) -> Self {
+        Self::LookupNumberValue(value)
     }
 }
-impl ::std::convert::From<ComputedNumberListValue> for ConstantNumberListValueValueItem {
-    fn from(value: ComputedNumberListValue) -> Self {
-        Self::ListValue(value)
+impl ::std::convert::From<AddTwoValues> for ConstantNumberListValueValueItem {
+    fn from(value: AddTwoValues) -> Self {
+        Self::AddTwoValues(value)
+    }
+}
+impl ::std::convert::From<SubtractTwoValues> for ConstantNumberListValueValueItem {
+    fn from(value: SubtractTwoValues) -> Self {
+        Self::SubtractTwoValues(value)
+    }
+}
+impl ::std::convert::From<MultiplyTwoValues> for ConstantNumberListValueValueItem {
+    fn from(value: MultiplyTwoValues) -> Self {
+        Self::MultiplyTwoValues(value)
+    }
+}
+impl ::std::convert::From<DivideTwoValues> for ConstantNumberListValueValueItem {
+    fn from(value: DivideTwoValues) -> Self {
+        Self::DivideTwoValues(value)
+    }
+}
+impl ::std::convert::From<ModulusTwoValues> for ConstantNumberListValueValueItem {
+    fn from(value: ModulusTwoValues) -> Self {
+        Self::ModulusTwoValues(value)
+    }
+}
+impl ::std::convert::From<PowerTwoValues> for ConstantNumberListValueValueItem {
+    fn from(value: PowerTwoValues) -> Self {
+        Self::PowerTwoValues(value)
+    }
+}
+impl ::std::convert::From<RoundValue> for ConstantNumberListValueValueItem {
+    fn from(value: RoundValue) -> Self {
+        Self::RoundValue(value)
+    }
+}
+impl ::std::convert::From<FloorValue> for ConstantNumberListValueValueItem {
+    fn from(value: FloorValue) -> Self {
+        Self::FloorValue(value)
+    }
+}
+impl ::std::convert::From<CeilValue> for ConstantNumberListValueValueItem {
+    fn from(value: CeilValue) -> Self {
+        Self::CeilValue(value)
+    }
+}
+impl ::std::convert::From<AbsValue> for ConstantNumberListValueValueItem {
+    fn from(value: AbsValue) -> Self {
+        Self::AbsValue(value)
+    }
+}
+impl ::std::convert::From<SumNumberListValue> for ConstantNumberListValueValueItem {
+    fn from(value: SumNumberListValue) -> Self {
+        Self::SumNumberListValue(value)
+    }
+}
+impl ::std::convert::From<ProductNumberListValue> for ConstantNumberListValueValueItem {
+    fn from(value: ProductNumberListValue) -> Self {
+        Self::ProductNumberListValue(value)
+    }
+}
+impl ::std::convert::From<AverageNumberListValue> for ConstantNumberListValueValueItem {
+    fn from(value: AverageNumberListValue) -> Self {
+        Self::AverageNumberListValue(value)
+    }
+}
+impl ::std::convert::From<MinNumberListValue> for ConstantNumberListValueValueItem {
+    fn from(value: MinNumberListValue) -> Self {
+        Self::MinNumberListValue(value)
+    }
+}
+impl ::std::convert::From<MaxNumberListValue> for ConstantNumberListValueValueItem {
+    fn from(value: MaxNumberListValue) -> Self {
+        Self::MaxNumberListValue(value)
+    }
+}
+impl ::std::convert::From<ListIndexNumberValue> for ConstantNumberListValueValueItem {
+    fn from(value: ListIndexNumberValue) -> Self {
+        Self::ListIndexNumberValue(value)
+    }
+}
+impl ::std::convert::From<MapKeyNumberValue> for ConstantNumberListValueValueItem {
+    fn from(value: MapKeyNumberValue) -> Self {
+        Self::MapKeyNumberValue(value)
+    }
+}
+impl ::std::convert::From<CollectionSizeNumberValue> for ConstantNumberListValueValueItem {
+    fn from(value: CollectionSizeNumberValue) -> Self {
+        Self::CollectionSizeNumberValue(value)
+    }
+}
+impl ::std::convert::From<StringLeftIndexNumberValue> for ConstantNumberListValueValueItem {
+    fn from(value: StringLeftIndexNumberValue) -> Self {
+        Self::StringLeftIndexNumberValue(value)
+    }
+}
+impl ::std::convert::From<StringRightIndexNumberValue> for ConstantNumberListValueValueItem {
+    fn from(value: StringRightIndexNumberValue) -> Self {
+        Self::StringRightIndexNumberValue(value)
+    }
+}
+impl ::std::convert::From<StringListIndexNumberValue> for ConstantNumberListValueValueItem {
+    fn from(value: StringListIndexNumberValue) -> Self {
+        Self::StringListIndexNumberValue(value)
+    }
+}
+impl ::std::convert::From<NumberListIndexNumberValue> for ConstantNumberListValueValueItem {
+    fn from(value: NumberListIndexNumberValue) -> Self {
+        Self::NumberListIndexNumberValue(value)
+    }
+}
+impl ::std::convert::From<BooleanListIndexNumberValue> for ConstantNumberListValueValueItem {
+    fn from(value: BooleanListIndexNumberValue) -> Self {
+        Self::BooleanListIndexNumberValue(value)
+    }
+}
+impl ::std::convert::From<ConstantNumberValue> for ConstantNumberListValueValueItem {
+    fn from(value: ConstantNumberValue) -> Self {
+        Self::ConstantNumberValue(value)
+    }
+}
+impl ::std::convert::From<LookupNumberListValue> for ConstantNumberListValueValueItem {
+    fn from(value: LookupNumberListValue) -> Self {
+        Self::LookupNumberListValue(value)
+    }
+}
+impl ::std::convert::From<RangeNumberListValue> for ConstantNumberListValueValueItem {
+    fn from(value: RangeNumberListValue) -> Self {
+        Self::RangeNumberListValue(value)
+    }
+}
+impl ::std::convert::From<ConstantNumberListValue> for ConstantNumberListValueValueItem {
+    fn from(value: ConstantNumberListValue) -> Self {
+        Self::ConstantNumberListValue(value)
     }
 }
 #[doc = "A constant number map value.  Can include expanding a sub-map within the map. This also includes a 'null' value for the key to allow blanking out values if used in a union.\n"]
@@ -2292,6 +3905,7 @@ impl ::std::convert::From<ComputedNumberListValue> for ConstantNumberListValueVa
 #[doc = "  ],"]
 #[doc = "  \"properties\": {"]
 #[doc = "    \"kind\": {"]
+#[doc = "      \"type\": \"string\","]
 #[doc = "      \"const\": \"constant-number-map\""]
 #[doc = "    },"]
 #[doc = "    \"source\": {"]
@@ -2306,29 +3920,104 @@ impl ::std::convert::From<ComputedNumberListValue> for ConstantNumberListValueVa
 #[doc = "        \".*\": {"]
 #[doc = "          \"oneOf\": ["]
 #[doc = "            {"]
-#[doc = "              \"$ref\": \"#/$defs/ComputedNumberValue\""]
+#[doc = "              \"$ref\": \"#/$defs/LookupNumberValue\""]
 #[doc = "            },"]
 #[doc = "            {"]
-#[doc = "              \"type\": \"null\""]
+#[doc = "              \"$ref\": \"#/$defs/AddTwoValues\""]
+#[doc = "            },"]
+#[doc = "            {"]
+#[doc = "              \"$ref\": \"#/$defs/SubtractTwoValues\""]
+#[doc = "            },"]
+#[doc = "            {"]
+#[doc = "              \"$ref\": \"#/$defs/MultiplyTwoValues\""]
+#[doc = "            },"]
+#[doc = "            {"]
+#[doc = "              \"$ref\": \"#/$defs/DivideTwoValues\""]
+#[doc = "            },"]
+#[doc = "            {"]
+#[doc = "              \"$ref\": \"#/$defs/ModulusTwoValues\""]
+#[doc = "            },"]
+#[doc = "            {"]
+#[doc = "              \"$ref\": \"#/$defs/PowerTwoValues\""]
+#[doc = "            },"]
+#[doc = "            {"]
+#[doc = "              \"$ref\": \"#/$defs/RoundValue\""]
+#[doc = "            },"]
+#[doc = "            {"]
+#[doc = "              \"$ref\": \"#/$defs/FloorValue\""]
+#[doc = "            },"]
+#[doc = "            {"]
+#[doc = "              \"$ref\": \"#/$defs/CeilValue\""]
+#[doc = "            },"]
+#[doc = "            {"]
+#[doc = "              \"$ref\": \"#/$defs/AbsValue\""]
+#[doc = "            },"]
+#[doc = "            {"]
+#[doc = "              \"$ref\": \"#/$defs/SumNumberListValue\""]
+#[doc = "            },"]
+#[doc = "            {"]
+#[doc = "              \"$ref\": \"#/$defs/ProductNumberListValue\""]
+#[doc = "            },"]
+#[doc = "            {"]
+#[doc = "              \"$ref\": \"#/$defs/AverageNumberListValue\""]
+#[doc = "            },"]
+#[doc = "            {"]
+#[doc = "              \"$ref\": \"#/$defs/MinNumberListValue\""]
+#[doc = "            },"]
+#[doc = "            {"]
+#[doc = "              \"$ref\": \"#/$defs/MaxNumberListValue\""]
+#[doc = "            },"]
+#[doc = "            {"]
+#[doc = "              \"$ref\": \"#/$defs/ListIndexNumberValue\""]
+#[doc = "            },"]
+#[doc = "            {"]
+#[doc = "              \"$ref\": \"#/$defs/MapKeyNumberValue\""]
+#[doc = "            },"]
+#[doc = "            {"]
+#[doc = "              \"$ref\": \"#/$defs/CollectionSizeNumberValue\""]
+#[doc = "            },"]
+#[doc = "            {"]
+#[doc = "              \"$ref\": \"#/$defs/StringLeftIndexNumberValue\""]
+#[doc = "            },"]
+#[doc = "            {"]
+#[doc = "              \"$ref\": \"#/$defs/StringRightIndexNumberValue\""]
+#[doc = "            },"]
+#[doc = "            {"]
+#[doc = "              \"$ref\": \"#/$defs/StringListIndexNumberValue\""]
+#[doc = "            },"]
+#[doc = "            {"]
+#[doc = "              \"$ref\": \"#/$defs/NumberListIndexNumberValue\""]
+#[doc = "            },"]
+#[doc = "            {"]
+#[doc = "              \"$ref\": \"#/$defs/BooleanListIndexNumberValue\""]
+#[doc = "            },"]
+#[doc = "            {"]
+#[doc = "              \"$ref\": \"#/$defs/ConstantNumberValue\""]
+#[doc = "            },"]
+#[doc = "            {"]
+#[doc = "              \"$ref\": \"#/$defs/RemoveMapEntry\""]
 #[doc = "            }"]
 #[doc = "          ]"]
 #[doc = "        }"]
 #[doc = "      }"]
 #[doc = "    }"]
 #[doc = "  },"]
-#[doc = "  \"additionalProperties\": false"]
+#[doc = "  \"additionalProperties\": false,"]
+#[doc = "  \"discriminator\": {"]
+#[doc = "    \"propertyName\": \"kind\""]
+#[doc = "  }"]
 #[doc = "}"]
 #[doc = r" ```"]
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
 pub struct ConstantNumberMapValue {
-    pub kind: ::serde_json::Value,
+    pub kind: ::std::string::String,
     pub source: Source,
     #[doc = "The constant number map value."]
     pub value: ::std::collections::HashMap<
         ConstantNumberMapValueValueKey,
-        ::std::option::Option<::std::boxed::Box<ComputedNumberValue>>,
+        ConstantNumberMapValueValueValue,
     >,
 }
 impl ::std::convert::From<&ConstantNumberMapValue> for ConstantNumberMapValue {
@@ -2416,6 +4105,260 @@ impl<'de> ::serde::Deserialize<'de> for ConstantNumberMapValueValueKey {
             })
     }
 }
+#[doc = "`ConstantNumberMapValueValueValue`"]
+#[doc = r""]
+#[doc = r" <details><summary>JSON schema</summary>"]
+#[doc = r""]
+#[doc = r" ```json"]
+#[doc = "{"]
+#[doc = "  \"oneOf\": ["]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/LookupNumberValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/AddTwoValues\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/SubtractTwoValues\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/MultiplyTwoValues\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/DivideTwoValues\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/ModulusTwoValues\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/PowerTwoValues\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/RoundValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/FloorValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/CeilValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/AbsValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/SumNumberListValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/ProductNumberListValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/AverageNumberListValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/MinNumberListValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/MaxNumberListValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/ListIndexNumberValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/MapKeyNumberValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/CollectionSizeNumberValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/StringLeftIndexNumberValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/StringRightIndexNumberValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/StringListIndexNumberValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/NumberListIndexNumberValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/BooleanListIndexNumberValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/ConstantNumberValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/RemoveMapEntry\""]
+#[doc = "    }"]
+#[doc = "  ]"]
+#[doc = "}"]
+#[doc = r" ```"]
+#[doc = r" </details>"]
+#[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
+#[serde(untagged)]
+pub enum ConstantNumberMapValueValueValue {
+    LookupNumberValue(LookupNumberValue),
+    AddTwoValues(AddTwoValues),
+    SubtractTwoValues(SubtractTwoValues),
+    MultiplyTwoValues(MultiplyTwoValues),
+    DivideTwoValues(DivideTwoValues),
+    ModulusTwoValues(ModulusTwoValues),
+    PowerTwoValues(PowerTwoValues),
+    RoundValue(RoundValue),
+    FloorValue(FloorValue),
+    CeilValue(CeilValue),
+    AbsValue(AbsValue),
+    SumNumberListValue(SumNumberListValue),
+    ProductNumberListValue(ProductNumberListValue),
+    AverageNumberListValue(AverageNumberListValue),
+    MinNumberListValue(MinNumberListValue),
+    MaxNumberListValue(MaxNumberListValue),
+    ListIndexNumberValue(ListIndexNumberValue),
+    MapKeyNumberValue(MapKeyNumberValue),
+    CollectionSizeNumberValue(CollectionSizeNumberValue),
+    StringLeftIndexNumberValue(StringLeftIndexNumberValue),
+    StringRightIndexNumberValue(StringRightIndexNumberValue),
+    StringListIndexNumberValue(StringListIndexNumberValue),
+    NumberListIndexNumberValue(NumberListIndexNumberValue),
+    BooleanListIndexNumberValue(BooleanListIndexNumberValue),
+    ConstantNumberValue(ConstantNumberValue),
+    RemoveMapEntry(RemoveMapEntry),
+}
+impl ::std::convert::From<&Self> for ConstantNumberMapValueValueValue {
+    fn from(value: &ConstantNumberMapValueValueValue) -> Self {
+        value.clone()
+    }
+}
+impl ::std::convert::From<LookupNumberValue> for ConstantNumberMapValueValueValue {
+    fn from(value: LookupNumberValue) -> Self {
+        Self::LookupNumberValue(value)
+    }
+}
+impl ::std::convert::From<AddTwoValues> for ConstantNumberMapValueValueValue {
+    fn from(value: AddTwoValues) -> Self {
+        Self::AddTwoValues(value)
+    }
+}
+impl ::std::convert::From<SubtractTwoValues> for ConstantNumberMapValueValueValue {
+    fn from(value: SubtractTwoValues) -> Self {
+        Self::SubtractTwoValues(value)
+    }
+}
+impl ::std::convert::From<MultiplyTwoValues> for ConstantNumberMapValueValueValue {
+    fn from(value: MultiplyTwoValues) -> Self {
+        Self::MultiplyTwoValues(value)
+    }
+}
+impl ::std::convert::From<DivideTwoValues> for ConstantNumberMapValueValueValue {
+    fn from(value: DivideTwoValues) -> Self {
+        Self::DivideTwoValues(value)
+    }
+}
+impl ::std::convert::From<ModulusTwoValues> for ConstantNumberMapValueValueValue {
+    fn from(value: ModulusTwoValues) -> Self {
+        Self::ModulusTwoValues(value)
+    }
+}
+impl ::std::convert::From<PowerTwoValues> for ConstantNumberMapValueValueValue {
+    fn from(value: PowerTwoValues) -> Self {
+        Self::PowerTwoValues(value)
+    }
+}
+impl ::std::convert::From<RoundValue> for ConstantNumberMapValueValueValue {
+    fn from(value: RoundValue) -> Self {
+        Self::RoundValue(value)
+    }
+}
+impl ::std::convert::From<FloorValue> for ConstantNumberMapValueValueValue {
+    fn from(value: FloorValue) -> Self {
+        Self::FloorValue(value)
+    }
+}
+impl ::std::convert::From<CeilValue> for ConstantNumberMapValueValueValue {
+    fn from(value: CeilValue) -> Self {
+        Self::CeilValue(value)
+    }
+}
+impl ::std::convert::From<AbsValue> for ConstantNumberMapValueValueValue {
+    fn from(value: AbsValue) -> Self {
+        Self::AbsValue(value)
+    }
+}
+impl ::std::convert::From<SumNumberListValue> for ConstantNumberMapValueValueValue {
+    fn from(value: SumNumberListValue) -> Self {
+        Self::SumNumberListValue(value)
+    }
+}
+impl ::std::convert::From<ProductNumberListValue> for ConstantNumberMapValueValueValue {
+    fn from(value: ProductNumberListValue) -> Self {
+        Self::ProductNumberListValue(value)
+    }
+}
+impl ::std::convert::From<AverageNumberListValue> for ConstantNumberMapValueValueValue {
+    fn from(value: AverageNumberListValue) -> Self {
+        Self::AverageNumberListValue(value)
+    }
+}
+impl ::std::convert::From<MinNumberListValue> for ConstantNumberMapValueValueValue {
+    fn from(value: MinNumberListValue) -> Self {
+        Self::MinNumberListValue(value)
+    }
+}
+impl ::std::convert::From<MaxNumberListValue> for ConstantNumberMapValueValueValue {
+    fn from(value: MaxNumberListValue) -> Self {
+        Self::MaxNumberListValue(value)
+    }
+}
+impl ::std::convert::From<ListIndexNumberValue> for ConstantNumberMapValueValueValue {
+    fn from(value: ListIndexNumberValue) -> Self {
+        Self::ListIndexNumberValue(value)
+    }
+}
+impl ::std::convert::From<MapKeyNumberValue> for ConstantNumberMapValueValueValue {
+    fn from(value: MapKeyNumberValue) -> Self {
+        Self::MapKeyNumberValue(value)
+    }
+}
+impl ::std::convert::From<CollectionSizeNumberValue> for ConstantNumberMapValueValueValue {
+    fn from(value: CollectionSizeNumberValue) -> Self {
+        Self::CollectionSizeNumberValue(value)
+    }
+}
+impl ::std::convert::From<StringLeftIndexNumberValue> for ConstantNumberMapValueValueValue {
+    fn from(value: StringLeftIndexNumberValue) -> Self {
+        Self::StringLeftIndexNumberValue(value)
+    }
+}
+impl ::std::convert::From<StringRightIndexNumberValue> for ConstantNumberMapValueValueValue {
+    fn from(value: StringRightIndexNumberValue) -> Self {
+        Self::StringRightIndexNumberValue(value)
+    }
+}
+impl ::std::convert::From<StringListIndexNumberValue> for ConstantNumberMapValueValueValue {
+    fn from(value: StringListIndexNumberValue) -> Self {
+        Self::StringListIndexNumberValue(value)
+    }
+}
+impl ::std::convert::From<NumberListIndexNumberValue> for ConstantNumberMapValueValueValue {
+    fn from(value: NumberListIndexNumberValue) -> Self {
+        Self::NumberListIndexNumberValue(value)
+    }
+}
+impl ::std::convert::From<BooleanListIndexNumberValue> for ConstantNumberMapValueValueValue {
+    fn from(value: BooleanListIndexNumberValue) -> Self {
+        Self::BooleanListIndexNumberValue(value)
+    }
+}
+impl ::std::convert::From<ConstantNumberValue> for ConstantNumberMapValueValueValue {
+    fn from(value: ConstantNumberValue) -> Self {
+        Self::ConstantNumberValue(value)
+    }
+}
+impl ::std::convert::From<RemoveMapEntry> for ConstantNumberMapValueValueValue {
+    fn from(value: RemoveMapEntry) -> Self {
+        Self::RemoveMapEntry(value)
+    }
+}
 #[doc = "A constant number value."]
 #[doc = r""]
 #[doc = r" <details><summary>JSON schema</summary>"]
@@ -2432,6 +4375,7 @@ impl<'de> ::serde::Deserialize<'de> for ConstantNumberMapValueValueKey {
 #[doc = "  ],"]
 #[doc = "  \"properties\": {"]
 #[doc = "    \"kind\": {"]
+#[doc = "      \"type\": \"string\","]
 #[doc = "      \"const\": \"constant-number\""]
 #[doc = "    },"]
 #[doc = "    \"source\": {"]
@@ -2442,14 +4386,17 @@ impl<'de> ::serde::Deserialize<'de> for ConstantNumberMapValueValueKey {
 #[doc = "      \"type\": \"number\""]
 #[doc = "    }"]
 #[doc = "  },"]
-#[doc = "  \"additionalProperties\": false"]
+#[doc = "  \"additionalProperties\": false,"]
+#[doc = "  \"discriminator\": {"]
+#[doc = "    \"propertyName\": \"kind\""]
+#[doc = "  }"]
 #[doc = "}"]
 #[doc = r" ```"]
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
 pub struct ConstantNumberValue {
-    pub kind: ::serde_json::Value,
+    pub kind: ::std::string::String,
     pub source: Source,
     pub value: f64,
 }
@@ -2479,6 +4426,7 @@ impl ConstantNumberValue {
 #[doc = "  ],"]
 #[doc = "  \"properties\": {"]
 #[doc = "    \"kind\": {"]
+#[doc = "      \"type\": \"string\","]
 #[doc = "      \"const\": \"constant-string-list-map\""]
 #[doc = "    },"]
 #[doc = "    \"source\": {"]
@@ -2493,29 +4441,47 @@ impl ConstantNumberValue {
 #[doc = "        \".*\": {"]
 #[doc = "          \"oneOf\": ["]
 #[doc = "            {"]
-#[doc = "              \"$ref\": \"#/$defs/ComputedStringListValue\""]
+#[doc = "              \"$ref\": \"#/$defs/LookupStringListValue\""]
 #[doc = "            },"]
 #[doc = "            {"]
-#[doc = "              \"type\": \"null\""]
+#[doc = "              \"$ref\": \"#/$defs/SplitStringValue\""]
+#[doc = "            },"]
+#[doc = "            {"]
+#[doc = "              \"$ref\": \"#/$defs/RangeStringListValue\""]
+#[doc = "            },"]
+#[doc = "            {"]
+#[doc = "              \"$ref\": \"#/$defs/StringListMapKeyValue\""]
+#[doc = "            },"]
+#[doc = "            {"]
+#[doc = "              \"$ref\": \"#/$defs/MapKeysStringListValue\""]
+#[doc = "            },"]
+#[doc = "            {"]
+#[doc = "              \"$ref\": \"#/$defs/ConstantStringListValue\""]
+#[doc = "            },"]
+#[doc = "            {"]
+#[doc = "              \"$ref\": \"#/$defs/RemoveMapEntry\""]
 #[doc = "            }"]
 #[doc = "          ]"]
 #[doc = "        }"]
 #[doc = "      }"]
 #[doc = "    }"]
 #[doc = "  },"]
-#[doc = "  \"additionalProperties\": false"]
+#[doc = "  \"additionalProperties\": false,"]
+#[doc = "  \"discriminator\": {"]
+#[doc = "    \"propertyName\": \"kind\""]
+#[doc = "  }"]
 #[doc = "}"]
 #[doc = r" ```"]
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
 pub struct ConstantStringListMapValue {
-    pub kind: ::serde_json::Value,
+    pub kind: ::std::string::String,
     pub source: Source,
     #[doc = "The constant string-list map value."]
     pub value: ::std::collections::HashMap<
         ConstantStringListMapValueValueKey,
-        ::std::option::Option<ComputedStringListValue>,
+        ConstantStringListMapValueValueValue,
     >,
 }
 impl ::std::convert::From<&ConstantStringListMapValue> for ConstantStringListMapValue {
@@ -2605,6 +4571,89 @@ impl<'de> ::serde::Deserialize<'de> for ConstantStringListMapValueValueKey {
             })
     }
 }
+#[doc = "`ConstantStringListMapValueValueValue`"]
+#[doc = r""]
+#[doc = r" <details><summary>JSON schema</summary>"]
+#[doc = r""]
+#[doc = r" ```json"]
+#[doc = "{"]
+#[doc = "  \"oneOf\": ["]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/LookupStringListValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/SplitStringValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/RangeStringListValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/StringListMapKeyValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/MapKeysStringListValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/ConstantStringListValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/RemoveMapEntry\""]
+#[doc = "    }"]
+#[doc = "  ]"]
+#[doc = "}"]
+#[doc = r" ```"]
+#[doc = r" </details>"]
+#[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
+#[serde(untagged)]
+pub enum ConstantStringListMapValueValueValue {
+    LookupStringListValue(LookupStringListValue),
+    SplitStringValue(SplitStringValue),
+    RangeStringListValue(RangeStringListValue),
+    StringListMapKeyValue(StringListMapKeyValue),
+    MapKeysStringListValue(MapKeysStringListValue),
+    ConstantStringListValue(ConstantStringListValue),
+    RemoveMapEntry(RemoveMapEntry),
+}
+impl ::std::convert::From<&Self> for ConstantStringListMapValueValueValue {
+    fn from(value: &ConstantStringListMapValueValueValue) -> Self {
+        value.clone()
+    }
+}
+impl ::std::convert::From<LookupStringListValue> for ConstantStringListMapValueValueValue {
+    fn from(value: LookupStringListValue) -> Self {
+        Self::LookupStringListValue(value)
+    }
+}
+impl ::std::convert::From<SplitStringValue> for ConstantStringListMapValueValueValue {
+    fn from(value: SplitStringValue) -> Self {
+        Self::SplitStringValue(value)
+    }
+}
+impl ::std::convert::From<RangeStringListValue> for ConstantStringListMapValueValueValue {
+    fn from(value: RangeStringListValue) -> Self {
+        Self::RangeStringListValue(value)
+    }
+}
+impl ::std::convert::From<StringListMapKeyValue> for ConstantStringListMapValueValueValue {
+    fn from(value: StringListMapKeyValue) -> Self {
+        Self::StringListMapKeyValue(value)
+    }
+}
+impl ::std::convert::From<MapKeysStringListValue> for ConstantStringListMapValueValueValue {
+    fn from(value: MapKeysStringListValue) -> Self {
+        Self::MapKeysStringListValue(value)
+    }
+}
+impl ::std::convert::From<ConstantStringListValue> for ConstantStringListMapValueValueValue {
+    fn from(value: ConstantStringListValue) -> Self {
+        Self::ConstantStringListValue(value)
+    }
+}
+impl ::std::convert::From<RemoveMapEntry> for ConstantStringListMapValueValueValue {
+    fn from(value: RemoveMapEntry) -> Self {
+        Self::RemoveMapEntry(value)
+    }
+}
 #[doc = "A constant string list value.  Can include expanding a sub-list within the list."]
 #[doc = r""]
 #[doc = r" <details><summary>JSON schema</summary>"]
@@ -2621,6 +4670,7 @@ impl<'de> ::serde::Deserialize<'de> for ConstantStringListMapValueValueKey {
 #[doc = "  ],"]
 #[doc = "  \"properties\": {"]
 #[doc = "    \"kind\": {"]
+#[doc = "      \"type\": \"string\","]
 #[doc = "      \"const\": \"constant-string-list\""]
 #[doc = "    },"]
 #[doc = "    \"source\": {"]
@@ -2632,23 +4682,68 @@ impl<'de> ::serde::Deserialize<'de> for ConstantStringListMapValueValueKey {
 #[doc = "      \"items\": {"]
 #[doc = "        \"oneOf\": ["]
 #[doc = "          {"]
-#[doc = "            \"$ref\": \"#/$defs/ComputedStringValue\""]
+#[doc = "            \"$ref\": \"#/$defs/LookupStringValue\""]
 #[doc = "          },"]
 #[doc = "          {"]
-#[doc = "            \"$ref\": \"#/$defs/ComputedStringListValue\""]
+#[doc = "            \"$ref\": \"#/$defs/ListIndexStringValue\""]
+#[doc = "          },"]
+#[doc = "          {"]
+#[doc = "            \"$ref\": \"#/$defs/MapKeyStringValue\""]
+#[doc = "          },"]
+#[doc = "          {"]
+#[doc = "            \"$ref\": \"#/$defs/SubStringValue\""]
+#[doc = "          },"]
+#[doc = "          {"]
+#[doc = "            \"$ref\": \"#/$defs/TrimStringValue\""]
+#[doc = "          },"]
+#[doc = "          {"]
+#[doc = "            \"$ref\": \"#/$defs/NumberToStringValue\""]
+#[doc = "          },"]
+#[doc = "          {"]
+#[doc = "            \"$ref\": \"#/$defs/BooleanToStringValue\""]
+#[doc = "          },"]
+#[doc = "          {"]
+#[doc = "            \"$ref\": \"#/$defs/ListToStringValue\""]
+#[doc = "          },"]
+#[doc = "          {"]
+#[doc = "            \"$ref\": \"#/$defs/MapToStringValue\""]
+#[doc = "          },"]
+#[doc = "          {"]
+#[doc = "            \"$ref\": \"#/$defs/ConstantStringValue\""]
+#[doc = "          },"]
+#[doc = "          {"]
+#[doc = "            \"$ref\": \"#/$defs/LookupStringListValue\""]
+#[doc = "          },"]
+#[doc = "          {"]
+#[doc = "            \"$ref\": \"#/$defs/SplitStringValue\""]
+#[doc = "          },"]
+#[doc = "          {"]
+#[doc = "            \"$ref\": \"#/$defs/RangeStringListValue\""]
+#[doc = "          },"]
+#[doc = "          {"]
+#[doc = "            \"$ref\": \"#/$defs/StringListMapKeyValue\""]
+#[doc = "          },"]
+#[doc = "          {"]
+#[doc = "            \"$ref\": \"#/$defs/MapKeysStringListValue\""]
+#[doc = "          },"]
+#[doc = "          {"]
+#[doc = "            \"$ref\": \"#/$defs/ConstantStringListValue\""]
 #[doc = "          }"]
 #[doc = "        ]"]
 #[doc = "      }"]
 #[doc = "    }"]
 #[doc = "  },"]
-#[doc = "  \"additionalProperties\": false"]
+#[doc = "  \"additionalProperties\": false,"]
+#[doc = "  \"discriminator\": {"]
+#[doc = "    \"propertyName\": \"kind\""]
+#[doc = "  }"]
 #[doc = "}"]
 #[doc = r" ```"]
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
 pub struct ConstantStringListValue {
-    pub kind: ::serde_json::Value,
+    pub kind: ::std::string::String,
     pub source: Source,
     #[doc = "The constant string list value."]
     pub value: ::std::vec::Vec<ConstantStringListValueValueItem>,
@@ -2671,10 +4766,52 @@ impl ConstantStringListValue {
 #[doc = "{"]
 #[doc = "  \"oneOf\": ["]
 #[doc = "    {"]
-#[doc = "      \"$ref\": \"#/$defs/ComputedStringValue\""]
+#[doc = "      \"$ref\": \"#/$defs/LookupStringValue\""]
 #[doc = "    },"]
 #[doc = "    {"]
-#[doc = "      \"$ref\": \"#/$defs/ComputedStringListValue\""]
+#[doc = "      \"$ref\": \"#/$defs/ListIndexStringValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/MapKeyStringValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/SubStringValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/TrimStringValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/NumberToStringValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/BooleanToStringValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/ListToStringValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/MapToStringValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/ConstantStringValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/LookupStringListValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/SplitStringValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/RangeStringListValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/StringListMapKeyValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/MapKeysStringListValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/ConstantStringListValue\""]
 #[doc = "    }"]
 #[doc = "  ]"]
 #[doc = "}"]
@@ -2683,22 +4820,106 @@ impl ConstantStringListValue {
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(untagged)]
 pub enum ConstantStringListValueValueItem {
-    Value(ComputedStringValue),
-    ListValue(ComputedStringListValue),
+    LookupStringValue(LookupStringValue),
+    ListIndexStringValue(ListIndexStringValue),
+    MapKeyStringValue(MapKeyStringValue),
+    SubStringValue(SubStringValue),
+    TrimStringValue(TrimStringValue),
+    NumberToStringValue(NumberToStringValue),
+    BooleanToStringValue(BooleanToStringValue),
+    ListToStringValue(ListToStringValue),
+    MapToStringValue(MapToStringValue),
+    ConstantStringValue(ConstantStringValue),
+    LookupStringListValue(LookupStringListValue),
+    SplitStringValue(SplitStringValue),
+    RangeStringListValue(RangeStringListValue),
+    StringListMapKeyValue(StringListMapKeyValue),
+    MapKeysStringListValue(MapKeysStringListValue),
+    ConstantStringListValue(ConstantStringListValue),
 }
 impl ::std::convert::From<&Self> for ConstantStringListValueValueItem {
     fn from(value: &ConstantStringListValueValueItem) -> Self {
         value.clone()
     }
 }
-impl ::std::convert::From<ComputedStringValue> for ConstantStringListValueValueItem {
-    fn from(value: ComputedStringValue) -> Self {
-        Self::Value(value)
+impl ::std::convert::From<LookupStringValue> for ConstantStringListValueValueItem {
+    fn from(value: LookupStringValue) -> Self {
+        Self::LookupStringValue(value)
     }
 }
-impl ::std::convert::From<ComputedStringListValue> for ConstantStringListValueValueItem {
-    fn from(value: ComputedStringListValue) -> Self {
-        Self::ListValue(value)
+impl ::std::convert::From<ListIndexStringValue> for ConstantStringListValueValueItem {
+    fn from(value: ListIndexStringValue) -> Self {
+        Self::ListIndexStringValue(value)
+    }
+}
+impl ::std::convert::From<MapKeyStringValue> for ConstantStringListValueValueItem {
+    fn from(value: MapKeyStringValue) -> Self {
+        Self::MapKeyStringValue(value)
+    }
+}
+impl ::std::convert::From<SubStringValue> for ConstantStringListValueValueItem {
+    fn from(value: SubStringValue) -> Self {
+        Self::SubStringValue(value)
+    }
+}
+impl ::std::convert::From<TrimStringValue> for ConstantStringListValueValueItem {
+    fn from(value: TrimStringValue) -> Self {
+        Self::TrimStringValue(value)
+    }
+}
+impl ::std::convert::From<NumberToStringValue> for ConstantStringListValueValueItem {
+    fn from(value: NumberToStringValue) -> Self {
+        Self::NumberToStringValue(value)
+    }
+}
+impl ::std::convert::From<BooleanToStringValue> for ConstantStringListValueValueItem {
+    fn from(value: BooleanToStringValue) -> Self {
+        Self::BooleanToStringValue(value)
+    }
+}
+impl ::std::convert::From<ListToStringValue> for ConstantStringListValueValueItem {
+    fn from(value: ListToStringValue) -> Self {
+        Self::ListToStringValue(value)
+    }
+}
+impl ::std::convert::From<MapToStringValue> for ConstantStringListValueValueItem {
+    fn from(value: MapToStringValue) -> Self {
+        Self::MapToStringValue(value)
+    }
+}
+impl ::std::convert::From<ConstantStringValue> for ConstantStringListValueValueItem {
+    fn from(value: ConstantStringValue) -> Self {
+        Self::ConstantStringValue(value)
+    }
+}
+impl ::std::convert::From<LookupStringListValue> for ConstantStringListValueValueItem {
+    fn from(value: LookupStringListValue) -> Self {
+        Self::LookupStringListValue(value)
+    }
+}
+impl ::std::convert::From<SplitStringValue> for ConstantStringListValueValueItem {
+    fn from(value: SplitStringValue) -> Self {
+        Self::SplitStringValue(value)
+    }
+}
+impl ::std::convert::From<RangeStringListValue> for ConstantStringListValueValueItem {
+    fn from(value: RangeStringListValue) -> Self {
+        Self::RangeStringListValue(value)
+    }
+}
+impl ::std::convert::From<StringListMapKeyValue> for ConstantStringListValueValueItem {
+    fn from(value: StringListMapKeyValue) -> Self {
+        Self::StringListMapKeyValue(value)
+    }
+}
+impl ::std::convert::From<MapKeysStringListValue> for ConstantStringListValueValueItem {
+    fn from(value: MapKeysStringListValue) -> Self {
+        Self::MapKeysStringListValue(value)
+    }
+}
+impl ::std::convert::From<ConstantStringListValue> for ConstantStringListValueValueItem {
+    fn from(value: ConstantStringListValue) -> Self {
+        Self::ConstantStringListValue(value)
     }
 }
 #[doc = "A constant string-map list value.  Can include expanding a sub-list within the list."]
@@ -2717,6 +4938,7 @@ impl ::std::convert::From<ComputedStringListValue> for ConstantStringListValueVa
 #[doc = "  ],"]
 #[doc = "  \"properties\": {"]
 #[doc = "    \"kind\": {"]
+#[doc = "      \"type\": \"string\","]
 #[doc = "      \"const\": \"constant-string-map-list\""]
 #[doc = "    },"]
 #[doc = "    \"source\": {"]
@@ -2728,23 +4950,41 @@ impl ::std::convert::From<ComputedStringListValue> for ConstantStringListValueVa
 #[doc = "      \"items\": {"]
 #[doc = "        \"oneOf\": ["]
 #[doc = "          {"]
-#[doc = "            \"$ref\": \"#/$defs/ComputedStringMapValue\""]
+#[doc = "            \"$ref\": \"#/$defs/LookupStringMapValue\""]
 #[doc = "          },"]
 #[doc = "          {"]
-#[doc = "            \"$ref\": \"#/$defs/ComputedStringMapListValue\""]
+#[doc = "            \"$ref\": \"#/$defs/UnionStringMapValue\""]
+#[doc = "          },"]
+#[doc = "          {"]
+#[doc = "            \"$ref\": \"#/$defs/StringMapListIndexValue\""]
+#[doc = "          },"]
+#[doc = "          {"]
+#[doc = "            \"$ref\": \"#/$defs/ConstantStringMapValue\""]
+#[doc = "          },"]
+#[doc = "          {"]
+#[doc = "            \"$ref\": \"#/$defs/LookupStringMapListValue\""]
+#[doc = "          },"]
+#[doc = "          {"]
+#[doc = "            \"$ref\": \"#/$defs/RangeStringMapListValue\""]
+#[doc = "          },"]
+#[doc = "          {"]
+#[doc = "            \"$ref\": \"#/$defs/ConstantStringMapListValue\""]
 #[doc = "          }"]
 #[doc = "        ]"]
 #[doc = "      }"]
 #[doc = "    }"]
 #[doc = "  },"]
-#[doc = "  \"additionalProperties\": false"]
+#[doc = "  \"additionalProperties\": false,"]
+#[doc = "  \"discriminator\": {"]
+#[doc = "    \"propertyName\": \"kind\""]
+#[doc = "  }"]
 #[doc = "}"]
 #[doc = r" ```"]
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
 pub struct ConstantStringMapListValue {
-    pub kind: ::serde_json::Value,
+    pub kind: ::std::string::String,
     pub source: Source,
     #[doc = "The constant string-map list value."]
     pub value: ::std::vec::Vec<ConstantStringMapListValueValueItem>,
@@ -2767,10 +5007,25 @@ impl ConstantStringMapListValue {
 #[doc = "{"]
 #[doc = "  \"oneOf\": ["]
 #[doc = "    {"]
-#[doc = "      \"$ref\": \"#/$defs/ComputedStringMapValue\""]
+#[doc = "      \"$ref\": \"#/$defs/LookupStringMapValue\""]
 #[doc = "    },"]
 #[doc = "    {"]
-#[doc = "      \"$ref\": \"#/$defs/ComputedStringMapListValue\""]
+#[doc = "      \"$ref\": \"#/$defs/UnionStringMapValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/StringMapListIndexValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/ConstantStringMapValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/LookupStringMapListValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/RangeStringMapListValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/ConstantStringMapListValue\""]
 #[doc = "    }"]
 #[doc = "  ]"]
 #[doc = "}"]
@@ -2779,22 +5034,52 @@ impl ConstantStringMapListValue {
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(untagged)]
 pub enum ConstantStringMapListValueValueItem {
-    Value(ComputedStringMapValue),
-    ListValue(ComputedStringMapListValue),
+    LookupStringMapValue(LookupStringMapValue),
+    UnionStringMapValue(UnionStringMapValue),
+    StringMapListIndexValue(StringMapListIndexValue),
+    ConstantStringMapValue(ConstantStringMapValue),
+    LookupStringMapListValue(LookupStringMapListValue),
+    RangeStringMapListValue(RangeStringMapListValue),
+    ConstantStringMapListValue(ConstantStringMapListValue),
 }
 impl ::std::convert::From<&Self> for ConstantStringMapListValueValueItem {
     fn from(value: &ConstantStringMapListValueValueItem) -> Self {
         value.clone()
     }
 }
-impl ::std::convert::From<ComputedStringMapValue> for ConstantStringMapListValueValueItem {
-    fn from(value: ComputedStringMapValue) -> Self {
-        Self::Value(value)
+impl ::std::convert::From<LookupStringMapValue> for ConstantStringMapListValueValueItem {
+    fn from(value: LookupStringMapValue) -> Self {
+        Self::LookupStringMapValue(value)
     }
 }
-impl ::std::convert::From<ComputedStringMapListValue> for ConstantStringMapListValueValueItem {
-    fn from(value: ComputedStringMapListValue) -> Self {
-        Self::ListValue(value)
+impl ::std::convert::From<UnionStringMapValue> for ConstantStringMapListValueValueItem {
+    fn from(value: UnionStringMapValue) -> Self {
+        Self::UnionStringMapValue(value)
+    }
+}
+impl ::std::convert::From<StringMapListIndexValue> for ConstantStringMapListValueValueItem {
+    fn from(value: StringMapListIndexValue) -> Self {
+        Self::StringMapListIndexValue(value)
+    }
+}
+impl ::std::convert::From<ConstantStringMapValue> for ConstantStringMapListValueValueItem {
+    fn from(value: ConstantStringMapValue) -> Self {
+        Self::ConstantStringMapValue(value)
+    }
+}
+impl ::std::convert::From<LookupStringMapListValue> for ConstantStringMapListValueValueItem {
+    fn from(value: LookupStringMapListValue) -> Self {
+        Self::LookupStringMapListValue(value)
+    }
+}
+impl ::std::convert::From<RangeStringMapListValue> for ConstantStringMapListValueValueItem {
+    fn from(value: RangeStringMapListValue) -> Self {
+        Self::RangeStringMapListValue(value)
+    }
+}
+impl ::std::convert::From<ConstantStringMapListValue> for ConstantStringMapListValueValueItem {
+    fn from(value: ConstantStringMapListValue) -> Self {
+        Self::ConstantStringMapListValue(value)
     }
 }
 #[doc = "A constant string map value.  Can include expanding a sub-map within the map. This also includes a 'null' value for the key to allow blanking out values if used in a union.\n"]
@@ -2813,6 +5098,7 @@ impl ::std::convert::From<ComputedStringMapListValue> for ConstantStringMapListV
 #[doc = "  ],"]
 #[doc = "  \"properties\": {"]
 #[doc = "    \"kind\": {"]
+#[doc = "      \"type\": \"string\","]
 #[doc = "      \"const\": \"constant-string-map\""]
 #[doc = "    },"]
 #[doc = "    \"source\": {"]
@@ -2827,29 +5113,59 @@ impl ::std::convert::From<ComputedStringMapListValue> for ConstantStringMapListV
 #[doc = "        \".*\": {"]
 #[doc = "          \"oneOf\": ["]
 #[doc = "            {"]
-#[doc = "              \"$ref\": \"#/$defs/ComputedStringValue\""]
+#[doc = "              \"$ref\": \"#/$defs/LookupStringValue\""]
 #[doc = "            },"]
 #[doc = "            {"]
-#[doc = "              \"type\": \"null\""]
+#[doc = "              \"$ref\": \"#/$defs/ListIndexStringValue\""]
+#[doc = "            },"]
+#[doc = "            {"]
+#[doc = "              \"$ref\": \"#/$defs/MapKeyStringValue\""]
+#[doc = "            },"]
+#[doc = "            {"]
+#[doc = "              \"$ref\": \"#/$defs/SubStringValue\""]
+#[doc = "            },"]
+#[doc = "            {"]
+#[doc = "              \"$ref\": \"#/$defs/TrimStringValue\""]
+#[doc = "            },"]
+#[doc = "            {"]
+#[doc = "              \"$ref\": \"#/$defs/NumberToStringValue\""]
+#[doc = "            },"]
+#[doc = "            {"]
+#[doc = "              \"$ref\": \"#/$defs/BooleanToStringValue\""]
+#[doc = "            },"]
+#[doc = "            {"]
+#[doc = "              \"$ref\": \"#/$defs/ListToStringValue\""]
+#[doc = "            },"]
+#[doc = "            {"]
+#[doc = "              \"$ref\": \"#/$defs/MapToStringValue\""]
+#[doc = "            },"]
+#[doc = "            {"]
+#[doc = "              \"$ref\": \"#/$defs/ConstantStringValue\""]
+#[doc = "            },"]
+#[doc = "            {"]
+#[doc = "              \"$ref\": \"#/$defs/RemoveMapEntry\""]
 #[doc = "            }"]
 #[doc = "          ]"]
 #[doc = "        }"]
 #[doc = "      }"]
 #[doc = "    }"]
 #[doc = "  },"]
-#[doc = "  \"additionalProperties\": false"]
+#[doc = "  \"additionalProperties\": false,"]
+#[doc = "  \"discriminator\": {"]
+#[doc = "    \"propertyName\": \"kind\""]
+#[doc = "  }"]
 #[doc = "}"]
 #[doc = r" ```"]
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
 pub struct ConstantStringMapValue {
-    pub kind: ::serde_json::Value,
+    pub kind: ::std::string::String,
     pub source: Source,
     #[doc = "The constant string map value."]
     pub value: ::std::collections::HashMap<
         ConstantStringMapValueValueKey,
-        ::std::option::Option<::std::boxed::Box<ComputedStringValue>>,
+        ConstantStringMapValueValueValue,
     >,
 }
 impl ::std::convert::From<&ConstantStringMapValue> for ConstantStringMapValue {
@@ -2937,6 +5253,125 @@ impl<'de> ::serde::Deserialize<'de> for ConstantStringMapValueValueKey {
             })
     }
 }
+#[doc = "`ConstantStringMapValueValueValue`"]
+#[doc = r""]
+#[doc = r" <details><summary>JSON schema</summary>"]
+#[doc = r""]
+#[doc = r" ```json"]
+#[doc = "{"]
+#[doc = "  \"oneOf\": ["]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/LookupStringValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/ListIndexStringValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/MapKeyStringValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/SubStringValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/TrimStringValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/NumberToStringValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/BooleanToStringValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/ListToStringValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/MapToStringValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/ConstantStringValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/RemoveMapEntry\""]
+#[doc = "    }"]
+#[doc = "  ]"]
+#[doc = "}"]
+#[doc = r" ```"]
+#[doc = r" </details>"]
+#[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
+#[serde(untagged)]
+pub enum ConstantStringMapValueValueValue {
+    LookupStringValue(LookupStringValue),
+    ListIndexStringValue(ListIndexStringValue),
+    MapKeyStringValue(MapKeyStringValue),
+    SubStringValue(SubStringValue),
+    TrimStringValue(TrimStringValue),
+    NumberToStringValue(NumberToStringValue),
+    BooleanToStringValue(BooleanToStringValue),
+    ListToStringValue(ListToStringValue),
+    MapToStringValue(MapToStringValue),
+    ConstantStringValue(ConstantStringValue),
+    RemoveMapEntry(RemoveMapEntry),
+}
+impl ::std::convert::From<&Self> for ConstantStringMapValueValueValue {
+    fn from(value: &ConstantStringMapValueValueValue) -> Self {
+        value.clone()
+    }
+}
+impl ::std::convert::From<LookupStringValue> for ConstantStringMapValueValueValue {
+    fn from(value: LookupStringValue) -> Self {
+        Self::LookupStringValue(value)
+    }
+}
+impl ::std::convert::From<ListIndexStringValue> for ConstantStringMapValueValueValue {
+    fn from(value: ListIndexStringValue) -> Self {
+        Self::ListIndexStringValue(value)
+    }
+}
+impl ::std::convert::From<MapKeyStringValue> for ConstantStringMapValueValueValue {
+    fn from(value: MapKeyStringValue) -> Self {
+        Self::MapKeyStringValue(value)
+    }
+}
+impl ::std::convert::From<SubStringValue> for ConstantStringMapValueValueValue {
+    fn from(value: SubStringValue) -> Self {
+        Self::SubStringValue(value)
+    }
+}
+impl ::std::convert::From<TrimStringValue> for ConstantStringMapValueValueValue {
+    fn from(value: TrimStringValue) -> Self {
+        Self::TrimStringValue(value)
+    }
+}
+impl ::std::convert::From<NumberToStringValue> for ConstantStringMapValueValueValue {
+    fn from(value: NumberToStringValue) -> Self {
+        Self::NumberToStringValue(value)
+    }
+}
+impl ::std::convert::From<BooleanToStringValue> for ConstantStringMapValueValueValue {
+    fn from(value: BooleanToStringValue) -> Self {
+        Self::BooleanToStringValue(value)
+    }
+}
+impl ::std::convert::From<ListToStringValue> for ConstantStringMapValueValueValue {
+    fn from(value: ListToStringValue) -> Self {
+        Self::ListToStringValue(value)
+    }
+}
+impl ::std::convert::From<MapToStringValue> for ConstantStringMapValueValueValue {
+    fn from(value: MapToStringValue) -> Self {
+        Self::MapToStringValue(value)
+    }
+}
+impl ::std::convert::From<ConstantStringValue> for ConstantStringMapValueValueValue {
+    fn from(value: ConstantStringValue) -> Self {
+        Self::ConstantStringValue(value)
+    }
+}
+impl ::std::convert::From<RemoveMapEntry> for ConstantStringMapValueValueValue {
+    fn from(value: RemoveMapEntry) -> Self {
+        Self::RemoveMapEntry(value)
+    }
+}
 #[doc = "A constant string value."]
 #[doc = r""]
 #[doc = r" <details><summary>JSON schema</summary>"]
@@ -2953,6 +5388,7 @@ impl<'de> ::serde::Deserialize<'de> for ConstantStringMapValueValueKey {
 #[doc = "  ],"]
 #[doc = "  \"properties\": {"]
 #[doc = "    \"kind\": {"]
+#[doc = "      \"type\": \"string\","]
 #[doc = "      \"const\": \"constant-string\""]
 #[doc = "    },"]
 #[doc = "    \"source\": {"]
@@ -2963,14 +5399,17 @@ impl<'de> ::serde::Deserialize<'de> for ConstantStringMapValueValueKey {
 #[doc = "      \"type\": \"string\""]
 #[doc = "    }"]
 #[doc = "  },"]
-#[doc = "  \"additionalProperties\": false"]
+#[doc = "  \"additionalProperties\": false,"]
+#[doc = "  \"discriminator\": {"]
+#[doc = "    \"propertyName\": \"kind\""]
+#[doc = "  }"]
 #[doc = "}"]
 #[doc = r" ```"]
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
 pub struct ConstantStringValue {
-    pub kind: ::serde_json::Value,
+    pub kind: ::std::string::String,
     pub source: Source,
     #[doc = "The constant string value."]
     pub value: ::std::string::String,
@@ -3002,6 +5441,7 @@ impl ConstantStringValue {
 #[doc = "  ],"]
 #[doc = "  \"properties\": {"]
 #[doc = "    \"kind\": {"]
+#[doc = "      \"type\": \"string\","]
 #[doc = "      \"const\": \"divide-number\""]
 #[doc = "    },"]
 #[doc = "    \"left\": {"]
@@ -3014,14 +5454,17 @@ impl ConstantStringValue {
 #[doc = "      \"$ref\": \"#/$defs/Source\""]
 #[doc = "    }"]
 #[doc = "  },"]
-#[doc = "  \"additionalProperties\": false"]
+#[doc = "  \"additionalProperties\": false,"]
+#[doc = "  \"discriminator\": {"]
+#[doc = "    \"propertyName\": \"kind\""]
+#[doc = "  }"]
 #[doc = "}"]
 #[doc = r" ```"]
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
 pub struct DivideTwoValues {
-    pub kind: ::serde_json::Value,
+    pub kind: ::std::string::String,
     pub left: ::std::boxed::Box<ComputedNumberValue>,
     pub right: ::std::boxed::Box<ComputedNumberValue>,
     pub source: Source,
@@ -3651,6 +6094,7 @@ impl ::std::fmt::Display for FileDescriptor {
 #[doc = "  ],"]
 #[doc = "  \"properties\": {"]
 #[doc = "    \"kind\": {"]
+#[doc = "      \"type\": \"string\","]
 #[doc = "      \"const\": \"floor-number\""]
 #[doc = "    },"]
 #[doc = "    \"source\": {"]
@@ -3660,14 +6104,17 @@ impl ::std::fmt::Display for FileDescriptor {
 #[doc = "      \"$ref\": \"#/$defs/ComputedNumberValue\""]
 #[doc = "    }"]
 #[doc = "  },"]
-#[doc = "  \"additionalProperties\": false"]
+#[doc = "  \"additionalProperties\": false,"]
+#[doc = "  \"discriminator\": {"]
+#[doc = "    \"propertyName\": \"kind\""]
+#[doc = "  }"]
 #[doc = "}"]
 #[doc = r" ```"]
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
 pub struct FloorValue {
-    pub kind: ::serde_json::Value,
+    pub kind: ::std::string::String,
     pub source: Source,
     pub value: ::std::boxed::Box<ComputedNumberValue>,
 }
@@ -3679,6 +6126,583 @@ impl ::std::convert::From<&FloorValue> for FloorValue {
 impl FloorValue {
     pub fn builder() -> builder::FloorValue {
         Default::default()
+    }
+}
+#[doc = "`InitialParameterValue`"]
+#[doc = r""]
+#[doc = r" <details><summary>JSON schema</summary>"]
+#[doc = r""]
+#[doc = r" ```json"]
+#[doc = "{"]
+#[doc = "  \"oneOf\": ["]
+#[doc = "    {"]
+#[doc = "      \"title\": \"Compile-Time String\","]
+#[doc = "      \"description\": \"A constant string value.\","]
+#[doc = "      \"type\": \"object\","]
+#[doc = "      \"required\": ["]
+#[doc = "        \"kind\","]
+#[doc = "        \"source\","]
+#[doc = "        \"value\""]
+#[doc = "      ],"]
+#[doc = "      \"properties\": {"]
+#[doc = "        \"kind\": {"]
+#[doc = "          \"type\": \"string\","]
+#[doc = "          \"const\": \"string\""]
+#[doc = "        },"]
+#[doc = "        \"source\": {"]
+#[doc = "          \"$ref\": \"#/$defs/Source\""]
+#[doc = "        },"]
+#[doc = "        \"value\": {"]
+#[doc = "          \"$ref\": \"#/$defs/ConstString\""]
+#[doc = "        }"]
+#[doc = "      },"]
+#[doc = "      \"additionalProperties\": false"]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"title\": \"Compile-Time Number\","]
+#[doc = "      \"description\": \"A constant number value.\","]
+#[doc = "      \"type\": \"object\","]
+#[doc = "      \"required\": ["]
+#[doc = "        \"kind\","]
+#[doc = "        \"source\","]
+#[doc = "        \"value\""]
+#[doc = "      ],"]
+#[doc = "      \"properties\": {"]
+#[doc = "        \"kind\": {"]
+#[doc = "          \"type\": \"string\","]
+#[doc = "          \"const\": \"number\""]
+#[doc = "        },"]
+#[doc = "        \"source\": {"]
+#[doc = "          \"$ref\": \"#/$defs/Source\""]
+#[doc = "        },"]
+#[doc = "        \"value\": {"]
+#[doc = "          \"$ref\": \"#/$defs/ConstInt\""]
+#[doc = "        }"]
+#[doc = "      },"]
+#[doc = "      \"additionalProperties\": false"]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"title\": \"Compile-Time Boolean\","]
+#[doc = "      \"description\": \"A constant boolean (true/false) value.\","]
+#[doc = "      \"type\": \"object\","]
+#[doc = "      \"required\": ["]
+#[doc = "        \"kind\","]
+#[doc = "        \"source\","]
+#[doc = "        \"value\""]
+#[doc = "      ],"]
+#[doc = "      \"properties\": {"]
+#[doc = "        \"kind\": {"]
+#[doc = "          \"type\": \"string\","]
+#[doc = "          \"const\": \"boolean\""]
+#[doc = "        },"]
+#[doc = "        \"source\": {"]
+#[doc = "          \"$ref\": \"#/$defs/Source\""]
+#[doc = "        },"]
+#[doc = "        \"value\": {"]
+#[doc = "          \"description\": \"The constant boolean value.\","]
+#[doc = "          \"type\": \"boolean\""]
+#[doc = "        }"]
+#[doc = "      },"]
+#[doc = "      \"additionalProperties\": false"]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"title\": \"Compile-Time Null\","]
+#[doc = "      \"description\": \"A constant null value.\","]
+#[doc = "      \"type\": \"object\","]
+#[doc = "      \"required\": ["]
+#[doc = "        \"kind\","]
+#[doc = "        \"source\""]
+#[doc = "      ],"]
+#[doc = "      \"properties\": {"]
+#[doc = "        \"kind\": {"]
+#[doc = "          \"type\": \"string\","]
+#[doc = "          \"const\": \"null\""]
+#[doc = "        },"]
+#[doc = "        \"source\": {"]
+#[doc = "          \"$ref\": \"#/$defs/Source\""]
+#[doc = "        }"]
+#[doc = "      },"]
+#[doc = "      \"additionalProperties\": false"]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"title\": \"Compile-Time String List\","]
+#[doc = "      \"description\": \"A constant string list value.\","]
+#[doc = "      \"type\": \"object\","]
+#[doc = "      \"required\": ["]
+#[doc = "        \"kind\","]
+#[doc = "        \"source\","]
+#[doc = "        \"value\""]
+#[doc = "      ],"]
+#[doc = "      \"properties\": {"]
+#[doc = "        \"kind\": {"]
+#[doc = "          \"type\": \"string\","]
+#[doc = "          \"const\": \"string-list\""]
+#[doc = "        },"]
+#[doc = "        \"source\": {"]
+#[doc = "          \"$ref\": \"#/$defs/Source\""]
+#[doc = "        },"]
+#[doc = "        \"value\": {"]
+#[doc = "          \"type\": \"array\","]
+#[doc = "          \"items\": {"]
+#[doc = "            \"$ref\": \"#/$defs/ConstString\""]
+#[doc = "          },"]
+#[doc = "          \"maxItems\": 1000,"]
+#[doc = "          \"minItems\": 0"]
+#[doc = "        }"]
+#[doc = "      },"]
+#[doc = "      \"additionalProperties\": false"]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"title\": \"Compile-Time Number List\","]
+#[doc = "      \"description\": \"A constant number list value.\","]
+#[doc = "      \"type\": \"object\","]
+#[doc = "      \"required\": ["]
+#[doc = "        \"kind\","]
+#[doc = "        \"source\","]
+#[doc = "        \"value\""]
+#[doc = "      ],"]
+#[doc = "      \"properties\": {"]
+#[doc = "        \"kind\": {"]
+#[doc = "          \"type\": \"string\","]
+#[doc = "          \"const\": \"number-list\""]
+#[doc = "        },"]
+#[doc = "        \"source\": {"]
+#[doc = "          \"$ref\": \"#/$defs/Source\""]
+#[doc = "        },"]
+#[doc = "        \"value\": {"]
+#[doc = "          \"type\": \"array\","]
+#[doc = "          \"items\": {"]
+#[doc = "            \"$ref\": \"#/$defs/ConstInt\""]
+#[doc = "          },"]
+#[doc = "          \"maxItems\": 1000,"]
+#[doc = "          \"minItems\": 0"]
+#[doc = "        }"]
+#[doc = "      },"]
+#[doc = "      \"additionalProperties\": false"]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"title\": \"Compile-Time Boolean List\","]
+#[doc = "      \"description\": \"A constant boolean list value.\","]
+#[doc = "      \"type\": \"object\","]
+#[doc = "      \"required\": ["]
+#[doc = "        \"kind\","]
+#[doc = "        \"source\","]
+#[doc = "        \"value\""]
+#[doc = "      ],"]
+#[doc = "      \"properties\": {"]
+#[doc = "        \"kind\": {"]
+#[doc = "          \"type\": \"string\","]
+#[doc = "          \"const\": \"boolean-list\""]
+#[doc = "        },"]
+#[doc = "        \"source\": {"]
+#[doc = "          \"$ref\": \"#/$defs/Source\""]
+#[doc = "        },"]
+#[doc = "        \"value\": {"]
+#[doc = "          \"type\": \"array\","]
+#[doc = "          \"items\": {"]
+#[doc = "            \"type\": \"boolean\""]
+#[doc = "          },"]
+#[doc = "          \"maxItems\": 1000,"]
+#[doc = "          \"minItems\": 0"]
+#[doc = "        }"]
+#[doc = "      },"]
+#[doc = "      \"additionalProperties\": false"]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"title\": \"Compile-Time String Map\","]
+#[doc = "      \"description\": \"A constant string map value.\","]
+#[doc = "      \"type\": \"object\","]
+#[doc = "      \"required\": ["]
+#[doc = "        \"kind\","]
+#[doc = "        \"source\","]
+#[doc = "        \"value\""]
+#[doc = "      ],"]
+#[doc = "      \"properties\": {"]
+#[doc = "        \"kind\": {"]
+#[doc = "          \"type\": \"string\","]
+#[doc = "          \"const\": \"string-map\""]
+#[doc = "        },"]
+#[doc = "        \"source\": {"]
+#[doc = "          \"$ref\": \"#/$defs/Source\""]
+#[doc = "        },"]
+#[doc = "        \"value\": {"]
+#[doc = "          \"type\": \"object\","]
+#[doc = "          \"maxItems\": 1000,"]
+#[doc = "          \"minItems\": 0,"]
+#[doc = "          \"patternProperties\": {"]
+#[doc = "            \".*\": {"]
+#[doc = "              \"$ref\": \"#/$defs/ConstString\""]
+#[doc = "            }"]
+#[doc = "          }"]
+#[doc = "        }"]
+#[doc = "      },"]
+#[doc = "      \"additionalProperties\": false"]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"title\": \"Compile-Time Number Map\","]
+#[doc = "      \"description\": \"A constant number map value.\","]
+#[doc = "      \"type\": \"object\","]
+#[doc = "      \"required\": ["]
+#[doc = "        \"kind\","]
+#[doc = "        \"source\","]
+#[doc = "        \"value\""]
+#[doc = "      ],"]
+#[doc = "      \"properties\": {"]
+#[doc = "        \"kind\": {"]
+#[doc = "          \"type\": \"string\","]
+#[doc = "          \"const\": \"number-map\""]
+#[doc = "        },"]
+#[doc = "        \"source\": {"]
+#[doc = "          \"$ref\": \"#/$defs/Source\""]
+#[doc = "        },"]
+#[doc = "        \"value\": {"]
+#[doc = "          \"type\": \"object\","]
+#[doc = "          \"maxItems\": 1000,"]
+#[doc = "          \"minItems\": 0,"]
+#[doc = "          \"patternProperties\": {"]
+#[doc = "            \".*\": {"]
+#[doc = "              \"$ref\": \"#/$defs/ConstInt\""]
+#[doc = "            }"]
+#[doc = "          }"]
+#[doc = "        }"]
+#[doc = "      },"]
+#[doc = "      \"additionalProperties\": false"]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"title\": \"Compile-Time Boolean Map\","]
+#[doc = "      \"description\": \"A constant boolean map value.\","]
+#[doc = "      \"type\": \"object\","]
+#[doc = "      \"required\": ["]
+#[doc = "        \"kind\","]
+#[doc = "        \"source\","]
+#[doc = "        \"value\""]
+#[doc = "      ],"]
+#[doc = "      \"properties\": {"]
+#[doc = "        \"kind\": {"]
+#[doc = "          \"type\": \"string\","]
+#[doc = "          \"const\": \"boolean-map\""]
+#[doc = "        },"]
+#[doc = "        \"source\": {"]
+#[doc = "          \"$ref\": \"#/$defs/Source\""]
+#[doc = "        },"]
+#[doc = "        \"value\": {"]
+#[doc = "          \"type\": \"object\","]
+#[doc = "          \"maxItems\": 1000,"]
+#[doc = "          \"minItems\": 0,"]
+#[doc = "          \"patternProperties\": {"]
+#[doc = "            \".*\": {"]
+#[doc = "              \"type\": \"boolean\""]
+#[doc = "            }"]
+#[doc = "          }"]
+#[doc = "        }"]
+#[doc = "      },"]
+#[doc = "      \"additionalProperties\": false"]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"title\": \"Compile-Time String List Map\","]
+#[doc = "      \"description\": \"A constant map to a string list.\","]
+#[doc = "      \"type\": \"object\","]
+#[doc = "      \"required\": ["]
+#[doc = "        \"kind\","]
+#[doc = "        \"source\","]
+#[doc = "        \"value\""]
+#[doc = "      ],"]
+#[doc = "      \"properties\": {"]
+#[doc = "        \"kind\": {"]
+#[doc = "          \"type\": \"string\","]
+#[doc = "          \"const\": \"string-list-map\""]
+#[doc = "        },"]
+#[doc = "        \"source\": {"]
+#[doc = "          \"$ref\": \"#/$defs/Source\""]
+#[doc = "        },"]
+#[doc = "        \"value\": {"]
+#[doc = "          \"type\": \"object\","]
+#[doc = "          \"maxItems\": 1000,"]
+#[doc = "          \"minItems\": 0,"]
+#[doc = "          \"patternProperties\": {"]
+#[doc = "            \".*\": {"]
+#[doc = "              \"type\": \"array\","]
+#[doc = "              \"items\": {"]
+#[doc = "                \"$ref\": \"#/$defs/ConstString\""]
+#[doc = "              },"]
+#[doc = "              \"maxItems\": 1000,"]
+#[doc = "              \"minItems\": 0"]
+#[doc = "            }"]
+#[doc = "          }"]
+#[doc = "        }"]
+#[doc = "      },"]
+#[doc = "      \"additionalProperties\": false"]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"title\": \"Compile-Time String Map List\","]
+#[doc = "      \"description\": \"A constant list of string maps.\","]
+#[doc = "      \"type\": \"object\","]
+#[doc = "      \"required\": ["]
+#[doc = "        \"kind\","]
+#[doc = "        \"source\","]
+#[doc = "        \"value\""]
+#[doc = "      ],"]
+#[doc = "      \"properties\": {"]
+#[doc = "        \"kind\": {"]
+#[doc = "          \"type\": \"string\","]
+#[doc = "          \"const\": \"string-map-list\""]
+#[doc = "        },"]
+#[doc = "        \"source\": {"]
+#[doc = "          \"$ref\": \"#/$defs/Source\""]
+#[doc = "        },"]
+#[doc = "        \"value\": {"]
+#[doc = "          \"type\": \"array\","]
+#[doc = "          \"items\": {"]
+#[doc = "            \"type\": \"object\","]
+#[doc = "            \"maxItems\": 1000,"]
+#[doc = "            \"minItems\": 0,"]
+#[doc = "            \"patternProperties\": {"]
+#[doc = "              \".*\": {"]
+#[doc = "                \"$ref\": \"#/$defs/ConstString\""]
+#[doc = "              }"]
+#[doc = "            }"]
+#[doc = "          },"]
+#[doc = "          \"maxItems\": 1000,"]
+#[doc = "          \"minItems\": 0"]
+#[doc = "        }"]
+#[doc = "      },"]
+#[doc = "      \"additionalProperties\": false"]
+#[doc = "    }"]
+#[doc = "  ],"]
+#[doc = "  \"discriminator\": {"]
+#[doc = "    \"propertyName\": \"kind\""]
+#[doc = "  }"]
+#[doc = "}"]
+#[doc = r" ```"]
+#[doc = r" </details>"]
+#[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
+#[serde(tag = "kind", deny_unknown_fields)]
+pub enum InitialParameterValue {
+    #[doc = "Compile-Time String\n\nA constant string value."]
+    #[serde(rename = "string")]
+    String { source: Source, value: ConstString },
+    #[doc = "Compile-Time Number\n\nA constant number value."]
+    #[serde(rename = "number")]
+    Number { source: Source, value: ConstInt },
+    #[doc = "Compile-Time Boolean\n\nA constant boolean (true/false) value."]
+    #[serde(rename = "boolean")]
+    Boolean {
+        source: Source,
+        #[doc = "The constant boolean value."]
+        value: bool,
+    },
+    #[doc = "Compile-Time Null\n\nA constant null value."]
+    #[serde(rename = "null")]
+    Null { source: Source },
+    #[doc = "Compile-Time String List\n\nA constant string list value."]
+    #[serde(rename = "string-list")]
+    StringList {
+        source: Source,
+        value: ::std::vec::Vec<ConstString>,
+    },
+    #[doc = "Compile-Time Number List\n\nA constant number list value."]
+    #[serde(rename = "number-list")]
+    NumberList {
+        source: Source,
+        value: ::std::vec::Vec<ConstInt>,
+    },
+    #[doc = "Compile-Time Boolean List\n\nA constant boolean list value."]
+    #[serde(rename = "boolean-list")]
+    BooleanList {
+        source: Source,
+        value: ::std::vec::Vec<bool>,
+    },
+    #[doc = "Compile-Time String Map\n\nA constant string map value."]
+    #[serde(rename = "string-map")]
+    StringMap {
+        source: Source,
+        value: ::std::collections::HashMap<InitialParameterValueValueKey, ConstString>,
+    },
+    #[doc = "Compile-Time Number Map\n\nA constant number map value."]
+    #[serde(rename = "number-map")]
+    NumberMap {
+        source: Source,
+        value: ::std::collections::HashMap<InitialParameterValueValueKey, ConstInt>,
+    },
+    #[doc = "Compile-Time Boolean Map\n\nA constant boolean map value."]
+    #[serde(rename = "boolean-map")]
+    BooleanMap {
+        source: Source,
+        value: ::std::collections::HashMap<InitialParameterValueValueKey, bool>,
+    },
+    #[doc = "Compile-Time String List Map\n\nA constant map to a string list."]
+    #[serde(rename = "string-list-map")]
+    StringListMap {
+        source: Source,
+        value: ::std::collections::HashMap<
+            InitialParameterValueValueKey,
+            ::std::vec::Vec<ConstString>,
+        >,
+    },
+    #[doc = "Compile-Time String Map List\n\nA constant list of string maps."]
+    #[serde(rename = "string-map-list")]
+    StringMapList {
+        source: Source,
+        value: ::std::vec::Vec<
+            ::std::collections::HashMap<InitialParameterValueValueItemKey, ConstString>,
+        >,
+    },
+}
+impl ::std::convert::From<&Self> for InitialParameterValue {
+    fn from(value: &InitialParameterValue) -> Self {
+        value.clone()
+    }
+}
+#[doc = "`InitialParameterValueValueItemKey`"]
+#[doc = r""]
+#[doc = r" <details><summary>JSON schema</summary>"]
+#[doc = r""]
+#[doc = r" ```json"]
+#[doc = "{"]
+#[doc = "  \"type\": \"string\","]
+#[doc = "  \"pattern\": \".*\""]
+#[doc = "}"]
+#[doc = r" ```"]
+#[doc = r" </details>"]
+#[derive(:: serde :: Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct InitialParameterValueValueItemKey(::std::string::String);
+impl ::std::ops::Deref for InitialParameterValueValueItemKey {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<InitialParameterValueValueItemKey> for ::std::string::String {
+    fn from(value: InitialParameterValueValueItemKey) -> Self {
+        value.0
+    }
+}
+impl ::std::convert::From<&InitialParameterValueValueItemKey>
+    for InitialParameterValueValueItemKey
+{
+    fn from(value: &InitialParameterValueValueItemKey) -> Self {
+        value.clone()
+    }
+}
+impl ::std::str::FromStr for InitialParameterValueValueItemKey {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+            ::std::sync::LazyLock::new(|| ::regress::Regex::new(".*").unwrap());
+        if PATTERN.find(value).is_none() {
+            return Err("doesn't match pattern \".*\"".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for InitialParameterValueValueItemKey {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<&::std::string::String> for InitialParameterValueValueItemKey {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: &::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for InitialParameterValueValueItemKey {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for InitialParameterValueValueItemKey {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
+    }
+}
+#[doc = "`InitialParameterValueValueKey`"]
+#[doc = r""]
+#[doc = r" <details><summary>JSON schema</summary>"]
+#[doc = r""]
+#[doc = r" ```json"]
+#[doc = "{"]
+#[doc = "  \"type\": \"string\","]
+#[doc = "  \"pattern\": \".*\""]
+#[doc = "}"]
+#[doc = r" ```"]
+#[doc = r" </details>"]
+#[derive(:: serde :: Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct InitialParameterValueValueKey(::std::string::String);
+impl ::std::ops::Deref for InitialParameterValueValueKey {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<InitialParameterValueValueKey> for ::std::string::String {
+    fn from(value: InitialParameterValueValueKey) -> Self {
+        value.0
+    }
+}
+impl ::std::convert::From<&InitialParameterValueValueKey> for InitialParameterValueValueKey {
+    fn from(value: &InitialParameterValueValueKey) -> Self {
+        value.clone()
+    }
+}
+impl ::std::str::FromStr for InitialParameterValueValueKey {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+            ::std::sync::LazyLock::new(|| ::regress::Regex::new(".*").unwrap());
+        if PATTERN.find(value).is_none() {
+            return Err("doesn't match pattern \".*\"".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for InitialParameterValueValueKey {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<&::std::string::String> for InitialParameterValueValueKey {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: &::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for InitialParameterValueValueKey {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for InitialParameterValueValueKey {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
     }
 }
 #[doc = "The compile-time parameters for the node.  These parameters are static and help initialize the module."]
@@ -3706,329 +6730,7 @@ impl FloorValue {
 #[doc = "          \"$ref\": \"#/$defs/Source\""]
 #[doc = "        },"]
 #[doc = "        \"value\": {"]
-#[doc = "          \"oneOf\": ["]
-#[doc = "            {"]
-#[doc = "              \"title\": \"Compile-Time String\","]
-#[doc = "              \"description\": \"A constant string value.\","]
-#[doc = "              \"type\": \"object\","]
-#[doc = "              \"required\": ["]
-#[doc = "                \"kind\","]
-#[doc = "                \"source\","]
-#[doc = "                \"value\""]
-#[doc = "              ],"]
-#[doc = "              \"properties\": {"]
-#[doc = "                \"kind\": {"]
-#[doc = "                  \"const\": \"string\""]
-#[doc = "                },"]
-#[doc = "                \"source\": {"]
-#[doc = "                  \"$ref\": \"#/$defs/Source\""]
-#[doc = "                },"]
-#[doc = "                \"value\": {"]
-#[doc = "                  \"$ref\": \"#/$defs/ConstString\""]
-#[doc = "                }"]
-#[doc = "              },"]
-#[doc = "              \"additionalProperties\": false"]
-#[doc = "            },"]
-#[doc = "            {"]
-#[doc = "              \"title\": \"Compile-Time Number\","]
-#[doc = "              \"description\": \"A constant number value.\","]
-#[doc = "              \"type\": \"object\","]
-#[doc = "              \"required\": ["]
-#[doc = "                \"kind\","]
-#[doc = "                \"source\","]
-#[doc = "                \"value\""]
-#[doc = "              ],"]
-#[doc = "              \"properties\": {"]
-#[doc = "                \"kind\": {"]
-#[doc = "                  \"const\": \"number\""]
-#[doc = "                },"]
-#[doc = "                \"source\": {"]
-#[doc = "                  \"$ref\": \"#/$defs/Source\""]
-#[doc = "                },"]
-#[doc = "                \"value\": {"]
-#[doc = "                  \"$ref\": \"#/$defs/ConstInt\""]
-#[doc = "                }"]
-#[doc = "              },"]
-#[doc = "              \"additionalProperties\": false"]
-#[doc = "            },"]
-#[doc = "            {"]
-#[doc = "              \"title\": \"Compile-Time Boolean\","]
-#[doc = "              \"description\": \"A constant boolean (true/false) value.\","]
-#[doc = "              \"type\": \"object\","]
-#[doc = "              \"required\": ["]
-#[doc = "                \"kind\","]
-#[doc = "                \"source\","]
-#[doc = "                \"value\""]
-#[doc = "              ],"]
-#[doc = "              \"properties\": {"]
-#[doc = "                \"kind\": {"]
-#[doc = "                  \"const\": \"boolean\""]
-#[doc = "                },"]
-#[doc = "                \"source\": {"]
-#[doc = "                  \"$ref\": \"#/$defs/Source\""]
-#[doc = "                },"]
-#[doc = "                \"value\": {"]
-#[doc = "                  \"description\": \"The constant boolean value.\","]
-#[doc = "                  \"type\": \"boolean\""]
-#[doc = "                }"]
-#[doc = "              },"]
-#[doc = "              \"additionalProperties\": false"]
-#[doc = "            },"]
-#[doc = "            {"]
-#[doc = "              \"title\": \"Compile-Time Null\","]
-#[doc = "              \"description\": \"A constant null value.\","]
-#[doc = "              \"type\": \"object\","]
-#[doc = "              \"required\": ["]
-#[doc = "                \"kind\","]
-#[doc = "                \"source\""]
-#[doc = "              ],"]
-#[doc = "              \"properties\": {"]
-#[doc = "                \"kind\": {"]
-#[doc = "                  \"const\": \"null\""]
-#[doc = "                },"]
-#[doc = "                \"source\": {"]
-#[doc = "                  \"$ref\": \"#/$defs/Source\""]
-#[doc = "                }"]
-#[doc = "              },"]
-#[doc = "              \"additionalProperties\": false"]
-#[doc = "            },"]
-#[doc = "            {"]
-#[doc = "              \"title\": \"Compile-Time String List\","]
-#[doc = "              \"description\": \"A constant string list value.\","]
-#[doc = "              \"type\": \"object\","]
-#[doc = "              \"required\": ["]
-#[doc = "                \"kind\","]
-#[doc = "                \"source\","]
-#[doc = "                \"value\""]
-#[doc = "              ],"]
-#[doc = "              \"properties\": {"]
-#[doc = "                \"kind\": {"]
-#[doc = "                  \"const\": \"string-list\""]
-#[doc = "                },"]
-#[doc = "                \"source\": {"]
-#[doc = "                  \"$ref\": \"#/$defs/Source\""]
-#[doc = "                },"]
-#[doc = "                \"value\": {"]
-#[doc = "                  \"type\": \"array\","]
-#[doc = "                  \"items\": {"]
-#[doc = "                    \"$ref\": \"#/$defs/ConstString\""]
-#[doc = "                  },"]
-#[doc = "                  \"maxItems\": 1000,"]
-#[doc = "                  \"minItems\": 0"]
-#[doc = "                }"]
-#[doc = "              },"]
-#[doc = "              \"additionalProperties\": false"]
-#[doc = "            },"]
-#[doc = "            {"]
-#[doc = "              \"title\": \"Compile-Time Number List\","]
-#[doc = "              \"description\": \"A constant number list value.\","]
-#[doc = "              \"type\": \"object\","]
-#[doc = "              \"required\": ["]
-#[doc = "                \"kind\","]
-#[doc = "                \"source\","]
-#[doc = "                \"value\""]
-#[doc = "              ],"]
-#[doc = "              \"properties\": {"]
-#[doc = "                \"kind\": {"]
-#[doc = "                  \"const\": \"number-list\""]
-#[doc = "                },"]
-#[doc = "                \"source\": {"]
-#[doc = "                  \"$ref\": \"#/$defs/Source\""]
-#[doc = "                },"]
-#[doc = "                \"value\": {"]
-#[doc = "                  \"type\": \"array\","]
-#[doc = "                  \"items\": {"]
-#[doc = "                    \"$ref\": \"#/$defs/ConstInt\""]
-#[doc = "                  },"]
-#[doc = "                  \"maxItems\": 1000,"]
-#[doc = "                  \"minItems\": 0"]
-#[doc = "                }"]
-#[doc = "              },"]
-#[doc = "              \"additionalProperties\": false"]
-#[doc = "            },"]
-#[doc = "            {"]
-#[doc = "              \"title\": \"Compile-Time Boolean List\","]
-#[doc = "              \"description\": \"A constant boolean list value.\","]
-#[doc = "              \"type\": \"object\","]
-#[doc = "              \"required\": ["]
-#[doc = "                \"kind\","]
-#[doc = "                \"source\","]
-#[doc = "                \"value\""]
-#[doc = "              ],"]
-#[doc = "              \"properties\": {"]
-#[doc = "                \"kind\": {"]
-#[doc = "                  \"const\": \"boolean-list\""]
-#[doc = "                },"]
-#[doc = "                \"source\": {"]
-#[doc = "                  \"$ref\": \"#/$defs/Source\""]
-#[doc = "                },"]
-#[doc = "                \"value\": {"]
-#[doc = "                  \"type\": \"array\","]
-#[doc = "                  \"items\": {"]
-#[doc = "                    \"type\": \"boolean\""]
-#[doc = "                  },"]
-#[doc = "                  \"maxItems\": 1000,"]
-#[doc = "                  \"minItems\": 0"]
-#[doc = "                }"]
-#[doc = "              },"]
-#[doc = "              \"additionalProperties\": false"]
-#[doc = "            },"]
-#[doc = "            {"]
-#[doc = "              \"title\": \"Compile-Time String Map\","]
-#[doc = "              \"description\": \"A constant string map value.\","]
-#[doc = "              \"type\": \"object\","]
-#[doc = "              \"required\": ["]
-#[doc = "                \"kind\","]
-#[doc = "                \"source\","]
-#[doc = "                \"value\""]
-#[doc = "              ],"]
-#[doc = "              \"properties\": {"]
-#[doc = "                \"kind\": {"]
-#[doc = "                  \"const\": \"string-map\""]
-#[doc = "                },"]
-#[doc = "                \"source\": {"]
-#[doc = "                  \"$ref\": \"#/$defs/Source\""]
-#[doc = "                },"]
-#[doc = "                \"value\": {"]
-#[doc = "                  \"type\": \"object\","]
-#[doc = "                  \"maxItems\": 1000,"]
-#[doc = "                  \"minItems\": 0,"]
-#[doc = "                  \"patternProperties\": {"]
-#[doc = "                    \".*\": {"]
-#[doc = "                      \"$ref\": \"#/$defs/ConstString\""]
-#[doc = "                    }"]
-#[doc = "                  }"]
-#[doc = "                }"]
-#[doc = "              },"]
-#[doc = "              \"additionalProperties\": false"]
-#[doc = "            },"]
-#[doc = "            {"]
-#[doc = "              \"title\": \"Compile-Time Number Map\","]
-#[doc = "              \"description\": \"A constant number map value.\","]
-#[doc = "              \"type\": \"object\","]
-#[doc = "              \"required\": ["]
-#[doc = "                \"kind\","]
-#[doc = "                \"source\","]
-#[doc = "                \"value\""]
-#[doc = "              ],"]
-#[doc = "              \"properties\": {"]
-#[doc = "                \"kind\": {"]
-#[doc = "                  \"const\": \"number-map\""]
-#[doc = "                },"]
-#[doc = "                \"source\": {"]
-#[doc = "                  \"$ref\": \"#/$defs/Source\""]
-#[doc = "                },"]
-#[doc = "                \"value\": {"]
-#[doc = "                  \"type\": \"object\","]
-#[doc = "                  \"maxItems\": 1000,"]
-#[doc = "                  \"minItems\": 0,"]
-#[doc = "                  \"patternProperties\": {"]
-#[doc = "                    \".*\": {"]
-#[doc = "                      \"$ref\": \"#/$defs/ConstInt\""]
-#[doc = "                    }"]
-#[doc = "                  }"]
-#[doc = "                }"]
-#[doc = "              },"]
-#[doc = "              \"additionalProperties\": false"]
-#[doc = "            },"]
-#[doc = "            {"]
-#[doc = "              \"title\": \"Compile-Time Boolean Map\","]
-#[doc = "              \"description\": \"A constant boolean map value.\","]
-#[doc = "              \"type\": \"object\","]
-#[doc = "              \"required\": ["]
-#[doc = "                \"kind\","]
-#[doc = "                \"source\","]
-#[doc = "                \"value\""]
-#[doc = "              ],"]
-#[doc = "              \"properties\": {"]
-#[doc = "                \"kind\": {"]
-#[doc = "                  \"const\": \"boolean-map\""]
-#[doc = "                },"]
-#[doc = "                \"source\": {"]
-#[doc = "                  \"$ref\": \"#/$defs/Source\""]
-#[doc = "                },"]
-#[doc = "                \"value\": {"]
-#[doc = "                  \"type\": \"object\","]
-#[doc = "                  \"maxItems\": 1000,"]
-#[doc = "                  \"minItems\": 0,"]
-#[doc = "                  \"patternProperties\": {"]
-#[doc = "                    \".*\": {"]
-#[doc = "                      \"type\": \"boolean\""]
-#[doc = "                    }"]
-#[doc = "                  }"]
-#[doc = "                }"]
-#[doc = "              },"]
-#[doc = "              \"additionalProperties\": false"]
-#[doc = "            },"]
-#[doc = "            {"]
-#[doc = "              \"title\": \"Compile-Time String List Map\","]
-#[doc = "              \"description\": \"A constant map to a string list.\","]
-#[doc = "              \"type\": \"object\","]
-#[doc = "              \"required\": ["]
-#[doc = "                \"kind\","]
-#[doc = "                \"source\","]
-#[doc = "                \"value\""]
-#[doc = "              ],"]
-#[doc = "              \"properties\": {"]
-#[doc = "                \"kind\": {"]
-#[doc = "                  \"const\": \"string-list-map\""]
-#[doc = "                },"]
-#[doc = "                \"source\": {"]
-#[doc = "                  \"$ref\": \"#/$defs/Source\""]
-#[doc = "                },"]
-#[doc = "                \"value\": {"]
-#[doc = "                  \"type\": \"object\","]
-#[doc = "                  \"maxItems\": 1000,"]
-#[doc = "                  \"minItems\": 0,"]
-#[doc = "                  \"patternProperties\": {"]
-#[doc = "                    \".*\": {"]
-#[doc = "                      \"type\": \"array\","]
-#[doc = "                      \"items\": {"]
-#[doc = "                        \"$ref\": \"#/$defs/ConstString\""]
-#[doc = "                      },"]
-#[doc = "                      \"maxItems\": 1000,"]
-#[doc = "                      \"minItems\": 0"]
-#[doc = "                    }"]
-#[doc = "                  }"]
-#[doc = "                }"]
-#[doc = "              },"]
-#[doc = "              \"additionalProperties\": false"]
-#[doc = "            },"]
-#[doc = "            {"]
-#[doc = "              \"title\": \"Compile-Time String Map List\","]
-#[doc = "              \"description\": \"A constant list of string maps.\","]
-#[doc = "              \"type\": \"object\","]
-#[doc = "              \"required\": ["]
-#[doc = "                \"kind\","]
-#[doc = "                \"source\","]
-#[doc = "                \"value\""]
-#[doc = "              ],"]
-#[doc = "              \"properties\": {"]
-#[doc = "                \"kind\": {"]
-#[doc = "                  \"const\": \"string-map-list\""]
-#[doc = "                },"]
-#[doc = "                \"source\": {"]
-#[doc = "                  \"$ref\": \"#/$defs/Source\""]
-#[doc = "                },"]
-#[doc = "                \"value\": {"]
-#[doc = "                  \"type\": \"array\","]
-#[doc = "                  \"items\": {"]
-#[doc = "                    \"type\": \"object\","]
-#[doc = "                    \"maxItems\": 1000,"]
-#[doc = "                    \"minItems\": 0,"]
-#[doc = "                    \"patternProperties\": {"]
-#[doc = "                      \".*\": {"]
-#[doc = "                        \"$ref\": \"#/$defs/ConstString\""]
-#[doc = "                      }"]
-#[doc = "                    }"]
-#[doc = "                  },"]
-#[doc = "                  \"maxItems\": 1000,"]
-#[doc = "                  \"minItems\": 0"]
-#[doc = "                }"]
-#[doc = "              },"]
-#[doc = "              \"additionalProperties\": false"]
-#[doc = "            }"]
-#[doc = "          ]"]
+#[doc = "          \"$ref\": \"#/$defs/InitialParameterValue\""]
 #[doc = "        }"]
 #[doc = "      },"]
 #[doc = "      \"additionalProperties\": false"]
@@ -4165,8 +6867,7 @@ impl<'de> ::serde::Deserialize<'de> for InitialParametersKey {
 #[doc = "      \"$ref\": \"#/$defs/InitialParameters\""]
 #[doc = "    },"]
 #[doc = "    \"kind\": {"]
-#[doc = "      \"title\": \"Kind\","]
-#[doc = "      \"description\": \"Job definition distinguisher\","]
+#[doc = "      \"type\": \"string\","]
 #[doc = "      \"const\": \"inline\""]
 #[doc = "    },"]
 #[doc = "    \"rerunnable\": {"]
@@ -4180,7 +6881,10 @@ impl<'de> ::serde::Deserialize<'de> for InitialParametersKey {
 #[doc = "      \"$ref\": \"#/$defs/Source\""]
 #[doc = "    }"]
 #[doc = "  },"]
-#[doc = "  \"additionalProperties\": false"]
+#[doc = "  \"additionalProperties\": false,"]
+#[doc = "  \"discriminator\": {"]
+#[doc = "    \"propertyName\": \"kind\""]
+#[doc = "  }"]
 #[doc = "}"]
 #[doc = r" ```"]
 #[doc = r" </details>"]
@@ -4195,8 +6899,7 @@ pub struct InlineJob {
         skip_serializing_if = "::std::option::Option::is_none"
     )]
     pub initial_parameters: ::std::option::Option<InitialParameters>,
-    #[doc = "Job definition distinguisher"]
-    pub kind: ::serde_json::Value,
+    pub kind: ::std::string::String,
     #[serde(default = "defaults::default_bool::<true>")]
     pub rerunnable: bool,
     #[serde(
@@ -4314,7 +7017,10 @@ impl<'de> ::serde::Deserialize<'de> for InlineJobCode {
 #[doc = "    {"]
 #[doc = "      \"$ref\": \"#/$defs/MacroJob\""]
 #[doc = "    }"]
-#[doc = "  ]"]
+#[doc = "  ],"]
+#[doc = "  \"discriminator\": {"]
+#[doc = "    \"propertyName\": \"kind\""]
+#[doc = "  }"]
 #[doc = "}"]
 #[doc = r" ```"]
 #[doc = r" </details>"]
@@ -4450,21 +7156,55 @@ impl<'de> ::serde::Deserialize<'de> for JobRef {
 #[doc = "      \"$ref\": \"#/$defs/ComputedNumberValue\""]
 #[doc = "    },"]
 #[doc = "    \"kind\": {"]
+#[doc = "      \"type\": \"string\","]
 #[doc = "      \"const\": \"list-contains-index-boolean\""]
 #[doc = "    },"]
 #[doc = "    \"list\": {"]
 #[doc = "      \"oneOf\": ["]
 #[doc = "        {"]
-#[doc = "          \"$ref\": \"#/$defs/ComputedStringListValue\""]
+#[doc = "          \"$ref\": \"#/$defs/LookupStringListValue\""]
 #[doc = "        },"]
 #[doc = "        {"]
-#[doc = "          \"$ref\": \"#/$defs/ComputedNumberListValue\""]
+#[doc = "          \"$ref\": \"#/$defs/SplitStringValue\""]
 #[doc = "        },"]
 #[doc = "        {"]
-#[doc = "          \"$ref\": \"#/$defs/ComputedBooleanListValue\""]
+#[doc = "          \"$ref\": \"#/$defs/RangeStringListValue\""]
 #[doc = "        },"]
 #[doc = "        {"]
-#[doc = "          \"$ref\": \"#/$defs/ComputedStringMapListValue\""]
+#[doc = "          \"$ref\": \"#/$defs/StringListMapKeyValue\""]
+#[doc = "        },"]
+#[doc = "        {"]
+#[doc = "          \"$ref\": \"#/$defs/MapKeysStringListValue\""]
+#[doc = "        },"]
+#[doc = "        {"]
+#[doc = "          \"$ref\": \"#/$defs/ConstantStringListValue\""]
+#[doc = "        },"]
+#[doc = "        {"]
+#[doc = "          \"$ref\": \"#/$defs/LookupNumberListValue\""]
+#[doc = "        },"]
+#[doc = "        {"]
+#[doc = "          \"$ref\": \"#/$defs/RangeNumberListValue\""]
+#[doc = "        },"]
+#[doc = "        {"]
+#[doc = "          \"$ref\": \"#/$defs/ConstantNumberListValue\""]
+#[doc = "        },"]
+#[doc = "        {"]
+#[doc = "          \"$ref\": \"#/$defs/LookupBooleanListValue\""]
+#[doc = "        },"]
+#[doc = "        {"]
+#[doc = "          \"$ref\": \"#/$defs/RangeBooleanListValue\""]
+#[doc = "        },"]
+#[doc = "        {"]
+#[doc = "          \"$ref\": \"#/$defs/ConstantBooleanListValue\""]
+#[doc = "        },"]
+#[doc = "        {"]
+#[doc = "          \"$ref\": \"#/$defs/LookupStringMapListValue\""]
+#[doc = "        },"]
+#[doc = "        {"]
+#[doc = "          \"$ref\": \"#/$defs/RangeStringMapListValue\""]
+#[doc = "        },"]
+#[doc = "        {"]
+#[doc = "          \"$ref\": \"#/$defs/ConstantStringMapListValue\""]
 #[doc = "        }"]
 #[doc = "      ]"]
 #[doc = "    },"]
@@ -4472,7 +7212,10 @@ impl<'de> ::serde::Deserialize<'de> for JobRef {
 #[doc = "      \"$ref\": \"#/$defs/Source\""]
 #[doc = "    }"]
 #[doc = "  },"]
-#[doc = "  \"additionalProperties\": false"]
+#[doc = "  \"additionalProperties\": false,"]
+#[doc = "  \"discriminator\": {"]
+#[doc = "    \"propertyName\": \"kind\""]
+#[doc = "  }"]
 #[doc = "}"]
 #[doc = r" ```"]
 #[doc = r" </details>"]
@@ -4480,7 +7223,7 @@ impl<'de> ::serde::Deserialize<'de> for JobRef {
 #[serde(deny_unknown_fields)]
 pub struct ListContainsIndexBooleanValue {
     pub index: ::std::boxed::Box<ComputedNumberValue>,
-    pub kind: ::serde_json::Value,
+    pub kind: ::std::string::String,
     pub list: ListContainsIndexBooleanValueList,
     pub source: Source,
 }
@@ -4502,16 +7245,49 @@ impl ListContainsIndexBooleanValue {
 #[doc = "{"]
 #[doc = "  \"oneOf\": ["]
 #[doc = "    {"]
-#[doc = "      \"$ref\": \"#/$defs/ComputedStringListValue\""]
+#[doc = "      \"$ref\": \"#/$defs/LookupStringListValue\""]
 #[doc = "    },"]
 #[doc = "    {"]
-#[doc = "      \"$ref\": \"#/$defs/ComputedNumberListValue\""]
+#[doc = "      \"$ref\": \"#/$defs/SplitStringValue\""]
 #[doc = "    },"]
 #[doc = "    {"]
-#[doc = "      \"$ref\": \"#/$defs/ComputedBooleanListValue\""]
+#[doc = "      \"$ref\": \"#/$defs/RangeStringListValue\""]
 #[doc = "    },"]
 #[doc = "    {"]
-#[doc = "      \"$ref\": \"#/$defs/ComputedStringMapListValue\""]
+#[doc = "      \"$ref\": \"#/$defs/StringListMapKeyValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/MapKeysStringListValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/ConstantStringListValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/LookupNumberListValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/RangeNumberListValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/ConstantNumberListValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/LookupBooleanListValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/RangeBooleanListValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/ConstantBooleanListValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/LookupStringMapListValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/RangeStringMapListValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/ConstantStringMapListValue\""]
 #[doc = "    }"]
 #[doc = "  ]"]
 #[doc = "}"]
@@ -4520,34 +7296,100 @@ impl ListContainsIndexBooleanValue {
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(untagged)]
 pub enum ListContainsIndexBooleanValueList {
-    StringListValue(ComputedStringListValue),
-    NumberListValue(ComputedNumberListValue),
-    BooleanListValue(ComputedBooleanListValue),
-    StringMapListValue(ComputedStringMapListValue),
+    LookupStringListValue(LookupStringListValue),
+    SplitStringValue(SplitStringValue),
+    RangeStringListValue(RangeStringListValue),
+    StringListMapKeyValue(StringListMapKeyValue),
+    MapKeysStringListValue(MapKeysStringListValue),
+    ConstantStringListValue(ConstantStringListValue),
+    LookupNumberListValue(LookupNumberListValue),
+    RangeNumberListValue(RangeNumberListValue),
+    ConstantNumberListValue(ConstantNumberListValue),
+    LookupBooleanListValue(LookupBooleanListValue),
+    RangeBooleanListValue(RangeBooleanListValue),
+    ConstantBooleanListValue(ConstantBooleanListValue),
+    LookupStringMapListValue(LookupStringMapListValue),
+    RangeStringMapListValue(RangeStringMapListValue),
+    ConstantStringMapListValue(ConstantStringMapListValue),
 }
 impl ::std::convert::From<&Self> for ListContainsIndexBooleanValueList {
     fn from(value: &ListContainsIndexBooleanValueList) -> Self {
         value.clone()
     }
 }
-impl ::std::convert::From<ComputedStringListValue> for ListContainsIndexBooleanValueList {
-    fn from(value: ComputedStringListValue) -> Self {
-        Self::StringListValue(value)
+impl ::std::convert::From<LookupStringListValue> for ListContainsIndexBooleanValueList {
+    fn from(value: LookupStringListValue) -> Self {
+        Self::LookupStringListValue(value)
     }
 }
-impl ::std::convert::From<ComputedNumberListValue> for ListContainsIndexBooleanValueList {
-    fn from(value: ComputedNumberListValue) -> Self {
-        Self::NumberListValue(value)
+impl ::std::convert::From<SplitStringValue> for ListContainsIndexBooleanValueList {
+    fn from(value: SplitStringValue) -> Self {
+        Self::SplitStringValue(value)
     }
 }
-impl ::std::convert::From<ComputedBooleanListValue> for ListContainsIndexBooleanValueList {
-    fn from(value: ComputedBooleanListValue) -> Self {
-        Self::BooleanListValue(value)
+impl ::std::convert::From<RangeStringListValue> for ListContainsIndexBooleanValueList {
+    fn from(value: RangeStringListValue) -> Self {
+        Self::RangeStringListValue(value)
     }
 }
-impl ::std::convert::From<ComputedStringMapListValue> for ListContainsIndexBooleanValueList {
-    fn from(value: ComputedStringMapListValue) -> Self {
-        Self::StringMapListValue(value)
+impl ::std::convert::From<StringListMapKeyValue> for ListContainsIndexBooleanValueList {
+    fn from(value: StringListMapKeyValue) -> Self {
+        Self::StringListMapKeyValue(value)
+    }
+}
+impl ::std::convert::From<MapKeysStringListValue> for ListContainsIndexBooleanValueList {
+    fn from(value: MapKeysStringListValue) -> Self {
+        Self::MapKeysStringListValue(value)
+    }
+}
+impl ::std::convert::From<ConstantStringListValue> for ListContainsIndexBooleanValueList {
+    fn from(value: ConstantStringListValue) -> Self {
+        Self::ConstantStringListValue(value)
+    }
+}
+impl ::std::convert::From<LookupNumberListValue> for ListContainsIndexBooleanValueList {
+    fn from(value: LookupNumberListValue) -> Self {
+        Self::LookupNumberListValue(value)
+    }
+}
+impl ::std::convert::From<RangeNumberListValue> for ListContainsIndexBooleanValueList {
+    fn from(value: RangeNumberListValue) -> Self {
+        Self::RangeNumberListValue(value)
+    }
+}
+impl ::std::convert::From<ConstantNumberListValue> for ListContainsIndexBooleanValueList {
+    fn from(value: ConstantNumberListValue) -> Self {
+        Self::ConstantNumberListValue(value)
+    }
+}
+impl ::std::convert::From<LookupBooleanListValue> for ListContainsIndexBooleanValueList {
+    fn from(value: LookupBooleanListValue) -> Self {
+        Self::LookupBooleanListValue(value)
+    }
+}
+impl ::std::convert::From<RangeBooleanListValue> for ListContainsIndexBooleanValueList {
+    fn from(value: RangeBooleanListValue) -> Self {
+        Self::RangeBooleanListValue(value)
+    }
+}
+impl ::std::convert::From<ConstantBooleanListValue> for ListContainsIndexBooleanValueList {
+    fn from(value: ConstantBooleanListValue) -> Self {
+        Self::ConstantBooleanListValue(value)
+    }
+}
+impl ::std::convert::From<LookupStringMapListValue> for ListContainsIndexBooleanValueList {
+    fn from(value: LookupStringMapListValue) -> Self {
+        Self::LookupStringMapListValue(value)
+    }
+}
+impl ::std::convert::From<RangeStringMapListValue> for ListContainsIndexBooleanValueList {
+    fn from(value: RangeStringMapListValue) -> Self {
+        Self::RangeStringMapListValue(value)
+    }
+}
+impl ::std::convert::From<ConstantStringMapListValue> for ListContainsIndexBooleanValueList {
+    fn from(value: ConstantStringMapListValue) -> Self {
+        Self::ConstantStringMapListValue(value)
     }
 }
 #[doc = "Extracts a single indexed boolean from a string list.  A default must be given, in case the index is out of bounds."]
@@ -4574,6 +7416,7 @@ impl ::std::convert::From<ComputedStringMapListValue> for ListContainsIndexBoole
 #[doc = "      \"$ref\": \"#/$defs/ComputedNumberValue\""]
 #[doc = "    },"]
 #[doc = "    \"kind\": {"]
+#[doc = "      \"type\": \"string\","]
 #[doc = "      \"const\": \"list-index-boolean\""]
 #[doc = "    },"]
 #[doc = "    \"list\": {"]
@@ -4583,7 +7426,10 @@ impl ::std::convert::From<ComputedStringMapListValue> for ListContainsIndexBoole
 #[doc = "      \"$ref\": \"#/$defs/Source\""]
 #[doc = "    }"]
 #[doc = "  },"]
-#[doc = "  \"additionalProperties\": false"]
+#[doc = "  \"additionalProperties\": false,"]
+#[doc = "  \"discriminator\": {"]
+#[doc = "    \"propertyName\": \"kind\""]
+#[doc = "  }"]
 #[doc = "}"]
 #[doc = r" ```"]
 #[doc = r" </details>"]
@@ -4592,7 +7438,7 @@ impl ::std::convert::From<ComputedStringMapListValue> for ListContainsIndexBoole
 pub struct ListIndexBooleanValue {
     pub default: ::std::boxed::Box<ComputedBooleanValue>,
     pub index: ::std::boxed::Box<ComputedNumberValue>,
-    pub kind: ::serde_json::Value,
+    pub kind: ::std::string::String,
     pub list: ComputedBooleanListValue,
     pub source: Source,
 }
@@ -4630,6 +7476,7 @@ impl ListIndexBooleanValue {
 #[doc = "      \"$ref\": \"#/$defs/ComputedNumberValue\""]
 #[doc = "    },"]
 #[doc = "    \"kind\": {"]
+#[doc = "      \"type\": \"string\","]
 #[doc = "      \"const\": \"list-index-number\""]
 #[doc = "    },"]
 #[doc = "    \"list\": {"]
@@ -4639,7 +7486,10 @@ impl ListIndexBooleanValue {
 #[doc = "      \"$ref\": \"#/$defs/Source\""]
 #[doc = "    }"]
 #[doc = "  },"]
-#[doc = "  \"additionalProperties\": false"]
+#[doc = "  \"additionalProperties\": false,"]
+#[doc = "  \"discriminator\": {"]
+#[doc = "    \"propertyName\": \"kind\""]
+#[doc = "  }"]
 #[doc = "}"]
 #[doc = r" ```"]
 #[doc = r" </details>"]
@@ -4648,7 +7498,7 @@ impl ListIndexBooleanValue {
 pub struct ListIndexNumberValue {
     pub default: ::std::boxed::Box<ComputedNumberValue>,
     pub index: ::std::boxed::Box<ComputedNumberValue>,
-    pub kind: ::serde_json::Value,
+    pub kind: ::std::string::String,
     pub list: ComputedNumberListValue,
     pub source: Source,
 }
@@ -4686,6 +7536,7 @@ impl ListIndexNumberValue {
 #[doc = "      \"$ref\": \"#/$defs/ComputedNumberValue\""]
 #[doc = "    },"]
 #[doc = "    \"kind\": {"]
+#[doc = "      \"type\": \"string\","]
 #[doc = "      \"const\": \"list-index-string\""]
 #[doc = "    },"]
 #[doc = "    \"list\": {"]
@@ -4695,7 +7546,10 @@ impl ListIndexNumberValue {
 #[doc = "      \"$ref\": \"#/$defs/Source\""]
 #[doc = "    }"]
 #[doc = "  },"]
-#[doc = "  \"additionalProperties\": false"]
+#[doc = "  \"additionalProperties\": false,"]
+#[doc = "  \"discriminator\": {"]
+#[doc = "    \"propertyName\": \"kind\""]
+#[doc = "  }"]
 #[doc = "}"]
 #[doc = r" ```"]
 #[doc = r" </details>"]
@@ -4704,7 +7558,7 @@ impl ListIndexNumberValue {
 pub struct ListIndexStringValue {
     pub default: ::std::boxed::Box<ComputedStringValue>,
     pub index: ::std::boxed::Box<ComputedNumberValue>,
-    pub kind: ::serde_json::Value,
+    pub kind: ::std::string::String,
     pub list: ::std::boxed::Box<ComputedStringListValue>,
     pub source: Source,
 }
@@ -4734,6 +7588,7 @@ impl ListIndexStringValue {
 #[doc = "  ],"]
 #[doc = "  \"properties\": {"]
 #[doc = "    \"kind\": {"]
+#[doc = "      \"type\": \"string\","]
 #[doc = "      \"const\": \"list-to-string\""]
 #[doc = "    },"]
 #[doc = "    \"separator\": {"]
@@ -4746,14 +7601,17 @@ impl ListIndexStringValue {
 #[doc = "      \"$ref\": \"#/$defs/ComputedStringListValue\""]
 #[doc = "    }"]
 #[doc = "  },"]
-#[doc = "  \"additionalProperties\": false"]
+#[doc = "  \"additionalProperties\": false,"]
+#[doc = "  \"discriminator\": {"]
+#[doc = "    \"propertyName\": \"kind\""]
+#[doc = "  }"]
 #[doc = "}"]
 #[doc = r" ```"]
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
 pub struct ListToStringValue {
-    pub kind: ::serde_json::Value,
+    pub kind: ::std::string::String,
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub separator: ::std::option::Option<::std::boxed::Box<ComputedStringValue>>,
     pub source: Source,
@@ -4789,6 +7647,7 @@ impl ListToStringValue {
 #[doc = "      \"$ref\": \"#/$defs/JobRef\""]
 #[doc = "    },"]
 #[doc = "    \"kind\": {"]
+#[doc = "      \"type\": \"string\","]
 #[doc = "      \"const\": \"lookup-state-boolean-list\""]
 #[doc = "    },"]
 #[doc = "    \"name\": {"]
@@ -4798,7 +7657,10 @@ impl ListToStringValue {
 #[doc = "      \"$ref\": \"#/$defs/Source\""]
 #[doc = "    }"]
 #[doc = "  },"]
-#[doc = "  \"additionalProperties\": false"]
+#[doc = "  \"additionalProperties\": false,"]
+#[doc = "  \"discriminator\": {"]
+#[doc = "    \"propertyName\": \"kind\""]
+#[doc = "  }"]
 #[doc = "}"]
 #[doc = r" ```"]
 #[doc = r" </details>"]
@@ -4806,7 +7668,7 @@ impl ListToStringValue {
 #[serde(deny_unknown_fields)]
 pub struct LookupBooleanListValue {
     pub job: JobRef,
-    pub kind: ::serde_json::Value,
+    pub kind: ::std::string::String,
     pub name: ParamName,
     pub source: Source,
 }
@@ -4840,6 +7702,7 @@ impl LookupBooleanListValue {
 #[doc = "      \"$ref\": \"#/$defs/JobRef\""]
 #[doc = "    },"]
 #[doc = "    \"kind\": {"]
+#[doc = "      \"type\": \"string\","]
 #[doc = "      \"const\": \"lookup-state-boolean-map\""]
 #[doc = "    },"]
 #[doc = "    \"name\": {"]
@@ -4849,7 +7712,10 @@ impl LookupBooleanListValue {
 #[doc = "      \"$ref\": \"#/$defs/Source\""]
 #[doc = "    }"]
 #[doc = "  },"]
-#[doc = "  \"additionalProperties\": false"]
+#[doc = "  \"additionalProperties\": false,"]
+#[doc = "  \"discriminator\": {"]
+#[doc = "    \"propertyName\": \"kind\""]
+#[doc = "  }"]
 #[doc = "}"]
 #[doc = r" ```"]
 #[doc = r" </details>"]
@@ -4857,7 +7723,7 @@ impl LookupBooleanListValue {
 #[serde(deny_unknown_fields)]
 pub struct LookupBooleanMapValue {
     pub job: JobRef,
-    pub kind: ::serde_json::Value,
+    pub kind: ::std::string::String,
     pub name: ParamName,
     pub source: Source,
 }
@@ -4891,6 +7757,7 @@ impl LookupBooleanMapValue {
 #[doc = "      \"$ref\": \"#/$defs/JobRef\""]
 #[doc = "    },"]
 #[doc = "    \"kind\": {"]
+#[doc = "      \"type\": \"string\","]
 #[doc = "      \"const\": \"lookup-state-boolean\""]
 #[doc = "    },"]
 #[doc = "    \"name\": {"]
@@ -4900,7 +7767,10 @@ impl LookupBooleanMapValue {
 #[doc = "      \"$ref\": \"#/$defs/Source\""]
 #[doc = "    }"]
 #[doc = "  },"]
-#[doc = "  \"additionalProperties\": false"]
+#[doc = "  \"additionalProperties\": false,"]
+#[doc = "  \"discriminator\": {"]
+#[doc = "    \"propertyName\": \"kind\""]
+#[doc = "  }"]
 #[doc = "}"]
 #[doc = r" ```"]
 #[doc = r" </details>"]
@@ -4908,7 +7778,7 @@ impl LookupBooleanMapValue {
 #[serde(deny_unknown_fields)]
 pub struct LookupBooleanValue {
     pub job: JobRef,
-    pub kind: ::serde_json::Value,
+    pub kind: ::std::string::String,
     pub name: ParamName,
     pub source: Source,
 }
@@ -4942,6 +7812,7 @@ impl LookupBooleanValue {
 #[doc = "      \"$ref\": \"#/$defs/JobRef\""]
 #[doc = "    },"]
 #[doc = "    \"kind\": {"]
+#[doc = "      \"type\": \"string\","]
 #[doc = "      \"const\": \"lookup-state-number-list\""]
 #[doc = "    },"]
 #[doc = "    \"name\": {"]
@@ -4951,7 +7822,10 @@ impl LookupBooleanValue {
 #[doc = "      \"$ref\": \"#/$defs/Source\""]
 #[doc = "    }"]
 #[doc = "  },"]
-#[doc = "  \"additionalProperties\": false"]
+#[doc = "  \"additionalProperties\": false,"]
+#[doc = "  \"discriminator\": {"]
+#[doc = "    \"propertyName\": \"kind\""]
+#[doc = "  }"]
 #[doc = "}"]
 #[doc = r" ```"]
 #[doc = r" </details>"]
@@ -4959,7 +7833,7 @@ impl LookupBooleanValue {
 #[serde(deny_unknown_fields)]
 pub struct LookupNumberListValue {
     pub job: JobRef,
-    pub kind: ::serde_json::Value,
+    pub kind: ::std::string::String,
     pub name: ParamName,
     pub source: Source,
 }
@@ -4993,6 +7867,7 @@ impl LookupNumberListValue {
 #[doc = "      \"$ref\": \"#/$defs/JobRef\""]
 #[doc = "    },"]
 #[doc = "    \"kind\": {"]
+#[doc = "      \"type\": \"string\","]
 #[doc = "      \"const\": \"lookup-state-number-map\""]
 #[doc = "    },"]
 #[doc = "    \"name\": {"]
@@ -5002,7 +7877,10 @@ impl LookupNumberListValue {
 #[doc = "      \"$ref\": \"#/$defs/Source\""]
 #[doc = "    }"]
 #[doc = "  },"]
-#[doc = "  \"additionalProperties\": false"]
+#[doc = "  \"additionalProperties\": false,"]
+#[doc = "  \"discriminator\": {"]
+#[doc = "    \"propertyName\": \"kind\""]
+#[doc = "  }"]
 #[doc = "}"]
 #[doc = r" ```"]
 #[doc = r" </details>"]
@@ -5010,7 +7888,7 @@ impl LookupNumberListValue {
 #[serde(deny_unknown_fields)]
 pub struct LookupNumberMapValue {
     pub job: JobRef,
-    pub kind: ::serde_json::Value,
+    pub kind: ::std::string::String,
     pub name: ParamName,
     pub source: Source,
 }
@@ -5044,6 +7922,7 @@ impl LookupNumberMapValue {
 #[doc = "      \"$ref\": \"#/$defs/JobRef\""]
 #[doc = "    },"]
 #[doc = "    \"kind\": {"]
+#[doc = "      \"type\": \"string\","]
 #[doc = "      \"const\": \"lookup-state-number\""]
 #[doc = "    },"]
 #[doc = "    \"name\": {"]
@@ -5053,7 +7932,10 @@ impl LookupNumberMapValue {
 #[doc = "      \"$ref\": \"#/$defs/Source\""]
 #[doc = "    }"]
 #[doc = "  },"]
-#[doc = "  \"additionalProperties\": false"]
+#[doc = "  \"additionalProperties\": false,"]
+#[doc = "  \"discriminator\": {"]
+#[doc = "    \"propertyName\": \"kind\""]
+#[doc = "  }"]
 #[doc = "}"]
 #[doc = r" ```"]
 #[doc = r" </details>"]
@@ -5061,7 +7943,7 @@ impl LookupNumberMapValue {
 #[serde(deny_unknown_fields)]
 pub struct LookupNumberValue {
     pub job: JobRef,
-    pub kind: ::serde_json::Value,
+    pub kind: ::std::string::String,
     pub name: ParamName,
     pub source: Source,
 }
@@ -5095,6 +7977,7 @@ impl LookupNumberValue {
 #[doc = "      \"$ref\": \"#/$defs/JobRef\""]
 #[doc = "    },"]
 #[doc = "    \"kind\": {"]
+#[doc = "      \"type\": \"string\","]
 #[doc = "      \"const\": \"lookup-state-string-list-map\""]
 #[doc = "    },"]
 #[doc = "    \"name\": {"]
@@ -5104,7 +7987,10 @@ impl LookupNumberValue {
 #[doc = "      \"$ref\": \"#/$defs/Source\""]
 #[doc = "    }"]
 #[doc = "  },"]
-#[doc = "  \"additionalProperties\": false"]
+#[doc = "  \"additionalProperties\": false,"]
+#[doc = "  \"discriminator\": {"]
+#[doc = "    \"propertyName\": \"kind\""]
+#[doc = "  }"]
 #[doc = "}"]
 #[doc = r" ```"]
 #[doc = r" </details>"]
@@ -5112,7 +7998,7 @@ impl LookupNumberValue {
 #[serde(deny_unknown_fields)]
 pub struct LookupStringListMapValue {
     pub job: JobRef,
-    pub kind: ::serde_json::Value,
+    pub kind: ::std::string::String,
     pub name: ParamName,
     pub source: Source,
 }
@@ -5146,6 +8032,7 @@ impl LookupStringListMapValue {
 #[doc = "      \"$ref\": \"#/$defs/JobRef\""]
 #[doc = "    },"]
 #[doc = "    \"kind\": {"]
+#[doc = "      \"type\": \"string\","]
 #[doc = "      \"const\": \"lookup-state-string-list\""]
 #[doc = "    },"]
 #[doc = "    \"name\": {"]
@@ -5155,7 +8042,10 @@ impl LookupStringListMapValue {
 #[doc = "      \"$ref\": \"#/$defs/Source\""]
 #[doc = "    }"]
 #[doc = "  },"]
-#[doc = "  \"additionalProperties\": false"]
+#[doc = "  \"additionalProperties\": false,"]
+#[doc = "  \"discriminator\": {"]
+#[doc = "    \"propertyName\": \"kind\""]
+#[doc = "  }"]
 #[doc = "}"]
 #[doc = r" ```"]
 #[doc = r" </details>"]
@@ -5163,7 +8053,7 @@ impl LookupStringListMapValue {
 #[serde(deny_unknown_fields)]
 pub struct LookupStringListValue {
     pub job: JobRef,
-    pub kind: ::serde_json::Value,
+    pub kind: ::std::string::String,
     pub name: ParamName,
     pub source: Source,
 }
@@ -5197,6 +8087,7 @@ impl LookupStringListValue {
 #[doc = "      \"$ref\": \"#/$defs/JobRef\""]
 #[doc = "    },"]
 #[doc = "    \"kind\": {"]
+#[doc = "      \"type\": \"string\","]
 #[doc = "      \"const\": \"lookup-state-string-map-list\""]
 #[doc = "    },"]
 #[doc = "    \"name\": {"]
@@ -5206,7 +8097,10 @@ impl LookupStringListValue {
 #[doc = "      \"$ref\": \"#/$defs/Source\""]
 #[doc = "    }"]
 #[doc = "  },"]
-#[doc = "  \"additionalProperties\": false"]
+#[doc = "  \"additionalProperties\": false,"]
+#[doc = "  \"discriminator\": {"]
+#[doc = "    \"propertyName\": \"kind\""]
+#[doc = "  }"]
 #[doc = "}"]
 #[doc = r" ```"]
 #[doc = r" </details>"]
@@ -5214,7 +8108,7 @@ impl LookupStringListValue {
 #[serde(deny_unknown_fields)]
 pub struct LookupStringMapListValue {
     pub job: JobRef,
-    pub kind: ::serde_json::Value,
+    pub kind: ::std::string::String,
     pub name: ParamName,
     pub source: Source,
 }
@@ -5248,6 +8142,7 @@ impl LookupStringMapListValue {
 #[doc = "      \"$ref\": \"#/$defs/JobRef\""]
 #[doc = "    },"]
 #[doc = "    \"kind\": {"]
+#[doc = "      \"type\": \"string\","]
 #[doc = "      \"const\": \"lookup-string-map\""]
 #[doc = "    },"]
 #[doc = "    \"name\": {"]
@@ -5257,7 +8152,10 @@ impl LookupStringMapListValue {
 #[doc = "      \"$ref\": \"#/$defs/Source\""]
 #[doc = "    }"]
 #[doc = "  },"]
-#[doc = "  \"additionalProperties\": false"]
+#[doc = "  \"additionalProperties\": false,"]
+#[doc = "  \"discriminator\": {"]
+#[doc = "    \"propertyName\": \"kind\""]
+#[doc = "  }"]
 #[doc = "}"]
 #[doc = r" ```"]
 #[doc = r" </details>"]
@@ -5265,7 +8163,7 @@ impl LookupStringMapListValue {
 #[serde(deny_unknown_fields)]
 pub struct LookupStringMapValue {
     pub job: JobRef,
-    pub kind: ::serde_json::Value,
+    pub kind: ::std::string::String,
     pub name: ParamName,
     pub source: Source,
 }
@@ -5289,9 +8187,9 @@ impl LookupStringMapValue {
 #[doc = "  \"description\": \"A string value that is looked up from a job's state.\","]
 #[doc = "  \"type\": \"object\","]
 #[doc = "  \"required\": ["]
+#[doc = "    \"job\","]
 #[doc = "    \"kind\","]
 #[doc = "    \"name\","]
-#[doc = "    \"node\","]
 #[doc = "    \"source\""]
 #[doc = "  ],"]
 #[doc = "  \"properties\": {"]
@@ -5299,6 +8197,7 @@ impl LookupStringMapValue {
 #[doc = "      \"$ref\": \"#/defs/JobRef\""]
 #[doc = "    },"]
 #[doc = "    \"kind\": {"]
+#[doc = "      \"type\": \"string\","]
 #[doc = "      \"const\": \"lookup-string\""]
 #[doc = "    },"]
 #[doc = "    \"name\": {"]
@@ -5308,18 +8207,19 @@ impl LookupStringMapValue {
 #[doc = "      \"$ref\": \"#/$defs/Source\""]
 #[doc = "    }"]
 #[doc = "  },"]
-#[doc = "  \"additionalProperties\": false"]
+#[doc = "  \"additionalProperties\": false,"]
+#[doc = "  \"discriminator\": {"]
+#[doc = "    \"propertyName\": \"kind\""]
+#[doc = "  }"]
 #[doc = "}"]
 #[doc = r" ```"]
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
 pub struct LookupStringValue {
-    #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
-    pub job: ::std::option::Option<JobRef>,
-    pub kind: ::serde_json::Value,
+    pub job: JobRef,
+    pub kind: ::std::string::String,
     pub name: ParamName,
-    pub node: ::serde_json::Value,
     pub source: Source,
 }
 impl ::std::convert::From<&LookupStringValue> for LookupStringValue {
@@ -5432,6 +8332,7 @@ impl<'de> ::serde::Deserialize<'de> for Macro {
 #[doc = "      \"description\": \"Arbitrary structured data that the macro uses as input to perform its building operation.  The expected data must conform to the specific macro's requirements.\\n\""]
 #[doc = "    },"]
 #[doc = "    \"kind\": {"]
+#[doc = "      \"type\": \"string\","]
 #[doc = "      \"const\": \"macro\""]
 #[doc = "    },"]
 #[doc = "    \"macro\": {"]
@@ -5449,7 +8350,10 @@ impl<'de> ::serde::Deserialize<'de> for Macro {
 #[doc = "      \"$ref\": \"#/$defs/Source\""]
 #[doc = "    }"]
 #[doc = "  },"]
-#[doc = "  \"additionalProperties\": false"]
+#[doc = "  \"additionalProperties\": false,"]
+#[doc = "  \"discriminator\": {"]
+#[doc = "    \"propertyName\": \"kind\""]
+#[doc = "  }"]
 #[doc = "}"]
 #[doc = r" ```"]
 #[doc = r" </details>"]
@@ -5458,7 +8362,7 @@ impl<'de> ::serde::Deserialize<'de> for Macro {
 pub struct MacroJob {
     #[doc = "Arbitrary structured data that the macro uses as input to perform its building operation.  The expected data must conform to the specific macro's requirements.\n"]
     pub input: ::serde_json::Value,
-    pub kind: ::serde_json::Value,
+    pub kind: ::std::string::String,
     #[doc = "The name of the macro to use to construct the job definition."]
     #[serde(rename = "macro")]
     pub macro_: Macro,
@@ -5496,21 +8400,49 @@ impl MacroJob {
 #[doc = "      \"$ref\": \"#/$defs/ComputedStringValue\""]
 #[doc = "    },"]
 #[doc = "    \"kind\": {"]
+#[doc = "      \"type\": \"string\","]
 #[doc = "      \"const\": \"map-contains-key-boolean\""]
 #[doc = "    },"]
 #[doc = "    \"map\": {"]
 #[doc = "      \"oneOf\": ["]
 #[doc = "        {"]
-#[doc = "          \"$ref\": \"#/$defs/ComputedStringMapValue\""]
+#[doc = "          \"$ref\": \"#/$defs/LookupStringMapValue\""]
 #[doc = "        },"]
 #[doc = "        {"]
-#[doc = "          \"$ref\": \"#/$defs/ComputedNumberMapValue\""]
+#[doc = "          \"$ref\": \"#/$defs/UnionStringMapValue\""]
 #[doc = "        },"]
 #[doc = "        {"]
-#[doc = "          \"$ref\": \"#/$defs/ComputedBooleanMapValue\""]
+#[doc = "          \"$ref\": \"#/$defs/StringMapListIndexValue\""]
 #[doc = "        },"]
 #[doc = "        {"]
-#[doc = "          \"$ref\": \"#/$defs/ComputedStringListMapValue\""]
+#[doc = "          \"$ref\": \"#/$defs/ConstantStringMapValue\""]
+#[doc = "        },"]
+#[doc = "        {"]
+#[doc = "          \"$ref\": \"#/$defs/LookupNumberMapValue\""]
+#[doc = "        },"]
+#[doc = "        {"]
+#[doc = "          \"$ref\": \"#/$defs/UnionNumberMapValue\""]
+#[doc = "        },"]
+#[doc = "        {"]
+#[doc = "          \"$ref\": \"#/$defs/ConstantNumberMapValue\""]
+#[doc = "        },"]
+#[doc = "        {"]
+#[doc = "          \"$ref\": \"#/$defs/LookupBooleanMapValue\""]
+#[doc = "        },"]
+#[doc = "        {"]
+#[doc = "          \"$ref\": \"#/$defs/UnionBooleanMapValue\""]
+#[doc = "        },"]
+#[doc = "        {"]
+#[doc = "          \"$ref\": \"#/$defs/ConstantBooleanMapValue\""]
+#[doc = "        },"]
+#[doc = "        {"]
+#[doc = "          \"$ref\": \"#/$defs/LookupStringListMapValue\""]
+#[doc = "        },"]
+#[doc = "        {"]
+#[doc = "          \"$ref\": \"#/$defs/UnionStringListMapValue\""]
+#[doc = "        },"]
+#[doc = "        {"]
+#[doc = "          \"$ref\": \"#/$defs/ConstantStringListMapValue\""]
 #[doc = "        }"]
 #[doc = "      ]"]
 #[doc = "    },"]
@@ -5518,7 +8450,10 @@ impl MacroJob {
 #[doc = "      \"$ref\": \"#/$defs/Source\""]
 #[doc = "    }"]
 #[doc = "  },"]
-#[doc = "  \"additionalProperties\": false"]
+#[doc = "  \"additionalProperties\": false,"]
+#[doc = "  \"discriminator\": {"]
+#[doc = "    \"propertyName\": \"kind\""]
+#[doc = "  }"]
 #[doc = "}"]
 #[doc = r" ```"]
 #[doc = r" </details>"]
@@ -5526,7 +8461,7 @@ impl MacroJob {
 #[serde(deny_unknown_fields)]
 pub struct MapContainsKeyBooleanValue {
     pub key: ComputedStringValue,
-    pub kind: ::serde_json::Value,
+    pub kind: ::std::string::String,
     pub map: MapContainsKeyBooleanValueMap,
     pub source: Source,
 }
@@ -5548,16 +8483,43 @@ impl MapContainsKeyBooleanValue {
 #[doc = "{"]
 #[doc = "  \"oneOf\": ["]
 #[doc = "    {"]
-#[doc = "      \"$ref\": \"#/$defs/ComputedStringMapValue\""]
+#[doc = "      \"$ref\": \"#/$defs/LookupStringMapValue\""]
 #[doc = "    },"]
 #[doc = "    {"]
-#[doc = "      \"$ref\": \"#/$defs/ComputedNumberMapValue\""]
+#[doc = "      \"$ref\": \"#/$defs/UnionStringMapValue\""]
 #[doc = "    },"]
 #[doc = "    {"]
-#[doc = "      \"$ref\": \"#/$defs/ComputedBooleanMapValue\""]
+#[doc = "      \"$ref\": \"#/$defs/StringMapListIndexValue\""]
 #[doc = "    },"]
 #[doc = "    {"]
-#[doc = "      \"$ref\": \"#/$defs/ComputedStringListMapValue\""]
+#[doc = "      \"$ref\": \"#/$defs/ConstantStringMapValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/LookupNumberMapValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/UnionNumberMapValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/ConstantNumberMapValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/LookupBooleanMapValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/UnionBooleanMapValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/ConstantBooleanMapValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/LookupStringListMapValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/UnionStringListMapValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/ConstantStringListMapValue\""]
 #[doc = "    }"]
 #[doc = "  ]"]
 #[doc = "}"]
@@ -5566,34 +8528,88 @@ impl MapContainsKeyBooleanValue {
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(untagged)]
 pub enum MapContainsKeyBooleanValueMap {
-    StringMapValue(ComputedStringMapValue),
-    NumberMapValue(ComputedNumberMapValue),
-    BooleanMapValue(ComputedBooleanMapValue),
-    StringListMapValue(ComputedStringListMapValue),
+    LookupStringMapValue(LookupStringMapValue),
+    UnionStringMapValue(UnionStringMapValue),
+    StringMapListIndexValue(StringMapListIndexValue),
+    ConstantStringMapValue(ConstantStringMapValue),
+    LookupNumberMapValue(LookupNumberMapValue),
+    UnionNumberMapValue(UnionNumberMapValue),
+    ConstantNumberMapValue(ConstantNumberMapValue),
+    LookupBooleanMapValue(LookupBooleanMapValue),
+    UnionBooleanMapValue(UnionBooleanMapValue),
+    ConstantBooleanMapValue(ConstantBooleanMapValue),
+    LookupStringListMapValue(LookupStringListMapValue),
+    UnionStringListMapValue(UnionStringListMapValue),
+    ConstantStringListMapValue(ConstantStringListMapValue),
 }
 impl ::std::convert::From<&Self> for MapContainsKeyBooleanValueMap {
     fn from(value: &MapContainsKeyBooleanValueMap) -> Self {
         value.clone()
     }
 }
-impl ::std::convert::From<ComputedStringMapValue> for MapContainsKeyBooleanValueMap {
-    fn from(value: ComputedStringMapValue) -> Self {
-        Self::StringMapValue(value)
+impl ::std::convert::From<LookupStringMapValue> for MapContainsKeyBooleanValueMap {
+    fn from(value: LookupStringMapValue) -> Self {
+        Self::LookupStringMapValue(value)
     }
 }
-impl ::std::convert::From<ComputedNumberMapValue> for MapContainsKeyBooleanValueMap {
-    fn from(value: ComputedNumberMapValue) -> Self {
-        Self::NumberMapValue(value)
+impl ::std::convert::From<UnionStringMapValue> for MapContainsKeyBooleanValueMap {
+    fn from(value: UnionStringMapValue) -> Self {
+        Self::UnionStringMapValue(value)
     }
 }
-impl ::std::convert::From<ComputedBooleanMapValue> for MapContainsKeyBooleanValueMap {
-    fn from(value: ComputedBooleanMapValue) -> Self {
-        Self::BooleanMapValue(value)
+impl ::std::convert::From<StringMapListIndexValue> for MapContainsKeyBooleanValueMap {
+    fn from(value: StringMapListIndexValue) -> Self {
+        Self::StringMapListIndexValue(value)
     }
 }
-impl ::std::convert::From<ComputedStringListMapValue> for MapContainsKeyBooleanValueMap {
-    fn from(value: ComputedStringListMapValue) -> Self {
-        Self::StringListMapValue(value)
+impl ::std::convert::From<ConstantStringMapValue> for MapContainsKeyBooleanValueMap {
+    fn from(value: ConstantStringMapValue) -> Self {
+        Self::ConstantStringMapValue(value)
+    }
+}
+impl ::std::convert::From<LookupNumberMapValue> for MapContainsKeyBooleanValueMap {
+    fn from(value: LookupNumberMapValue) -> Self {
+        Self::LookupNumberMapValue(value)
+    }
+}
+impl ::std::convert::From<UnionNumberMapValue> for MapContainsKeyBooleanValueMap {
+    fn from(value: UnionNumberMapValue) -> Self {
+        Self::UnionNumberMapValue(value)
+    }
+}
+impl ::std::convert::From<ConstantNumberMapValue> for MapContainsKeyBooleanValueMap {
+    fn from(value: ConstantNumberMapValue) -> Self {
+        Self::ConstantNumberMapValue(value)
+    }
+}
+impl ::std::convert::From<LookupBooleanMapValue> for MapContainsKeyBooleanValueMap {
+    fn from(value: LookupBooleanMapValue) -> Self {
+        Self::LookupBooleanMapValue(value)
+    }
+}
+impl ::std::convert::From<UnionBooleanMapValue> for MapContainsKeyBooleanValueMap {
+    fn from(value: UnionBooleanMapValue) -> Self {
+        Self::UnionBooleanMapValue(value)
+    }
+}
+impl ::std::convert::From<ConstantBooleanMapValue> for MapContainsKeyBooleanValueMap {
+    fn from(value: ConstantBooleanMapValue) -> Self {
+        Self::ConstantBooleanMapValue(value)
+    }
+}
+impl ::std::convert::From<LookupStringListMapValue> for MapContainsKeyBooleanValueMap {
+    fn from(value: LookupStringListMapValue) -> Self {
+        Self::LookupStringListMapValue(value)
+    }
+}
+impl ::std::convert::From<UnionStringListMapValue> for MapContainsKeyBooleanValueMap {
+    fn from(value: UnionStringListMapValue) -> Self {
+        Self::UnionStringListMapValue(value)
+    }
+}
+impl ::std::convert::From<ConstantStringListMapValue> for MapContainsKeyBooleanValueMap {
+    fn from(value: ConstantStringListMapValue) -> Self {
+        Self::ConstantStringListMapValue(value)
     }
 }
 #[doc = "A key's boolean value from a map.  A default must be given, in case the key is not found."]
@@ -5620,6 +8636,7 @@ impl ::std::convert::From<ComputedStringListMapValue> for MapContainsKeyBooleanV
 #[doc = "      \"$ref\": \"#/$defs/ComputedStringValue\""]
 #[doc = "    },"]
 #[doc = "    \"kind\": {"]
+#[doc = "      \"type\": \"string\","]
 #[doc = "      \"const\": \"map-key-boolean\""]
 #[doc = "    },"]
 #[doc = "    \"map\": {"]
@@ -5629,7 +8646,10 @@ impl ::std::convert::From<ComputedStringListMapValue> for MapContainsKeyBooleanV
 #[doc = "      \"$ref\": \"#/$defs/Source\""]
 #[doc = "    }"]
 #[doc = "  },"]
-#[doc = "  \"additionalProperties\": false"]
+#[doc = "  \"additionalProperties\": false,"]
+#[doc = "  \"discriminator\": {"]
+#[doc = "    \"propertyName\": \"kind\""]
+#[doc = "  }"]
 #[doc = "}"]
 #[doc = r" ```"]
 #[doc = r" </details>"]
@@ -5638,7 +8658,7 @@ impl ::std::convert::From<ComputedStringListMapValue> for MapContainsKeyBooleanV
 pub struct MapKeyBooleanValue {
     pub default: ::std::boxed::Box<ComputedBooleanValue>,
     pub key: ComputedStringValue,
-    pub kind: ::serde_json::Value,
+    pub kind: ::std::string::String,
     pub map: ComputedBooleanMapValue,
     pub source: Source,
 }
@@ -5676,6 +8696,7 @@ impl MapKeyBooleanValue {
 #[doc = "      \"$ref\": \"#/$defs/ComputedStringValue\""]
 #[doc = "    },"]
 #[doc = "    \"kind\": {"]
+#[doc = "      \"type\": \"string\","]
 #[doc = "      \"const\": \"map-key-number\""]
 #[doc = "    },"]
 #[doc = "    \"map\": {"]
@@ -5685,7 +8706,10 @@ impl MapKeyBooleanValue {
 #[doc = "      \"$ref\": \"#/$defs/Source\""]
 #[doc = "    }"]
 #[doc = "  },"]
-#[doc = "  \"additionalProperties\": false"]
+#[doc = "  \"additionalProperties\": false,"]
+#[doc = "  \"discriminator\": {"]
+#[doc = "    \"propertyName\": \"kind\""]
+#[doc = "  }"]
 #[doc = "}"]
 #[doc = r" ```"]
 #[doc = r" </details>"]
@@ -5694,7 +8718,7 @@ impl MapKeyBooleanValue {
 pub struct MapKeyNumberValue {
     pub default: ::std::boxed::Box<ComputedNumberValue>,
     pub key: ComputedStringValue,
-    pub kind: ::serde_json::Value,
+    pub kind: ::std::string::String,
     pub map: ComputedNumberMapValue,
     pub source: Source,
 }
@@ -5732,6 +8756,7 @@ impl MapKeyNumberValue {
 #[doc = "      \"$ref\": \"#/$defs/ComputedStringValue\""]
 #[doc = "    },"]
 #[doc = "    \"kind\": {"]
+#[doc = "      \"type\": \"string\","]
 #[doc = "      \"const\": \"map-key-string\""]
 #[doc = "    },"]
 #[doc = "    \"map\": {"]
@@ -5741,7 +8766,10 @@ impl MapKeyNumberValue {
 #[doc = "      \"$ref\": \"#/$defs/Source\""]
 #[doc = "    }"]
 #[doc = "  },"]
-#[doc = "  \"additionalProperties\": false"]
+#[doc = "  \"additionalProperties\": false,"]
+#[doc = "  \"discriminator\": {"]
+#[doc = "    \"propertyName\": \"kind\""]
+#[doc = "  }"]
 #[doc = "}"]
 #[doc = r" ```"]
 #[doc = r" </details>"]
@@ -5750,7 +8778,7 @@ impl MapKeyNumberValue {
 pub struct MapKeyStringValue {
     pub default: ::std::boxed::Box<ComputedStringValue>,
     pub key: ::std::boxed::Box<ComputedStringValue>,
-    pub kind: ::serde_json::Value,
+    pub kind: ::std::string::String,
     pub map: ComputedStringMapValue,
     pub source: Source,
 }
@@ -5780,21 +8808,49 @@ impl MapKeyStringValue {
 #[doc = "  ],"]
 #[doc = "  \"properties\": {"]
 #[doc = "    \"kind\": {"]
+#[doc = "      \"type\": \"string\","]
 #[doc = "      \"const\": \"map-keys-string-list\""]
 #[doc = "    },"]
 #[doc = "    \"map\": {"]
 #[doc = "      \"oneOf\": ["]
 #[doc = "        {"]
-#[doc = "          \"$ref\": \"#/$defs/ComputedStringMapValue\""]
+#[doc = "          \"$ref\": \"#/$defs/LookupStringMapValue\""]
 #[doc = "        },"]
 #[doc = "        {"]
-#[doc = "          \"$ref\": \"#/$defs/ComputedNumberMapValue\""]
+#[doc = "          \"$ref\": \"#/$defs/UnionStringMapValue\""]
 #[doc = "        },"]
 #[doc = "        {"]
-#[doc = "          \"$ref\": \"#/$defs/ComputedBooleanMapValue\""]
+#[doc = "          \"$ref\": \"#/$defs/StringMapListIndexValue\""]
 #[doc = "        },"]
 #[doc = "        {"]
-#[doc = "          \"$ref\": \"#/$defs/ComputedStringListMapValue\""]
+#[doc = "          \"$ref\": \"#/$defs/ConstantStringMapValue\""]
+#[doc = "        },"]
+#[doc = "        {"]
+#[doc = "          \"$ref\": \"#/$defs/LookupNumberMapValue\""]
+#[doc = "        },"]
+#[doc = "        {"]
+#[doc = "          \"$ref\": \"#/$defs/UnionNumberMapValue\""]
+#[doc = "        },"]
+#[doc = "        {"]
+#[doc = "          \"$ref\": \"#/$defs/ConstantNumberMapValue\""]
+#[doc = "        },"]
+#[doc = "        {"]
+#[doc = "          \"$ref\": \"#/$defs/LookupBooleanMapValue\""]
+#[doc = "        },"]
+#[doc = "        {"]
+#[doc = "          \"$ref\": \"#/$defs/UnionBooleanMapValue\""]
+#[doc = "        },"]
+#[doc = "        {"]
+#[doc = "          \"$ref\": \"#/$defs/ConstantBooleanMapValue\""]
+#[doc = "        },"]
+#[doc = "        {"]
+#[doc = "          \"$ref\": \"#/$defs/LookupStringListMapValue\""]
+#[doc = "        },"]
+#[doc = "        {"]
+#[doc = "          \"$ref\": \"#/$defs/UnionStringListMapValue\""]
+#[doc = "        },"]
+#[doc = "        {"]
+#[doc = "          \"$ref\": \"#/$defs/ConstantStringListMapValue\""]
 #[doc = "        }"]
 #[doc = "      ]"]
 #[doc = "    },"]
@@ -5802,13 +8858,16 @@ impl MapKeyStringValue {
 #[doc = "      \"$ref\": \"#/$defs/Source\""]
 #[doc = "    }"]
 #[doc = "  },"]
-#[doc = "  \"additionalProperties\": true"]
+#[doc = "  \"additionalProperties\": true,"]
+#[doc = "  \"discriminator\": {"]
+#[doc = "    \"propertyName\": \"kind\""]
+#[doc = "  }"]
 #[doc = "}"]
 #[doc = r" ```"]
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 pub struct MapKeysStringListValue {
-    pub kind: ::serde_json::Value,
+    pub kind: ::std::string::String,
     pub map: MapKeysStringListValueMap,
     pub source: Source,
 }
@@ -5830,16 +8889,43 @@ impl MapKeysStringListValue {
 #[doc = "{"]
 #[doc = "  \"oneOf\": ["]
 #[doc = "    {"]
-#[doc = "      \"$ref\": \"#/$defs/ComputedStringMapValue\""]
+#[doc = "      \"$ref\": \"#/$defs/LookupStringMapValue\""]
 #[doc = "    },"]
 #[doc = "    {"]
-#[doc = "      \"$ref\": \"#/$defs/ComputedNumberMapValue\""]
+#[doc = "      \"$ref\": \"#/$defs/UnionStringMapValue\""]
 #[doc = "    },"]
 #[doc = "    {"]
-#[doc = "      \"$ref\": \"#/$defs/ComputedBooleanMapValue\""]
+#[doc = "      \"$ref\": \"#/$defs/StringMapListIndexValue\""]
 #[doc = "    },"]
 #[doc = "    {"]
-#[doc = "      \"$ref\": \"#/$defs/ComputedStringListMapValue\""]
+#[doc = "      \"$ref\": \"#/$defs/ConstantStringMapValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/LookupNumberMapValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/UnionNumberMapValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/ConstantNumberMapValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/LookupBooleanMapValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/UnionBooleanMapValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/ConstantBooleanMapValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/LookupStringListMapValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/UnionStringListMapValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$defs/ConstantStringListMapValue\""]
 #[doc = "    }"]
 #[doc = "  ]"]
 #[doc = "}"]
@@ -5848,34 +8934,88 @@ impl MapKeysStringListValue {
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(untagged)]
 pub enum MapKeysStringListValueMap {
-    StringMapValue(ComputedStringMapValue),
-    NumberMapValue(ComputedNumberMapValue),
-    BooleanMapValue(ComputedBooleanMapValue),
-    StringListMapValue(ComputedStringListMapValue),
+    LookupStringMapValue(LookupStringMapValue),
+    UnionStringMapValue(UnionStringMapValue),
+    StringMapListIndexValue(StringMapListIndexValue),
+    ConstantStringMapValue(ConstantStringMapValue),
+    LookupNumberMapValue(LookupNumberMapValue),
+    UnionNumberMapValue(UnionNumberMapValue),
+    ConstantNumberMapValue(ConstantNumberMapValue),
+    LookupBooleanMapValue(LookupBooleanMapValue),
+    UnionBooleanMapValue(UnionBooleanMapValue),
+    ConstantBooleanMapValue(ConstantBooleanMapValue),
+    LookupStringListMapValue(LookupStringListMapValue),
+    UnionStringListMapValue(UnionStringListMapValue),
+    ConstantStringListMapValue(ConstantStringListMapValue),
 }
 impl ::std::convert::From<&Self> for MapKeysStringListValueMap {
     fn from(value: &MapKeysStringListValueMap) -> Self {
         value.clone()
     }
 }
-impl ::std::convert::From<ComputedStringMapValue> for MapKeysStringListValueMap {
-    fn from(value: ComputedStringMapValue) -> Self {
-        Self::StringMapValue(value)
+impl ::std::convert::From<LookupStringMapValue> for MapKeysStringListValueMap {
+    fn from(value: LookupStringMapValue) -> Self {
+        Self::LookupStringMapValue(value)
     }
 }
-impl ::std::convert::From<ComputedNumberMapValue> for MapKeysStringListValueMap {
-    fn from(value: ComputedNumberMapValue) -> Self {
-        Self::NumberMapValue(value)
+impl ::std::convert::From<UnionStringMapValue> for MapKeysStringListValueMap {
+    fn from(value: UnionStringMapValue) -> Self {
+        Self::UnionStringMapValue(value)
     }
 }
-impl ::std::convert::From<ComputedBooleanMapValue> for MapKeysStringListValueMap {
-    fn from(value: ComputedBooleanMapValue) -> Self {
-        Self::BooleanMapValue(value)
+impl ::std::convert::From<StringMapListIndexValue> for MapKeysStringListValueMap {
+    fn from(value: StringMapListIndexValue) -> Self {
+        Self::StringMapListIndexValue(value)
     }
 }
-impl ::std::convert::From<ComputedStringListMapValue> for MapKeysStringListValueMap {
-    fn from(value: ComputedStringListMapValue) -> Self {
-        Self::StringListMapValue(value)
+impl ::std::convert::From<ConstantStringMapValue> for MapKeysStringListValueMap {
+    fn from(value: ConstantStringMapValue) -> Self {
+        Self::ConstantStringMapValue(value)
+    }
+}
+impl ::std::convert::From<LookupNumberMapValue> for MapKeysStringListValueMap {
+    fn from(value: LookupNumberMapValue) -> Self {
+        Self::LookupNumberMapValue(value)
+    }
+}
+impl ::std::convert::From<UnionNumberMapValue> for MapKeysStringListValueMap {
+    fn from(value: UnionNumberMapValue) -> Self {
+        Self::UnionNumberMapValue(value)
+    }
+}
+impl ::std::convert::From<ConstantNumberMapValue> for MapKeysStringListValueMap {
+    fn from(value: ConstantNumberMapValue) -> Self {
+        Self::ConstantNumberMapValue(value)
+    }
+}
+impl ::std::convert::From<LookupBooleanMapValue> for MapKeysStringListValueMap {
+    fn from(value: LookupBooleanMapValue) -> Self {
+        Self::LookupBooleanMapValue(value)
+    }
+}
+impl ::std::convert::From<UnionBooleanMapValue> for MapKeysStringListValueMap {
+    fn from(value: UnionBooleanMapValue) -> Self {
+        Self::UnionBooleanMapValue(value)
+    }
+}
+impl ::std::convert::From<ConstantBooleanMapValue> for MapKeysStringListValueMap {
+    fn from(value: ConstantBooleanMapValue) -> Self {
+        Self::ConstantBooleanMapValue(value)
+    }
+}
+impl ::std::convert::From<LookupStringListMapValue> for MapKeysStringListValueMap {
+    fn from(value: LookupStringListMapValue) -> Self {
+        Self::LookupStringListMapValue(value)
+    }
+}
+impl ::std::convert::From<UnionStringListMapValue> for MapKeysStringListValueMap {
+    fn from(value: UnionStringListMapValue) -> Self {
+        Self::UnionStringListMapValue(value)
+    }
+}
+impl ::std::convert::From<ConstantStringListMapValue> for MapKeysStringListValueMap {
+    fn from(value: ConstantStringListMapValue) -> Self {
+        Self::ConstantStringListMapValue(value)
     }
 }
 #[doc = "A string value that is the string representation of a map."]
@@ -5900,6 +9040,7 @@ impl ::std::convert::From<ComputedStringListMapValue> for MapKeysStringListValue
 #[doc = "      \"$ref\": \"#/$defs/ComputedStringValue\""]
 #[doc = "    },"]
 #[doc = "    \"kind\": {"]
+#[doc = "      \"type\": \"string\","]
 #[doc = "      \"const\": \"map-to-string\""]
 #[doc = "    },"]
 #[doc = "    \"source\": {"]
@@ -5909,7 +9050,10 @@ impl ::std::convert::From<ComputedStringListMapValue> for MapKeysStringListValue
 #[doc = "      \"$ref\": \"#/$defs/ComputedStringMapValue\""]
 #[doc = "    }"]
 #[doc = "  },"]
-#[doc = "  \"additionalProperties\": false"]
+#[doc = "  \"additionalProperties\": false,"]
+#[doc = "  \"discriminator\": {"]
+#[doc = "    \"propertyName\": \"kind\""]
+#[doc = "  }"]
 #[doc = "}"]
 #[doc = r" ```"]
 #[doc = r" </details>"]
@@ -5928,7 +9072,7 @@ pub struct MapToStringValue {
         skip_serializing_if = "::std::option::Option::is_none"
     )]
     pub key_separator: ::std::option::Option<::std::boxed::Box<ComputedStringValue>>,
-    pub kind: ::serde_json::Value,
+    pub kind: ::std::string::String,
     pub source: Source,
     pub value: ComputedStringMapValue,
 }
@@ -5958,6 +9102,7 @@ impl MapToStringValue {
 #[doc = "  ],"]
 #[doc = "  \"properties\": {"]
 #[doc = "    \"kind\": {"]
+#[doc = "      \"type\": \"string\","]
 #[doc = "      \"const\": \"max-number-list\""]
 #[doc = "    },"]
 #[doc = "    \"source\": {"]
@@ -5967,14 +9112,17 @@ impl MapToStringValue {
 #[doc = "      \"$ref\": \"#/$defs/ComputedNumberListValue\""]
 #[doc = "    }"]
 #[doc = "  },"]
-#[doc = "  \"additionalProperties\": false"]
+#[doc = "  \"additionalProperties\": false,"]
+#[doc = "  \"discriminator\": {"]
+#[doc = "    \"propertyName\": \"kind\""]
+#[doc = "  }"]
 #[doc = "}"]
 #[doc = r" ```"]
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
 pub struct MaxNumberListValue {
-    pub kind: ::serde_json::Value,
+    pub kind: ::std::string::String,
     pub source: Source,
     pub value: ComputedNumberListValue,
 }
@@ -6030,7 +9178,8 @@ impl MaxNumberListValue {
 #[doc = "      \"properties\": {"]
 #[doc = "        \"copyright\": {"]
 #[doc = "          \"title\": \"Copyright\","]
-#[doc = "          \"description\": \"The copyright description that accompanies the license type.  This usually relates to the first line of the license text.\\n\""]
+#[doc = "          \"description\": \"The copyright description that accompanies the license type.  This usually relates to the first line of the license text.\\n\","]
+#[doc = "          \"type\": \"string\""]
 #[doc = "        },"]
 #[doc = "        \"spdx-id\": {"]
 #[doc = "          \"title\": \"SPDX ID\","]
@@ -6106,6 +9255,7 @@ impl Metadata {
 #[doc = "  ],"]
 #[doc = "  \"properties\": {"]
 #[doc = "    \"kind\": {"]
+#[doc = "      \"type\": \"string\","]
 #[doc = "      \"const\": \"min-number-list\""]
 #[doc = "    },"]
 #[doc = "    \"source\": {"]
@@ -6115,14 +9265,17 @@ impl Metadata {
 #[doc = "      \"$ref\": \"#/$defs/ComputedNumberListValue\""]
 #[doc = "    }"]
 #[doc = "  },"]
-#[doc = "  \"additionalProperties\": false"]
+#[doc = "  \"additionalProperties\": false,"]
+#[doc = "  \"discriminator\": {"]
+#[doc = "    \"propertyName\": \"kind\""]
+#[doc = "  }"]
 #[doc = "}"]
 #[doc = r" ```"]
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
 pub struct MinNumberListValue {
-    pub kind: ::serde_json::Value,
+    pub kind: ::std::string::String,
     pub source: Source,
     pub value: ComputedNumberListValue,
 }
@@ -6155,8 +9308,7 @@ impl MinNumberListValue {
 #[doc = "      \"$ref\": \"#/$defs/InitialParameters\""]
 #[doc = "    },"]
 #[doc = "    \"kind\": {"]
-#[doc = "      \"title\": \"Kind\","]
-#[doc = "      \"description\": \"Job definition distinguisher\","]
+#[doc = "      \"type\": \"string\","]
 #[doc = "      \"const\": \"module\""]
 #[doc = "    },"]
 #[doc = "    \"module\": {"]
@@ -6176,7 +9328,10 @@ impl MinNumberListValue {
 #[doc = "      \"$ref\": \"#/$defs/Source\""]
 #[doc = "    }"]
 #[doc = "  },"]
-#[doc = "  \"additionalProperties\": false"]
+#[doc = "  \"additionalProperties\": false,"]
+#[doc = "  \"discriminator\": {"]
+#[doc = "    \"propertyName\": \"kind\""]
+#[doc = "  }"]
 #[doc = "}"]
 #[doc = r" ```"]
 #[doc = r" </details>"]
@@ -6189,8 +9344,7 @@ pub struct ModuleJob {
         skip_serializing_if = "::std::option::Option::is_none"
     )]
     pub initial_parameters: ::std::option::Option<InitialParameters>,
-    #[doc = "Job definition distinguisher"]
-    pub kind: ::serde_json::Value,
+    pub kind: ::std::string::String,
     #[doc = "The build implementation for the job."]
     pub module: ModuleJobModule,
     #[serde(default = "defaults::default_bool::<true>")]
@@ -6308,6 +9462,7 @@ impl<'de> ::serde::Deserialize<'de> for ModuleJobModule {
 #[doc = "  ],"]
 #[doc = "  \"properties\": {"]
 #[doc = "    \"kind\": {"]
+#[doc = "      \"type\": \"string\","]
 #[doc = "      \"const\": \"modulus-number\""]
 #[doc = "    },"]
 #[doc = "    \"left\": {"]
@@ -6320,14 +9475,17 @@ impl<'de> ::serde::Deserialize<'de> for ModuleJobModule {
 #[doc = "      \"$ref\": \"#/$defs/Source\""]
 #[doc = "    }"]
 #[doc = "  },"]
-#[doc = "  \"additionalProperties\": false"]
+#[doc = "  \"additionalProperties\": false,"]
+#[doc = "  \"discriminator\": {"]
+#[doc = "    \"propertyName\": \"kind\""]
+#[doc = "  }"]
 #[doc = "}"]
 #[doc = r" ```"]
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
 pub struct ModulusTwoValues {
-    pub kind: ::serde_json::Value,
+    pub kind: ::std::string::String,
     pub left: ::std::boxed::Box<ComputedNumberValue>,
     pub right: ::std::boxed::Box<ComputedNumberValue>,
     pub source: Source,
@@ -6359,6 +9517,7 @@ impl ModulusTwoValues {
 #[doc = "  ],"]
 #[doc = "  \"properties\": {"]
 #[doc = "    \"kind\": {"]
+#[doc = "      \"type\": \"string\","]
 #[doc = "      \"const\": \"multiply-number\""]
 #[doc = "    },"]
 #[doc = "    \"left\": {"]
@@ -6371,14 +9530,17 @@ impl ModulusTwoValues {
 #[doc = "      \"$ref\": \"#/$defs/Source\""]
 #[doc = "    }"]
 #[doc = "  },"]
-#[doc = "  \"additionalProperties\": false"]
+#[doc = "  \"additionalProperties\": false,"]
+#[doc = "  \"discriminator\": {"]
+#[doc = "    \"propertyName\": \"kind\""]
+#[doc = "  }"]
 #[doc = "}"]
 #[doc = r" ```"]
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
 pub struct MultiplyTwoValues {
-    pub kind: ::serde_json::Value,
+    pub kind: ::std::string::String,
     pub left: ::std::boxed::Box<ComputedNumberValue>,
     pub right: ::std::boxed::Box<ComputedNumberValue>,
     pub source: Source,
@@ -6469,6 +9631,7 @@ impl ::std::convert::From<::std::vec::Vec<ActionParameter>> for NamedParameters 
 #[doc = "  ],"]
 #[doc = "  \"properties\": {"]
 #[doc = "    \"kind\": {"]
+#[doc = "      \"type\": \"string\","]
 #[doc = "      \"const\": \"nand-boolean\""]
 #[doc = "    },"]
 #[doc = "    \"left\": {"]
@@ -6481,14 +9644,17 @@ impl ::std::convert::From<::std::vec::Vec<ActionParameter>> for NamedParameters 
 #[doc = "      \"$ref\": \"#/$defs/Source\""]
 #[doc = "    }"]
 #[doc = "  },"]
-#[doc = "  \"additionalProperties\": false"]
+#[doc = "  \"additionalProperties\": false,"]
+#[doc = "  \"discriminator\": {"]
+#[doc = "    \"propertyName\": \"kind\""]
+#[doc = "  }"]
 #[doc = "}"]
 #[doc = r" ```"]
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
 pub struct NandTwoBooleanValues {
-    pub kind: ::serde_json::Value,
+    pub kind: ::std::string::String,
     pub left: ::std::boxed::Box<ComputedBooleanValue>,
     pub right: ::std::boxed::Box<ComputedBooleanValue>,
     pub source: Source,
@@ -6581,7 +9747,8 @@ impl NandTwoBooleanValues {
 #[doc = "          \"properties\": {"]
 #[doc = "            \"copyright\": {"]
 #[doc = "              \"title\": \"Copyright\","]
-#[doc = "              \"description\": \"The copyright description that accompanies the license type.  This usually relates to the first line of the license text.\\n\""]
+#[doc = "              \"description\": \"The copyright description that accompanies the license type.  This usually relates to the first line of the license text.\\n\","]
+#[doc = "              \"type\": \"string\""]
 #[doc = "            },"]
 #[doc = "            \"spdx-id\": {"]
 #[doc = "              \"title\": \"SPDX ID\","]
@@ -6616,6 +9783,7 @@ impl NandTwoBooleanValues {
 #[doc = "    \"schema-version\": {"]
 #[doc = "      \"title\": \"Schema Version\","]
 #[doc = "      \"description\": \"The version of the schema for this LLS.  This is used to ensure compatibility with the parser and runtime.\\n\","]
+#[doc = "      \"type\": \"string\","]
 #[doc = "      \"const\": \"1.0.0\""]
 #[doc = "    },"]
 #[doc = "    \"threads\": {"]
@@ -6646,7 +9814,7 @@ pub struct NativeShellLowLevelScriptSchema {
     pub meta: Metadata,
     #[doc = "The version of the schema for this LLS.  This is used to ensure compatibility with the parser and runtime.\n"]
     #[serde(rename = "schema-version")]
-    pub schema_version: ::serde_json::Value,
+    pub schema_version: ::std::string::String,
     #[doc = "All sequential instructions for execution.  These provide a form of instruction set.\n"]
     pub threads: ::std::collections::HashMap<NativeShellLowLevelScriptSchemaThreadsKey, Thread>,
 }
@@ -6910,6 +10078,7 @@ impl<'de> ::serde::Deserialize<'de> for NativeShellLowLevelScriptSchemaThreadsKe
 #[doc = "  ],"]
 #[doc = "  \"properties\": {"]
 #[doc = "    \"kind\": {"]
+#[doc = "      \"type\": \"string\","]
 #[doc = "      \"const\": \"nor-boolean\""]
 #[doc = "    },"]
 #[doc = "    \"left\": {"]
@@ -6922,14 +10091,17 @@ impl<'de> ::serde::Deserialize<'de> for NativeShellLowLevelScriptSchemaThreadsKe
 #[doc = "      \"$ref\": \"#/$defs/Source\""]
 #[doc = "    }"]
 #[doc = "  },"]
-#[doc = "  \"additionalProperties\": false"]
+#[doc = "  \"additionalProperties\": false,"]
+#[doc = "  \"discriminator\": {"]
+#[doc = "    \"propertyName\": \"kind\""]
+#[doc = "  }"]
 #[doc = "}"]
 #[doc = r" ```"]
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
 pub struct NorTwoBooleanValues {
-    pub kind: ::serde_json::Value,
+    pub kind: ::std::string::String,
     pub left: ::std::boxed::Box<ComputedBooleanValue>,
     pub right: ::std::boxed::Box<ComputedBooleanValue>,
     pub source: Source,
@@ -6960,6 +10132,7 @@ impl NorTwoBooleanValues {
 #[doc = "  ],"]
 #[doc = "  \"properties\": {"]
 #[doc = "    \"kind\": {"]
+#[doc = "      \"type\": \"string\","]
 #[doc = "      \"const\": \"not-boolean\""]
 #[doc = "    },"]
 #[doc = "    \"source\": {"]
@@ -6969,14 +10142,17 @@ impl NorTwoBooleanValues {
 #[doc = "      \"$ref\": \"#/$defs/ComputedBooleanValue\""]
 #[doc = "    }"]
 #[doc = "  },"]
-#[doc = "  \"additionalProperties\": false"]
+#[doc = "  \"additionalProperties\": false,"]
+#[doc = "  \"discriminator\": {"]
+#[doc = "    \"propertyName\": \"kind\""]
+#[doc = "  }"]
 #[doc = "}"]
 #[doc = r" ```"]
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
 pub struct NotBooleanValue {
-    pub kind: ::serde_json::Value,
+    pub kind: ::std::string::String,
     pub source: Source,
     pub value: ::std::boxed::Box<ComputedBooleanValue>,
 }
@@ -7010,6 +10186,7 @@ impl NotBooleanValue {
 #[doc = "      \"$ref\": \"#/$defs/ComputedNumberValue\""]
 #[doc = "    },"]
 #[doc = "    \"kind\": {"]
+#[doc = "      \"type\": \"string\","]
 #[doc = "      \"const\": \"number-equal-boolean\""]
 #[doc = "    },"]
 #[doc = "    \"list\": {"]
@@ -7019,7 +10196,10 @@ impl NotBooleanValue {
 #[doc = "      \"$ref\": \"#/$defs/Source\""]
 #[doc = "    }"]
 #[doc = "  },"]
-#[doc = "  \"additionalProperties\": false"]
+#[doc = "  \"additionalProperties\": false,"]
+#[doc = "  \"discriminator\": {"]
+#[doc = "    \"propertyName\": \"kind\""]
+#[doc = "  }"]
 #[doc = "}"]
 #[doc = r" ```"]
 #[doc = r" </details>"]
@@ -7027,7 +10207,7 @@ impl NotBooleanValue {
 #[serde(deny_unknown_fields)]
 pub struct NumberEqualBooleanValue {
     pub epsilon: ::std::boxed::Box<ComputedNumberValue>,
-    pub kind: ::serde_json::Value,
+    pub kind: ::std::string::String,
     pub list: ComputedNumberListValue,
     pub source: Source,
 }
@@ -7049,6 +10229,7 @@ impl NumberEqualBooleanValue {
 #[doc = "{"]
 #[doc = "  \"title\": \"Number List Index Number Value\","]
 #[doc = "  \"description\": \"Find the first index in the number-list that equals the given number, within an epsilon. If it does not exist, the index will be -1.\\n\","]
+#[doc = "  \"type\": \"object\","]
 #[doc = "  \"required\": ["]
 #[doc = "    \"epsilon\","]
 #[doc = "    \"kind\","]
@@ -7061,6 +10242,7 @@ impl NumberEqualBooleanValue {
 #[doc = "      \"$ref\": \"#/$defs/ComputedNumberValue\""]
 #[doc = "    },"]
 #[doc = "    \"kind\": {"]
+#[doc = "      \"type\": \"string\","]
 #[doc = "      \"const\": \"number-list-index-number\""]
 #[doc = "    },"]
 #[doc = "    \"list\": {"]
@@ -7073,7 +10255,10 @@ impl NumberEqualBooleanValue {
 #[doc = "      \"$ref\": \"#/$defs/Source\""]
 #[doc = "    }"]
 #[doc = "  },"]
-#[doc = "  \"additionalProperties\": false"]
+#[doc = "  \"additionalProperties\": false,"]
+#[doc = "  \"discriminator\": {"]
+#[doc = "    \"propertyName\": \"kind\""]
+#[doc = "  }"]
 #[doc = "}"]
 #[doc = r" ```"]
 #[doc = r" </details>"]
@@ -7081,7 +10266,7 @@ impl NumberEqualBooleanValue {
 #[serde(deny_unknown_fields)]
 pub struct NumberListIndexNumberValue {
     pub epsilon: ::std::boxed::Box<ComputedNumberValue>,
-    pub kind: ::serde_json::Value,
+    pub kind: ::std::string::String,
     pub list: ComputedNumberListValue,
     pub needle: ::std::boxed::Box<ComputedNumberValue>,
     pub source: Source,
@@ -7115,6 +10300,7 @@ impl NumberListIndexNumberValue {
 #[doc = "      \"$ref\": \"#/$defs/ComputedStringValue\""]
 #[doc = "    },"]
 #[doc = "    \"kind\": {"]
+#[doc = "      \"type\": \"string\","]
 #[doc = "      \"const\": \"number-to-string\""]
 #[doc = "    },"]
 #[doc = "    \"source\": {"]
@@ -7125,7 +10311,10 @@ impl NumberListIndexNumberValue {
 #[doc = "    }"]
 #[doc = "  },"]
 #[doc = "  \"additionalProperties\": false,"]
-#[doc = "  \"$comment\": \"We may want to expand the format into an explicit definition so it does not require additional parsing.  At the moment, this is the printf format string.\\n\""]
+#[doc = "  \"$comment\": \"We may want to expand the format into an explicit definition so it does not require additional parsing.  At the moment, this is the printf format string.\\n\","]
+#[doc = "  \"discriminator\": {"]
+#[doc = "    \"propertyName\": \"kind\""]
+#[doc = "  }"]
 #[doc = "}"]
 #[doc = r" ```"]
 #[doc = r" </details>"]
@@ -7134,7 +10323,7 @@ impl NumberListIndexNumberValue {
 pub struct NumberToStringValue {
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub format: ::std::option::Option<::std::boxed::Box<ComputedStringValue>>,
-    pub kind: ::serde_json::Value,
+    pub kind: ::std::string::String,
     pub source: Source,
     pub value: ::std::boxed::Box<ComputedNumberValue>,
 }
@@ -7158,6 +10347,7 @@ impl NumberToStringValue {
 #[doc = "  \"description\": \"Describes how to continue running the owning thread.\","]
 #[doc = "  \"oneOf\": ["]
 #[doc = "    {"]
+#[doc = "      \"title\": \"Jump By\","]
 #[doc = "      \"type\": \"object\","]
 #[doc = "      \"required\": ["]
 #[doc = "        \"by\","]
@@ -7171,6 +10361,7 @@ impl NumberToStringValue {
 #[doc = "          \"minValue\": -32768"]
 #[doc = "        },"]
 #[doc = "        \"kind\": {"]
+#[doc = "          \"type\": \"string\","]
 #[doc = "          \"const\": \"jump\""]
 #[doc = "        },"]
 #[doc = "        \"source\": {"]
@@ -7180,6 +10371,7 @@ impl NumberToStringValue {
 #[doc = "      \"additionalProperties\": false"]
 #[doc = "    },"]
 #[doc = "    {"]
+#[doc = "      \"title\": \"Stop Thread\","]
 #[doc = "      \"type\": \"object\","]
 #[doc = "      \"required\": ["]
 #[doc = "        \"kind\","]
@@ -7187,10 +10379,29 @@ impl NumberToStringValue {
 #[doc = "      ],"]
 #[doc = "      \"properties\": {"]
 #[doc = "        \"kind\": {"]
-#[doc = "          \"enum\": ["]
-#[doc = "            \"stop-thread\","]
-#[doc = "            \"abort-script\""]
-#[doc = "          ]"]
+#[doc = "          \"type\": \"string\","]
+#[doc = "          \"const\": \"stop-thread\""]
+#[doc = "        },"]
+#[doc = "        \"source\": {"]
+#[doc = "          \"$ref\": \"#/$defs/Source\""]
+#[doc = "        },"]
+#[doc = "        \"stop-with\": {"]
+#[doc = "          \"$ref\": \"#/$defs/ScriptExit\""]
+#[doc = "        }"]
+#[doc = "      },"]
+#[doc = "      \"additionalProperties\": false"]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"title\": \"Abort Script\","]
+#[doc = "      \"type\": \"object\","]
+#[doc = "      \"required\": ["]
+#[doc = "        \"kind\","]
+#[doc = "        \"source\""]
+#[doc = "      ],"]
+#[doc = "      \"properties\": {"]
+#[doc = "        \"kind\": {"]
+#[doc = "          \"type\": \"string\","]
+#[doc = "          \"const\": \"abort-script\""]
 #[doc = "        },"]
 #[doc = "        \"source\": {"]
 #[doc = "          \"$ref\": \"#/$defs/Source\""]
@@ -7201,20 +10412,33 @@ impl NumberToStringValue {
 #[doc = "      },"]
 #[doc = "      \"additionalProperties\": false"]
 #[doc = "    }"]
-#[doc = "  ]"]
+#[doc = "  ],"]
+#[doc = "  \"discriminator\": {"]
+#[doc = "    \"propertyName\": \"kind\""]
+#[doc = "  }"]
 #[doc = "}"]
 #[doc = r" ```"]
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
-#[serde(untagged, deny_unknown_fields)]
+#[serde(tag = "kind", deny_unknown_fields)]
 pub enum OnExitBehavior {
-    Variant0 {
-        by: i64,
-        kind: ::serde_json::Value,
+    #[doc = "Jump By"]
+    #[serde(rename = "jump")]
+    Jump { by: i64, source: Source },
+    #[doc = "Stop Thread"]
+    #[serde(rename = "stop-thread")]
+    StopThread {
         source: Source,
+        #[serde(
+            rename = "stop-with",
+            default,
+            skip_serializing_if = "::std::option::Option::is_none"
+        )]
+        stop_with: ::std::option::Option<ScriptExit>,
     },
-    Variant1 {
-        kind: OnExitBehaviorVariant1Kind,
+    #[doc = "Abort Script"]
+    #[serde(rename = "abort-script")]
+    AbortScript {
         source: Source,
         #[serde(
             rename = "stop-with",
@@ -7227,82 +10451,6 @@ pub enum OnExitBehavior {
 impl ::std::convert::From<&Self> for OnExitBehavior {
     fn from(value: &OnExitBehavior) -> Self {
         value.clone()
-    }
-}
-#[doc = "`OnExitBehaviorVariant1Kind`"]
-#[doc = r""]
-#[doc = r" <details><summary>JSON schema</summary>"]
-#[doc = r""]
-#[doc = r" ```json"]
-#[doc = "{"]
-#[doc = "  \"enum\": ["]
-#[doc = "    \"stop-thread\","]
-#[doc = "    \"abort-script\""]
-#[doc = "  ]"]
-#[doc = "}"]
-#[doc = r" ```"]
-#[doc = r" </details>"]
-#[derive(
-    :: serde :: Deserialize,
-    :: serde :: Serialize,
-    Clone,
-    Copy,
-    Debug,
-    Eq,
-    Hash,
-    Ord,
-    PartialEq,
-    PartialOrd,
-)]
-pub enum OnExitBehaviorVariant1Kind {
-    #[serde(rename = "stop-thread")]
-    StopThread,
-    #[serde(rename = "abort-script")]
-    AbortScript,
-}
-impl ::std::convert::From<&Self> for OnExitBehaviorVariant1Kind {
-    fn from(value: &OnExitBehaviorVariant1Kind) -> Self {
-        value.clone()
-    }
-}
-impl ::std::fmt::Display for OnExitBehaviorVariant1Kind {
-    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
-        match *self {
-            Self::StopThread => f.write_str("stop-thread"),
-            Self::AbortScript => f.write_str("abort-script"),
-        }
-    }
-}
-impl ::std::str::FromStr for OnExitBehaviorVariant1Kind {
-    type Err = self::error::ConversionError;
-    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
-        match value {
-            "stop-thread" => Ok(Self::StopThread),
-            "abort-script" => Ok(Self::AbortScript),
-            _ => Err("invalid value".into()),
-        }
-    }
-}
-impl ::std::convert::TryFrom<&str> for OnExitBehaviorVariant1Kind {
-    type Error = self::error::ConversionError;
-    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
-        value.parse()
-    }
-}
-impl ::std::convert::TryFrom<&::std::string::String> for OnExitBehaviorVariant1Kind {
-    type Error = self::error::ConversionError;
-    fn try_from(
-        value: &::std::string::String,
-    ) -> ::std::result::Result<Self, self::error::ConversionError> {
-        value.parse()
-    }
-}
-impl ::std::convert::TryFrom<::std::string::String> for OnExitBehaviorVariant1Kind {
-    type Error = self::error::ConversionError;
-    fn try_from(
-        value: ::std::string::String,
-    ) -> ::std::result::Result<Self, self::error::ConversionError> {
-        value.parse()
     }
 }
 #[doc = "A boolean value that is the result of a logical OR operation on two boolean values."]
@@ -7322,6 +10470,7 @@ impl ::std::convert::TryFrom<::std::string::String> for OnExitBehaviorVariant1Ki
 #[doc = "  ],"]
 #[doc = "  \"properties\": {"]
 #[doc = "    \"kind\": {"]
+#[doc = "      \"type\": \"string\","]
 #[doc = "      \"const\": \"or-boolean\""]
 #[doc = "    },"]
 #[doc = "    \"left\": {"]
@@ -7334,14 +10483,17 @@ impl ::std::convert::TryFrom<::std::string::String> for OnExitBehaviorVariant1Ki
 #[doc = "      \"$ref\": \"#/$defs/Source\""]
 #[doc = "    }"]
 #[doc = "  },"]
-#[doc = "  \"additionalProperties\": false"]
+#[doc = "  \"additionalProperties\": false,"]
+#[doc = "  \"discriminator\": {"]
+#[doc = "    \"propertyName\": \"kind\""]
+#[doc = "  }"]
 #[doc = "}"]
 #[doc = r" ```"]
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
 pub struct OrTwoBooleanValues {
-    pub kind: ::serde_json::Value,
+    pub kind: ::std::string::String,
     pub left: ::std::boxed::Box<ComputedBooleanValue>,
     pub right: ::std::boxed::Box<ComputedBooleanValue>,
     pub source: Source,
@@ -7461,329 +10613,7 @@ impl<'de> ::serde::Deserialize<'de> for ParamName {
 #[doc = "      \"$ref\": \"#/$defs/Source\""]
 #[doc = "    },"]
 #[doc = "    \"value\": {"]
-#[doc = "      \"oneOf\": ["]
-#[doc = "        {"]
-#[doc = "          \"title\": \"Compile-Time String\","]
-#[doc = "          \"description\": \"A constant string value.\","]
-#[doc = "          \"type\": \"object\","]
-#[doc = "          \"required\": ["]
-#[doc = "            \"kind\","]
-#[doc = "            \"source\","]
-#[doc = "            \"value\""]
-#[doc = "          ],"]
-#[doc = "          \"properties\": {"]
-#[doc = "            \"kind\": {"]
-#[doc = "              \"const\": \"string\""]
-#[doc = "            },"]
-#[doc = "            \"source\": {"]
-#[doc = "              \"$ref\": \"#/$defs/Source\""]
-#[doc = "            },"]
-#[doc = "            \"value\": {"]
-#[doc = "              \"$ref\": \"#/$defs/ConstString\""]
-#[doc = "            }"]
-#[doc = "          },"]
-#[doc = "          \"additionalProperties\": false"]
-#[doc = "        },"]
-#[doc = "        {"]
-#[doc = "          \"title\": \"Compile-Time Number\","]
-#[doc = "          \"description\": \"A constant number value.\","]
-#[doc = "          \"type\": \"object\","]
-#[doc = "          \"required\": ["]
-#[doc = "            \"kind\","]
-#[doc = "            \"source\","]
-#[doc = "            \"value\""]
-#[doc = "          ],"]
-#[doc = "          \"properties\": {"]
-#[doc = "            \"kind\": {"]
-#[doc = "              \"const\": \"number\""]
-#[doc = "            },"]
-#[doc = "            \"source\": {"]
-#[doc = "              \"$ref\": \"#/$defs/Source\""]
-#[doc = "            },"]
-#[doc = "            \"value\": {"]
-#[doc = "              \"$ref\": \"#/$defs/ConstInt\""]
-#[doc = "            }"]
-#[doc = "          },"]
-#[doc = "          \"additionalProperties\": false"]
-#[doc = "        },"]
-#[doc = "        {"]
-#[doc = "          \"title\": \"Compile-Time Boolean\","]
-#[doc = "          \"description\": \"A constant boolean (true/false) value.\","]
-#[doc = "          \"type\": \"object\","]
-#[doc = "          \"required\": ["]
-#[doc = "            \"kind\","]
-#[doc = "            \"source\","]
-#[doc = "            \"value\""]
-#[doc = "          ],"]
-#[doc = "          \"properties\": {"]
-#[doc = "            \"kind\": {"]
-#[doc = "              \"const\": \"boolean\""]
-#[doc = "            },"]
-#[doc = "            \"source\": {"]
-#[doc = "              \"$ref\": \"#/$defs/Source\""]
-#[doc = "            },"]
-#[doc = "            \"value\": {"]
-#[doc = "              \"description\": \"The constant boolean value.\","]
-#[doc = "              \"type\": \"boolean\""]
-#[doc = "            }"]
-#[doc = "          },"]
-#[doc = "          \"additionalProperties\": false"]
-#[doc = "        },"]
-#[doc = "        {"]
-#[doc = "          \"title\": \"Compile-Time Null\","]
-#[doc = "          \"description\": \"A constant null value.\","]
-#[doc = "          \"type\": \"object\","]
-#[doc = "          \"required\": ["]
-#[doc = "            \"kind\","]
-#[doc = "            \"source\""]
-#[doc = "          ],"]
-#[doc = "          \"properties\": {"]
-#[doc = "            \"kind\": {"]
-#[doc = "              \"const\": \"null\""]
-#[doc = "            },"]
-#[doc = "            \"source\": {"]
-#[doc = "              \"$ref\": \"#/$defs/Source\""]
-#[doc = "            }"]
-#[doc = "          },"]
-#[doc = "          \"additionalProperties\": false"]
-#[doc = "        },"]
-#[doc = "        {"]
-#[doc = "          \"title\": \"Compile-Time String List\","]
-#[doc = "          \"description\": \"A constant string list value.\","]
-#[doc = "          \"type\": \"object\","]
-#[doc = "          \"required\": ["]
-#[doc = "            \"kind\","]
-#[doc = "            \"source\","]
-#[doc = "            \"value\""]
-#[doc = "          ],"]
-#[doc = "          \"properties\": {"]
-#[doc = "            \"kind\": {"]
-#[doc = "              \"const\": \"string-list\""]
-#[doc = "            },"]
-#[doc = "            \"source\": {"]
-#[doc = "              \"$ref\": \"#/$defs/Source\""]
-#[doc = "            },"]
-#[doc = "            \"value\": {"]
-#[doc = "              \"type\": \"array\","]
-#[doc = "              \"items\": {"]
-#[doc = "                \"$ref\": \"#/$defs/ConstString\""]
-#[doc = "              },"]
-#[doc = "              \"maxItems\": 1000,"]
-#[doc = "              \"minItems\": 0"]
-#[doc = "            }"]
-#[doc = "          },"]
-#[doc = "          \"additionalProperties\": false"]
-#[doc = "        },"]
-#[doc = "        {"]
-#[doc = "          \"title\": \"Compile-Time Number List\","]
-#[doc = "          \"description\": \"A constant number list value.\","]
-#[doc = "          \"type\": \"object\","]
-#[doc = "          \"required\": ["]
-#[doc = "            \"kind\","]
-#[doc = "            \"source\","]
-#[doc = "            \"value\""]
-#[doc = "          ],"]
-#[doc = "          \"properties\": {"]
-#[doc = "            \"kind\": {"]
-#[doc = "              \"const\": \"number-list\""]
-#[doc = "            },"]
-#[doc = "            \"source\": {"]
-#[doc = "              \"$ref\": \"#/$defs/Source\""]
-#[doc = "            },"]
-#[doc = "            \"value\": {"]
-#[doc = "              \"type\": \"array\","]
-#[doc = "              \"items\": {"]
-#[doc = "                \"$ref\": \"#/$defs/ConstInt\""]
-#[doc = "              },"]
-#[doc = "              \"maxItems\": 1000,"]
-#[doc = "              \"minItems\": 0"]
-#[doc = "            }"]
-#[doc = "          },"]
-#[doc = "          \"additionalProperties\": false"]
-#[doc = "        },"]
-#[doc = "        {"]
-#[doc = "          \"title\": \"Compile-Time Boolean List\","]
-#[doc = "          \"description\": \"A constant boolean list value.\","]
-#[doc = "          \"type\": \"object\","]
-#[doc = "          \"required\": ["]
-#[doc = "            \"kind\","]
-#[doc = "            \"source\","]
-#[doc = "            \"value\""]
-#[doc = "          ],"]
-#[doc = "          \"properties\": {"]
-#[doc = "            \"kind\": {"]
-#[doc = "              \"const\": \"boolean-list\""]
-#[doc = "            },"]
-#[doc = "            \"source\": {"]
-#[doc = "              \"$ref\": \"#/$defs/Source\""]
-#[doc = "            },"]
-#[doc = "            \"value\": {"]
-#[doc = "              \"type\": \"array\","]
-#[doc = "              \"items\": {"]
-#[doc = "                \"type\": \"boolean\""]
-#[doc = "              },"]
-#[doc = "              \"maxItems\": 1000,"]
-#[doc = "              \"minItems\": 0"]
-#[doc = "            }"]
-#[doc = "          },"]
-#[doc = "          \"additionalProperties\": false"]
-#[doc = "        },"]
-#[doc = "        {"]
-#[doc = "          \"title\": \"Compile-Time String Map\","]
-#[doc = "          \"description\": \"A constant string map value.\","]
-#[doc = "          \"type\": \"object\","]
-#[doc = "          \"required\": ["]
-#[doc = "            \"kind\","]
-#[doc = "            \"source\","]
-#[doc = "            \"value\""]
-#[doc = "          ],"]
-#[doc = "          \"properties\": {"]
-#[doc = "            \"kind\": {"]
-#[doc = "              \"const\": \"string-map\""]
-#[doc = "            },"]
-#[doc = "            \"source\": {"]
-#[doc = "              \"$ref\": \"#/$defs/Source\""]
-#[doc = "            },"]
-#[doc = "            \"value\": {"]
-#[doc = "              \"type\": \"object\","]
-#[doc = "              \"maxItems\": 1000,"]
-#[doc = "              \"minItems\": 0,"]
-#[doc = "              \"patternProperties\": {"]
-#[doc = "                \".*\": {"]
-#[doc = "                  \"$ref\": \"#/$defs/ConstString\""]
-#[doc = "                }"]
-#[doc = "              }"]
-#[doc = "            }"]
-#[doc = "          },"]
-#[doc = "          \"additionalProperties\": false"]
-#[doc = "        },"]
-#[doc = "        {"]
-#[doc = "          \"title\": \"Compile-Time Number Map\","]
-#[doc = "          \"description\": \"A constant number map value.\","]
-#[doc = "          \"type\": \"object\","]
-#[doc = "          \"required\": ["]
-#[doc = "            \"kind\","]
-#[doc = "            \"source\","]
-#[doc = "            \"value\""]
-#[doc = "          ],"]
-#[doc = "          \"properties\": {"]
-#[doc = "            \"kind\": {"]
-#[doc = "              \"const\": \"number-map\""]
-#[doc = "            },"]
-#[doc = "            \"source\": {"]
-#[doc = "              \"$ref\": \"#/$defs/Source\""]
-#[doc = "            },"]
-#[doc = "            \"value\": {"]
-#[doc = "              \"type\": \"object\","]
-#[doc = "              \"maxItems\": 1000,"]
-#[doc = "              \"minItems\": 0,"]
-#[doc = "              \"patternProperties\": {"]
-#[doc = "                \".*\": {"]
-#[doc = "                  \"$ref\": \"#/$defs/ConstInt\""]
-#[doc = "                }"]
-#[doc = "              }"]
-#[doc = "            }"]
-#[doc = "          },"]
-#[doc = "          \"additionalProperties\": false"]
-#[doc = "        },"]
-#[doc = "        {"]
-#[doc = "          \"title\": \"Compile-Time Boolean Map\","]
-#[doc = "          \"description\": \"A constant boolean map value.\","]
-#[doc = "          \"type\": \"object\","]
-#[doc = "          \"required\": ["]
-#[doc = "            \"kind\","]
-#[doc = "            \"source\","]
-#[doc = "            \"value\""]
-#[doc = "          ],"]
-#[doc = "          \"properties\": {"]
-#[doc = "            \"kind\": {"]
-#[doc = "              \"const\": \"boolean-map\""]
-#[doc = "            },"]
-#[doc = "            \"source\": {"]
-#[doc = "              \"$ref\": \"#/$defs/Source\""]
-#[doc = "            },"]
-#[doc = "            \"value\": {"]
-#[doc = "              \"type\": \"object\","]
-#[doc = "              \"maxItems\": 1000,"]
-#[doc = "              \"minItems\": 0,"]
-#[doc = "              \"patternProperties\": {"]
-#[doc = "                \".*\": {"]
-#[doc = "                  \"type\": \"boolean\""]
-#[doc = "                }"]
-#[doc = "              }"]
-#[doc = "            }"]
-#[doc = "          },"]
-#[doc = "          \"additionalProperties\": false"]
-#[doc = "        },"]
-#[doc = "        {"]
-#[doc = "          \"title\": \"Compile-Time String List Map\","]
-#[doc = "          \"description\": \"A constant map to a string list.\","]
-#[doc = "          \"type\": \"object\","]
-#[doc = "          \"required\": ["]
-#[doc = "            \"kind\","]
-#[doc = "            \"source\","]
-#[doc = "            \"value\""]
-#[doc = "          ],"]
-#[doc = "          \"properties\": {"]
-#[doc = "            \"kind\": {"]
-#[doc = "              \"const\": \"string-list-map\""]
-#[doc = "            },"]
-#[doc = "            \"source\": {"]
-#[doc = "              \"$ref\": \"#/$defs/Source\""]
-#[doc = "            },"]
-#[doc = "            \"value\": {"]
-#[doc = "              \"type\": \"object\","]
-#[doc = "              \"maxItems\": 1000,"]
-#[doc = "              \"minItems\": 0,"]
-#[doc = "              \"patternProperties\": {"]
-#[doc = "                \".*\": {"]
-#[doc = "                  \"type\": \"array\","]
-#[doc = "                  \"items\": {"]
-#[doc = "                    \"$ref\": \"#/$defs/ConstString\""]
-#[doc = "                  },"]
-#[doc = "                  \"maxItems\": 1000,"]
-#[doc = "                  \"minItems\": 0"]
-#[doc = "                }"]
-#[doc = "              }"]
-#[doc = "            }"]
-#[doc = "          },"]
-#[doc = "          \"additionalProperties\": false"]
-#[doc = "        },"]
-#[doc = "        {"]
-#[doc = "          \"title\": \"Compile-Time String Map List\","]
-#[doc = "          \"description\": \"A constant list of string maps.\","]
-#[doc = "          \"type\": \"object\","]
-#[doc = "          \"required\": ["]
-#[doc = "            \"kind\","]
-#[doc = "            \"source\","]
-#[doc = "            \"value\""]
-#[doc = "          ],"]
-#[doc = "          \"properties\": {"]
-#[doc = "            \"kind\": {"]
-#[doc = "              \"const\": \"string-map-list\""]
-#[doc = "            },"]
-#[doc = "            \"source\": {"]
-#[doc = "              \"$ref\": \"#/$defs/Source\""]
-#[doc = "            },"]
-#[doc = "            \"value\": {"]
-#[doc = "              \"type\": \"array\","]
-#[doc = "              \"items\": {"]
-#[doc = "                \"type\": \"object\","]
-#[doc = "                \"maxItems\": 1000,"]
-#[doc = "                \"minItems\": 0,"]
-#[doc = "                \"patternProperties\": {"]
-#[doc = "                  \".*\": {"]
-#[doc = "                    \"$ref\": \"#/$defs/ConstString\""]
-#[doc = "                  }"]
-#[doc = "                }"]
-#[doc = "              },"]
-#[doc = "              \"maxItems\": 1000,"]
-#[doc = "              \"minItems\": 0"]
-#[doc = "            }"]
-#[doc = "          },"]
-#[doc = "          \"additionalProperties\": false"]
-#[doc = "        }"]
-#[doc = "      ]"]
+#[doc = "      \"$ref\": \"#/$defs/InitialParameterValue\""]
 #[doc = "    }"]
 #[doc = "  },"]
 #[doc = "  \"additionalProperties\": false"]
@@ -7794,7 +10624,7 @@ impl<'de> ::serde::Deserialize<'de> for ParamName {
 #[serde(deny_unknown_fields)]
 pub struct Parameter {
     pub source: Source,
-    pub value: ParameterValue,
+    pub value: InitialParameterValue,
 }
 impl ::std::convert::From<&Parameter> for Parameter {
     fn from(value: &Parameter) -> Self {
@@ -7804,562 +10634,6 @@ impl ::std::convert::From<&Parameter> for Parameter {
 impl Parameter {
     pub fn builder() -> builder::Parameter {
         Default::default()
-    }
-}
-#[doc = "`ParameterValue`"]
-#[doc = r""]
-#[doc = r" <details><summary>JSON schema</summary>"]
-#[doc = r""]
-#[doc = r" ```json"]
-#[doc = "{"]
-#[doc = "  \"oneOf\": ["]
-#[doc = "    {"]
-#[doc = "      \"title\": \"Compile-Time String\","]
-#[doc = "      \"description\": \"A constant string value.\","]
-#[doc = "      \"type\": \"object\","]
-#[doc = "      \"required\": ["]
-#[doc = "        \"kind\","]
-#[doc = "        \"source\","]
-#[doc = "        \"value\""]
-#[doc = "      ],"]
-#[doc = "      \"properties\": {"]
-#[doc = "        \"kind\": {"]
-#[doc = "          \"const\": \"string\""]
-#[doc = "        },"]
-#[doc = "        \"source\": {"]
-#[doc = "          \"$ref\": \"#/$defs/Source\""]
-#[doc = "        },"]
-#[doc = "        \"value\": {"]
-#[doc = "          \"$ref\": \"#/$defs/ConstString\""]
-#[doc = "        }"]
-#[doc = "      },"]
-#[doc = "      \"additionalProperties\": false"]
-#[doc = "    },"]
-#[doc = "    {"]
-#[doc = "      \"title\": \"Compile-Time Number\","]
-#[doc = "      \"description\": \"A constant number value.\","]
-#[doc = "      \"type\": \"object\","]
-#[doc = "      \"required\": ["]
-#[doc = "        \"kind\","]
-#[doc = "        \"source\","]
-#[doc = "        \"value\""]
-#[doc = "      ],"]
-#[doc = "      \"properties\": {"]
-#[doc = "        \"kind\": {"]
-#[doc = "          \"const\": \"number\""]
-#[doc = "        },"]
-#[doc = "        \"source\": {"]
-#[doc = "          \"$ref\": \"#/$defs/Source\""]
-#[doc = "        },"]
-#[doc = "        \"value\": {"]
-#[doc = "          \"$ref\": \"#/$defs/ConstInt\""]
-#[doc = "        }"]
-#[doc = "      },"]
-#[doc = "      \"additionalProperties\": false"]
-#[doc = "    },"]
-#[doc = "    {"]
-#[doc = "      \"title\": \"Compile-Time Boolean\","]
-#[doc = "      \"description\": \"A constant boolean (true/false) value.\","]
-#[doc = "      \"type\": \"object\","]
-#[doc = "      \"required\": ["]
-#[doc = "        \"kind\","]
-#[doc = "        \"source\","]
-#[doc = "        \"value\""]
-#[doc = "      ],"]
-#[doc = "      \"properties\": {"]
-#[doc = "        \"kind\": {"]
-#[doc = "          \"const\": \"boolean\""]
-#[doc = "        },"]
-#[doc = "        \"source\": {"]
-#[doc = "          \"$ref\": \"#/$defs/Source\""]
-#[doc = "        },"]
-#[doc = "        \"value\": {"]
-#[doc = "          \"description\": \"The constant boolean value.\","]
-#[doc = "          \"type\": \"boolean\""]
-#[doc = "        }"]
-#[doc = "      },"]
-#[doc = "      \"additionalProperties\": false"]
-#[doc = "    },"]
-#[doc = "    {"]
-#[doc = "      \"title\": \"Compile-Time Null\","]
-#[doc = "      \"description\": \"A constant null value.\","]
-#[doc = "      \"type\": \"object\","]
-#[doc = "      \"required\": ["]
-#[doc = "        \"kind\","]
-#[doc = "        \"source\""]
-#[doc = "      ],"]
-#[doc = "      \"properties\": {"]
-#[doc = "        \"kind\": {"]
-#[doc = "          \"const\": \"null\""]
-#[doc = "        },"]
-#[doc = "        \"source\": {"]
-#[doc = "          \"$ref\": \"#/$defs/Source\""]
-#[doc = "        }"]
-#[doc = "      },"]
-#[doc = "      \"additionalProperties\": false"]
-#[doc = "    },"]
-#[doc = "    {"]
-#[doc = "      \"title\": \"Compile-Time String List\","]
-#[doc = "      \"description\": \"A constant string list value.\","]
-#[doc = "      \"type\": \"object\","]
-#[doc = "      \"required\": ["]
-#[doc = "        \"kind\","]
-#[doc = "        \"source\","]
-#[doc = "        \"value\""]
-#[doc = "      ],"]
-#[doc = "      \"properties\": {"]
-#[doc = "        \"kind\": {"]
-#[doc = "          \"const\": \"string-list\""]
-#[doc = "        },"]
-#[doc = "        \"source\": {"]
-#[doc = "          \"$ref\": \"#/$defs/Source\""]
-#[doc = "        },"]
-#[doc = "        \"value\": {"]
-#[doc = "          \"type\": \"array\","]
-#[doc = "          \"items\": {"]
-#[doc = "            \"$ref\": \"#/$defs/ConstString\""]
-#[doc = "          },"]
-#[doc = "          \"maxItems\": 1000,"]
-#[doc = "          \"minItems\": 0"]
-#[doc = "        }"]
-#[doc = "      },"]
-#[doc = "      \"additionalProperties\": false"]
-#[doc = "    },"]
-#[doc = "    {"]
-#[doc = "      \"title\": \"Compile-Time Number List\","]
-#[doc = "      \"description\": \"A constant number list value.\","]
-#[doc = "      \"type\": \"object\","]
-#[doc = "      \"required\": ["]
-#[doc = "        \"kind\","]
-#[doc = "        \"source\","]
-#[doc = "        \"value\""]
-#[doc = "      ],"]
-#[doc = "      \"properties\": {"]
-#[doc = "        \"kind\": {"]
-#[doc = "          \"const\": \"number-list\""]
-#[doc = "        },"]
-#[doc = "        \"source\": {"]
-#[doc = "          \"$ref\": \"#/$defs/Source\""]
-#[doc = "        },"]
-#[doc = "        \"value\": {"]
-#[doc = "          \"type\": \"array\","]
-#[doc = "          \"items\": {"]
-#[doc = "            \"$ref\": \"#/$defs/ConstInt\""]
-#[doc = "          },"]
-#[doc = "          \"maxItems\": 1000,"]
-#[doc = "          \"minItems\": 0"]
-#[doc = "        }"]
-#[doc = "      },"]
-#[doc = "      \"additionalProperties\": false"]
-#[doc = "    },"]
-#[doc = "    {"]
-#[doc = "      \"title\": \"Compile-Time Boolean List\","]
-#[doc = "      \"description\": \"A constant boolean list value.\","]
-#[doc = "      \"type\": \"object\","]
-#[doc = "      \"required\": ["]
-#[doc = "        \"kind\","]
-#[doc = "        \"source\","]
-#[doc = "        \"value\""]
-#[doc = "      ],"]
-#[doc = "      \"properties\": {"]
-#[doc = "        \"kind\": {"]
-#[doc = "          \"const\": \"boolean-list\""]
-#[doc = "        },"]
-#[doc = "        \"source\": {"]
-#[doc = "          \"$ref\": \"#/$defs/Source\""]
-#[doc = "        },"]
-#[doc = "        \"value\": {"]
-#[doc = "          \"type\": \"array\","]
-#[doc = "          \"items\": {"]
-#[doc = "            \"type\": \"boolean\""]
-#[doc = "          },"]
-#[doc = "          \"maxItems\": 1000,"]
-#[doc = "          \"minItems\": 0"]
-#[doc = "        }"]
-#[doc = "      },"]
-#[doc = "      \"additionalProperties\": false"]
-#[doc = "    },"]
-#[doc = "    {"]
-#[doc = "      \"title\": \"Compile-Time String Map\","]
-#[doc = "      \"description\": \"A constant string map value.\","]
-#[doc = "      \"type\": \"object\","]
-#[doc = "      \"required\": ["]
-#[doc = "        \"kind\","]
-#[doc = "        \"source\","]
-#[doc = "        \"value\""]
-#[doc = "      ],"]
-#[doc = "      \"properties\": {"]
-#[doc = "        \"kind\": {"]
-#[doc = "          \"const\": \"string-map\""]
-#[doc = "        },"]
-#[doc = "        \"source\": {"]
-#[doc = "          \"$ref\": \"#/$defs/Source\""]
-#[doc = "        },"]
-#[doc = "        \"value\": {"]
-#[doc = "          \"type\": \"object\","]
-#[doc = "          \"maxItems\": 1000,"]
-#[doc = "          \"minItems\": 0,"]
-#[doc = "          \"patternProperties\": {"]
-#[doc = "            \".*\": {"]
-#[doc = "              \"$ref\": \"#/$defs/ConstString\""]
-#[doc = "            }"]
-#[doc = "          }"]
-#[doc = "        }"]
-#[doc = "      },"]
-#[doc = "      \"additionalProperties\": false"]
-#[doc = "    },"]
-#[doc = "    {"]
-#[doc = "      \"title\": \"Compile-Time Number Map\","]
-#[doc = "      \"description\": \"A constant number map value.\","]
-#[doc = "      \"type\": \"object\","]
-#[doc = "      \"required\": ["]
-#[doc = "        \"kind\","]
-#[doc = "        \"source\","]
-#[doc = "        \"value\""]
-#[doc = "      ],"]
-#[doc = "      \"properties\": {"]
-#[doc = "        \"kind\": {"]
-#[doc = "          \"const\": \"number-map\""]
-#[doc = "        },"]
-#[doc = "        \"source\": {"]
-#[doc = "          \"$ref\": \"#/$defs/Source\""]
-#[doc = "        },"]
-#[doc = "        \"value\": {"]
-#[doc = "          \"type\": \"object\","]
-#[doc = "          \"maxItems\": 1000,"]
-#[doc = "          \"minItems\": 0,"]
-#[doc = "          \"patternProperties\": {"]
-#[doc = "            \".*\": {"]
-#[doc = "              \"$ref\": \"#/$defs/ConstInt\""]
-#[doc = "            }"]
-#[doc = "          }"]
-#[doc = "        }"]
-#[doc = "      },"]
-#[doc = "      \"additionalProperties\": false"]
-#[doc = "    },"]
-#[doc = "    {"]
-#[doc = "      \"title\": \"Compile-Time Boolean Map\","]
-#[doc = "      \"description\": \"A constant boolean map value.\","]
-#[doc = "      \"type\": \"object\","]
-#[doc = "      \"required\": ["]
-#[doc = "        \"kind\","]
-#[doc = "        \"source\","]
-#[doc = "        \"value\""]
-#[doc = "      ],"]
-#[doc = "      \"properties\": {"]
-#[doc = "        \"kind\": {"]
-#[doc = "          \"const\": \"boolean-map\""]
-#[doc = "        },"]
-#[doc = "        \"source\": {"]
-#[doc = "          \"$ref\": \"#/$defs/Source\""]
-#[doc = "        },"]
-#[doc = "        \"value\": {"]
-#[doc = "          \"type\": \"object\","]
-#[doc = "          \"maxItems\": 1000,"]
-#[doc = "          \"minItems\": 0,"]
-#[doc = "          \"patternProperties\": {"]
-#[doc = "            \".*\": {"]
-#[doc = "              \"type\": \"boolean\""]
-#[doc = "            }"]
-#[doc = "          }"]
-#[doc = "        }"]
-#[doc = "      },"]
-#[doc = "      \"additionalProperties\": false"]
-#[doc = "    },"]
-#[doc = "    {"]
-#[doc = "      \"title\": \"Compile-Time String List Map\","]
-#[doc = "      \"description\": \"A constant map to a string list.\","]
-#[doc = "      \"type\": \"object\","]
-#[doc = "      \"required\": ["]
-#[doc = "        \"kind\","]
-#[doc = "        \"source\","]
-#[doc = "        \"value\""]
-#[doc = "      ],"]
-#[doc = "      \"properties\": {"]
-#[doc = "        \"kind\": {"]
-#[doc = "          \"const\": \"string-list-map\""]
-#[doc = "        },"]
-#[doc = "        \"source\": {"]
-#[doc = "          \"$ref\": \"#/$defs/Source\""]
-#[doc = "        },"]
-#[doc = "        \"value\": {"]
-#[doc = "          \"type\": \"object\","]
-#[doc = "          \"maxItems\": 1000,"]
-#[doc = "          \"minItems\": 0,"]
-#[doc = "          \"patternProperties\": {"]
-#[doc = "            \".*\": {"]
-#[doc = "              \"type\": \"array\","]
-#[doc = "              \"items\": {"]
-#[doc = "                \"$ref\": \"#/$defs/ConstString\""]
-#[doc = "              },"]
-#[doc = "              \"maxItems\": 1000,"]
-#[doc = "              \"minItems\": 0"]
-#[doc = "            }"]
-#[doc = "          }"]
-#[doc = "        }"]
-#[doc = "      },"]
-#[doc = "      \"additionalProperties\": false"]
-#[doc = "    },"]
-#[doc = "    {"]
-#[doc = "      \"title\": \"Compile-Time String Map List\","]
-#[doc = "      \"description\": \"A constant list of string maps.\","]
-#[doc = "      \"type\": \"object\","]
-#[doc = "      \"required\": ["]
-#[doc = "        \"kind\","]
-#[doc = "        \"source\","]
-#[doc = "        \"value\""]
-#[doc = "      ],"]
-#[doc = "      \"properties\": {"]
-#[doc = "        \"kind\": {"]
-#[doc = "          \"const\": \"string-map-list\""]
-#[doc = "        },"]
-#[doc = "        \"source\": {"]
-#[doc = "          \"$ref\": \"#/$defs/Source\""]
-#[doc = "        },"]
-#[doc = "        \"value\": {"]
-#[doc = "          \"type\": \"array\","]
-#[doc = "          \"items\": {"]
-#[doc = "            \"type\": \"object\","]
-#[doc = "            \"maxItems\": 1000,"]
-#[doc = "            \"minItems\": 0,"]
-#[doc = "            \"patternProperties\": {"]
-#[doc = "              \".*\": {"]
-#[doc = "                \"$ref\": \"#/$defs/ConstString\""]
-#[doc = "              }"]
-#[doc = "            }"]
-#[doc = "          },"]
-#[doc = "          \"maxItems\": 1000,"]
-#[doc = "          \"minItems\": 0"]
-#[doc = "        }"]
-#[doc = "      },"]
-#[doc = "      \"additionalProperties\": false"]
-#[doc = "    }"]
-#[doc = "  ]"]
-#[doc = "}"]
-#[doc = r" ```"]
-#[doc = r" </details>"]
-#[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
-#[serde(tag = "kind", deny_unknown_fields)]
-pub enum ParameterValue {
-    #[doc = "Compile-Time String\n\nA constant string value."]
-    #[serde(rename = "string")]
-    String { source: Source, value: ConstString },
-    #[doc = "Compile-Time Number\n\nA constant number value."]
-    #[serde(rename = "number")]
-    Number { source: Source, value: ConstInt },
-    #[doc = "Compile-Time Boolean\n\nA constant boolean (true/false) value."]
-    #[serde(rename = "boolean")]
-    Boolean {
-        source: Source,
-        #[doc = "The constant boolean value."]
-        value: bool,
-    },
-    #[doc = "Compile-Time Null\n\nA constant null value."]
-    #[serde(rename = "null")]
-    Null { source: Source },
-    #[doc = "Compile-Time String List\n\nA constant string list value."]
-    #[serde(rename = "string-list")]
-    StringList {
-        source: Source,
-        value: ::std::vec::Vec<ConstString>,
-    },
-    #[doc = "Compile-Time Number List\n\nA constant number list value."]
-    #[serde(rename = "number-list")]
-    NumberList {
-        source: Source,
-        value: ::std::vec::Vec<ConstInt>,
-    },
-    #[doc = "Compile-Time Boolean List\n\nA constant boolean list value."]
-    #[serde(rename = "boolean-list")]
-    BooleanList {
-        source: Source,
-        value: ::std::vec::Vec<bool>,
-    },
-    #[doc = "Compile-Time String Map\n\nA constant string map value."]
-    #[serde(rename = "string-map")]
-    StringMap {
-        source: Source,
-        value: ::std::collections::HashMap<ParameterValueValueKey, ConstString>,
-    },
-    #[doc = "Compile-Time Number Map\n\nA constant number map value."]
-    #[serde(rename = "number-map")]
-    NumberMap {
-        source: Source,
-        value: ::std::collections::HashMap<ParameterValueValueKey, ConstInt>,
-    },
-    #[doc = "Compile-Time Boolean Map\n\nA constant boolean map value."]
-    #[serde(rename = "boolean-map")]
-    BooleanMap {
-        source: Source,
-        value: ::std::collections::HashMap<ParameterValueValueKey, bool>,
-    },
-    #[doc = "Compile-Time String List Map\n\nA constant map to a string list."]
-    #[serde(rename = "string-list-map")]
-    StringListMap {
-        source: Source,
-        value: ::std::collections::HashMap<ParameterValueValueKey, ::std::vec::Vec<ConstString>>,
-    },
-    #[doc = "Compile-Time String Map List\n\nA constant list of string maps."]
-    #[serde(rename = "string-map-list")]
-    StringMapList {
-        source: Source,
-        value:
-            ::std::vec::Vec<::std::collections::HashMap<ParameterValueValueItemKey, ConstString>>,
-    },
-}
-impl ::std::convert::From<&Self> for ParameterValue {
-    fn from(value: &ParameterValue) -> Self {
-        value.clone()
-    }
-}
-#[doc = "`ParameterValueValueItemKey`"]
-#[doc = r""]
-#[doc = r" <details><summary>JSON schema</summary>"]
-#[doc = r""]
-#[doc = r" ```json"]
-#[doc = "{"]
-#[doc = "  \"type\": \"string\","]
-#[doc = "  \"pattern\": \".*\""]
-#[doc = "}"]
-#[doc = r" ```"]
-#[doc = r" </details>"]
-#[derive(:: serde :: Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
-#[serde(transparent)]
-pub struct ParameterValueValueItemKey(::std::string::String);
-impl ::std::ops::Deref for ParameterValueValueItemKey {
-    type Target = ::std::string::String;
-    fn deref(&self) -> &::std::string::String {
-        &self.0
-    }
-}
-impl ::std::convert::From<ParameterValueValueItemKey> for ::std::string::String {
-    fn from(value: ParameterValueValueItemKey) -> Self {
-        value.0
-    }
-}
-impl ::std::convert::From<&ParameterValueValueItemKey> for ParameterValueValueItemKey {
-    fn from(value: &ParameterValueValueItemKey) -> Self {
-        value.clone()
-    }
-}
-impl ::std::str::FromStr for ParameterValueValueItemKey {
-    type Err = self::error::ConversionError;
-    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
-        static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
-            ::std::sync::LazyLock::new(|| ::regress::Regex::new(".*").unwrap());
-        if PATTERN.find(value).is_none() {
-            return Err("doesn't match pattern \".*\"".into());
-        }
-        Ok(Self(value.to_string()))
-    }
-}
-impl ::std::convert::TryFrom<&str> for ParameterValueValueItemKey {
-    type Error = self::error::ConversionError;
-    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
-        value.parse()
-    }
-}
-impl ::std::convert::TryFrom<&::std::string::String> for ParameterValueValueItemKey {
-    type Error = self::error::ConversionError;
-    fn try_from(
-        value: &::std::string::String,
-    ) -> ::std::result::Result<Self, self::error::ConversionError> {
-        value.parse()
-    }
-}
-impl ::std::convert::TryFrom<::std::string::String> for ParameterValueValueItemKey {
-    type Error = self::error::ConversionError;
-    fn try_from(
-        value: ::std::string::String,
-    ) -> ::std::result::Result<Self, self::error::ConversionError> {
-        value.parse()
-    }
-}
-impl<'de> ::serde::Deserialize<'de> for ParameterValueValueItemKey {
-    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
-    where
-        D: ::serde::Deserializer<'de>,
-    {
-        ::std::string::String::deserialize(deserializer)?
-            .parse()
-            .map_err(|e: self::error::ConversionError| {
-                <D::Error as ::serde::de::Error>::custom(e.to_string())
-            })
-    }
-}
-#[doc = "`ParameterValueValueKey`"]
-#[doc = r""]
-#[doc = r" <details><summary>JSON schema</summary>"]
-#[doc = r""]
-#[doc = r" ```json"]
-#[doc = "{"]
-#[doc = "  \"type\": \"string\","]
-#[doc = "  \"pattern\": \".*\""]
-#[doc = "}"]
-#[doc = r" ```"]
-#[doc = r" </details>"]
-#[derive(:: serde :: Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
-#[serde(transparent)]
-pub struct ParameterValueValueKey(::std::string::String);
-impl ::std::ops::Deref for ParameterValueValueKey {
-    type Target = ::std::string::String;
-    fn deref(&self) -> &::std::string::String {
-        &self.0
-    }
-}
-impl ::std::convert::From<ParameterValueValueKey> for ::std::string::String {
-    fn from(value: ParameterValueValueKey) -> Self {
-        value.0
-    }
-}
-impl ::std::convert::From<&ParameterValueValueKey> for ParameterValueValueKey {
-    fn from(value: &ParameterValueValueKey) -> Self {
-        value.clone()
-    }
-}
-impl ::std::str::FromStr for ParameterValueValueKey {
-    type Err = self::error::ConversionError;
-    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
-        static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
-            ::std::sync::LazyLock::new(|| ::regress::Regex::new(".*").unwrap());
-        if PATTERN.find(value).is_none() {
-            return Err("doesn't match pattern \".*\"".into());
-        }
-        Ok(Self(value.to_string()))
-    }
-}
-impl ::std::convert::TryFrom<&str> for ParameterValueValueKey {
-    type Error = self::error::ConversionError;
-    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
-        value.parse()
-    }
-}
-impl ::std::convert::TryFrom<&::std::string::String> for ParameterValueValueKey {
-    type Error = self::error::ConversionError;
-    fn try_from(
-        value: &::std::string::String,
-    ) -> ::std::result::Result<Self, self::error::ConversionError> {
-        value.parse()
-    }
-}
-impl ::std::convert::TryFrom<::std::string::String> for ParameterValueValueKey {
-    type Error = self::error::ConversionError;
-    fn try_from(
-        value: ::std::string::String,
-    ) -> ::std::result::Result<Self, self::error::ConversionError> {
-        value.parse()
-    }
-}
-impl<'de> ::serde::Deserialize<'de> for ParameterValueValueKey {
-    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
-    where
-        D: ::serde::Deserializer<'de>,
-    {
-        ::std::string::String::deserialize(deserializer)?
-            .parse()
-            .map_err(|e: self::error::ConversionError| {
-                <D::Error as ::serde::de::Error>::custom(e.to_string())
-            })
     }
 }
 #[doc = "A number value that is the result of raising one number to the power of another."]
@@ -8385,13 +10659,17 @@ impl<'de> ::serde::Deserialize<'de> for ParameterValueValueKey {
 #[doc = "      \"$ref\": \"#/$defs/ComputedNumberValue\""]
 #[doc = "    },"]
 #[doc = "    \"kind\": {"]
+#[doc = "      \"type\": \"string\","]
 #[doc = "      \"const\": \"power-number\""]
 #[doc = "    },"]
 #[doc = "    \"source\": {"]
 #[doc = "      \"$ref\": \"#/$defs/Source\""]
 #[doc = "    }"]
 #[doc = "  },"]
-#[doc = "  \"additionalProperties\": false"]
+#[doc = "  \"additionalProperties\": false,"]
+#[doc = "  \"discriminator\": {"]
+#[doc = "    \"propertyName\": \"kind\""]
+#[doc = "  }"]
 #[doc = "}"]
 #[doc = r" ```"]
 #[doc = r" </details>"]
@@ -8400,7 +10678,7 @@ impl<'de> ::serde::Deserialize<'de> for ParameterValueValueKey {
 pub struct PowerTwoValues {
     pub base: ::std::boxed::Box<ComputedNumberValue>,
     pub exponent: ::std::boxed::Box<ComputedNumberValue>,
-    pub kind: ::serde_json::Value,
+    pub kind: ::std::string::String,
     pub source: Source,
 }
 impl ::std::convert::From<&PowerTwoValues> for PowerTwoValues {
@@ -8429,6 +10707,7 @@ impl PowerTwoValues {
 #[doc = "  ],"]
 #[doc = "  \"properties\": {"]
 #[doc = "    \"kind\": {"]
+#[doc = "      \"type\": \"string\","]
 #[doc = "      \"const\": \"product-number-list\""]
 #[doc = "    },"]
 #[doc = "    \"source\": {"]
@@ -8438,14 +10717,17 @@ impl PowerTwoValues {
 #[doc = "      \"$ref\": \"#/$defs/ComputedNumberListValue\""]
 #[doc = "    }"]
 #[doc = "  },"]
-#[doc = "  \"additionalProperties\": false"]
+#[doc = "  \"additionalProperties\": false,"]
+#[doc = "  \"discriminator\": {"]
+#[doc = "    \"propertyName\": \"kind\""]
+#[doc = "  }"]
 #[doc = "}"]
 #[doc = r" ```"]
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
 pub struct ProductNumberListValue {
-    pub kind: ::serde_json::Value,
+    pub kind: ::std::string::String,
     pub source: Source,
     pub value: ComputedNumberListValue,
 }
@@ -8481,6 +10763,7 @@ impl ProductNumberListValue {
 #[doc = "      \"$ref\": \"#/$defs/ComputedNumberValue\""]
 #[doc = "    },"]
 #[doc = "    \"kind\": {"]
+#[doc = "      \"type\": \"string\","]
 #[doc = "      \"const\": \"range-boolean-list\""]
 #[doc = "    },"]
 #[doc = "    \"list\": {"]
@@ -8493,7 +10776,10 @@ impl ProductNumberListValue {
 #[doc = "      \"$ref\": \"#/$defs/ComputedNumberValue\""]
 #[doc = "    }"]
 #[doc = "  },"]
-#[doc = "  \"additionalProperties\": false"]
+#[doc = "  \"additionalProperties\": false,"]
+#[doc = "  \"discriminator\": {"]
+#[doc = "    \"propertyName\": \"kind\""]
+#[doc = "  }"]
 #[doc = "}"]
 #[doc = r" ```"]
 #[doc = r" </details>"]
@@ -8504,8 +10790,8 @@ pub struct RangeBooleanListValue {
     pub count: ::std::option::Option<::std::boxed::Box<ComputedNumberValue>>,
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub end: ::std::option::Option<::std::boxed::Box<ComputedNumberValue>>,
-    pub kind: ::serde_json::Value,
-    pub list: ::std::boxed::Box<ComputedBooleanListValue>,
+    pub kind: ::std::string::String,
+    pub list: ComputedBooleanListValue,
     pub source: Source,
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub start: ::std::option::Option<::std::boxed::Box<ComputedNumberValue>>,
@@ -8542,6 +10828,7 @@ impl RangeBooleanListValue {
 #[doc = "      \"$ref\": \"#/$defs/ComputedNumberValue\""]
 #[doc = "    },"]
 #[doc = "    \"kind\": {"]
+#[doc = "      \"type\": \"string\","]
 #[doc = "      \"const\": \"range-number-list\""]
 #[doc = "    },"]
 #[doc = "    \"list\": {"]
@@ -8554,7 +10841,10 @@ impl RangeBooleanListValue {
 #[doc = "      \"$ref\": \"#/$defs/ComputedNumberValue\""]
 #[doc = "    }"]
 #[doc = "  },"]
-#[doc = "  \"additionalProperties\": false"]
+#[doc = "  \"additionalProperties\": false,"]
+#[doc = "  \"discriminator\": {"]
+#[doc = "    \"propertyName\": \"kind\""]
+#[doc = "  }"]
 #[doc = "}"]
 #[doc = r" ```"]
 #[doc = r" </details>"]
@@ -8565,7 +10855,7 @@ pub struct RangeNumberListValue {
     pub count: ::std::option::Option<::std::boxed::Box<ComputedNumberValue>>,
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub end: ::std::option::Option<::std::boxed::Box<ComputedNumberValue>>,
-    pub kind: ::serde_json::Value,
+    pub kind: ::std::string::String,
     pub list: ::std::boxed::Box<ComputedNumberListValue>,
     pub source: Source,
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
@@ -8603,6 +10893,7 @@ impl RangeNumberListValue {
 #[doc = "      \"$ref\": \"#/$defs/ComputedNumberValue\""]
 #[doc = "    },"]
 #[doc = "    \"kind\": {"]
+#[doc = "      \"type\": \"string\","]
 #[doc = "      \"const\": \"range-string-list\""]
 #[doc = "    },"]
 #[doc = "    \"list\": {"]
@@ -8615,7 +10906,10 @@ impl RangeNumberListValue {
 #[doc = "      \"$ref\": \"#/$defs/ComputedNumberValue\""]
 #[doc = "    }"]
 #[doc = "  },"]
-#[doc = "  \"additionalProperties\": false"]
+#[doc = "  \"additionalProperties\": false,"]
+#[doc = "  \"discriminator\": {"]
+#[doc = "    \"propertyName\": \"kind\""]
+#[doc = "  }"]
 #[doc = "}"]
 #[doc = r" ```"]
 #[doc = r" </details>"]
@@ -8626,7 +10920,7 @@ pub struct RangeStringListValue {
     pub count: ::std::option::Option<::std::boxed::Box<ComputedNumberValue>>,
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub end: ::std::option::Option<::std::boxed::Box<ComputedNumberValue>>,
-    pub kind: ::serde_json::Value,
+    pub kind: ::std::string::String,
     pub list: ::std::boxed::Box<ComputedStringListValue>,
     pub source: Source,
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
@@ -8664,6 +10958,7 @@ impl RangeStringListValue {
 #[doc = "      \"$ref\": \"#/$defs/ComputedNumberValue\""]
 #[doc = "    },"]
 #[doc = "    \"kind\": {"]
+#[doc = "      \"type\": \"string\","]
 #[doc = "      \"const\": \"range-string-map-list\""]
 #[doc = "    },"]
 #[doc = "    \"list\": {"]
@@ -8676,7 +10971,10 @@ impl RangeStringListValue {
 #[doc = "      \"$ref\": \"#/$defs/ComputedNumberValue\""]
 #[doc = "    }"]
 #[doc = "  },"]
-#[doc = "  \"additionalProperties\": false"]
+#[doc = "  \"additionalProperties\": false,"]
+#[doc = "  \"discriminator\": {"]
+#[doc = "    \"propertyName\": \"kind\""]
+#[doc = "  }"]
 #[doc = "}"]
 #[doc = r" ```"]
 #[doc = r" </details>"]
@@ -8687,7 +10985,7 @@ pub struct RangeStringMapListValue {
     pub count: ::std::option::Option<::std::boxed::Box<ComputedNumberValue>>,
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub end: ::std::option::Option<::std::boxed::Box<ComputedNumberValue>>,
-    pub kind: ::serde_json::Value,
+    pub kind: ::std::string::String,
     pub list: ::std::boxed::Box<ComputedStringMapListValue>,
     pub source: Source,
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
@@ -8700,6 +10998,51 @@ impl ::std::convert::From<&RangeStringMapListValue> for RangeStringMapListValue 
 }
 impl RangeStringMapListValue {
     pub fn builder() -> builder::RangeStringMapListValue {
+        Default::default()
+    }
+}
+#[doc = "When a map entry construction requires removing an entry, use this as the value.\n"]
+#[doc = r""]
+#[doc = r" <details><summary>JSON schema</summary>"]
+#[doc = r""]
+#[doc = r" ```json"]
+#[doc = "{"]
+#[doc = "  \"title\": \"Remove Map Entry\","]
+#[doc = "  \"description\": \"When a map entry construction requires removing an entry, use this as the value.\\n\","]
+#[doc = "  \"type\": \"object\","]
+#[doc = "  \"required\": ["]
+#[doc = "    \"kind\","]
+#[doc = "    \"source\""]
+#[doc = "  ],"]
+#[doc = "  \"properties\": {"]
+#[doc = "    \"kind\": {"]
+#[doc = "      \"type\": \"string\","]
+#[doc = "      \"const\": \"null\""]
+#[doc = "    },"]
+#[doc = "    \"source\": {"]
+#[doc = "      \"$ref\": \"#/$defs/Source\""]
+#[doc = "    }"]
+#[doc = "  },"]
+#[doc = "  \"additionalProperties\": false,"]
+#[doc = "  \"discriminator\": {"]
+#[doc = "    \"propertyName\": \"kind\""]
+#[doc = "  }"]
+#[doc = "}"]
+#[doc = r" ```"]
+#[doc = r" </details>"]
+#[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
+#[serde(deny_unknown_fields)]
+pub struct RemoveMapEntry {
+    pub kind: ::std::string::String,
+    pub source: Source,
+}
+impl ::std::convert::From<&RemoveMapEntry> for RemoveMapEntry {
+    fn from(value: &RemoveMapEntry) -> Self {
+        value.clone()
+    }
+}
+impl RemoveMapEntry {
+    pub fn builder() -> builder::RemoveMapEntry {
         Default::default()
     }
 }
@@ -8719,6 +11062,7 @@ impl RangeStringMapListValue {
 #[doc = "  ],"]
 #[doc = "  \"properties\": {"]
 #[doc = "    \"kind\": {"]
+#[doc = "      \"type\": \"string\","]
 #[doc = "      \"const\": \"round-number\""]
 #[doc = "    },"]
 #[doc = "    \"source\": {"]
@@ -8728,14 +11072,17 @@ impl RangeStringMapListValue {
 #[doc = "      \"$ref\": \"#/$defs/ComputedNumberValue\""]
 #[doc = "    }"]
 #[doc = "  },"]
-#[doc = "  \"additionalProperties\": false"]
+#[doc = "  \"additionalProperties\": false,"]
+#[doc = "  \"discriminator\": {"]
+#[doc = "    \"propertyName\": \"kind\""]
+#[doc = "  }"]
 #[doc = "}"]
 #[doc = r" ```"]
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
 pub struct RoundValue {
-    pub kind: ::serde_json::Value,
+    pub kind: ::std::string::String,
     pub source: Source,
     pub value: ::std::boxed::Box<ComputedNumberValue>,
 }
@@ -8982,7 +11329,8 @@ impl<'de> ::serde::Deserialize<'de> for ScriptExitMessage {
 #[doc = "  \"properties\": {"]
 #[doc = "    \"copyright\": {"]
 #[doc = "      \"title\": \"Copyright\","]
-#[doc = "      \"description\": \"The copyright description that accompanies the license type.  This usually relates to the first line of the license text.\\n\""]
+#[doc = "      \"description\": \"The copyright description that accompanies the license type.  This usually relates to the first line of the license text.\\n\","]
+#[doc = "      \"type\": \"string\""]
 #[doc = "    },"]
 #[doc = "    \"spdx-id\": {"]
 #[doc = "      \"title\": \"SPDX ID\","]
@@ -9001,7 +11349,7 @@ impl<'de> ::serde::Deserialize<'de> for ScriptExitMessage {
 pub struct ScriptLicense {
     #[doc = "The copyright description that accompanies the license type.  This usually relates to the first line of the license text.\n"]
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
-    pub copyright: ::std::option::Option<::serde_json::Value>,
+    pub copyright: ::std::option::Option<::std::string::String>,
     #[doc = "The formal SPDX identifier string for this license."]
     #[serde(rename = "spdx-id")]
     pub spdx_id: SpdxId,
@@ -9341,6 +11689,7 @@ impl<'de> ::serde::Deserialize<'de> for SpdxId {
 #[doc = "  ],"]
 #[doc = "  \"properties\": {"]
 #[doc = "    \"kind\": {"]
+#[doc = "      \"type\": \"string\","]
 #[doc = "      \"const\": \"split-string\""]
 #[doc = "    },"]
 #[doc = "    \"maximumSplits\": {"]
@@ -9356,14 +11705,17 @@ impl<'de> ::serde::Deserialize<'de> for SpdxId {
 #[doc = "      \"$ref\": \"#/$defs/ComputedStringValue\""]
 #[doc = "    }"]
 #[doc = "  },"]
-#[doc = "  \"additionalProperties\": false"]
+#[doc = "  \"additionalProperties\": false,"]
+#[doc = "  \"discriminator\": {"]
+#[doc = "    \"propertyName\": \"kind\""]
+#[doc = "  }"]
 #[doc = "}"]
 #[doc = r" ```"]
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
 pub struct SplitStringValue {
-    pub kind: ::serde_json::Value,
+    pub kind: ::std::string::String,
     #[serde(
         rename = "maximumSplits",
         default,
@@ -9404,195 +11756,7 @@ impl SplitStringValue {
 #[doc = "      \"type\": \"string\""]
 #[doc = "    },"]
 #[doc = "    \"run\": {"]
-#[doc = "      \"oneOf\": ["]
-#[doc = "        {"]
-#[doc = "          \"title\": \"Send Event\","]
-#[doc = "          \"description\": \"Send an event to the event broker.  It has either a string message, or an integer code.\","]
-#[doc = "          \"type\": \"object\","]
-#[doc = "          \"required\": ["]
-#[doc = "            \"kind\","]
-#[doc = "            \"name\","]
-#[doc = "            \"payload\""]
-#[doc = "          ],"]
-#[doc = "          \"properties\": {"]
-#[doc = "            \"kind\": {"]
-#[doc = "              \"const\": \"send-event\""]
-#[doc = "            },"]
-#[doc = "            \"name\": {"]
-#[doc = "              \"$ref\": \"#/$defs/EventRef\""]
-#[doc = "            },"]
-#[doc = "            \"payload\": {"]
-#[doc = "              \"oneOf\": ["]
-#[doc = "                {"]
-#[doc = "                  \"$ref\": \"#/$defs/EventPayloadMessage\""]
-#[doc = "                },"]
-#[doc = "                {"]
-#[doc = "                  \"$ref\": \"#/$defs/EventPayloadSignal\""]
-#[doc = "                }"]
-#[doc = "              ]"]
-#[doc = "            }"]
-#[doc = "          },"]
-#[doc = "          \"additionalProperties\": false"]
-#[doc = "        },"]
-#[doc = "        {"]
-#[doc = "          \"title\": \"Wait For Event\","]
-#[doc = "          \"description\": \"Wait for something to send an event *after* this starts listening for events. It can optionally also wait for a matching payload.\\n\","]
-#[doc = "          \"type\": \"object\","]
-#[doc = "          \"required\": ["]
-#[doc = "            \"kind\","]
-#[doc = "            \"name\""]
-#[doc = "          ],"]
-#[doc = "          \"properties\": {"]
-#[doc = "            \"kind\": {"]
-#[doc = "              \"const\": \"wait-for-event\""]
-#[doc = "            },"]
-#[doc = "            \"name\": {"]
-#[doc = "              \"$ref\": \"#/$defs/EventRef\""]
-#[doc = "            },"]
-#[doc = "            \"payload\": {"]
-#[doc = "              \"oneOf\": ["]
-#[doc = "                {"]
-#[doc = "                  \"$ref\": \"#/$defs/EventPayloadMessage\""]
-#[doc = "                },"]
-#[doc = "                {"]
-#[doc = "                  \"$ref\": \"#/$defs/EventPayloadSignal\""]
-#[doc = "                }"]
-#[doc = "              ]"]
-#[doc = "            }"]
-#[doc = "          },"]
-#[doc = "          \"additionalProperties\": false"]
-#[doc = "        },"]
-#[doc = "        {"]
-#[doc = "          \"title\": \"Spawn Job\","]
-#[doc = "          \"description\": \"Requests the parallel execution of a job, either start it or restart it.  If it's currently running, this will do nothing.\\n\","]
-#[doc = "          \"type\": \"object\","]
-#[doc = "          \"required\": ["]
-#[doc = "            \"job\","]
-#[doc = "            \"kind\""]
-#[doc = "          ],"]
-#[doc = "          \"properties\": {"]
-#[doc = "            \"job\": {"]
-#[doc = "              \"$ref\": \"#/$defs/JobRef\""]
-#[doc = "            },"]
-#[doc = "            \"kind\": {"]
-#[doc = "              \"const\": \"spawn-job\""]
-#[doc = "            }"]
-#[doc = "          },"]
-#[doc = "          \"additionalProperties\": false"]
-#[doc = "        },"]
-#[doc = "        {"]
-#[doc = "          \"title\": \"Wait For Job\","]
-#[doc = "          \"description\": \"Wait for a job to finish executing.  This will block until the job's execution exits.  If it has already completed, this will continue without waiting.\\n\","]
-#[doc = "          \"type\": \"object\","]
-#[doc = "          \"required\": ["]
-#[doc = "            \"exit-behavior\","]
-#[doc = "            \"job\","]
-#[doc = "            \"kind\""]
-#[doc = "          ],"]
-#[doc = "          \"properties\": {"]
-#[doc = "            \"exit-behavior\": {"]
-#[doc = "              \"$ref\": \"#/$defs/ExitBehavior\""]
-#[doc = "            },"]
-#[doc = "            \"job\": {"]
-#[doc = "              \"$ref\": \"#/$defs/JobRef\""]
-#[doc = "            },"]
-#[doc = "            \"kind\": {"]
-#[doc = "              \"const\": \"wait-for-job\""]
-#[doc = "            }"]
-#[doc = "          },"]
-#[doc = "          \"additionalProperties\": false"]
-#[doc = "        },"]
-#[doc = "        {"]
-#[doc = "          \"title\": \"Spawn Thread\","]
-#[doc = "          \"description\": \"Requests the parallel execution of a thread, either start it or restart it.  If it's currently running, this will do nothing.\\n\","]
-#[doc = "          \"type\": \"object\","]
-#[doc = "          \"required\": ["]
-#[doc = "            \"kind\","]
-#[doc = "            \"thread\""]
-#[doc = "          ],"]
-#[doc = "          \"properties\": {"]
-#[doc = "            \"kind\": {"]
-#[doc = "              \"const\": \"spawn-thread\""]
-#[doc = "            },"]
-#[doc = "            \"thread\": {"]
-#[doc = "              \"$ref\": \"#/$defs/ThreadRef\""]
-#[doc = "            }"]
-#[doc = "          },"]
-#[doc = "          \"additionalProperties\": false"]
-#[doc = "        },"]
-#[doc = "        {"]
-#[doc = "          \"title\": \"Wait For Thread\","]
-#[doc = "          \"description\": \"Wait for a thread to finish executing.  This will block until the thread's execution exits.  If it has already completed, this will continue without waiting.\\n\","]
-#[doc = "          \"type\": \"object\","]
-#[doc = "          \"required\": ["]
-#[doc = "            \"exit-behavior\","]
-#[doc = "            \"kind\","]
-#[doc = "            \"thread\""]
-#[doc = "          ],"]
-#[doc = "          \"properties\": {"]
-#[doc = "            \"exit-behavior\": {"]
-#[doc = "              \"$ref\": \"#/$defs/ExitBehavior\""]
-#[doc = "            },"]
-#[doc = "            \"kind\": {"]
-#[doc = "              \"const\": \"wait-for-thread\""]
-#[doc = "            },"]
-#[doc = "            \"thread\": {"]
-#[doc = "              \"$ref\": \"#/$defs/ThreadRef\""]
-#[doc = "            }"]
-#[doc = "          },"]
-#[doc = "          \"additionalProperties\": false"]
-#[doc = "        },"]
-#[doc = "        {"]
-#[doc = "          \"title\": \"Wait For All\","]
-#[doc = "          \"description\": \"Wait for all the threads and jobs to finish.\","]
-#[doc = "          \"type\": \"object\","]
-#[doc = "          \"required\": ["]
-#[doc = "            \"exit-behavior\","]
-#[doc = "            \"jobs\","]
-#[doc = "            \"kind\","]
-#[doc = "            \"threads\""]
-#[doc = "          ],"]
-#[doc = "          \"properties\": {"]
-#[doc = "            \"exit-behavior\": {"]
-#[doc = "              \"$ref\": \"#/$defs/ExitBehavior\""]
-#[doc = "            },"]
-#[doc = "            \"jobs\": {"]
-#[doc = "              \"type\": \"array\","]
-#[doc = "              \"items\": {"]
-#[doc = "                \"$ref\": \"#/$defs/JobRef\""]
-#[doc = "              },"]
-#[doc = "              \"maxItems\": 1000,"]
-#[doc = "              \"minItems\": 0"]
-#[doc = "            },"]
-#[doc = "            \"kind\": {"]
-#[doc = "              \"const\": \"wait-for-all\""]
-#[doc = "            },"]
-#[doc = "            \"threads\": {"]
-#[doc = "              \"type\": \"array\","]
-#[doc = "              \"items\": {"]
-#[doc = "                \"$ref\": \"#/$defs/ThreadRef\""]
-#[doc = "              },"]
-#[doc = "              \"maxItems\": 1000,"]
-#[doc = "              \"minItems\": 0"]
-#[doc = "            }"]
-#[doc = "          },"]
-#[doc = "          \"additionalProperties\": false"]
-#[doc = "        },"]
-#[doc = "        {"]
-#[doc = "          \"title\": \"Do Nothing\","]
-#[doc = "          \"description\": \"Perform no action.\","]
-#[doc = "          \"type\": \"object\","]
-#[doc = "          \"required\": ["]
-#[doc = "            \"kind\""]
-#[doc = "          ],"]
-#[doc = "          \"properties\": {"]
-#[doc = "            \"kind\": {"]
-#[doc = "              \"const\": \"noop\""]
-#[doc = "            }"]
-#[doc = "          },"]
-#[doc = "          \"additionalProperties\": false"]
-#[doc = "        }"]
-#[doc = "      ]"]
+#[doc = "      \"$ref\": \"#/$defs/StepTask\""]
 #[doc = "    },"]
 #[doc = "    \"source\": {"]
 #[doc = "      \"$ref\": \"#/$defs/Source\""]
@@ -9607,7 +11771,7 @@ impl SplitStringValue {
 pub struct Step {
     #[doc = "The name of the step.  Used only for debugging."]
     pub name: ::std::string::String,
-    pub run: StepRun,
+    pub run: StepTask,
     pub source: Source,
 }
 impl ::std::convert::From<&Step> for Step {
@@ -9620,12 +11784,14 @@ impl Step {
         Default::default()
     }
 }
-#[doc = "`StepRun`"]
+#[doc = "A task to run during a step."]
 #[doc = r""]
 #[doc = r" <details><summary>JSON schema</summary>"]
 #[doc = r""]
 #[doc = r" ```json"]
 #[doc = "{"]
+#[doc = "  \"title\": \"Step Task\","]
+#[doc = "  \"description\": \"A task to run during a step.\","]
 #[doc = "  \"oneOf\": ["]
 #[doc = "    {"]
 #[doc = "      \"title\": \"Send Event\","]
@@ -9638,6 +11804,7 @@ impl Step {
 #[doc = "      ],"]
 #[doc = "      \"properties\": {"]
 #[doc = "        \"kind\": {"]
+#[doc = "          \"type\": \"string\","]
 #[doc = "          \"const\": \"send-event\""]
 #[doc = "        },"]
 #[doc = "        \"name\": {"]
@@ -9666,6 +11833,7 @@ impl Step {
 #[doc = "      ],"]
 #[doc = "      \"properties\": {"]
 #[doc = "        \"kind\": {"]
+#[doc = "          \"type\": \"string\","]
 #[doc = "          \"const\": \"wait-for-event\""]
 #[doc = "        },"]
 #[doc = "        \"name\": {"]
@@ -9697,6 +11865,7 @@ impl Step {
 #[doc = "          \"$ref\": \"#/$defs/JobRef\""]
 #[doc = "        },"]
 #[doc = "        \"kind\": {"]
+#[doc = "          \"type\": \"string\","]
 #[doc = "          \"const\": \"spawn-job\""]
 #[doc = "        }"]
 #[doc = "      },"]
@@ -9719,6 +11888,7 @@ impl Step {
 #[doc = "          \"$ref\": \"#/$defs/JobRef\""]
 #[doc = "        },"]
 #[doc = "        \"kind\": {"]
+#[doc = "          \"type\": \"string\","]
 #[doc = "          \"const\": \"wait-for-job\""]
 #[doc = "        }"]
 #[doc = "      },"]
@@ -9734,6 +11904,7 @@ impl Step {
 #[doc = "      ],"]
 #[doc = "      \"properties\": {"]
 #[doc = "        \"kind\": {"]
+#[doc = "          \"type\": \"string\","]
 #[doc = "          \"const\": \"spawn-thread\""]
 #[doc = "        },"]
 #[doc = "        \"thread\": {"]
@@ -9756,6 +11927,7 @@ impl Step {
 #[doc = "          \"$ref\": \"#/$defs/ExitBehavior\""]
 #[doc = "        },"]
 #[doc = "        \"kind\": {"]
+#[doc = "          \"type\": \"string\","]
 #[doc = "          \"const\": \"wait-for-thread\""]
 #[doc = "        },"]
 #[doc = "        \"thread\": {"]
@@ -9787,6 +11959,7 @@ impl Step {
 #[doc = "          \"minItems\": 0"]
 #[doc = "        },"]
 #[doc = "        \"kind\": {"]
+#[doc = "          \"type\": \"string\","]
 #[doc = "          \"const\": \"wait-for-all\""]
 #[doc = "        },"]
 #[doc = "        \"threads\": {"]
@@ -9809,30 +11982,34 @@ impl Step {
 #[doc = "      ],"]
 #[doc = "      \"properties\": {"]
 #[doc = "        \"kind\": {"]
+#[doc = "          \"type\": \"string\","]
 #[doc = "          \"const\": \"noop\""]
 #[doc = "        }"]
 #[doc = "      },"]
 #[doc = "      \"additionalProperties\": false"]
 #[doc = "    }"]
-#[doc = "  ]"]
+#[doc = "  ],"]
+#[doc = "  \"discriminator\": {"]
+#[doc = "    \"propertyName\": \"kind\""]
+#[doc = "  }"]
 #[doc = "}"]
 #[doc = r" ```"]
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(tag = "kind", deny_unknown_fields)]
-pub enum StepRun {
+pub enum StepTask {
     #[doc = "Send Event\n\nSend an event to the event broker.  It has either a string message, or an integer code."]
     #[serde(rename = "send-event")]
     SendEvent {
         name: EventRef,
-        payload: StepRunPayload,
+        payload: StepTaskPayload,
     },
     #[doc = "Wait For Event\n\nWait for something to send an event *after* this starts listening for events. It can optionally also wait for a matching payload.\n"]
     #[serde(rename = "wait-for-event")]
     WaitForEvent {
         name: EventRef,
         #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
-        payload: ::std::option::Option<StepRunPayload>,
+        payload: ::std::option::Option<StepTaskPayload>,
     },
     #[doc = "Spawn Job\n\nRequests the parallel execution of a job, either start it or restart it.  If it's currently running, this will do nothing.\n"]
     #[serde(rename = "spawn-job")]
@@ -9865,12 +12042,12 @@ pub enum StepRun {
     #[serde(rename = "noop")]
     Noop,
 }
-impl ::std::convert::From<&Self> for StepRun {
-    fn from(value: &StepRun) -> Self {
+impl ::std::convert::From<&Self> for StepTask {
+    fn from(value: &StepTask) -> Self {
         value.clone()
     }
 }
-#[doc = "`StepRunPayload`"]
+#[doc = "`StepTaskPayload`"]
 #[doc = r""]
 #[doc = r" <details><summary>JSON schema</summary>"]
 #[doc = r""]
@@ -9889,16 +12066,16 @@ impl ::std::convert::From<&Self> for StepRun {
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(untagged)]
-pub enum StepRunPayload {
+pub enum StepTaskPayload {
     Message(EventPayloadMessage),
     Signal(EventPayloadSignal),
 }
-impl ::std::convert::From<&Self> for StepRunPayload {
-    fn from(value: &StepRunPayload) -> Self {
+impl ::std::convert::From<&Self> for StepTaskPayload {
+    fn from(value: &StepTaskPayload) -> Self {
         value.clone()
     }
 }
-impl ::std::str::FromStr for StepRunPayload {
+impl ::std::str::FromStr for StepTaskPayload {
     type Err = self::error::ConversionError;
     fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
         if let Ok(v) = value.parse() {
@@ -9910,13 +12087,13 @@ impl ::std::str::FromStr for StepRunPayload {
         }
     }
 }
-impl ::std::convert::TryFrom<&str> for StepRunPayload {
+impl ::std::convert::TryFrom<&str> for StepTaskPayload {
     type Error = self::error::ConversionError;
     fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
         value.parse()
     }
 }
-impl ::std::convert::TryFrom<&::std::string::String> for StepRunPayload {
+impl ::std::convert::TryFrom<&::std::string::String> for StepTaskPayload {
     type Error = self::error::ConversionError;
     fn try_from(
         value: &::std::string::String,
@@ -9924,7 +12101,7 @@ impl ::std::convert::TryFrom<&::std::string::String> for StepRunPayload {
         value.parse()
     }
 }
-impl ::std::convert::TryFrom<::std::string::String> for StepRunPayload {
+impl ::std::convert::TryFrom<::std::string::String> for StepTaskPayload {
     type Error = self::error::ConversionError;
     fn try_from(
         value: ::std::string::String,
@@ -9932,7 +12109,7 @@ impl ::std::convert::TryFrom<::std::string::String> for StepRunPayload {
         value.parse()
     }
 }
-impl ::std::fmt::Display for StepRunPayload {
+impl ::std::fmt::Display for StepTaskPayload {
     fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
         match self {
             Self::Message(x) => x.fmt(f),
@@ -9940,12 +12117,12 @@ impl ::std::fmt::Display for StepRunPayload {
         }
     }
 }
-impl ::std::convert::From<EventPayloadMessage> for StepRunPayload {
+impl ::std::convert::From<EventPayloadMessage> for StepTaskPayload {
     fn from(value: EventPayloadMessage) -> Self {
         Self::Message(value)
     }
 }
-impl ::std::convert::From<EventPayloadSignal> for StepRunPayload {
+impl ::std::convert::From<EventPayloadSignal> for StepTaskPayload {
     fn from(value: EventPayloadSignal) -> Self {
         Self::Signal(value)
     }
@@ -10012,6 +12189,7 @@ impl Stream {
 #[doc = "  ],"]
 #[doc = "  \"properties\": {"]
 #[doc = "    \"kind\": {"]
+#[doc = "      \"type\": \"string\","]
 #[doc = "      \"const\": \"stream\""]
 #[doc = "    },"]
 #[doc = "    \"rerunnable\": {"]
@@ -10049,14 +12227,17 @@ impl Stream {
 #[doc = "      }"]
 #[doc = "    }"]
 #[doc = "  },"]
-#[doc = "  \"additionalProperties\": false"]
+#[doc = "  \"additionalProperties\": false,"]
+#[doc = "  \"discriminator\": {"]
+#[doc = "    \"propertyName\": \"kind\""]
+#[doc = "  }"]
 #[doc = "}"]
 #[doc = r" ```"]
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
 pub struct StreamJob {
-    pub kind: ::serde_json::Value,
+    pub kind: ::std::string::String,
     #[serde(default = "defaults::default_bool::<true>")]
     pub rerunnable: bool,
     pub source: Source,
@@ -10097,8 +12278,7 @@ impl StreamJob {
 #[doc = "          \"$ref\": \"#/$defs/JobRef\""]
 #[doc = "        },"]
 #[doc = "        \"kind\": {"]
-#[doc = "          \"title\": \"Kind\","]
-#[doc = "          \"description\": \"Stream location distinguisher\","]
+#[doc = "          \"type\": \"string\","]
 #[doc = "          \"const\": \"fd\""]
 #[doc = "        },"]
 #[doc = "        \"source\": {"]
@@ -10122,6 +12302,7 @@ impl StreamJob {
 #[doc = "          \"$ref\": \"#/$defs/JobRef\""]
 #[doc = "        },"]
 #[doc = "        \"kind\": {"]
+#[doc = "          \"type\": \"string\","]
 #[doc = "          \"const\": \"named\""]
 #[doc = "        },"]
 #[doc = "        \"name\": {"]
@@ -10147,6 +12328,7 @@ impl StreamJob {
 #[doc = "          \"$ref\": \"#/$defs/ComputedStringValue\""]
 #[doc = "        },"]
 #[doc = "        \"kind\": {"]
+#[doc = "          \"type\": \"string\","]
 #[doc = "          \"const\": \"file\""]
 #[doc = "        },"]
 #[doc = "        \"mode\": {"]
@@ -10158,7 +12340,10 @@ impl StreamJob {
 #[doc = "      },"]
 #[doc = "      \"additionalProperties\": false"]
 #[doc = "    }"]
-#[doc = "  ]"]
+#[doc = "  ],"]
+#[doc = "  \"discriminator\": {"]
+#[doc = "    \"propertyName\": \"kind\""]
+#[doc = "  }"]
 #[doc = "}"]
 #[doc = r" ```"]
 #[doc = r" </details>"]
@@ -10292,6 +12477,7 @@ impl<'de> ::serde::Deserialize<'de> for StreamName {
 #[doc = "      \"type\": \"boolean\""]
 #[doc = "    },"]
 #[doc = "    \"kind\": {"]
+#[doc = "      \"type\": \"string\","]
 #[doc = "      \"const\": \"string-equal-boolean\""]
 #[doc = "    },"]
 #[doc = "    \"list\": {"]
@@ -10301,7 +12487,10 @@ impl<'de> ::serde::Deserialize<'de> for StreamName {
 #[doc = "      \"$ref\": \"#/$defs/Source\""]
 #[doc = "    }"]
 #[doc = "  },"]
-#[doc = "  \"additionalProperties\": false"]
+#[doc = "  \"additionalProperties\": false,"]
+#[doc = "  \"discriminator\": {"]
+#[doc = "    \"propertyName\": \"kind\""]
+#[doc = "  }"]
 #[doc = "}"]
 #[doc = r" ```"]
 #[doc = r" </details>"]
@@ -10310,7 +12499,7 @@ impl<'de> ::serde::Deserialize<'de> for StreamName {
 pub struct StringEqualBooleanValue {
     #[serde(rename = "case-sensitive", default = "defaults::default_bool::<true>")]
     pub case_sensitive: bool,
-    pub kind: ::serde_json::Value,
+    pub kind: ::std::string::String,
     pub list: ComputedStringListValue,
     pub source: Source,
 }
@@ -10332,6 +12521,7 @@ impl StringEqualBooleanValue {
 #[doc = "{"]
 #[doc = "  \"title\": \"String Left Index Value\","]
 #[doc = "  \"description\": \"The first position of a sub-string within a string (left-to-right).  If it does not exist, the index will be -1.\","]
+#[doc = "  \"type\": \"object\","]
 #[doc = "  \"required\": ["]
 #[doc = "    \"kind\","]
 #[doc = "    \"source\","]
@@ -10340,6 +12530,7 @@ impl StringEqualBooleanValue {
 #[doc = "  ],"]
 #[doc = "  \"properties\": {"]
 #[doc = "    \"kind\": {"]
+#[doc = "      \"type\": \"string\","]
 #[doc = "      \"const\": \"string-left-index-number\""]
 #[doc = "    },"]
 #[doc = "    \"source\": {"]
@@ -10352,14 +12543,17 @@ impl StringEqualBooleanValue {
 #[doc = "      \"$ref\": \"#/$defs/ComputedStringValue\""]
 #[doc = "    }"]
 #[doc = "  },"]
-#[doc = "  \"additionalProperties\": false"]
+#[doc = "  \"additionalProperties\": false,"]
+#[doc = "  \"discriminator\": {"]
+#[doc = "    \"propertyName\": \"kind\""]
+#[doc = "  }"]
 #[doc = "}"]
 #[doc = r" ```"]
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
 pub struct StringLeftIndexNumberValue {
-    pub kind: ::serde_json::Value,
+    pub kind: ::std::string::String,
     pub source: Source,
     pub string: ComputedStringValue,
     pub substring: ComputedStringValue,
@@ -10382,6 +12576,7 @@ impl StringLeftIndexNumberValue {
 #[doc = "{"]
 #[doc = "  \"title\": \"String List Index Number Value\","]
 #[doc = "  \"description\": \"Find the first index in the string-list that equals the given string. If it does not exist, the index will be -1.\\n\","]
+#[doc = "  \"type\": \"object\","]
 #[doc = "  \"required\": ["]
 #[doc = "    \"kind\","]
 #[doc = "    \"list\","]
@@ -10390,6 +12585,7 @@ impl StringLeftIndexNumberValue {
 #[doc = "  ],"]
 #[doc = "  \"properties\": {"]
 #[doc = "    \"kind\": {"]
+#[doc = "      \"type\": \"string\","]
 #[doc = "      \"const\": \"string-list-index-number\""]
 #[doc = "    },"]
 #[doc = "    \"list\": {"]
@@ -10402,14 +12598,17 @@ impl StringLeftIndexNumberValue {
 #[doc = "      \"$ref\": \"#/$defs/Source\""]
 #[doc = "    }"]
 #[doc = "  },"]
-#[doc = "  \"additionalProperties\": false"]
+#[doc = "  \"additionalProperties\": false,"]
+#[doc = "  \"discriminator\": {"]
+#[doc = "    \"propertyName\": \"kind\""]
+#[doc = "  }"]
 #[doc = "}"]
 #[doc = r" ```"]
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
 pub struct StringListIndexNumberValue {
-    pub kind: ::serde_json::Value,
+    pub kind: ::std::string::String,
     pub list: ComputedStringListValue,
     pub needle: ComputedStringValue,
     pub source: Source,
@@ -10442,12 +12641,13 @@ impl StringListIndexNumberValue {
 #[doc = "  ],"]
 #[doc = "  \"properties\": {"]
 #[doc = "    \"default\": {"]
-#[doc = "      \"#ref\": \"#/$defs/ComputedStringListValue\""]
+#[doc = "      \"$ref\": \"#/$defs/ComputedStringListValue\""]
 #[doc = "    },"]
 #[doc = "    \"key\": {"]
 #[doc = "      \"$ref\": \"#/$defs/ComputedStringValue\""]
 #[doc = "    },"]
 #[doc = "    \"kind\": {"]
+#[doc = "      \"type\": \"string\","]
 #[doc = "      \"const\": \"string-list-map-key-string-list\""]
 #[doc = "    },"]
 #[doc = "    \"map\": {"]
@@ -10457,16 +12657,19 @@ impl StringListIndexNumberValue {
 #[doc = "      \"$ref\": \"#/$defs/Source\""]
 #[doc = "    }"]
 #[doc = "  },"]
-#[doc = "  \"additionalProperties\": false"]
+#[doc = "  \"additionalProperties\": false,"]
+#[doc = "  \"discriminator\": {"]
+#[doc = "    \"propertyName\": \"kind\""]
+#[doc = "  }"]
 #[doc = "}"]
 #[doc = r" ```"]
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
 pub struct StringListMapKeyValue {
-    pub default: ::serde_json::Value,
+    pub default: ::std::boxed::Box<ComputedStringListValue>,
     pub key: ComputedStringValue,
-    pub kind: ::serde_json::Value,
+    pub kind: ::std::string::String,
     pub map: ComputedStringListMapValue,
     pub source: Source,
 }
@@ -10488,6 +12691,7 @@ impl StringListMapKeyValue {
 #[doc = "{"]
 #[doc = "  \"title\": \"String Map List Index Value\","]
 #[doc = "  \"description\": \"Extracts a string-map from a string-map-list value at a given index. This includes a 'default' in case the index is not present.\\n\","]
+#[doc = "  \"type\": \"object\","]
 #[doc = "  \"required\": ["]
 #[doc = "    \"default\","]
 #[doc = "    \"index\","]
@@ -10503,6 +12707,7 @@ impl StringListMapKeyValue {
 #[doc = "      \"$ref\": \"#/$defs/ComputedNumberValue\""]
 #[doc = "    },"]
 #[doc = "    \"kind\": {"]
+#[doc = "      \"type\": \"string\","]
 #[doc = "      \"const\": \"list-index-string\""]
 #[doc = "    },"]
 #[doc = "    \"list\": {"]
@@ -10512,16 +12717,19 @@ impl StringListMapKeyValue {
 #[doc = "      \"$ref\": \"#/$defs/Source\""]
 #[doc = "    }"]
 #[doc = "  },"]
-#[doc = "  \"additionalProperties\": false"]
+#[doc = "  \"additionalProperties\": false,"]
+#[doc = "  \"discriminator\": {"]
+#[doc = "    \"propertyName\": \"kind\""]
+#[doc = "  }"]
 #[doc = "}"]
 #[doc = r" ```"]
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
 pub struct StringMapListIndexValue {
-    pub default: ::std::boxed::Box<ComputedStringMapValue>,
+    pub default: ComputedStringMapValue,
     pub index: ::std::boxed::Box<ComputedNumberValue>,
-    pub kind: ::serde_json::Value,
+    pub kind: ::std::string::String,
     pub list: ComputedStringMapListValue,
     pub source: Source,
 }
@@ -10543,6 +12751,7 @@ impl StringMapListIndexValue {
 #[doc = "{"]
 #[doc = "  \"title\": \"String Right Index Value\","]
 #[doc = "  \"description\": \"The last position of a sub-string within a string (right-to-left). If it does not exist, the index will be -1.\\n\","]
+#[doc = "  \"type\": \"object\","]
 #[doc = "  \"required\": ["]
 #[doc = "    \"kind\","]
 #[doc = "    \"source\","]
@@ -10551,6 +12760,7 @@ impl StringMapListIndexValue {
 #[doc = "  ],"]
 #[doc = "  \"properties\": {"]
 #[doc = "    \"kind\": {"]
+#[doc = "      \"type\": \"string\","]
 #[doc = "      \"const\": \"string-left-index-number\""]
 #[doc = "    },"]
 #[doc = "    \"source\": {"]
@@ -10563,14 +12773,17 @@ impl StringMapListIndexValue {
 #[doc = "      \"$ref\": \"#/$defs/ComputedStringValue\""]
 #[doc = "    }"]
 #[doc = "  },"]
-#[doc = "  \"additionalProperties\": false"]
+#[doc = "  \"additionalProperties\": false,"]
+#[doc = "  \"discriminator\": {"]
+#[doc = "    \"propertyName\": \"kind\""]
+#[doc = "  }"]
 #[doc = "}"]
 #[doc = r" ```"]
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
 pub struct StringRightIndexNumberValue {
-    pub kind: ::serde_json::Value,
+    pub kind: ::std::string::String,
     pub source: Source,
     pub string: ComputedStringValue,
     pub substring: ComputedStringValue,
@@ -10607,6 +12820,7 @@ impl StringRightIndexNumberValue {
 #[doc = "      \"$ref\": \"#/$defs/ComputedNumberValue\""]
 #[doc = "    },"]
 #[doc = "    \"kind\": {"]
+#[doc = "      \"type\": \"string\","]
 #[doc = "      \"const\": \"substring\""]
 #[doc = "    },"]
 #[doc = "    \"source\": {"]
@@ -10619,7 +12833,10 @@ impl StringRightIndexNumberValue {
 #[doc = "      \"$ref\": \"#/$defs/ComputedStringValue\""]
 #[doc = "    }"]
 #[doc = "  },"]
-#[doc = "  \"additionalProperties\": false"]
+#[doc = "  \"additionalProperties\": false,"]
+#[doc = "  \"discriminator\": {"]
+#[doc = "    \"propertyName\": \"kind\""]
+#[doc = "  }"]
 #[doc = "}"]
 #[doc = r" ```"]
 #[doc = r" </details>"]
@@ -10630,7 +12847,7 @@ pub struct SubStringValue {
     pub count: ::std::option::Option<::std::boxed::Box<ComputedNumberValue>>,
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub end: ::std::option::Option<::std::boxed::Box<ComputedNumberValue>>,
-    pub kind: ::serde_json::Value,
+    pub kind: ::std::string::String,
     pub source: Source,
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
     pub start: ::std::option::Option<::std::boxed::Box<ComputedNumberValue>>,
@@ -10663,6 +12880,7 @@ impl SubStringValue {
 #[doc = "  ],"]
 #[doc = "  \"properties\": {"]
 #[doc = "    \"kind\": {"]
+#[doc = "      \"type\": \"string\","]
 #[doc = "      \"const\": \"subtract-number\""]
 #[doc = "    },"]
 #[doc = "    \"left\": {"]
@@ -10675,14 +12893,17 @@ impl SubStringValue {
 #[doc = "      \"$ref\": \"#/$defs/Source\""]
 #[doc = "    }"]
 #[doc = "  },"]
-#[doc = "  \"additionalProperties\": false"]
+#[doc = "  \"additionalProperties\": false,"]
+#[doc = "  \"discriminator\": {"]
+#[doc = "    \"propertyName\": \"kind\""]
+#[doc = "  }"]
 #[doc = "}"]
 #[doc = r" ```"]
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
 pub struct SubtractTwoValues {
-    pub kind: ::serde_json::Value,
+    pub kind: ::std::string::String,
     pub left: ::std::boxed::Box<ComputedNumberValue>,
     pub right: ::std::boxed::Box<ComputedNumberValue>,
     pub source: Source,
@@ -10713,6 +12934,7 @@ impl SubtractTwoValues {
 #[doc = "  ],"]
 #[doc = "  \"properties\": {"]
 #[doc = "    \"kind\": {"]
+#[doc = "      \"type\": \"string\","]
 #[doc = "      \"const\": \"sum-number-list\""]
 #[doc = "    },"]
 #[doc = "    \"source\": {"]
@@ -10722,14 +12944,17 @@ impl SubtractTwoValues {
 #[doc = "      \"$ref\": \"#/$defs/ComputedNumberListValue\""]
 #[doc = "    }"]
 #[doc = "  },"]
-#[doc = "  \"additionalProperties\": false"]
+#[doc = "  \"additionalProperties\": false,"]
+#[doc = "  \"discriminator\": {"]
+#[doc = "    \"propertyName\": \"kind\""]
+#[doc = "  }"]
 #[doc = "}"]
 #[doc = r" ```"]
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
 pub struct SumNumberListValue {
-    pub kind: ::serde_json::Value,
+    pub kind: ::std::string::String,
     pub source: Source,
     pub value: ComputedNumberListValue,
 }
@@ -10966,6 +13191,7 @@ impl<'de> ::serde::Deserialize<'de> for ThreadRef {
 #[doc = "  ],"]
 #[doc = "  \"properties\": {"]
 #[doc = "    \"kind\": {"]
+#[doc = "      \"type\": \"string\","]
 #[doc = "      \"const\": \"trim-string\""]
 #[doc = "    },"]
 #[doc = "    \"source\": {"]
@@ -10978,14 +13204,17 @@ impl<'de> ::serde::Deserialize<'de> for ThreadRef {
 #[doc = "      \"$ref\": \"#/$defs/ComputedStringValue\""]
 #[doc = "    }"]
 #[doc = "  },"]
-#[doc = "  \"additionalProperties\": false"]
+#[doc = "  \"additionalProperties\": false,"]
+#[doc = "  \"discriminator\": {"]
+#[doc = "    \"propertyName\": \"kind\""]
+#[doc = "  }"]
 #[doc = "}"]
 #[doc = r" ```"]
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
 pub struct TrimStringValue {
-    pub kind: ::serde_json::Value,
+    pub kind: ::std::string::String,
     pub source: Source,
     #[serde(
         rename = "trim-chars",
@@ -11021,6 +13250,7 @@ impl TrimStringValue {
 #[doc = "  ],"]
 #[doc = "  \"properties\": {"]
 #[doc = "    \"kind\": {"]
+#[doc = "      \"type\": \"string\","]
 #[doc = "      \"const\": \"union-boolean-map\""]
 #[doc = "    },"]
 #[doc = "    \"source\": {"]
@@ -11034,14 +13264,17 @@ impl TrimStringValue {
 #[doc = "      }"]
 #[doc = "    }"]
 #[doc = "  },"]
-#[doc = "  \"additionalProperties\": false"]
+#[doc = "  \"additionalProperties\": false,"]
+#[doc = "  \"discriminator\": {"]
+#[doc = "    \"propertyName\": \"kind\""]
+#[doc = "  }"]
 #[doc = "}"]
 #[doc = r" ```"]
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
 pub struct UnionBooleanMapValue {
-    pub kind: ::serde_json::Value,
+    pub kind: ::std::string::String,
     pub source: Source,
     #[doc = "The values to union."]
     pub values: ::std::vec::Vec<ComputedBooleanMapValue>,
@@ -11072,6 +13305,7 @@ impl UnionBooleanMapValue {
 #[doc = "  ],"]
 #[doc = "  \"properties\": {"]
 #[doc = "    \"kind\": {"]
+#[doc = "      \"type\": \"string\","]
 #[doc = "      \"const\": \"union-number-map\""]
 #[doc = "    },"]
 #[doc = "    \"source\": {"]
@@ -11085,14 +13319,17 @@ impl UnionBooleanMapValue {
 #[doc = "      }"]
 #[doc = "    }"]
 #[doc = "  },"]
-#[doc = "  \"additionalProperties\": false"]
+#[doc = "  \"additionalProperties\": false,"]
+#[doc = "  \"discriminator\": {"]
+#[doc = "    \"propertyName\": \"kind\""]
+#[doc = "  }"]
 #[doc = "}"]
 #[doc = r" ```"]
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
 pub struct UnionNumberMapValue {
-    pub kind: ::serde_json::Value,
+    pub kind: ::std::string::String,
     pub source: Source,
     #[doc = "The values to union."]
     pub values: ::std::vec::Vec<ComputedNumberMapValue>,
@@ -11123,6 +13360,7 @@ impl UnionNumberMapValue {
 #[doc = "  ],"]
 #[doc = "  \"properties\": {"]
 #[doc = "    \"kind\": {"]
+#[doc = "      \"type\": \"string\","]
 #[doc = "      \"const\": \"union-string-list-map\""]
 #[doc = "    },"]
 #[doc = "    \"source\": {"]
@@ -11136,14 +13374,17 @@ impl UnionNumberMapValue {
 #[doc = "      }"]
 #[doc = "    }"]
 #[doc = "  },"]
-#[doc = "  \"additionalProperties\": false"]
+#[doc = "  \"additionalProperties\": false,"]
+#[doc = "  \"discriminator\": {"]
+#[doc = "    \"propertyName\": \"kind\""]
+#[doc = "  }"]
 #[doc = "}"]
 #[doc = r" ```"]
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
 pub struct UnionStringListMapValue {
-    pub kind: ::serde_json::Value,
+    pub kind: ::std::string::String,
     pub source: Source,
     #[doc = "The values to union."]
     pub values: ::std::vec::Vec<ComputedStringListMapValue>,
@@ -11174,6 +13415,7 @@ impl UnionStringListMapValue {
 #[doc = "  ],"]
 #[doc = "  \"properties\": {"]
 #[doc = "    \"kind\": {"]
+#[doc = "      \"type\": \"string\","]
 #[doc = "      \"const\": \"union-string-map\""]
 #[doc = "    },"]
 #[doc = "    \"source\": {"]
@@ -11187,14 +13429,17 @@ impl UnionStringListMapValue {
 #[doc = "      }"]
 #[doc = "    }"]
 #[doc = "  },"]
-#[doc = "  \"additionalProperties\": false"]
+#[doc = "  \"additionalProperties\": false,"]
+#[doc = "  \"discriminator\": {"]
+#[doc = "    \"propertyName\": \"kind\""]
+#[doc = "  }"]
 #[doc = "}"]
 #[doc = r" ```"]
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
 pub struct UnionStringMapValue {
-    pub kind: ::serde_json::Value,
+    pub kind: ::std::string::String,
     pub source: Source,
     #[doc = "The values to union."]
     pub values: ::std::vec::Vec<ComputedStringMapValue>,
@@ -11346,6 +13591,7 @@ impl<'de> ::serde::Deserialize<'de> for UserHelpItem {
 #[doc = "  ],"]
 #[doc = "  \"properties\": {"]
 #[doc = "    \"kind\": {"]
+#[doc = "      \"type\": \"string\","]
 #[doc = "      \"const\": \"xnor-boolean\""]
 #[doc = "    },"]
 #[doc = "    \"left\": {"]
@@ -11358,14 +13604,17 @@ impl<'de> ::serde::Deserialize<'de> for UserHelpItem {
 #[doc = "      \"$ref\": \"#/$defs/Source\""]
 #[doc = "    }"]
 #[doc = "  },"]
-#[doc = "  \"additionalProperties\": false"]
+#[doc = "  \"additionalProperties\": false,"]
+#[doc = "  \"discriminator\": {"]
+#[doc = "    \"propertyName\": \"kind\""]
+#[doc = "  }"]
 #[doc = "}"]
 #[doc = r" ```"]
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
 pub struct XnorTwoBooleanValues {
-    pub kind: ::serde_json::Value,
+    pub kind: ::std::string::String,
     pub left: ::std::boxed::Box<ComputedBooleanValue>,
     pub right: ::std::boxed::Box<ComputedBooleanValue>,
     pub source: Source,
@@ -11397,6 +13646,7 @@ impl XnorTwoBooleanValues {
 #[doc = "  ],"]
 #[doc = "  \"properties\": {"]
 #[doc = "    \"kind\": {"]
+#[doc = "      \"type\": \"string\","]
 #[doc = "      \"const\": \"xor-boolean\""]
 #[doc = "    },"]
 #[doc = "    \"left\": {"]
@@ -11409,14 +13659,17 @@ impl XnorTwoBooleanValues {
 #[doc = "      \"$ref\": \"#/$defs/Source\""]
 #[doc = "    }"]
 #[doc = "  },"]
-#[doc = "  \"additionalProperties\": false"]
+#[doc = "  \"additionalProperties\": false,"]
+#[doc = "  \"discriminator\": {"]
+#[doc = "    \"propertyName\": \"kind\""]
+#[doc = "  }"]
 #[doc = "}"]
 #[doc = r" ```"]
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
 pub struct XorTwoBooleanValues {
-    pub kind: ::serde_json::Value,
+    pub kind: ::std::string::String,
     pub left: ::std::boxed::Box<ComputedBooleanValue>,
     pub right: ::std::boxed::Box<ComputedBooleanValue>,
     pub source: Source,
@@ -11435,7 +13688,7 @@ impl XorTwoBooleanValues {
 pub mod builder {
     #[derive(Clone, Debug)]
     pub struct AbsValue {
-        kind: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+        kind: ::std::result::Result<::std::string::String, ::std::string::String>,
         source: ::std::result::Result<super::Source, ::std::string::String>,
         value: ::std::result::Result<super::ComputedNumberValue, ::std::string::String>,
     }
@@ -11451,7 +13704,7 @@ pub mod builder {
     impl AbsValue {
         pub fn kind<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::serde_json::Value>,
+            T: ::std::convert::TryInto<::std::string::String>,
             T::Error: ::std::fmt::Display,
         {
             self.kind = value
@@ -11569,7 +13822,7 @@ pub mod builder {
     }
     #[derive(Clone, Debug)]
     pub struct AddTwoValues {
-        kind: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+        kind: ::std::result::Result<::std::string::String, ::std::string::String>,
         left: ::std::result::Result<
             ::std::boxed::Box<super::ComputedNumberValue>,
             ::std::string::String,
@@ -11593,7 +13846,7 @@ pub mod builder {
     impl AddTwoValues {
         pub fn kind<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::serde_json::Value>,
+            T: ::std::convert::TryInto<::std::string::String>,
             T::Error: ::std::fmt::Display,
         {
             self.kind = value
@@ -11657,7 +13910,7 @@ pub mod builder {
     }
     #[derive(Clone, Debug)]
     pub struct AndTwoBooleanValues {
-        kind: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+        kind: ::std::result::Result<::std::string::String, ::std::string::String>,
         left: ::std::result::Result<
             ::std::boxed::Box<super::ComputedBooleanValue>,
             ::std::string::String,
@@ -11681,7 +13934,7 @@ pub mod builder {
     impl AndTwoBooleanValues {
         pub fn kind<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::serde_json::Value>,
+            T: ::std::convert::TryInto<::std::string::String>,
             T::Error: ::std::fmt::Display,
         {
             self.kind = value
@@ -11745,7 +13998,7 @@ pub mod builder {
     }
     #[derive(Clone, Debug)]
     pub struct AverageNumberListValue {
-        kind: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+        kind: ::std::result::Result<::std::string::String, ::std::string::String>,
         source: ::std::result::Result<super::Source, ::std::string::String>,
         value: ::std::result::Result<super::ComputedNumberListValue, ::std::string::String>,
     }
@@ -11761,7 +14014,7 @@ pub mod builder {
     impl AverageNumberListValue {
         pub fn kind<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::serde_json::Value>,
+            T: ::std::convert::TryInto<::std::string::String>,
             T::Error: ::std::fmt::Display,
         {
             self.kind = value
@@ -11813,7 +14066,7 @@ pub mod builder {
     }
     #[derive(Clone, Debug)]
     pub struct BooleanListIndexNumberValue {
-        kind: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+        kind: ::std::result::Result<::std::string::String, ::std::string::String>,
         list: ::std::result::Result<super::ComputedBooleanListValue, ::std::string::String>,
         needle: ::std::result::Result<super::ComputedBooleanValue, ::std::string::String>,
         source: ::std::result::Result<super::Source, ::std::string::String>,
@@ -11831,7 +14084,7 @@ pub mod builder {
     impl BooleanListIndexNumberValue {
         pub fn kind<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::serde_json::Value>,
+            T: ::std::convert::TryInto<::std::string::String>,
             T::Error: ::std::fmt::Display,
         {
             self.kind = value
@@ -11899,7 +14152,7 @@ pub mod builder {
             ::std::option::Option<::std::boxed::Box<super::ComputedStringValue>>,
             ::std::string::String,
         >,
-        kind: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+        kind: ::std::result::Result<::std::string::String, ::std::string::String>,
         source: ::std::result::Result<super::Source, ::std::string::String>,
         true_string: ::std::result::Result<
             ::std::option::Option<::std::boxed::Box<super::ComputedStringValue>>,
@@ -11936,7 +14189,7 @@ pub mod builder {
         }
         pub fn kind<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::serde_json::Value>,
+            T: ::std::convert::TryInto<::std::string::String>,
             T::Error: ::std::fmt::Display,
         {
             self.kind = value
@@ -12004,7 +14257,7 @@ pub mod builder {
     }
     #[derive(Clone, Debug)]
     pub struct CeilValue {
-        kind: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+        kind: ::std::result::Result<::std::string::String, ::std::string::String>,
         source: ::std::result::Result<super::Source, ::std::string::String>,
         value: ::std::result::Result<
             ::std::boxed::Box<super::ComputedNumberValue>,
@@ -12023,7 +14276,7 @@ pub mod builder {
     impl CeilValue {
         pub fn kind<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::serde_json::Value>,
+            T: ::std::convert::TryInto<::std::string::String>,
             T::Error: ::std::fmt::Display,
         {
             self.kind = value
@@ -12075,7 +14328,7 @@ pub mod builder {
     }
     #[derive(Clone, Debug)]
     pub struct CollectionSizeNumberValue {
-        kind: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+        kind: ::std::result::Result<::std::string::String, ::std::string::String>,
         source: ::std::result::Result<super::Source, ::std::string::String>,
         value: ::std::result::Result<super::CollectionSizeNumberValueValue, ::std::string::String>,
     }
@@ -12091,7 +14344,7 @@ pub mod builder {
     impl CollectionSizeNumberValue {
         pub fn kind<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::serde_json::Value>,
+            T: ::std::convert::TryInto<::std::string::String>,
             T::Error: ::std::fmt::Display,
         {
             self.kind = value
@@ -12143,7 +14396,7 @@ pub mod builder {
     }
     #[derive(Clone, Debug)]
     pub struct Command {
-        definition: ::std::result::Result<super::CommandDefinition, ::std::string::String>,
+        definition: ::std::result::Result<super::CommandDef, ::std::string::String>,
         description:
             ::std::result::Result<::std::option::Option<super::UserHelp>, ::std::string::String>,
         source: ::std::result::Result<super::Source, ::std::string::String>,
@@ -12162,7 +14415,7 @@ pub mod builder {
     impl Command {
         pub fn definition<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<super::CommandDefinition>,
+            T: ::std::convert::TryInto<super::CommandDef>,
             T::Error: ::std::fmt::Display,
         {
             self.definition = value
@@ -12224,7 +14477,7 @@ pub mod builder {
     }
     #[derive(Clone, Debug)]
     pub struct ConstantBooleanListValue {
-        kind: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+        kind: ::std::result::Result<::std::string::String, ::std::string::String>,
         source: ::std::result::Result<super::Source, ::std::string::String>,
         value: ::std::result::Result<
             ::std::vec::Vec<super::ConstantBooleanListValueValueItem>,
@@ -12243,7 +14496,7 @@ pub mod builder {
     impl ConstantBooleanListValue {
         pub fn kind<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::serde_json::Value>,
+            T: ::std::convert::TryInto<::std::string::String>,
             T::Error: ::std::fmt::Display,
         {
             self.kind = value
@@ -12295,12 +14548,12 @@ pub mod builder {
     }
     #[derive(Clone, Debug)]
     pub struct ConstantBooleanMapValue {
-        kind: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+        kind: ::std::result::Result<::std::string::String, ::std::string::String>,
         source: ::std::result::Result<super::Source, ::std::string::String>,
         value: ::std::result::Result<
             ::std::collections::HashMap<
                 super::ConstantBooleanMapValueValueKey,
-                ::std::option::Option<super::ComputedBooleanValue>,
+                super::ConstantBooleanMapValueValueValue,
             >,
             ::std::string::String,
         >,
@@ -12317,7 +14570,7 @@ pub mod builder {
     impl ConstantBooleanMapValue {
         pub fn kind<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::serde_json::Value>,
+            T: ::std::convert::TryInto<::std::string::String>,
             T::Error: ::std::fmt::Display,
         {
             self.kind = value
@@ -12340,7 +14593,7 @@ pub mod builder {
             T: ::std::convert::TryInto<
                 ::std::collections::HashMap<
                     super::ConstantBooleanMapValueValueKey,
-                    ::std::option::Option<super::ComputedBooleanValue>,
+                    super::ConstantBooleanMapValueValueValue,
                 >,
             >,
             T::Error: ::std::fmt::Display,
@@ -12374,7 +14627,7 @@ pub mod builder {
     }
     #[derive(Clone, Debug)]
     pub struct ConstantBooleanValue {
-        kind: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+        kind: ::std::result::Result<::std::string::String, ::std::string::String>,
         source: ::std::result::Result<super::Source, ::std::string::String>,
         value: ::std::result::Result<bool, ::std::string::String>,
     }
@@ -12390,7 +14643,7 @@ pub mod builder {
     impl ConstantBooleanValue {
         pub fn kind<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::serde_json::Value>,
+            T: ::std::convert::TryInto<::std::string::String>,
             T::Error: ::std::fmt::Display,
         {
             self.kind = value
@@ -12442,7 +14695,7 @@ pub mod builder {
     }
     #[derive(Clone, Debug)]
     pub struct ConstantNumberListValue {
-        kind: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+        kind: ::std::result::Result<::std::string::String, ::std::string::String>,
         source: ::std::result::Result<super::Source, ::std::string::String>,
         value: ::std::result::Result<
             ::std::vec::Vec<super::ConstantNumberListValueValueItem>,
@@ -12461,7 +14714,7 @@ pub mod builder {
     impl ConstantNumberListValue {
         pub fn kind<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::serde_json::Value>,
+            T: ::std::convert::TryInto<::std::string::String>,
             T::Error: ::std::fmt::Display,
         {
             self.kind = value
@@ -12513,12 +14766,12 @@ pub mod builder {
     }
     #[derive(Clone, Debug)]
     pub struct ConstantNumberMapValue {
-        kind: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+        kind: ::std::result::Result<::std::string::String, ::std::string::String>,
         source: ::std::result::Result<super::Source, ::std::string::String>,
         value: ::std::result::Result<
             ::std::collections::HashMap<
                 super::ConstantNumberMapValueValueKey,
-                ::std::option::Option<::std::boxed::Box<super::ComputedNumberValue>>,
+                super::ConstantNumberMapValueValueValue,
             >,
             ::std::string::String,
         >,
@@ -12535,7 +14788,7 @@ pub mod builder {
     impl ConstantNumberMapValue {
         pub fn kind<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::serde_json::Value>,
+            T: ::std::convert::TryInto<::std::string::String>,
             T::Error: ::std::fmt::Display,
         {
             self.kind = value
@@ -12558,7 +14811,7 @@ pub mod builder {
             T: ::std::convert::TryInto<
                 ::std::collections::HashMap<
                     super::ConstantNumberMapValueValueKey,
-                    ::std::option::Option<::std::boxed::Box<super::ComputedNumberValue>>,
+                    super::ConstantNumberMapValueValueValue,
                 >,
             >,
             T::Error: ::std::fmt::Display,
@@ -12592,7 +14845,7 @@ pub mod builder {
     }
     #[derive(Clone, Debug)]
     pub struct ConstantNumberValue {
-        kind: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+        kind: ::std::result::Result<::std::string::String, ::std::string::String>,
         source: ::std::result::Result<super::Source, ::std::string::String>,
         value: ::std::result::Result<f64, ::std::string::String>,
     }
@@ -12608,7 +14861,7 @@ pub mod builder {
     impl ConstantNumberValue {
         pub fn kind<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::serde_json::Value>,
+            T: ::std::convert::TryInto<::std::string::String>,
             T::Error: ::std::fmt::Display,
         {
             self.kind = value
@@ -12660,12 +14913,12 @@ pub mod builder {
     }
     #[derive(Clone, Debug)]
     pub struct ConstantStringListMapValue {
-        kind: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+        kind: ::std::result::Result<::std::string::String, ::std::string::String>,
         source: ::std::result::Result<super::Source, ::std::string::String>,
         value: ::std::result::Result<
             ::std::collections::HashMap<
                 super::ConstantStringListMapValueValueKey,
-                ::std::option::Option<super::ComputedStringListValue>,
+                super::ConstantStringListMapValueValueValue,
             >,
             ::std::string::String,
         >,
@@ -12682,7 +14935,7 @@ pub mod builder {
     impl ConstantStringListMapValue {
         pub fn kind<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::serde_json::Value>,
+            T: ::std::convert::TryInto<::std::string::String>,
             T::Error: ::std::fmt::Display,
         {
             self.kind = value
@@ -12705,7 +14958,7 @@ pub mod builder {
             T: ::std::convert::TryInto<
                 ::std::collections::HashMap<
                     super::ConstantStringListMapValueValueKey,
-                    ::std::option::Option<super::ComputedStringListValue>,
+                    super::ConstantStringListMapValueValueValue,
                 >,
             >,
             T::Error: ::std::fmt::Display,
@@ -12739,7 +14992,7 @@ pub mod builder {
     }
     #[derive(Clone, Debug)]
     pub struct ConstantStringListValue {
-        kind: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+        kind: ::std::result::Result<::std::string::String, ::std::string::String>,
         source: ::std::result::Result<super::Source, ::std::string::String>,
         value: ::std::result::Result<
             ::std::vec::Vec<super::ConstantStringListValueValueItem>,
@@ -12758,7 +15011,7 @@ pub mod builder {
     impl ConstantStringListValue {
         pub fn kind<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::serde_json::Value>,
+            T: ::std::convert::TryInto<::std::string::String>,
             T::Error: ::std::fmt::Display,
         {
             self.kind = value
@@ -12810,7 +15063,7 @@ pub mod builder {
     }
     #[derive(Clone, Debug)]
     pub struct ConstantStringMapListValue {
-        kind: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+        kind: ::std::result::Result<::std::string::String, ::std::string::String>,
         source: ::std::result::Result<super::Source, ::std::string::String>,
         value: ::std::result::Result<
             ::std::vec::Vec<super::ConstantStringMapListValueValueItem>,
@@ -12829,7 +15082,7 @@ pub mod builder {
     impl ConstantStringMapListValue {
         pub fn kind<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::serde_json::Value>,
+            T: ::std::convert::TryInto<::std::string::String>,
             T::Error: ::std::fmt::Display,
         {
             self.kind = value
@@ -12881,12 +15134,12 @@ pub mod builder {
     }
     #[derive(Clone, Debug)]
     pub struct ConstantStringMapValue {
-        kind: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+        kind: ::std::result::Result<::std::string::String, ::std::string::String>,
         source: ::std::result::Result<super::Source, ::std::string::String>,
         value: ::std::result::Result<
             ::std::collections::HashMap<
                 super::ConstantStringMapValueValueKey,
-                ::std::option::Option<::std::boxed::Box<super::ComputedStringValue>>,
+                super::ConstantStringMapValueValueValue,
             >,
             ::std::string::String,
         >,
@@ -12903,7 +15156,7 @@ pub mod builder {
     impl ConstantStringMapValue {
         pub fn kind<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::serde_json::Value>,
+            T: ::std::convert::TryInto<::std::string::String>,
             T::Error: ::std::fmt::Display,
         {
             self.kind = value
@@ -12926,7 +15179,7 @@ pub mod builder {
             T: ::std::convert::TryInto<
                 ::std::collections::HashMap<
                     super::ConstantStringMapValueValueKey,
-                    ::std::option::Option<::std::boxed::Box<super::ComputedStringValue>>,
+                    super::ConstantStringMapValueValueValue,
                 >,
             >,
             T::Error: ::std::fmt::Display,
@@ -12960,7 +15213,7 @@ pub mod builder {
     }
     #[derive(Clone, Debug)]
     pub struct ConstantStringValue {
-        kind: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+        kind: ::std::result::Result<::std::string::String, ::std::string::String>,
         source: ::std::result::Result<super::Source, ::std::string::String>,
         value: ::std::result::Result<::std::string::String, ::std::string::String>,
     }
@@ -12976,7 +15229,7 @@ pub mod builder {
     impl ConstantStringValue {
         pub fn kind<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::serde_json::Value>,
+            T: ::std::convert::TryInto<::std::string::String>,
             T::Error: ::std::fmt::Display,
         {
             self.kind = value
@@ -13028,7 +15281,7 @@ pub mod builder {
     }
     #[derive(Clone, Debug)]
     pub struct DivideTwoValues {
-        kind: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+        kind: ::std::result::Result<::std::string::String, ::std::string::String>,
         left: ::std::result::Result<
             ::std::boxed::Box<super::ComputedNumberValue>,
             ::std::string::String,
@@ -13052,7 +15305,7 @@ pub mod builder {
     impl DivideTwoValues {
         pub fn kind<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::serde_json::Value>,
+            T: ::std::convert::TryInto<::std::string::String>,
             T::Error: ::std::fmt::Display,
         {
             self.kind = value
@@ -13295,7 +15548,7 @@ pub mod builder {
     }
     #[derive(Clone, Debug)]
     pub struct FloorValue {
-        kind: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+        kind: ::std::result::Result<::std::string::String, ::std::string::String>,
         source: ::std::result::Result<super::Source, ::std::string::String>,
         value: ::std::result::Result<
             ::std::boxed::Box<super::ComputedNumberValue>,
@@ -13314,7 +15567,7 @@ pub mod builder {
     impl FloorValue {
         pub fn kind<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::serde_json::Value>,
+            T: ::std::convert::TryInto<::std::string::String>,
             T::Error: ::std::fmt::Display,
         {
             self.kind = value
@@ -13371,7 +15624,7 @@ pub mod builder {
             ::std::option::Option<super::InitialParameters>,
             ::std::string::String,
         >,
-        kind: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+        kind: ::std::result::Result<::std::string::String, ::std::string::String>,
         rerunnable: ::std::result::Result<bool, ::std::string::String>,
         runtime_parameters: ::std::result::Result<
             ::std::option::Option<super::NamedParameters>,
@@ -13417,7 +15670,7 @@ pub mod builder {
         }
         pub fn kind<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::serde_json::Value>,
+            T: ::std::convert::TryInto<::std::string::String>,
             T::Error: ::std::fmt::Display,
         {
             self.kind = value
@@ -13492,7 +15745,7 @@ pub mod builder {
             ::std::boxed::Box<super::ComputedNumberValue>,
             ::std::string::String,
         >,
-        kind: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+        kind: ::std::result::Result<::std::string::String, ::std::string::String>,
         list:
             ::std::result::Result<super::ListContainsIndexBooleanValueList, ::std::string::String>,
         source: ::std::result::Result<super::Source, ::std::string::String>,
@@ -13520,7 +15773,7 @@ pub mod builder {
         }
         pub fn kind<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::serde_json::Value>,
+            T: ::std::convert::TryInto<::std::string::String>,
             T::Error: ::std::fmt::Display,
         {
             self.kind = value
@@ -13584,7 +15837,7 @@ pub mod builder {
             ::std::boxed::Box<super::ComputedNumberValue>,
             ::std::string::String,
         >,
-        kind: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+        kind: ::std::result::Result<::std::string::String, ::std::string::String>,
         list: ::std::result::Result<super::ComputedBooleanListValue, ::std::string::String>,
         source: ::std::result::Result<super::Source, ::std::string::String>,
     }
@@ -13622,7 +15875,7 @@ pub mod builder {
         }
         pub fn kind<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::serde_json::Value>,
+            T: ::std::convert::TryInto<::std::string::String>,
             T::Error: ::std::fmt::Display,
         {
             self.kind = value
@@ -13686,7 +15939,7 @@ pub mod builder {
             ::std::boxed::Box<super::ComputedNumberValue>,
             ::std::string::String,
         >,
-        kind: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+        kind: ::std::result::Result<::std::string::String, ::std::string::String>,
         list: ::std::result::Result<super::ComputedNumberListValue, ::std::string::String>,
         source: ::std::result::Result<super::Source, ::std::string::String>,
     }
@@ -13724,7 +15977,7 @@ pub mod builder {
         }
         pub fn kind<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::serde_json::Value>,
+            T: ::std::convert::TryInto<::std::string::String>,
             T::Error: ::std::fmt::Display,
         {
             self.kind = value
@@ -13788,7 +16041,7 @@ pub mod builder {
             ::std::boxed::Box<super::ComputedNumberValue>,
             ::std::string::String,
         >,
-        kind: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+        kind: ::std::result::Result<::std::string::String, ::std::string::String>,
         list: ::std::result::Result<
             ::std::boxed::Box<super::ComputedStringListValue>,
             ::std::string::String,
@@ -13829,7 +16082,7 @@ pub mod builder {
         }
         pub fn kind<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::serde_json::Value>,
+            T: ::std::convert::TryInto<::std::string::String>,
             T::Error: ::std::fmt::Display,
         {
             self.kind = value
@@ -13885,7 +16138,7 @@ pub mod builder {
     }
     #[derive(Clone, Debug)]
     pub struct ListToStringValue {
-        kind: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+        kind: ::std::result::Result<::std::string::String, ::std::string::String>,
         separator: ::std::result::Result<
             ::std::option::Option<::std::boxed::Box<super::ComputedStringValue>>,
             ::std::string::String,
@@ -13909,7 +16162,7 @@ pub mod builder {
     impl ListToStringValue {
         pub fn kind<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::serde_json::Value>,
+            T: ::std::convert::TryInto<::std::string::String>,
             T::Error: ::std::fmt::Display,
         {
             self.kind = value
@@ -13976,7 +16229,7 @@ pub mod builder {
     #[derive(Clone, Debug)]
     pub struct LookupBooleanListValue {
         job: ::std::result::Result<super::JobRef, ::std::string::String>,
-        kind: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+        kind: ::std::result::Result<::std::string::String, ::std::string::String>,
         name: ::std::result::Result<super::ParamName, ::std::string::String>,
         source: ::std::result::Result<super::Source, ::std::string::String>,
     }
@@ -14003,7 +16256,7 @@ pub mod builder {
         }
         pub fn kind<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::serde_json::Value>,
+            T: ::std::convert::TryInto<::std::string::String>,
             T::Error: ::std::fmt::Display,
         {
             self.kind = value
@@ -14058,7 +16311,7 @@ pub mod builder {
     #[derive(Clone, Debug)]
     pub struct LookupBooleanMapValue {
         job: ::std::result::Result<super::JobRef, ::std::string::String>,
-        kind: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+        kind: ::std::result::Result<::std::string::String, ::std::string::String>,
         name: ::std::result::Result<super::ParamName, ::std::string::String>,
         source: ::std::result::Result<super::Source, ::std::string::String>,
     }
@@ -14085,7 +16338,7 @@ pub mod builder {
         }
         pub fn kind<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::serde_json::Value>,
+            T: ::std::convert::TryInto<::std::string::String>,
             T::Error: ::std::fmt::Display,
         {
             self.kind = value
@@ -14140,7 +16393,7 @@ pub mod builder {
     #[derive(Clone, Debug)]
     pub struct LookupBooleanValue {
         job: ::std::result::Result<super::JobRef, ::std::string::String>,
-        kind: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+        kind: ::std::result::Result<::std::string::String, ::std::string::String>,
         name: ::std::result::Result<super::ParamName, ::std::string::String>,
         source: ::std::result::Result<super::Source, ::std::string::String>,
     }
@@ -14167,7 +16420,7 @@ pub mod builder {
         }
         pub fn kind<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::serde_json::Value>,
+            T: ::std::convert::TryInto<::std::string::String>,
             T::Error: ::std::fmt::Display,
         {
             self.kind = value
@@ -14222,7 +16475,7 @@ pub mod builder {
     #[derive(Clone, Debug)]
     pub struct LookupNumberListValue {
         job: ::std::result::Result<super::JobRef, ::std::string::String>,
-        kind: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+        kind: ::std::result::Result<::std::string::String, ::std::string::String>,
         name: ::std::result::Result<super::ParamName, ::std::string::String>,
         source: ::std::result::Result<super::Source, ::std::string::String>,
     }
@@ -14249,7 +16502,7 @@ pub mod builder {
         }
         pub fn kind<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::serde_json::Value>,
+            T: ::std::convert::TryInto<::std::string::String>,
             T::Error: ::std::fmt::Display,
         {
             self.kind = value
@@ -14304,7 +16557,7 @@ pub mod builder {
     #[derive(Clone, Debug)]
     pub struct LookupNumberMapValue {
         job: ::std::result::Result<super::JobRef, ::std::string::String>,
-        kind: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+        kind: ::std::result::Result<::std::string::String, ::std::string::String>,
         name: ::std::result::Result<super::ParamName, ::std::string::String>,
         source: ::std::result::Result<super::Source, ::std::string::String>,
     }
@@ -14331,7 +16584,7 @@ pub mod builder {
         }
         pub fn kind<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::serde_json::Value>,
+            T: ::std::convert::TryInto<::std::string::String>,
             T::Error: ::std::fmt::Display,
         {
             self.kind = value
@@ -14386,7 +16639,7 @@ pub mod builder {
     #[derive(Clone, Debug)]
     pub struct LookupNumberValue {
         job: ::std::result::Result<super::JobRef, ::std::string::String>,
-        kind: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+        kind: ::std::result::Result<::std::string::String, ::std::string::String>,
         name: ::std::result::Result<super::ParamName, ::std::string::String>,
         source: ::std::result::Result<super::Source, ::std::string::String>,
     }
@@ -14413,7 +16666,7 @@ pub mod builder {
         }
         pub fn kind<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::serde_json::Value>,
+            T: ::std::convert::TryInto<::std::string::String>,
             T::Error: ::std::fmt::Display,
         {
             self.kind = value
@@ -14468,7 +16721,7 @@ pub mod builder {
     #[derive(Clone, Debug)]
     pub struct LookupStringListMapValue {
         job: ::std::result::Result<super::JobRef, ::std::string::String>,
-        kind: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+        kind: ::std::result::Result<::std::string::String, ::std::string::String>,
         name: ::std::result::Result<super::ParamName, ::std::string::String>,
         source: ::std::result::Result<super::Source, ::std::string::String>,
     }
@@ -14495,7 +16748,7 @@ pub mod builder {
         }
         pub fn kind<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::serde_json::Value>,
+            T: ::std::convert::TryInto<::std::string::String>,
             T::Error: ::std::fmt::Display,
         {
             self.kind = value
@@ -14550,7 +16803,7 @@ pub mod builder {
     #[derive(Clone, Debug)]
     pub struct LookupStringListValue {
         job: ::std::result::Result<super::JobRef, ::std::string::String>,
-        kind: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+        kind: ::std::result::Result<::std::string::String, ::std::string::String>,
         name: ::std::result::Result<super::ParamName, ::std::string::String>,
         source: ::std::result::Result<super::Source, ::std::string::String>,
     }
@@ -14577,7 +16830,7 @@ pub mod builder {
         }
         pub fn kind<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::serde_json::Value>,
+            T: ::std::convert::TryInto<::std::string::String>,
             T::Error: ::std::fmt::Display,
         {
             self.kind = value
@@ -14632,7 +16885,7 @@ pub mod builder {
     #[derive(Clone, Debug)]
     pub struct LookupStringMapListValue {
         job: ::std::result::Result<super::JobRef, ::std::string::String>,
-        kind: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+        kind: ::std::result::Result<::std::string::String, ::std::string::String>,
         name: ::std::result::Result<super::ParamName, ::std::string::String>,
         source: ::std::result::Result<super::Source, ::std::string::String>,
     }
@@ -14659,7 +16912,7 @@ pub mod builder {
         }
         pub fn kind<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::serde_json::Value>,
+            T: ::std::convert::TryInto<::std::string::String>,
             T::Error: ::std::fmt::Display,
         {
             self.kind = value
@@ -14714,7 +16967,7 @@ pub mod builder {
     #[derive(Clone, Debug)]
     pub struct LookupStringMapValue {
         job: ::std::result::Result<super::JobRef, ::std::string::String>,
-        kind: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+        kind: ::std::result::Result<::std::string::String, ::std::string::String>,
         name: ::std::result::Result<super::ParamName, ::std::string::String>,
         source: ::std::result::Result<super::Source, ::std::string::String>,
     }
@@ -14741,7 +16994,7 @@ pub mod builder {
         }
         pub fn kind<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::serde_json::Value>,
+            T: ::std::convert::TryInto<::std::string::String>,
             T::Error: ::std::fmt::Display,
         {
             self.kind = value
@@ -14795,19 +17048,17 @@ pub mod builder {
     }
     #[derive(Clone, Debug)]
     pub struct LookupStringValue {
-        job: ::std::result::Result<::std::option::Option<super::JobRef>, ::std::string::String>,
-        kind: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+        job: ::std::result::Result<super::JobRef, ::std::string::String>,
+        kind: ::std::result::Result<::std::string::String, ::std::string::String>,
         name: ::std::result::Result<super::ParamName, ::std::string::String>,
-        node: ::std::result::Result<::serde_json::Value, ::std::string::String>,
         source: ::std::result::Result<super::Source, ::std::string::String>,
     }
     impl ::std::default::Default for LookupStringValue {
         fn default() -> Self {
             Self {
-                job: Ok(Default::default()),
+                job: Err("no value supplied for job".to_string()),
                 kind: Err("no value supplied for kind".to_string()),
                 name: Err("no value supplied for name".to_string()),
-                node: Err("no value supplied for node".to_string()),
                 source: Err("no value supplied for source".to_string()),
             }
         }
@@ -14815,7 +17066,7 @@ pub mod builder {
     impl LookupStringValue {
         pub fn job<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::std::option::Option<super::JobRef>>,
+            T: ::std::convert::TryInto<super::JobRef>,
             T::Error: ::std::fmt::Display,
         {
             self.job = value
@@ -14825,7 +17076,7 @@ pub mod builder {
         }
         pub fn kind<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::serde_json::Value>,
+            T: ::std::convert::TryInto<::std::string::String>,
             T::Error: ::std::fmt::Display,
         {
             self.kind = value
@@ -14841,16 +17092,6 @@ pub mod builder {
             self.name = value
                 .try_into()
                 .map_err(|e| format!("error converting supplied value for name: {}", e));
-            self
-        }
-        pub fn node<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<::serde_json::Value>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.node = value
-                .try_into()
-                .map_err(|e| format!("error converting supplied value for node: {}", e));
             self
         }
         pub fn source<T>(mut self, value: T) -> Self
@@ -14873,7 +17114,6 @@ pub mod builder {
                 job: value.job?,
                 kind: value.kind?,
                 name: value.name?,
-                node: value.node?,
                 source: value.source?,
             })
         }
@@ -14884,7 +17124,6 @@ pub mod builder {
                 job: Ok(value.job),
                 kind: Ok(value.kind),
                 name: Ok(value.name),
-                node: Ok(value.node),
                 source: Ok(value.source),
             }
         }
@@ -14892,7 +17131,7 @@ pub mod builder {
     #[derive(Clone, Debug)]
     pub struct MacroJob {
         input: ::std::result::Result<::serde_json::Value, ::std::string::String>,
-        kind: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+        kind: ::std::result::Result<::std::string::String, ::std::string::String>,
         macro_: ::std::result::Result<super::Macro, ::std::string::String>,
         rerunnable: ::std::result::Result<bool, ::std::string::String>,
         source: ::std::result::Result<super::Source, ::std::string::String>,
@@ -14921,7 +17160,7 @@ pub mod builder {
         }
         pub fn kind<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::serde_json::Value>,
+            T: ::std::convert::TryInto<::std::string::String>,
             T::Error: ::std::fmt::Display,
         {
             self.kind = value
@@ -14986,7 +17225,7 @@ pub mod builder {
     #[derive(Clone, Debug)]
     pub struct MapContainsKeyBooleanValue {
         key: ::std::result::Result<super::ComputedStringValue, ::std::string::String>,
-        kind: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+        kind: ::std::result::Result<::std::string::String, ::std::string::String>,
         map: ::std::result::Result<super::MapContainsKeyBooleanValueMap, ::std::string::String>,
         source: ::std::result::Result<super::Source, ::std::string::String>,
     }
@@ -15013,7 +17252,7 @@ pub mod builder {
         }
         pub fn kind<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::serde_json::Value>,
+            T: ::std::convert::TryInto<::std::string::String>,
             T::Error: ::std::fmt::Display,
         {
             self.kind = value
@@ -15072,7 +17311,7 @@ pub mod builder {
             ::std::string::String,
         >,
         key: ::std::result::Result<super::ComputedStringValue, ::std::string::String>,
-        kind: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+        kind: ::std::result::Result<::std::string::String, ::std::string::String>,
         map: ::std::result::Result<super::ComputedBooleanMapValue, ::std::string::String>,
         source: ::std::result::Result<super::Source, ::std::string::String>,
     }
@@ -15110,7 +17349,7 @@ pub mod builder {
         }
         pub fn kind<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::serde_json::Value>,
+            T: ::std::convert::TryInto<::std::string::String>,
             T::Error: ::std::fmt::Display,
         {
             self.kind = value
@@ -15171,7 +17410,7 @@ pub mod builder {
             ::std::string::String,
         >,
         key: ::std::result::Result<super::ComputedStringValue, ::std::string::String>,
-        kind: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+        kind: ::std::result::Result<::std::string::String, ::std::string::String>,
         map: ::std::result::Result<super::ComputedNumberMapValue, ::std::string::String>,
         source: ::std::result::Result<super::Source, ::std::string::String>,
     }
@@ -15209,7 +17448,7 @@ pub mod builder {
         }
         pub fn kind<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::serde_json::Value>,
+            T: ::std::convert::TryInto<::std::string::String>,
             T::Error: ::std::fmt::Display,
         {
             self.kind = value
@@ -15273,7 +17512,7 @@ pub mod builder {
             ::std::boxed::Box<super::ComputedStringValue>,
             ::std::string::String,
         >,
-        kind: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+        kind: ::std::result::Result<::std::string::String, ::std::string::String>,
         map: ::std::result::Result<super::ComputedStringMapValue, ::std::string::String>,
         source: ::std::result::Result<super::Source, ::std::string::String>,
     }
@@ -15311,7 +17550,7 @@ pub mod builder {
         }
         pub fn kind<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::serde_json::Value>,
+            T: ::std::convert::TryInto<::std::string::String>,
             T::Error: ::std::fmt::Display,
         {
             self.kind = value
@@ -15367,7 +17606,7 @@ pub mod builder {
     }
     #[derive(Clone, Debug)]
     pub struct MapKeysStringListValue {
-        kind: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+        kind: ::std::result::Result<::std::string::String, ::std::string::String>,
         map: ::std::result::Result<super::MapKeysStringListValueMap, ::std::string::String>,
         source: ::std::result::Result<super::Source, ::std::string::String>,
     }
@@ -15383,7 +17622,7 @@ pub mod builder {
     impl MapKeysStringListValue {
         pub fn kind<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::serde_json::Value>,
+            T: ::std::convert::TryInto<::std::string::String>,
             T::Error: ::std::fmt::Display,
         {
             self.kind = value
@@ -15443,7 +17682,7 @@ pub mod builder {
             ::std::option::Option<::std::boxed::Box<super::ComputedStringValue>>,
             ::std::string::String,
         >,
-        kind: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+        kind: ::std::result::Result<::std::string::String, ::std::string::String>,
         source: ::std::result::Result<super::Source, ::std::string::String>,
         value: ::std::result::Result<super::ComputedStringMapValue, ::std::string::String>,
     }
@@ -15485,7 +17724,7 @@ pub mod builder {
         }
         pub fn kind<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::serde_json::Value>,
+            T: ::std::convert::TryInto<::std::string::String>,
             T::Error: ::std::fmt::Display,
         {
             self.kind = value
@@ -15541,7 +17780,7 @@ pub mod builder {
     }
     #[derive(Clone, Debug)]
     pub struct MaxNumberListValue {
-        kind: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+        kind: ::std::result::Result<::std::string::String, ::std::string::String>,
         source: ::std::result::Result<super::Source, ::std::string::String>,
         value: ::std::result::Result<super::ComputedNumberListValue, ::std::string::String>,
     }
@@ -15557,7 +17796,7 @@ pub mod builder {
     impl MaxNumberListValue {
         pub fn kind<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::serde_json::Value>,
+            T: ::std::convert::TryInto<::std::string::String>,
             T::Error: ::std::fmt::Display,
         {
             self.kind = value
@@ -15721,7 +17960,7 @@ pub mod builder {
     }
     #[derive(Clone, Debug)]
     pub struct MinNumberListValue {
-        kind: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+        kind: ::std::result::Result<::std::string::String, ::std::string::String>,
         source: ::std::result::Result<super::Source, ::std::string::String>,
         value: ::std::result::Result<super::ComputedNumberListValue, ::std::string::String>,
     }
@@ -15737,7 +17976,7 @@ pub mod builder {
     impl MinNumberListValue {
         pub fn kind<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::serde_json::Value>,
+            T: ::std::convert::TryInto<::std::string::String>,
             T::Error: ::std::fmt::Display,
         {
             self.kind = value
@@ -15793,7 +18032,7 @@ pub mod builder {
             ::std::option::Option<super::InitialParameters>,
             ::std::string::String,
         >,
-        kind: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+        kind: ::std::result::Result<::std::string::String, ::std::string::String>,
         module: ::std::result::Result<super::ModuleJobModule, ::std::string::String>,
         rerunnable: ::std::result::Result<bool, ::std::string::String>,
         runtime_parameters: ::std::result::Result<
@@ -15830,7 +18069,7 @@ pub mod builder {
         }
         pub fn kind<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::serde_json::Value>,
+            T: ::std::convert::TryInto<::std::string::String>,
             T::Error: ::std::fmt::Display,
         {
             self.kind = value
@@ -15911,7 +18150,7 @@ pub mod builder {
     }
     #[derive(Clone, Debug)]
     pub struct ModulusTwoValues {
-        kind: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+        kind: ::std::result::Result<::std::string::String, ::std::string::String>,
         left: ::std::result::Result<
             ::std::boxed::Box<super::ComputedNumberValue>,
             ::std::string::String,
@@ -15935,7 +18174,7 @@ pub mod builder {
     impl ModulusTwoValues {
         pub fn kind<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::serde_json::Value>,
+            T: ::std::convert::TryInto<::std::string::String>,
             T::Error: ::std::fmt::Display,
         {
             self.kind = value
@@ -15999,7 +18238,7 @@ pub mod builder {
     }
     #[derive(Clone, Debug)]
     pub struct MultiplyTwoValues {
-        kind: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+        kind: ::std::result::Result<::std::string::String, ::std::string::String>,
         left: ::std::result::Result<
             ::std::boxed::Box<super::ComputedNumberValue>,
             ::std::string::String,
@@ -16023,7 +18262,7 @@ pub mod builder {
     impl MultiplyTwoValues {
         pub fn kind<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::serde_json::Value>,
+            T: ::std::convert::TryInto<::std::string::String>,
             T::Error: ::std::fmt::Display,
         {
             self.kind = value
@@ -16087,7 +18326,7 @@ pub mod builder {
     }
     #[derive(Clone, Debug)]
     pub struct NandTwoBooleanValues {
-        kind: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+        kind: ::std::result::Result<::std::string::String, ::std::string::String>,
         left: ::std::result::Result<
             ::std::boxed::Box<super::ComputedBooleanValue>,
             ::std::string::String,
@@ -16111,7 +18350,7 @@ pub mod builder {
     impl NandTwoBooleanValues {
         pub fn kind<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::serde_json::Value>,
+            T: ::std::convert::TryInto<::std::string::String>,
             T::Error: ::std::fmt::Display,
         {
             self.kind = value
@@ -16187,7 +18426,7 @@ pub mod builder {
             ::std::string::String,
         >,
         meta: ::std::result::Result<super::Metadata, ::std::string::String>,
-        schema_version: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+        schema_version: ::std::result::Result<::std::string::String, ::std::string::String>,
         threads: ::std::result::Result<
             ::std::collections::HashMap<
                 super::NativeShellLowLevelScriptSchemaThreadsKey,
@@ -16250,7 +18489,7 @@ pub mod builder {
         }
         pub fn schema_version<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::serde_json::Value>,
+            T: ::std::convert::TryInto<::std::string::String>,
             T::Error: ::std::fmt::Display,
         {
             self.schema_version = value
@@ -16305,7 +18544,7 @@ pub mod builder {
     }
     #[derive(Clone, Debug)]
     pub struct NorTwoBooleanValues {
-        kind: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+        kind: ::std::result::Result<::std::string::String, ::std::string::String>,
         left: ::std::result::Result<
             ::std::boxed::Box<super::ComputedBooleanValue>,
             ::std::string::String,
@@ -16329,7 +18568,7 @@ pub mod builder {
     impl NorTwoBooleanValues {
         pub fn kind<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::serde_json::Value>,
+            T: ::std::convert::TryInto<::std::string::String>,
             T::Error: ::std::fmt::Display,
         {
             self.kind = value
@@ -16393,7 +18632,7 @@ pub mod builder {
     }
     #[derive(Clone, Debug)]
     pub struct NotBooleanValue {
-        kind: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+        kind: ::std::result::Result<::std::string::String, ::std::string::String>,
         source: ::std::result::Result<super::Source, ::std::string::String>,
         value: ::std::result::Result<
             ::std::boxed::Box<super::ComputedBooleanValue>,
@@ -16412,7 +18651,7 @@ pub mod builder {
     impl NotBooleanValue {
         pub fn kind<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::serde_json::Value>,
+            T: ::std::convert::TryInto<::std::string::String>,
             T::Error: ::std::fmt::Display,
         {
             self.kind = value
@@ -16468,7 +18707,7 @@ pub mod builder {
             ::std::boxed::Box<super::ComputedNumberValue>,
             ::std::string::String,
         >,
-        kind: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+        kind: ::std::result::Result<::std::string::String, ::std::string::String>,
         list: ::std::result::Result<super::ComputedNumberListValue, ::std::string::String>,
         source: ::std::result::Result<super::Source, ::std::string::String>,
     }
@@ -16495,7 +18734,7 @@ pub mod builder {
         }
         pub fn kind<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::serde_json::Value>,
+            T: ::std::convert::TryInto<::std::string::String>,
             T::Error: ::std::fmt::Display,
         {
             self.kind = value
@@ -16553,7 +18792,7 @@ pub mod builder {
             ::std::boxed::Box<super::ComputedNumberValue>,
             ::std::string::String,
         >,
-        kind: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+        kind: ::std::result::Result<::std::string::String, ::std::string::String>,
         list: ::std::result::Result<super::ComputedNumberListValue, ::std::string::String>,
         needle: ::std::result::Result<
             ::std::boxed::Box<super::ComputedNumberValue>,
@@ -16585,7 +18824,7 @@ pub mod builder {
         }
         pub fn kind<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::serde_json::Value>,
+            T: ::std::convert::TryInto<::std::string::String>,
             T::Error: ::std::fmt::Display,
         {
             self.kind = value
@@ -16655,7 +18894,7 @@ pub mod builder {
             ::std::option::Option<::std::boxed::Box<super::ComputedStringValue>>,
             ::std::string::String,
         >,
-        kind: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+        kind: ::std::result::Result<::std::string::String, ::std::string::String>,
         source: ::std::result::Result<super::Source, ::std::string::String>,
         value: ::std::result::Result<
             ::std::boxed::Box<super::ComputedNumberValue>,
@@ -16687,7 +18926,7 @@ pub mod builder {
         }
         pub fn kind<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::serde_json::Value>,
+            T: ::std::convert::TryInto<::std::string::String>,
             T::Error: ::std::fmt::Display,
         {
             self.kind = value
@@ -16741,7 +18980,7 @@ pub mod builder {
     }
     #[derive(Clone, Debug)]
     pub struct OrTwoBooleanValues {
-        kind: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+        kind: ::std::result::Result<::std::string::String, ::std::string::String>,
         left: ::std::result::Result<
             ::std::boxed::Box<super::ComputedBooleanValue>,
             ::std::string::String,
@@ -16765,7 +19004,7 @@ pub mod builder {
     impl OrTwoBooleanValues {
         pub fn kind<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::serde_json::Value>,
+            T: ::std::convert::TryInto<::std::string::String>,
             T::Error: ::std::fmt::Display,
         {
             self.kind = value
@@ -16830,7 +19069,7 @@ pub mod builder {
     #[derive(Clone, Debug)]
     pub struct Parameter {
         source: ::std::result::Result<super::Source, ::std::string::String>,
-        value: ::std::result::Result<super::ParameterValue, ::std::string::String>,
+        value: ::std::result::Result<super::InitialParameterValue, ::std::string::String>,
     }
     impl ::std::default::Default for Parameter {
         fn default() -> Self {
@@ -16853,7 +19092,7 @@ pub mod builder {
         }
         pub fn value<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<super::ParameterValue>,
+            T: ::std::convert::TryInto<super::InitialParameterValue>,
             T::Error: ::std::fmt::Display,
         {
             self.value = value
@@ -16891,7 +19130,7 @@ pub mod builder {
             ::std::boxed::Box<super::ComputedNumberValue>,
             ::std::string::String,
         >,
-        kind: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+        kind: ::std::result::Result<::std::string::String, ::std::string::String>,
         source: ::std::result::Result<super::Source, ::std::string::String>,
     }
     impl ::std::default::Default for PowerTwoValues {
@@ -16927,7 +19166,7 @@ pub mod builder {
         }
         pub fn kind<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::serde_json::Value>,
+            T: ::std::convert::TryInto<::std::string::String>,
             T::Error: ::std::fmt::Display,
         {
             self.kind = value
@@ -16971,7 +19210,7 @@ pub mod builder {
     }
     #[derive(Clone, Debug)]
     pub struct ProductNumberListValue {
-        kind: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+        kind: ::std::result::Result<::std::string::String, ::std::string::String>,
         source: ::std::result::Result<super::Source, ::std::string::String>,
         value: ::std::result::Result<super::ComputedNumberListValue, ::std::string::String>,
     }
@@ -16987,7 +19226,7 @@ pub mod builder {
     impl ProductNumberListValue {
         pub fn kind<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::serde_json::Value>,
+            T: ::std::convert::TryInto<::std::string::String>,
             T::Error: ::std::fmt::Display,
         {
             self.kind = value
@@ -17047,11 +19286,8 @@ pub mod builder {
             ::std::option::Option<::std::boxed::Box<super::ComputedNumberValue>>,
             ::std::string::String,
         >,
-        kind: ::std::result::Result<::serde_json::Value, ::std::string::String>,
-        list: ::std::result::Result<
-            ::std::boxed::Box<super::ComputedBooleanListValue>,
-            ::std::string::String,
-        >,
+        kind: ::std::result::Result<::std::string::String, ::std::string::String>,
+        list: ::std::result::Result<super::ComputedBooleanListValue, ::std::string::String>,
         source: ::std::result::Result<super::Source, ::std::string::String>,
         start: ::std::result::Result<
             ::std::option::Option<::std::boxed::Box<super::ComputedNumberValue>>,
@@ -17097,7 +19333,7 @@ pub mod builder {
         }
         pub fn kind<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::serde_json::Value>,
+            T: ::std::convert::TryInto<::std::string::String>,
             T::Error: ::std::fmt::Display,
         {
             self.kind = value
@@ -17107,7 +19343,7 @@ pub mod builder {
         }
         pub fn list<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::std::boxed::Box<super::ComputedBooleanListValue>>,
+            T: ::std::convert::TryInto<super::ComputedBooleanListValue>,
             T::Error: ::std::fmt::Display,
         {
             self.list = value
@@ -17175,7 +19411,7 @@ pub mod builder {
             ::std::option::Option<::std::boxed::Box<super::ComputedNumberValue>>,
             ::std::string::String,
         >,
-        kind: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+        kind: ::std::result::Result<::std::string::String, ::std::string::String>,
         list: ::std::result::Result<
             ::std::boxed::Box<super::ComputedNumberListValue>,
             ::std::string::String,
@@ -17225,7 +19461,7 @@ pub mod builder {
         }
         pub fn kind<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::serde_json::Value>,
+            T: ::std::convert::TryInto<::std::string::String>,
             T::Error: ::std::fmt::Display,
         {
             self.kind = value
@@ -17303,7 +19539,7 @@ pub mod builder {
             ::std::option::Option<::std::boxed::Box<super::ComputedNumberValue>>,
             ::std::string::String,
         >,
-        kind: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+        kind: ::std::result::Result<::std::string::String, ::std::string::String>,
         list: ::std::result::Result<
             ::std::boxed::Box<super::ComputedStringListValue>,
             ::std::string::String,
@@ -17353,7 +19589,7 @@ pub mod builder {
         }
         pub fn kind<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::serde_json::Value>,
+            T: ::std::convert::TryInto<::std::string::String>,
             T::Error: ::std::fmt::Display,
         {
             self.kind = value
@@ -17431,7 +19667,7 @@ pub mod builder {
             ::std::option::Option<::std::boxed::Box<super::ComputedNumberValue>>,
             ::std::string::String,
         >,
-        kind: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+        kind: ::std::result::Result<::std::string::String, ::std::string::String>,
         list: ::std::result::Result<
             ::std::boxed::Box<super::ComputedStringMapListValue>,
             ::std::string::String,
@@ -17481,7 +19717,7 @@ pub mod builder {
         }
         pub fn kind<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::serde_json::Value>,
+            T: ::std::convert::TryInto<::std::string::String>,
             T::Error: ::std::fmt::Display,
         {
             self.kind = value
@@ -17550,8 +19786,62 @@ pub mod builder {
         }
     }
     #[derive(Clone, Debug)]
+    pub struct RemoveMapEntry {
+        kind: ::std::result::Result<::std::string::String, ::std::string::String>,
+        source: ::std::result::Result<super::Source, ::std::string::String>,
+    }
+    impl ::std::default::Default for RemoveMapEntry {
+        fn default() -> Self {
+            Self {
+                kind: Err("no value supplied for kind".to_string()),
+                source: Err("no value supplied for source".to_string()),
+            }
+        }
+    }
+    impl RemoveMapEntry {
+        pub fn kind<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.kind = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for kind: {}", e));
+            self
+        }
+        pub fn source<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<super::Source>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.source = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for source: {}", e));
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<RemoveMapEntry> for super::RemoveMapEntry {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: RemoveMapEntry,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                kind: value.kind?,
+                source: value.source?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::RemoveMapEntry> for RemoveMapEntry {
+        fn from(value: super::RemoveMapEntry) -> Self {
+            Self {
+                kind: Ok(value.kind),
+                source: Ok(value.source),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
     pub struct RoundValue {
-        kind: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+        kind: ::std::result::Result<::std::string::String, ::std::string::String>,
         source: ::std::result::Result<super::Source, ::std::string::String>,
         value: ::std::result::Result<
             ::std::boxed::Box<super::ComputedNumberValue>,
@@ -17570,7 +19860,7 @@ pub mod builder {
     impl RoundValue {
         pub fn kind<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::serde_json::Value>,
+            T: ::std::convert::TryInto<::std::string::String>,
             T::Error: ::std::fmt::Display,
         {
             self.kind = value
@@ -17694,7 +19984,7 @@ pub mod builder {
     #[derive(Clone, Debug)]
     pub struct ScriptLicense {
         copyright: ::std::result::Result<
-            ::std::option::Option<::serde_json::Value>,
+            ::std::option::Option<::std::string::String>,
             ::std::string::String,
         >,
         spdx_id: ::std::result::Result<super::SpdxId, ::std::string::String>,
@@ -17710,7 +20000,7 @@ pub mod builder {
     impl ScriptLicense {
         pub fn copyright<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::std::option::Option<::serde_json::Value>>,
+            T: ::std::convert::TryInto<::std::option::Option<::std::string::String>>,
             T::Error: ::std::fmt::Display,
         {
             self.copyright = value
@@ -17830,7 +20120,7 @@ pub mod builder {
     }
     #[derive(Clone, Debug)]
     pub struct SplitStringValue {
-        kind: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+        kind: ::std::result::Result<::std::string::String, ::std::string::String>,
         maximum_splits: ::std::result::Result<
             ::std::option::Option<::std::boxed::Box<super::ComputedNumberValue>>,
             ::std::string::String,
@@ -17853,7 +20143,7 @@ pub mod builder {
     impl SplitStringValue {
         pub fn kind<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::serde_json::Value>,
+            T: ::std::convert::TryInto<::std::string::String>,
             T::Error: ::std::fmt::Display,
         {
             self.kind = value
@@ -17932,7 +20222,7 @@ pub mod builder {
     #[derive(Clone, Debug)]
     pub struct Step {
         name: ::std::result::Result<::std::string::String, ::std::string::String>,
-        run: ::std::result::Result<super::StepRun, ::std::string::String>,
+        run: ::std::result::Result<super::StepTask, ::std::string::String>,
         source: ::std::result::Result<super::Source, ::std::string::String>,
     }
     impl ::std::default::Default for Step {
@@ -17957,7 +20247,7 @@ pub mod builder {
         }
         pub fn run<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<super::StepRun>,
+            T: ::std::convert::TryInto<super::StepTask>,
             T::Error: ::std::fmt::Display,
         {
             self.run = value
@@ -18063,7 +20353,7 @@ pub mod builder {
     }
     #[derive(Clone, Debug)]
     pub struct StreamJob {
-        kind: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+        kind: ::std::result::Result<::std::string::String, ::std::string::String>,
         rerunnable: ::std::result::Result<bool, ::std::string::String>,
         source: ::std::result::Result<super::Source, ::std::string::String>,
         streams: ::std::result::Result<::std::vec::Vec<super::Stream>, ::std::string::String>,
@@ -18081,7 +20371,7 @@ pub mod builder {
     impl StreamJob {
         pub fn kind<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::serde_json::Value>,
+            T: ::std::convert::TryInto<::std::string::String>,
             T::Error: ::std::fmt::Display,
         {
             self.kind = value
@@ -18146,7 +20436,7 @@ pub mod builder {
     #[derive(Clone, Debug)]
     pub struct StringEqualBooleanValue {
         case_sensitive: ::std::result::Result<bool, ::std::string::String>,
-        kind: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+        kind: ::std::result::Result<::std::string::String, ::std::string::String>,
         list: ::std::result::Result<super::ComputedStringListValue, ::std::string::String>,
         source: ::std::result::Result<super::Source, ::std::string::String>,
     }
@@ -18173,7 +20463,7 @@ pub mod builder {
         }
         pub fn kind<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::serde_json::Value>,
+            T: ::std::convert::TryInto<::std::string::String>,
             T::Error: ::std::fmt::Display,
         {
             self.kind = value
@@ -18227,7 +20517,7 @@ pub mod builder {
     }
     #[derive(Clone, Debug)]
     pub struct StringLeftIndexNumberValue {
-        kind: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+        kind: ::std::result::Result<::std::string::String, ::std::string::String>,
         source: ::std::result::Result<super::Source, ::std::string::String>,
         string: ::std::result::Result<super::ComputedStringValue, ::std::string::String>,
         substring: ::std::result::Result<super::ComputedStringValue, ::std::string::String>,
@@ -18245,7 +20535,7 @@ pub mod builder {
     impl StringLeftIndexNumberValue {
         pub fn kind<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::serde_json::Value>,
+            T: ::std::convert::TryInto<::std::string::String>,
             T::Error: ::std::fmt::Display,
         {
             self.kind = value
@@ -18309,7 +20599,7 @@ pub mod builder {
     }
     #[derive(Clone, Debug)]
     pub struct StringListIndexNumberValue {
-        kind: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+        kind: ::std::result::Result<::std::string::String, ::std::string::String>,
         list: ::std::result::Result<super::ComputedStringListValue, ::std::string::String>,
         needle: ::std::result::Result<super::ComputedStringValue, ::std::string::String>,
         source: ::std::result::Result<super::Source, ::std::string::String>,
@@ -18327,7 +20617,7 @@ pub mod builder {
     impl StringListIndexNumberValue {
         pub fn kind<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::serde_json::Value>,
+            T: ::std::convert::TryInto<::std::string::String>,
             T::Error: ::std::fmt::Display,
         {
             self.kind = value
@@ -18391,9 +20681,12 @@ pub mod builder {
     }
     #[derive(Clone, Debug)]
     pub struct StringListMapKeyValue {
-        default: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+        default: ::std::result::Result<
+            ::std::boxed::Box<super::ComputedStringListValue>,
+            ::std::string::String,
+        >,
         key: ::std::result::Result<super::ComputedStringValue, ::std::string::String>,
-        kind: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+        kind: ::std::result::Result<::std::string::String, ::std::string::String>,
         map: ::std::result::Result<super::ComputedStringListMapValue, ::std::string::String>,
         source: ::std::result::Result<super::Source, ::std::string::String>,
     }
@@ -18411,7 +20704,7 @@ pub mod builder {
     impl StringListMapKeyValue {
         pub fn default<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::serde_json::Value>,
+            T: ::std::convert::TryInto<::std::boxed::Box<super::ComputedStringListValue>>,
             T::Error: ::std::fmt::Display,
         {
             self.default = value
@@ -18431,7 +20724,7 @@ pub mod builder {
         }
         pub fn kind<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::serde_json::Value>,
+            T: ::std::convert::TryInto<::std::string::String>,
             T::Error: ::std::fmt::Display,
         {
             self.kind = value
@@ -18487,15 +20780,12 @@ pub mod builder {
     }
     #[derive(Clone, Debug)]
     pub struct StringMapListIndexValue {
-        default: ::std::result::Result<
-            ::std::boxed::Box<super::ComputedStringMapValue>,
-            ::std::string::String,
-        >,
+        default: ::std::result::Result<super::ComputedStringMapValue, ::std::string::String>,
         index: ::std::result::Result<
             ::std::boxed::Box<super::ComputedNumberValue>,
             ::std::string::String,
         >,
-        kind: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+        kind: ::std::result::Result<::std::string::String, ::std::string::String>,
         list: ::std::result::Result<super::ComputedStringMapListValue, ::std::string::String>,
         source: ::std::result::Result<super::Source, ::std::string::String>,
     }
@@ -18513,7 +20803,7 @@ pub mod builder {
     impl StringMapListIndexValue {
         pub fn default<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::std::boxed::Box<super::ComputedStringMapValue>>,
+            T: ::std::convert::TryInto<super::ComputedStringMapValue>,
             T::Error: ::std::fmt::Display,
         {
             self.default = value
@@ -18533,7 +20823,7 @@ pub mod builder {
         }
         pub fn kind<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::serde_json::Value>,
+            T: ::std::convert::TryInto<::std::string::String>,
             T::Error: ::std::fmt::Display,
         {
             self.kind = value
@@ -18589,7 +20879,7 @@ pub mod builder {
     }
     #[derive(Clone, Debug)]
     pub struct StringRightIndexNumberValue {
-        kind: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+        kind: ::std::result::Result<::std::string::String, ::std::string::String>,
         source: ::std::result::Result<super::Source, ::std::string::String>,
         string: ::std::result::Result<super::ComputedStringValue, ::std::string::String>,
         substring: ::std::result::Result<super::ComputedStringValue, ::std::string::String>,
@@ -18607,7 +20897,7 @@ pub mod builder {
     impl StringRightIndexNumberValue {
         pub fn kind<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::serde_json::Value>,
+            T: ::std::convert::TryInto<::std::string::String>,
             T::Error: ::std::fmt::Display,
         {
             self.kind = value
@@ -18679,7 +20969,7 @@ pub mod builder {
             ::std::option::Option<::std::boxed::Box<super::ComputedNumberValue>>,
             ::std::string::String,
         >,
-        kind: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+        kind: ::std::result::Result<::std::string::String, ::std::string::String>,
         source: ::std::result::Result<super::Source, ::std::string::String>,
         start: ::std::result::Result<
             ::std::option::Option<::std::boxed::Box<super::ComputedNumberValue>>,
@@ -18729,7 +21019,7 @@ pub mod builder {
         }
         pub fn kind<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::serde_json::Value>,
+            T: ::std::convert::TryInto<::std::string::String>,
             T::Error: ::std::fmt::Display,
         {
             self.kind = value
@@ -18799,7 +21089,7 @@ pub mod builder {
     }
     #[derive(Clone, Debug)]
     pub struct SubtractTwoValues {
-        kind: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+        kind: ::std::result::Result<::std::string::String, ::std::string::String>,
         left: ::std::result::Result<
             ::std::boxed::Box<super::ComputedNumberValue>,
             ::std::string::String,
@@ -18823,7 +21113,7 @@ pub mod builder {
     impl SubtractTwoValues {
         pub fn kind<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::serde_json::Value>,
+            T: ::std::convert::TryInto<::std::string::String>,
             T::Error: ::std::fmt::Display,
         {
             self.kind = value
@@ -18887,7 +21177,7 @@ pub mod builder {
     }
     #[derive(Clone, Debug)]
     pub struct SumNumberListValue {
-        kind: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+        kind: ::std::result::Result<::std::string::String, ::std::string::String>,
         source: ::std::result::Result<super::Source, ::std::string::String>,
         value: ::std::result::Result<super::ComputedNumberListValue, ::std::string::String>,
     }
@@ -18903,7 +21193,7 @@ pub mod builder {
     impl SumNumberListValue {
         pub fn kind<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::serde_json::Value>,
+            T: ::std::convert::TryInto<::std::string::String>,
             T::Error: ::std::fmt::Display,
         {
             self.kind = value
@@ -19007,7 +21297,7 @@ pub mod builder {
     }
     #[derive(Clone, Debug)]
     pub struct TrimStringValue {
-        kind: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+        kind: ::std::result::Result<::std::string::String, ::std::string::String>,
         source: ::std::result::Result<super::Source, ::std::string::String>,
         trim_chars: ::std::result::Result<
             ::std::option::Option<::std::boxed::Box<super::ComputedStringValue>>,
@@ -19031,7 +21321,7 @@ pub mod builder {
     impl TrimStringValue {
         pub fn kind<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::serde_json::Value>,
+            T: ::std::convert::TryInto<::std::string::String>,
             T::Error: ::std::fmt::Display,
         {
             self.kind = value
@@ -19097,7 +21387,7 @@ pub mod builder {
     }
     #[derive(Clone, Debug)]
     pub struct UnionBooleanMapValue {
-        kind: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+        kind: ::std::result::Result<::std::string::String, ::std::string::String>,
         source: ::std::result::Result<super::Source, ::std::string::String>,
         values: ::std::result::Result<
             ::std::vec::Vec<super::ComputedBooleanMapValue>,
@@ -19116,7 +21406,7 @@ pub mod builder {
     impl UnionBooleanMapValue {
         pub fn kind<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::serde_json::Value>,
+            T: ::std::convert::TryInto<::std::string::String>,
             T::Error: ::std::fmt::Display,
         {
             self.kind = value
@@ -19168,7 +21458,7 @@ pub mod builder {
     }
     #[derive(Clone, Debug)]
     pub struct UnionNumberMapValue {
-        kind: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+        kind: ::std::result::Result<::std::string::String, ::std::string::String>,
         source: ::std::result::Result<super::Source, ::std::string::String>,
         values: ::std::result::Result<
             ::std::vec::Vec<super::ComputedNumberMapValue>,
@@ -19187,7 +21477,7 @@ pub mod builder {
     impl UnionNumberMapValue {
         pub fn kind<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::serde_json::Value>,
+            T: ::std::convert::TryInto<::std::string::String>,
             T::Error: ::std::fmt::Display,
         {
             self.kind = value
@@ -19239,7 +21529,7 @@ pub mod builder {
     }
     #[derive(Clone, Debug)]
     pub struct UnionStringListMapValue {
-        kind: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+        kind: ::std::result::Result<::std::string::String, ::std::string::String>,
         source: ::std::result::Result<super::Source, ::std::string::String>,
         values: ::std::result::Result<
             ::std::vec::Vec<super::ComputedStringListMapValue>,
@@ -19258,7 +21548,7 @@ pub mod builder {
     impl UnionStringListMapValue {
         pub fn kind<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::serde_json::Value>,
+            T: ::std::convert::TryInto<::std::string::String>,
             T::Error: ::std::fmt::Display,
         {
             self.kind = value
@@ -19310,7 +21600,7 @@ pub mod builder {
     }
     #[derive(Clone, Debug)]
     pub struct UnionStringMapValue {
-        kind: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+        kind: ::std::result::Result<::std::string::String, ::std::string::String>,
         source: ::std::result::Result<super::Source, ::std::string::String>,
         values: ::std::result::Result<
             ::std::vec::Vec<super::ComputedStringMapValue>,
@@ -19329,7 +21619,7 @@ pub mod builder {
     impl UnionStringMapValue {
         pub fn kind<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::serde_json::Value>,
+            T: ::std::convert::TryInto<::std::string::String>,
             T::Error: ::std::fmt::Display,
         {
             self.kind = value
@@ -19381,7 +21671,7 @@ pub mod builder {
     }
     #[derive(Clone, Debug)]
     pub struct XnorTwoBooleanValues {
-        kind: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+        kind: ::std::result::Result<::std::string::String, ::std::string::String>,
         left: ::std::result::Result<
             ::std::boxed::Box<super::ComputedBooleanValue>,
             ::std::string::String,
@@ -19405,7 +21695,7 @@ pub mod builder {
     impl XnorTwoBooleanValues {
         pub fn kind<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::serde_json::Value>,
+            T: ::std::convert::TryInto<::std::string::String>,
             T::Error: ::std::fmt::Display,
         {
             self.kind = value
@@ -19469,7 +21759,7 @@ pub mod builder {
     }
     #[derive(Clone, Debug)]
     pub struct XorTwoBooleanValues {
-        kind: ::std::result::Result<::serde_json::Value, ::std::string::String>,
+        kind: ::std::result::Result<::std::string::String, ::std::string::String>,
         left: ::std::result::Result<
             ::std::boxed::Box<super::ComputedBooleanValue>,
             ::std::string::String,
@@ -19493,7 +21783,7 @@ pub mod builder {
     impl XorTwoBooleanValues {
         pub fn kind<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<::serde_json::Value>,
+            T: ::std::convert::TryInto<::std::string::String>,
             T::Error: ::std::fmt::Display,
         {
             self.kind = value

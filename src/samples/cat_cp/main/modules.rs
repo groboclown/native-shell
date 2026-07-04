@@ -3,5 +3,4 @@
 //! is intended as entirely machine generated with no expectation for human maintenance,
 //! that's how it is.
 
-pub mod default;
 pub mod j0x0;

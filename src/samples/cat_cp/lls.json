@@ -11,7 +11,9 @@
             "value": [
               {
                 "field": "source",
-                "help": "The path to the source file, whose contents will copy into TARGET.",
+                "help": [
+                  "The path to the source file, whose contents will copy into TARGET."
+                ],
                 "kind": "required",
                 "long-form": "source",
                 "short-form": "s",
@@ -20,7 +22,9 @@
               },
               {
                 "field": "target",
-                "help": "The path to the target file, which will store the contents from SOURCE.",
+                "help": [
+                  "The path to the target file, which will store the contents from SOURCE."
+                ],
                 "kind": "required",
                 "long-form": "target",
                 "short-form": "t",
@@ -34,7 +38,9 @@
             "source": {
               "file": "script.ns"
             },
-            "value": "Copy the contents of the SOURCE file into the TARGET file."
+            "value": [
+              "Copy the contents of the SOURCE file into the TARGET file."
+            ]
           }
         },
         "kind": "macro",
@@ -122,7 +128,9 @@
     "authors": [
       "The Native Shell Team"
     ],
-    "description": "Copies the contents of a source file to a target file.",
+    "description": [
+      "Copies the contents of a source file to a target file."
+    ],
     "license": {
       "spdx-id": "MIT"
     },
@@ -137,35 +145,6 @@
   "schema-version": "1.0.0",
   "threads": {
     "default": {
-      "main": {
-        "default": true,
-        "description": "Copy the SOURCE file to the TARGET file.  This will not create the directory containing the TARGET file.\n",
-        "parameters": [
-          {
-            "aliases": [
-              "source",
-              "s"
-            ],
-            "description": "Path to the source file to copy.\n",
-            "kind": "string",
-            "name": "source",
-            "var-name": "SOURCE"
-          },
-          {
-            "aliases": [
-              "target",
-              "t"
-            ],
-            "description": "Path to the target file.\n",
-            "kind": "string",
-            "name": "target",
-            "var-name": "TARGET"
-          }
-        ],
-        "source": {
-          "file": "script.ns"
-        }
-      },
       "source": {
         "file": "script.ns"
       },
@@ -193,7 +172,7 @@
               "exit-code-behaviors": [
                 {
                   "behavior": {
-                    "kind": "stop-script",
+                    "kind": "stop-thread",
                     "source": {
                       "file": "script.ns"
                     }
@@ -244,7 +223,7 @@
           "run": {
             "exit-behavior": {
               "default-behavior": {
-                "kind": "stop-script",
+                "kind": "stop-thread",
                 "source": {
                   "file": "script.ns"
                 }
@@ -297,7 +276,7 @@
           "run": {
             "exit-behavior": {
               "default-behavior": {
-                "kind": "stop-script",
+                "kind": "stop-thread",
                 "source": {
                   "file": "script.ns"
                 }

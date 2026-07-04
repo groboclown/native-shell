@@ -39,8 +39,8 @@ impl Jobj0x0State {
         }
 
         // Setup
-        inner.stream0_out.insert(stream0_out);
-        inner.stream0.insert(stream0);
+        inner.stream0_out = Some(stream0_out);
+        inner.stream0 = Some(stream0);
 
         Ok(())
     }

@@ -39,9 +39,9 @@ impl meta::MacroMeta for ShellMacro {
     fn build_command(
         &self,
         _script: &super::super::lls::model::Metadata,
-        mod_name: Vec<String>,
-        input: serde_json::Value,
-        writer: &dyn std::io::Write,
+        _mod_name: Vec<String>,
+        _input: serde_json::Value,
+        _writer: &dyn std::io::Write,
     ) -> Result<meta::MacroModule, String> {
         // This will use 'clap' to construct a mod that parses the arguments.
         //   It requires adding the feature 'derive'.

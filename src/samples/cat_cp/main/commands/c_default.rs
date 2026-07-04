@@ -100,7 +100,7 @@ impl structure::mod_impl::CommandSetup<CommanddefaultParameters, CommanddefaultS
         ctx.callback_on_name(
             helpers::log::INFO,
             &structure::EventKind::Message,
-            Arc::new(Box::new(VerboseCb {})),
+            Arc::new(Box::new(InfoCb {})),
         );
         ctx.callback_on_name(
             helpers::log::NOTICE,

@@ -2,7 +2,6 @@
 
 //! Manually constructed code to show how the builder might turn the LLS into a shell program.
 
-use crate::shell_lib::structure::mod_impl::CommandHandler as _;
 use crate::shell_lib::structure::mod_impl::CommandSetup as _;
 use crate::shell_lib::{internal::scheduler, structure};
 use std::{collections::HashMap, ffi::OsString, sync::Arc};
@@ -31,7 +30,7 @@ pub fn main(argv: Vec<String>, environ: HashMap<OsString, OsString>) -> i32 {
 
 fn run_main(
     argv: Vec<String>,
-    environ: HashMap<OsString, OsString>,
+    _environ: HashMap<OsString, OsString>,
 ) -> Result<structure::ScriptExit, structure::ScriptExit> {
     let mut event_builder = scheduler::eventbus::JobEventBuilder::new();
 
