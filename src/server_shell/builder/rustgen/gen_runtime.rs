@@ -1,6 +1,6 @@
 //! Create the runtime file.
+use super::assemble::ModuleNode;
 use super::helpers::{as_mod_expr, rust_file_header};
-use super::parse_node::ModuleNode;
 use super::writer::SourceWriter;
 use crate::server_shell::builder::errors::BuilderError;
 
@@ -41,7 +41,7 @@ impl Runtime {
 
 impl Nodes {
     pub fn new(argv: Vec<String>, environ: HashMap<String, String>) -> Self {
-"
+",
     )?;
 
     for node in nodes {
@@ -49,7 +49,10 @@ impl Nodes {
             if let Some(new) = &params.new {
                 out.write_fmt(format_args!(
                     "        let mut params_{} = {}{}::{}();\n",
-                    node.node_id, as_mod_expr(node), params.name, new,
+                    node.node_id,
+                    as_mod_expr(node),
+                    params.name,
+                    new,
                 ))?;
                 let field_values = super::values::construct_parameter_values(
                     &node.node.source,
@@ -67,9 +70,7 @@ impl Nodes {
     }
 
     // Generate the return statement.
-    out.write_all(
-        b"\n        Nodes {\n",
-    )?;
+    out.write_all(b"\n        Nodes {\n")?;
     for node in nodes {
         out.write_fmt(format_args!(
             "            {}: {}{}::new({}",
@@ -80,33 +81,23 @@ impl Nodes {
         ))?;
         if let Some(params) = &node.module.compile_param_struct {
             if params.new.is_some() {
-                out.write_fmt(format_args!(
-                    ", params_{}",
-                    node.node_id,
-                ))?;
+                out.write_fmt(format_args!(", params_{}", node.node_id,))?;
             } else {
-                out.write_fmt(format_args!(", {}{} {{\n",
-                    as_mod_expr(node), params.name,
-                ))?;
+                out.write_fmt(format_args!(", {}{} {{\n", as_mod_expr(node), params.name,))?;
                 let field_values = super::values::construct_parameter_values(
                     &node.node.source,
                     &node.node.initial_parameters,
                     params,
                 )?;
                 for (key, field) in field_values {
-                    out.write_fmt(format_args!(
-                        "                {}: {},\n",
-                        key, field,
-                    ))?;
+                    out.write_fmt(format_args!("                {}: {},\n", key, field,))?;
                 }
                 out.write_all(b"}\n")?;
             }
         }
         out.write_all(b"),\n")?;
     }
-    out.write_all(
-        b"        }\n    }\n}\n",
-    )?;
+    out.write_all(b"        }\n    }\n}\n")?;
 
     Ok(())
 }

@@ -146,21 +146,21 @@ pub fn report_errors(err: &BuilderError) {
 
 fn show_source(source: &Source) {
     if source.file.is_empty() {
-        if source.line > 0 {
-            eprint!("Line {}", source.line);
-            if source.column > 0 {
-                eprint!(", column {}", source.column);
+        if let Some(line) = source.line {
+            eprint!("Line {}", line);
+            if let Some(column) = source.column {
+                eprint!(", column {}", column);
             }
             eprintln!();
         }
         show_line(source);
         return;
     }
-    eprint!("{}", source.file);
-    if source.line > 0 {
-        eprint!(", line {}", source.line);
-        if source.column > 0 {
-            eprint!(", column {}", source.column);
+    eprint!("{}", *source.file);
+    if let Some(line) = source.line {
+        eprint!(", line {}", line);
+        if let Some(column) = source.column {
+            eprint!(", column {}", column);
         }
     }
     eprintln!();
@@ -170,9 +170,9 @@ fn show_source(source: &Source) {
 fn show_line(source: &Source) {
     match &source.text {
         Some(t) => {
-            eprintln!("{}", t);
-            if source.column > 0 {
-                for _ in 0..(source.column - 1) {
+            eprintln!("{}", **t);
+            if let Some(column) = source.column {
+                for _ in 0..(column - 1) {
                     eprint!("-");
                 }
                 eprintln!("^");

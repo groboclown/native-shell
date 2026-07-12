@@ -249,9 +249,15 @@ impl ThreadStore {
         assert!(threads.len() <= MAX_STEPS);
         Self { store: threads }
     }
+
     /// Get the thread by its reference.
     pub fn get(&self, t_ref: ThreadRef) -> Option<&ThreadDescription> {
         self.store.get(t_ref)
+    }
+
+    /// Get the threads, ordered by their reference.
+    pub fn ordered_threads(&self) -> Vec<(ThreadRef, &ThreadDescription)> {
+        self.store.iter().enumerate().map(|e| (e.0, e.1)).collect()
     }
 
     /// Extract all the descriptions + the reference.

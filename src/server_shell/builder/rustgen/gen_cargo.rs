@@ -2,8 +2,8 @@
 
 use std::collections::{HashMap, HashSet};
 
+use super::assemble::ModuleNode;
 use super::helpers::toml_file_header;
-use super::parse_node::ModuleNode;
 use super::shell_lib_deps::SHELL_LIB_DEPS;
 use super::writer::SourceWriter;
 use crate::server_shell::builder::cargo::cargo_lib::get_crate_dependency;

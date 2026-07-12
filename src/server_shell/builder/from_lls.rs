@@ -9,22 +9,25 @@ use crate::server_shell::lls::model;
 use crate::shell_lib::modules;
 use crate::shell_lib::structure::meta;
 
-const AST_VERSION_1: &str = "1.0.0";
+const LLS_VERSION_1: &str = "1.0.0";
 
-pub fn ast_to_module_source<SW: SourceWriter>(
-    ast: &model::NativeShellAstSchema,
+pub fn lls_to_module_source<SW: SourceWriter>(
+    lls: &model::NativeShellLowLevelScriptSchema,
     out: SW,
 ) -> Result<(), BuilderError> {
-    check_supported(ast)?;
+    check_supported(lls)?;
 
-    // Step 1: turn the ast into the internal representation.
-    let module_nodes = super::parse_node::convert_nodes(&ast.nodes, &get_available_modules())?;
+    // Step 1: turn the LLS into the internal representation.
+    let module_nodes =
+        super::assemble::convert(&lls, &get_available_modules(), &get_available_macros())?;
 
     // Step 2: Construct the node graphs.
-    let stream_graphs = super::node_graph::ScriptGraph::load(&module_nodes)?;
+    // The new LLS makes this obsolete.  This is now the responsibility
+    // of the script parser.
+    //let stream_graphs = super::node_graph::ScriptGraph::load(&module_nodes)?;
 
     // Step 3: Create the Cargo.toml file.
-    super::gen_cargo::write_cargo_toml(&ast.name, &ast.version, &module_nodes, &out)?;
+    super::gen_cargo::write_cargo_toml(&lls.meta.name, &lls.meta.version, &module_nodes, &out)?;
 
     // Step 4: Write the runtime.rs file.
     super::gen_runtime::write_runtime_rs(&module_nodes, &out)?;
@@ -54,14 +57,14 @@ pub fn ast_to_module_source<SW: SourceWriter>(
     Ok(())
 }
 
-pub fn check_supported(ast: &model::NativeShellAstSchema) -> Result<(), BuilderError> {
-    if ast.schema_version != AST_VERSION_1 {
+pub fn check_supported(lls: &model::NativeShellLowLevelScriptSchema) -> Result<(), BuilderError> {
+    if lls.schema_version != LLS_VERSION_1 {
         Err(BuilderError::InvalidAst(ErrorDetails {
             message: format!(
-                "Unsupported AST version: {}. Supported versions include: {}",
-                ast.schema_version, AST_VERSION_1
+                "Unsupported LLS version: {}. Supported versions include: {}",
+                lls.schema_version, LLS_VERSION_1
             ),
-            source: ast.source.clone(),
+            source: lls.meta.source.clone(),
             related: vec![],
         }))
     } else {
@@ -72,6 +75,14 @@ pub fn check_supported(ast: &model::NativeShellAstSchema) -> Result<(), BuilderE
 pub fn get_available_modules() -> Vec<Rc<meta::ModuleMeta>> {
     let mut ret = Vec::new();
     for m in modules::available_modules() {
+        ret.push(Rc::new(m));
+    }
+    ret
+}
+
+pub fn get_available_macros() -> Vec<Rc<Box<dyn super::super::meta::MacroMeta>>> {
+    let mut ret = Vec::new();
+    for m in super::super::macros::available_macros() {
         ret.push(Rc::new(m));
     }
     ret

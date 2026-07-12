@@ -92,6 +92,15 @@ impl EventRegistrar {
         }
     }
 
+    /// Create the registrar using an initialized set of events.
+    pub fn from(predef: Vec<(&str, &EventKind)>) -> Self {
+        let mut ret = Self::new();
+        for (n, k) in predef {
+            ret.add_event(n, k);
+        }
+        ret
+    }
+
     /// Add a named event to the registration.  It's safe to register the same
     /// name multiple times; it will return the existing ID.
     pub fn add_event(&mut self, name: &str, kind: &EventKind) -> EventRef {

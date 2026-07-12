@@ -4,7 +4,7 @@ use std::cell::RefCell;
 
 use super::errors;
 use super::node_graph;
-use super::parse_node;
+use super::assemble;
 use crate::server_shell::lls::model;
 
 pub type SeqIndex = usize;
@@ -26,7 +26,7 @@ pub trait SequenceGen<'a> {
     /// new instance in the job list.
     fn set_node_execution_sequence(
         &'a self,
-        node_idx: parse_node::NodeIndex,
+        node_idx: assemble::NodeIndex,
         actions: &model::OrderedActions,
         seq_idx: SeqIndex,
         seq_job_idx: usize,
@@ -36,9 +36,9 @@ pub trait SequenceGen<'a> {
         &'a self,
         source: &model::Source,
         name: &String,
-    ) -> Result<&'a parse_node::ModuleNode, errors::BuilderError>;
+    ) -> Result<&'a assemble::ModuleNode, errors::BuilderError>;
 
-    fn node_at(&'a self, index: parse_node::NodeIndex) -> &'a parse_node::ModuleNode;
+    fn node_at(&'a self, index: assemble::NodeIndex) -> &'a assemble::ModuleNode;
 
     /// Find the primary sequence index responsible for running the named node.
     /// This will always be the graph sequence associated with the node.
@@ -60,19 +60,19 @@ pub trait SequenceGen<'a> {
 }
 
 pub struct StdSequenceStore {
-    nodes: Vec<parse_node::ModuleNode>,
+    nodes: Vec<assemble::ModuleNode>,
     seq: RefCell<Vec<model::OrderedActions>>,
-    node_exec_seq_map: RefCell<std::collections::HashMap<parse_node::NodeIndex, SeqIndex>>,
+    node_exec_seq_map: RefCell<std::collections::HashMap<assemble::NodeIndex, SeqIndex>>,
     graph: node_graph::ScriptGraph,
     seq_graph_indicies: Vec<SeqIndex>,
     main_graph_idx: Option<SeqIndex>,
-    main_node_idx: Option<parse_node::NodeIndex>,
+    main_node_idx: Option<assemble::NodeIndex>,
     start_seq_idx: SeqIndex,
     jobs: RefCell<Vec<(SeqIndex, usize)>>,
 }
 
 impl StdSequenceStore {
-    pub fn new(nodes: Vec<parse_node::ModuleNode>, graph: node_graph::ScriptGraph) -> Self {
+    pub fn new(nodes: Vec<assemble::ModuleNode>, graph: node_graph::ScriptGraph) -> Self {
         let mut seq_graph_indicies = Vec::new();
         let mut main_graph_idx = None;
         let mut main_node_idx = None;
@@ -126,7 +126,7 @@ impl StdSequenceStore {
     }
 
     /// Get the main node.
-    pub fn main_node(&self) -> Option<&parse_node::ModuleNode> {
+    pub fn main_node(&self) -> Option<&assemble::ModuleNode> {
         match self.main_node_idx {
             Some(idx) => Some(&self.nodes[idx]),
             None => None,
@@ -160,11 +160,11 @@ impl<'a> SequenceGen<'a> for StdSequenceStore {
         &'a self,
         source: &model::Source,
         name: &String,
-    ) -> Result<&'a parse_node::ModuleNode, errors::BuilderError> {
+    ) -> Result<&'a assemble::ModuleNode, errors::BuilderError> {
         self.graph.find_node_by_name(source, name, &self.nodes)
     }
 
-    fn node_at(&'a self, index: parse_node::NodeIndex) -> &'a parse_node::ModuleNode {
+    fn node_at(&'a self, index: assemble::NodeIndex) -> &'a assemble::ModuleNode {
         self.nodes.get(index).expect("bad indexing")
     }
 
@@ -194,7 +194,7 @@ impl<'a> SequenceGen<'a> for StdSequenceStore {
 
     fn set_node_execution_sequence(
         &'a self,
-        node_idx: parse_node::NodeIndex,
+        node_idx: assemble::NodeIndex,
         actions: &model::OrderedActions,
         seq_idx: SeqIndex,
         sequence_job_idx: usize,

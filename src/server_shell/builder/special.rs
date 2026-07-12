@@ -8,7 +8,7 @@ pub fn is_main_node_name(node_name: &String) -> bool {
     node_name.as_str() == MAIN_NODE
 }
 
-pub fn is_main_module_node(node: &super::parse_node::ModuleNode) -> bool {
+pub fn is_main_module_node(node: &super::assemble::ModuleNode) -> bool {
     is_main_node_name(&node.node.name)
 }
 
@@ -25,7 +25,7 @@ pub fn is_main_seq<'a, SG: super::sequence::SequenceGen<'a>>(
 
 pub fn get_main_node<'a, SG: super::sequence::SequenceGen<'a>>(
     sgen: &'a SG,
-) -> Result<&'a super::parse_node::ModuleNode, super::errors::BuilderError> {
+) -> Result<&'a super::assemble::ModuleNode, super::errors::BuilderError> {
     sgen.get_node_named(
         &model::Source {
             file: "--generator--".to_string(),

@@ -6,7 +6,7 @@ use crate::{
     server_shell::{
         builder::{
             errors::{BuilderError, ErrorDetails},
-            parse_node,
+            assemble,
         },
         lls::model,
     },
@@ -87,7 +87,7 @@ impl<'a, SG: super::sequence::SequenceGen<'a>> ConstructValueState<'a, SG> {
         &self,
         source: &model::Source,
         name: &String,
-    ) -> Result<&'a parse_node::ModuleNode, BuilderError> {
+    ) -> Result<&'a assemble::ModuleNode, BuilderError> {
         self.sgen.get_node_named(source, name)
     }
 

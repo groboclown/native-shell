@@ -1,7 +1,7 @@
 //! Helpers for the rust file generation.
 
 use crate::{
-    server_shell::{builder::parse_node::ModuleNode, lls::model},
+    server_shell::{builder::assemble::ModuleNode, lls::model},
     shell_lib::structure::meta,
 };
 
@@ -66,14 +66,18 @@ pub fn as_rust_string(text: &String) -> String {
 
 /// Convert a Source to a Rust source expression.
 pub fn as_rust_source(source: &model::Source) -> String {
-    let mut s = "Source::new(".to_string();
-    s.push_str(&as_rust_str(&source.file));
-    s.push_str(", ");
-    s.push_str(&source.line.to_string());
-    s.push_str(", ");
-    s.push_str(&source.column.to_string());
-    s.push_str(")");
-    s
+    format!(
+        "Source::new({}, {}, {})",
+        as_rust_str(&source.file),
+        match &source.line {
+            Some(s) => s,
+            None => &(0 as i64),
+        },
+        match source.column {
+            Some(s) => s,
+            None => 0,
+        }
+    )
 }
 
 pub const SOURCE_MODULE: &str = "crate::shell_lib::compile::source::Source";

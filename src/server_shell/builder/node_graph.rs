@@ -15,18 +15,18 @@ use std::sync::Arc;
 use std::sync::RwLock;
 use std::vec;
 
+use super::assemble;
 use super::errors;
-use super::parse_node;
-use crate::server_shell::builder::parse_node::NodeIndex;
+use crate::server_shell::builder::assemble::NodeIndex;
 use crate::server_shell::builder::special::is_main_node_name;
 use crate::server_shell::lls::model;
 
 #[derive(Debug, Clone)]
 pub struct NodeGraph {
     /// Topological sort of the nodes within the graph based on streams.
-    pub stream_order: Vec<parse_node::NodeIndex>,
+    pub stream_order: Vec<assemble::NodeIndex>,
     /// List of nodes to initially launch based on spawn and wait ordering.
-    pub initial_exec: Vec<parse_node::NodeIndex>,
+    pub initial_exec: Vec<assemble::NodeIndex>,
 }
 
 /// A forest of node graphs parsed for easier translation into generated code.
@@ -34,7 +34,7 @@ pub struct NodeGraph {
 #[derive(Debug, Clone)]
 pub struct ScriptGraph {
     node_graphs: Vec<NodeGraph>,
-    node_name_indicies: HashMap<String, parse_node::NodeIndex>,
+    node_name_indicies: HashMap<String, assemble::NodeIndex>,
 }
 
 impl ScriptGraph {
@@ -42,7 +42,7 @@ impl ScriptGraph {
     ///
     /// This expects the nodes to start at index 0 and increment
     /// by 1 for each node.
-    pub fn load(nodes: &Vec<parse_node::ModuleNode>) -> Result<Self, errors::BuilderError> {
+    pub fn load(nodes: &Vec<assemble::ModuleNode>) -> Result<Self, errors::BuilderError> {
         assert!(!nodes.is_empty());
         let count = nodes.len();
         debug_assert_eq!(0, nodes.first().unwrap().node_idx);
@@ -68,8 +68,8 @@ impl ScriptGraph {
         &self,
         source: &model::Source,
         name: &String,
-        nodes: &'a Vec<parse_node::ModuleNode>,
-    ) -> Result<&'a parse_node::ModuleNode, errors::BuilderError> {
+        nodes: &'a Vec<assemble::ModuleNode>,
+    ) -> Result<&'a assemble::ModuleNode, errors::BuilderError> {
         let index = get_node_index(source, name, &self.node_name_indicies)?;
         match nodes.get(index) {
             Some(v) => Ok(&v),
@@ -84,13 +84,13 @@ impl ScriptGraph {
 
 enum TopoItem {
     // node index, cluster index
-    Enter((parse_node::NodeIndex, parse_node::NodeIndex)),
-    Exit((parse_node::NodeIndex, parse_node::NodeIndex)),
+    Enter((assemble::NodeIndex, assemble::NodeIndex)),
+    Exit((assemble::NodeIndex, assemble::NodeIndex)),
 }
 
 fn stream_topo_sort(
-    nodes: &Vec<parse_node::ModuleNode>,
-    node_map: &HashMap<String, parse_node::NodeIndex>,
+    nodes: &Vec<assemble::ModuleNode>,
+    node_map: &HashMap<String, assemble::NodeIndex>,
 ) -> Result<Vec<NodeGraph>, errors::BuilderError> {
     // Non-recursive topo sort.  The implicit call stack is made explicit.
     // This first has a visiting node visit its source streams,
@@ -170,10 +170,10 @@ fn stream_topo_sort(
 }
 
 fn find_initial_spawned_group(
-    tree: &Vec<parse_node::NodeIndex>,
-    nodes: &Vec<parse_node::ModuleNode>,
-    node_map: &HashMap<String, parse_node::NodeIndex>,
-) -> Result<Vec<parse_node::NodeIndex>, errors::BuilderError> {
+    tree: &Vec<assemble::NodeIndex>,
+    nodes: &Vec<assemble::ModuleNode>,
+    node_map: &HashMap<String, assemble::NodeIndex>,
+) -> Result<Vec<assemble::NodeIndex>, errors::BuilderError> {
     // Anything that spawns a node within the tree, based on exit codes, requires the spawned
     // node to run outside the initial group.
     // Waiting on another node as an action doesn't itself mean that it must be outside
@@ -210,9 +210,9 @@ fn find_initial_spawned_group(
 }
 
 fn spawns_index(
-    mod_node: &parse_node::ModuleNode,
-    node_map: &HashMap<String, parse_node::NodeIndex>,
-) -> Result<Vec<parse_node::NodeIndex>, errors::BuilderError> {
+    mod_node: &assemble::ModuleNode,
+    node_map: &HashMap<String, assemble::NodeIndex>,
+) -> Result<Vec<assemble::NodeIndex>, errors::BuilderError> {
     let mut ret = Vec::new();
     for action_list in &mod_node.node.exit_actions {
         for action in &action_list.actions.0 {
@@ -253,7 +253,7 @@ fn waits_for_index(mod_node: &parse_node::ModuleNode) -> bool {
 }
 */
 
-fn map_node_index(nodes: &Vec<parse_node::ModuleNode>) -> HashMap<String, parse_node::NodeIndex> {
+fn map_node_index(nodes: &Vec<assemble::ModuleNode>) -> HashMap<String, assemble::NodeIndex> {
     let mut ret = HashMap::new();
     for (node_idx, node) in nodes.iter().enumerate() {
         debug_assert_eq!(node_idx, node.node_idx);
@@ -263,7 +263,7 @@ fn map_node_index(nodes: &Vec<parse_node::ModuleNode>) -> HashMap<String, parse_
 }
 
 struct LinkedEl {
-    node_idx: parse_node::NodeIndex,
+    node_idx: assemble::NodeIndex,
     next: Option<Rc<RefCell<LinkedEl>>>,
 }
 
@@ -289,7 +289,7 @@ impl SingleLinkedList {
         self.count == 0
     }
 
-    fn as_vec(&self) -> Vec<parse_node::NodeIndex> {
+    fn as_vec(&self) -> Vec<assemble::NodeIndex> {
         let mut ret = Vec::with_capacity(self.count);
         let mut next = self.head.next.clone();
         while let Some(el) = next {
@@ -300,7 +300,7 @@ impl SingleLinkedList {
         ret
     }
 
-    fn push(&mut self, node_idx: parse_node::NodeIndex) {
+    fn push(&mut self, node_idx: assemble::NodeIndex) {
         let new_el = Rc::new(RefCell::new(LinkedEl {
             node_idx,
             next: None,
@@ -362,7 +362,7 @@ impl StreamTopoSet {
     }
 
     /// Add a node to the end of a stream graph.
-    fn push(&mut self, stream_idx: parse_node::NodeIndex, node_idx: parse_node::NodeIndex) {
+    fn push(&mut self, stream_idx: assemble::NodeIndex, node_idx: assemble::NodeIndex) {
         assert!(
             stream_idx < self.streams.len(),
             "stream index out of bounds"
@@ -374,7 +374,7 @@ impl StreamTopoSet {
     }
 
     /// Prepends a source stream on a stream, and clears out the source.
-    fn prepend(&mut self, src_stream: parse_node::NodeIndex, dest_stream: parse_node::NodeIndex) {
+    fn prepend(&mut self, src_stream: assemble::NodeIndex, dest_stream: assemble::NodeIndex) {
         assert!(
             src_stream < self.streams.len(),
             "source stream index out of bounds"
@@ -397,12 +397,12 @@ impl StreamTopoSet {
 /// A two-jump reference to a stream topo index.
 struct StreamClusters {
     streams: StreamTopoSet,
-    clusters: Vec<RwLock<parse_node::NodeIndex>>,
-    node_to_cluster: RwLock<Vec<parse_node::NodeIndex>>,
-    next: RwLock<parse_node::NodeIndex>,
+    clusters: Vec<RwLock<assemble::NodeIndex>>,
+    node_to_cluster: RwLock<Vec<assemble::NodeIndex>>,
+    next: RwLock<assemble::NodeIndex>,
 }
 
-const CLUSTER_UNASSIGNED: parse_node::NodeIndex = parse_node::NodeIndex::MAX;
+const CLUSTER_UNASSIGNED: assemble::NodeIndex = assemble::NodeIndex::MAX;
 
 impl StreamClusters {
     fn new(count: usize) -> Self {
@@ -419,7 +419,7 @@ impl StreamClusters {
     }
 
     /// Get the next cluster index, which will also associate it with the next, unused stream.
-    fn next_cluster(&mut self) -> parse_node::NodeIndex {
+    fn next_cluster(&mut self) -> assemble::NodeIndex {
         // Cluster and stream always start as the same index.  As clusters join with others, they switch their
         // streams always to a lower index.
         let mut next = self
@@ -440,7 +440,7 @@ impl StreamClusters {
     }
 
     /// Add a node to the end of a cluster's stream.
-    fn push(&mut self, cluster_idx: parse_node::NodeIndex, node_idx: parse_node::NodeIndex) {
+    fn push(&mut self, cluster_idx: assemble::NodeIndex, node_idx: assemble::NodeIndex) {
         assert!(
             cluster_idx < self.clusters.len(),
             "cluster index out of bounds"
@@ -473,8 +473,8 @@ impl StreamClusters {
     /// the descendant cluster, ans the descendant cluster should have already been populated.
     fn join_clusters(
         &mut self,
-        ancestor_cluster: parse_node::NodeIndex,
-        descendant_cluster: parse_node::NodeIndex,
+        ancestor_cluster: assemble::NodeIndex,
+        descendant_cluster: assemble::NodeIndex,
     ) {
         // Lock both clusters.
         assert!(
@@ -507,8 +507,8 @@ impl StreamClusters {
     /// Get the underlying stream's topological ordering of the nodes.
     fn streams(
         &self,
-        nodes: &Vec<parse_node::ModuleNode>,
-        node_map: &HashMap<String, parse_node::NodeIndex>,
+        nodes: &Vec<assemble::ModuleNode>,
+        node_map: &HashMap<String, assemble::NodeIndex>,
     ) -> Result<Vec<NodeGraph>, errors::BuilderError> {
         let mut ret = Vec::with_capacity(self.streams.streams.len());
         for stream in &self.streams.streams {
@@ -530,8 +530,8 @@ impl StreamClusters {
 fn get_node_index(
     source: &model::Source,
     name: &String,
-    node_map: &HashMap<String, parse_node::NodeIndex>,
-) -> Result<parse_node::NodeIndex, errors::BuilderError> {
+    node_map: &HashMap<String, assemble::NodeIndex>,
+) -> Result<assemble::NodeIndex, errors::BuilderError> {
     match node_map.get(name) {
         Some(v) => Ok(*v),
         None => Err(errors::BuilderError::NoSuchNode(errors::ErrorDetails {
@@ -548,7 +548,7 @@ mod tests {
 
     use super::*;
     use crate::server_shell::ast::model;
-    use crate::server_shell::builder::{from_ast, parse_node};
+    use crate::server_shell::builder::{assemble, from_lls};
     use crate::shell_lib::modules::{cat, file_sink, shell};
     use crate::shell_lib::structure::meta;
 
@@ -585,7 +585,7 @@ mod tests {
             "AST validation failed: {:?}",
             ast_errors
         );
-        let nodes = parse_node::convert_nodes(&ast.nodes, &from_ast::get_available_modules())
+        let nodes = assemble::convert_nodes(&ast.nodes, &from_lls::get_available_modules())
             .expect("failed to convert nodes");
         let graph = ScriptGraph::load(&nodes).expect("failed to load graph");
         assert_eq!(graph.node_graphs.len(), 2);
@@ -617,7 +617,7 @@ mod tests {
             "AST validation failed: {:?}",
             ast_errors
         );
-        let nodes = parse_node::convert_nodes(&ast.nodes, &from_ast::get_available_modules())
+        let nodes = assemble::convert_nodes(&ast.nodes, &from_lls::get_available_modules())
             .expect("failed to convert nodes");
         let graph = ScriptGraph::load(&nodes).expect("failed to load graph");
         assert_eq!(graph.node_graphs.len(), 2);
@@ -696,11 +696,11 @@ mod tests {
         assert_eq!(tg.initial_exec[7], 8); // node_idx 8 == merge3
     }
 
-    fn mk_cat_cp() -> Vec<parse_node::ModuleNode> {
+    fn mk_cat_cp() -> Vec<assemble::ModuleNode> {
         let fs_mod = Rc::new(file_sink::module_meta());
         let cat_mod = Rc::new(cat::module_meta());
         let shell_mod = Rc::new(shell::module_meta());
-        let cat_fs_stream = Rc::new(parse_node::NodeStream {
+        let cat_fs_stream = Rc::new(assemble::NodeStream {
             stream_id: 1,
             source_id: "cat_1".to_string(),
             source_idx: 1,
@@ -712,7 +712,7 @@ mod tests {
             dest_decl: meta::StreamDeclaration::FdIndex(0),
         });
         vec![
-            parse_node::ModuleNode {
+            assemble::ModuleNode {
                 node_idx: 0,
                 node_id: "main_0".to_string(),
                 module: shell_mod.clone(),
@@ -742,7 +742,7 @@ mod tests {
                     exit_actions: vec![],
                 },
             },
-            parse_node::ModuleNode {
+            assemble::ModuleNode {
                 node_idx: 1,
                 node_id: "cp_1".to_string(),
                 module: cat_mod.clone(),
@@ -790,7 +790,7 @@ mod tests {
                     exit_actions: vec![],
                 },
             },
-            parse_node::ModuleNode {
+            assemble::ModuleNode {
                 node_idx: 2,
                 node_id: "sink_2".to_string(),
                 module: fs_mod.clone(),

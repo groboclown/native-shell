@@ -1,8 +1,8 @@
 //! Generate a seq*.rs file for a script.
 
+use super::assemble::ModuleNode;
 use super::helpers::{as_mod_expr, rust_file_header};
 use super::node_graph::NodeGraph;
-use super::parse_node::ModuleNode;
 use super::sequence::{SeqIndex, SequenceGen};
 use super::stream_pair;
 use super::writer::SourceWriter;

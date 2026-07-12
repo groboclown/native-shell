@@ -2,10 +2,10 @@
 
 use super::errors::{BuilderError, ErrorDetails, RelatedSource, Relationship};
 use super::node_graph;
-use super::parse_node;
+use super::assemble;
 use super::sequence;
 use super::special;
-use crate::server_shell::builder::parse_node::ModuleNode;
+use crate::server_shell::builder::assemble::ModuleNode;
 use crate::server_shell::lls::model;
 use crate::shell_lib::structure::meta;
 use std::rc::Rc;
@@ -14,22 +14,22 @@ use std::rc::Rc;
 pub enum BoundStream {
     MainNamed(StdNamedStream),
     MainFd(StdFdStream),
-    Pipe(Rc<parse_node::NodeStream>),
+    Pipe(Rc<assemble::NodeStream>),
 }
 
 #[derive(Debug, Clone)]
 pub struct StdNamedStream {
     pub name: String,
-    pub node_idx: parse_node::NodeIndex,
-    pub stream: Rc<parse_node::NodeStream>,
+    pub node_idx: assemble::NodeIndex,
+    pub stream: Rc<assemble::NodeStream>,
     pub stream_type: meta::StreamType,
 }
 
 #[derive(Debug, Clone)]
 pub struct StdFdStream {
     pub fd: u16,
-    pub node_idx: parse_node::NodeIndex,
-    pub stream: Rc<parse_node::NodeStream>,
+    pub node_idx: assemble::NodeIndex,
+    pub stream: Rc<assemble::NodeStream>,
     pub stream_type: meta::StreamType,
 }
 
@@ -472,7 +472,7 @@ fn get_type_interface(s_type: &meta::StreamType) -> meta::StreamInterface {
 fn find_bound_stream_for<'a>(
     source: &model::Source,
     bounds: &'a Vec<BoundStream>,
-    node: &Rc<parse_node::NodeStream>,
+    node: &Rc<assemble::NodeStream>,
 ) -> Result<&'a BoundStream, BuilderError> {
     for stream in bounds {
         match stream {
@@ -505,24 +505,24 @@ fn find_bound_stream_for<'a>(
 
 #[cfg(test)]
 mod tests {
-    use crate::server_shell::builder::from_ast;
+    use crate::server_shell::builder::from_lls;
 
     use super::*;
 
     #[test]
     fn test_cat_cp_json() {
-        // Load the AST.
-        let json = std::str::from_utf8(include_bytes!("../../samples/cat_cp/ast.json"))
+        // Load the LLS.
+        let json = std::str::from_utf8(include_bytes!("../../samples/cat_cp/lls.json"))
             .expect("failed to utf8 convert json");
-        let ast = crate::server_shell::ast::astio::read_str(&json.to_string())
+        let ast = crate::server_shell::lls::llsio::read_str(&json.to_string())
             .expect("failed to read json");
-        let ast_errors = crate::server_shell::ast::validate::validate(&ast);
+        let ast_errors = crate::server_shell::lls::validate::validate(&ast);
         assert!(
             ast_errors.is_empty(),
             "AST validation failed: {:?}",
             ast_errors
         );
-        let nodes = parse_node::convert_nodes(&ast.nodes, &from_ast::get_available_modules())
+        let nodes = assemble::convert_nodes(&ast.nodes, &from_lls::get_available_modules())
             .expect("failed to convert nodes");
 
         // Ensure expected node order.
@@ -593,17 +593,17 @@ mod tests {
     #[test]
     fn test_tee_merge_json() {
         // Load the AST.
-        let json = std::str::from_utf8(include_bytes!("../../samples/tee_merge/ast.json"))
+        let json = std::str::from_utf8(include_bytes!("../../samples/tee_merge/lls.json"))
             .expect("failed to utf8 convert json");
-        let ast = crate::server_shell::ast::astio::read_str(&json.to_string())
+        let ast = crate::server_shell::lls::llsio::read_str(&json.to_string())
             .expect("failed to read json");
-        let ast_errors = crate::server_shell::ast::validate::validate(&ast);
+        let ast_errors = crate::server_shell::lls::validate::validate(&ast);
         assert!(
             ast_errors.is_empty(),
             "AST validation failed: {:?}",
             ast_errors
         );
-        let nodes = parse_node::convert_nodes(&ast.nodes, &from_ast::get_available_modules())
+        let nodes = assemble::convert_nodes(&ast.nodes, &from_lls::get_available_modules())
             .expect("failed to convert nodes");
 
         // Ensure expected node order.
