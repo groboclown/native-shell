@@ -5,10 +5,24 @@ use std::{
     sync::{Arc, Mutex},
 };
 
+use super::errors;
 use crate::{
-    server_shell::lls,
-    shell_lib::structure::{EventKind, EventRef, JobRef, ThreadRef, thread::ScheduleStep},
+    server_shell::{lls, meta},
+    shell_lib::structure,
 };
+
+pub struct JobSource {
+    pub structure: JobStructure,
+    pub is_cmd: bool,
+}
+
+pub enum JobStructure {
+    Inline,
+    Module(Arc<structure::meta::ModuleMeta>),
+    Macro(Arc<Box<dyn meta::MacroMeta>>),
+    Stream,
+    Unknown,
+}
 
 /// Collect the different kinds of references in a thread safe way.
 /// This handles the first pass of reading in the LLS - it gathers the data to find
@@ -17,9 +31,10 @@ use crate::{
 /// valid module references in the linked-to jobs, and for valid stream references
 /// in the stream jobs.
 pub struct Collector {
-    threads: Arc<Mutex<BuilderRef<Vec<ScheduleStep>>>>,
-    jobs: Arc<Mutex<BuilderRef<JobInstance>>>,
-    events: Arc<Mutex<BuilderRef<Option<EventKind>>>>,
+    pub issues: errors::ScriptIssues,
+    threads: LockedBuilderRef<()>,
+    jobs: LockedBuilderRef<JobSource>,
+    events: LockedBuilderRef<structure::EventKind>,
 }
 
 impl Clone for Collector {
@@ -28,6 +43,7 @@ impl Clone for Collector {
             threads: self.threads.clone(),
             jobs: self.jobs.clone(),
             events: self.events.clone(),
+            issues: self.issues.clone(),
         }
     }
 }
@@ -35,134 +51,147 @@ impl Clone for Collector {
 impl Collector {
     pub fn new() -> Self {
         Self {
-            threads: Arc::new(Mutex::new(BuilderRef::new(Vec::new()))),
-            jobs: Arc::new(Mutex::new(BuilderRef::new(JobInstance::Unknown))),
-            events: Arc::new(Mutex::new(BuilderRef::new(None))),
+            threads: LockedBuilderRef::new(),
+            jobs: LockedBuilderRef::new(),
+            events: LockedBuilderRef::new(),
+            issues: errors::ScriptIssues::new(),
         }
     }
 
-    /// Get the thread reference with the given name.
-    pub fn get_thread_ref(&self, name: &String) -> Result<ThreadRef, String> {
-        let mut m = self.threads.lock().map_err(|e| format!("{}", e))?;
-        Ok(m.get_ref(name.clone()))
+    /// Add the primary thread.
+    /// Call during the first pass when collecting all the thread names.
+    pub fn add_thread(
+        &self,
+        name: &String,
+        source: &lls::model::Source,
+    ) -> Result<structure::ThreadRef, errors::BuilderError> {
+        self.threads
+            .add_primary(name.clone(), source.clone(), ())
+            .map_err(|e| errors::BuilderError::LLSBug(e))
     }
 
-    pub fn add_thread_step(&self, name: &String, step: ScheduleStep) -> Result<(), String> {
-        let mut m = self.threads.lock().map_err(|e| format!("{}", e))?;
-        m.update(name, |mut v: Vec<ScheduleStep>| {
-            v.push(step);
-            v
-        })
+    /// Add a reference to a thread.
+    pub fn ref_thread(
+        &self,
+        name: &String,
+        source: &lls::model::Source,
+    ) -> Result<structure::ThreadRef, errors::BuilderError> {
+        self.threads
+            .add_ref(name.clone(), source.clone())
+            .map(|r| r.0)
+            .map_err(|e| errors::BuilderError::NoSuchThread(e))
+    }
+
+    pub fn has_thread(&self, name: &String) -> bool {
+        self.threads.contains(name)
     }
 
     /// Get the list of the registered thread names, ordered by thread ref.
-    pub fn ordered_threads(&self) -> Result<Vec<(ThreadRef, Vec<ScheduleStep>)>, String> {
-        let m = self.threads.lock().map_err(|e| format!("{}", e))?;
-        Ok(m.ordered()
-            .iter()
-            .enumerate()
-            .map(|e| (e.0, e.1.clone()))
-            .collect())
+    pub fn ordered_threads(&self) -> Vec<(String, structure::ThreadRef, lls::model::Source)> {
+        self.threads.ordered_primary()
     }
 
-    /// Get the job reference with the given name.
-    pub fn get_job_ref(&self, name: &String) -> Result<JobRef, String> {
-        let mut m = self.jobs.lock().map_err(|e| format!("{}", e))?;
-        Ok(m.get_ref(name.clone()))
+    /// Add the primary job.
+    /// Called by the first pass, collecting all the job names.
+    pub fn add_job(
+        &self,
+        name: &String,
+        source: &lls::model::Source,
+        job: JobSource,
+    ) -> Result<structure::JobRef, errors::BuilderError> {
+        // An error here means that there's a job/cmd collision, or a bug.
+        self.jobs
+            .add_primary(name.clone(), source.clone(), job)
+            .map_err(|e| errors::BuilderError::JobCommandOverlap(e))
+    }
+
+    pub fn add_job_ref(
+        &self,
+        name: &String,
+        source: &lls::model::Source,
+    ) -> Result<structure::JobRef, errors::BuilderError> {
+        self.jobs
+            .add_ref(name.clone(), source.clone())
+            .map(|e| e.0)
+            .map_err(|e| errors::BuilderError::NoSuchJob(e))
+    }
+
+    pub fn has_job(&self, name: &String) -> bool {
+        self.jobs.contains(name)
+    }
+
+    pub fn get_job(&self, name: &String) -> Option<Arc<JobSource>> {
+        self.jobs.get(name)
+    }
+
+    pub fn get_job_checked(
+        &self,
+        name: &String,
+        source: &lls::model::Source,
+    ) -> Result<Arc<JobSource>, errors::BuilderError> {
+        self.jobs
+            .get(name)
+            .ok_or(errors::BuilderError::NoSuchJob(errors::ErrorDetails {
+                message: name.clone(),
+                source: source.clone(),
+                related: Vec::new(),
+            }))
     }
 
     /// Get the list of the registered job names, ordered by job ref.
-    pub fn ordered_jobs(&self) -> Result<Vec<(JobRef, JobInstance)>, String> {
-        let m = self.jobs.lock().map_err(|e| format!("{}", e))?;
-        Ok(m.ordered()
-            .iter()
-            .enumerate()
-            .map(|e| (e.0, e.1.clone()))
-            .collect())
-    }
-
-    /// Set the named job as a macro.
-    /// The caller must ensure that the referenced macro exists.
-    pub fn set_macro_job(
-        &self,
-        name: &String,
-        code: lls::model::MacroJob,
-    ) -> Result<JobRef, String> {
-        let mut m = self.jobs.lock().map_err(|e| format!("{}", e))?;
-        let ret = m.get_ref(name.clone());
-        m.update(name, |_| JobInstance::Macro(code));
-        Ok(ret)
-    }
-
-    /// Set the named job as a module.
-    /// The caller must ensure that the referenced module exists.
-    pub fn set_module_job(
-        &self,
-        name: &String,
-        code: lls::model::ModuleJob,
-    ) -> Result<JobRef, String> {
-        let mut m = self.jobs.lock().map_err(|e| format!("{}", e))?;
-        let ret = m.get_ref(name.clone());
-        m.update(name, |_| JobInstance::Module(code));
-        Ok(ret)
-    }
-
-    /// Set the named job as inline.
-    pub fn set_inline_job(
-        &self,
-        name: &String,
-        code: lls::model::ModuleJob,
-    ) -> Result<JobRef, String> {
-        let mut m = self.jobs.lock().map_err(|e| format!("{}", e))?;
-        let ret = m.get_ref(name.clone());
-        m.update(name, |_| JobInstance::Module(code));
-        Ok(ret)
-    }
-
-    /// Set the named job as stream.
-    pub fn set_stream_job(
-        &self,
-        name: &String,
-        code: lls::model::StreamJob,
-    ) -> Result<JobRef, String> {
-        let mut m = self.jobs.lock().map_err(|e| format!("{}", e))?;
-        let ret = m.get_ref(name.clone());
-        m.update(name, |_| JobInstance::Stream(code));
-        Ok(ret)
+    pub fn ordered_jobs(&self) -> Vec<(String, structure::JobRef, lls::model::Source)> {
+        self.jobs.ordered_primary()
     }
 
     /// Get the events reference with the given name.
-    pub fn get_event_ref(&self, name: &String) -> Result<EventRef, String> {
-        let mut m = self.events.lock().map_err(|e| format!("{}", e))?;
-        Ok(m.get_ref(name.clone()))
-    }
-
-    pub fn set_event_kind(&self, name: &String, kind: &EventKind) -> Result<(), String> {
-        // Note: duplicates some logic from EventRegistrar::add_event.
-        let mut m = self.events.lock().map_err(|e| format!("{}", e))?;
-        if let Some(v) = m.get(name) {
-            match v {
-                None => m.update(name, |_| Some(kind.clone())),
-                Some(v) if v == kind => Ok(()),
-                Some(v) => Err(format!(
-                    "event {} kind mismatch (has {:?}, but new version is {:?})",
-                    name, kind, v
-                )),
-            }
-        } else {
-            m.get_ref(name.clone());
-            m.update(name, |_| Some(kind.clone()))
+    pub fn mark_event_ref(
+        &self,
+        name: &String,
+        source: &lls::model::Source,
+        kind: &structure::EventKind,
+    ) -> Result<structure::EventRef, errors::BuilderError> {
+        // Make some attempts.
+        // If added as primary, then everything's fine.
+        if let Ok(r) = self
+            .events
+            .add_primary(name.clone(), source.clone(), kind.clone())
+        {
+            return Ok(r);
+        }
+        // It's already been added, so add a reference...
+        match self.events.add_ref(name.clone(), source.clone()) {
+            // Should not happen due to already trying to add the primary.
+            Err(e) => Err(errors::BuilderError::LLSBug(e)),
+            // The original event kind inserter matches this expected kind.
+            Ok((r, k)) if *k == *kind => Ok(r),
+            Ok((_, k)) => Err(errors::BuilderError::EventKindMismatch(
+                errors::ErrorDetails {
+                    message: format!(
+                        "referenced event '{}' with kind {:?}, but it was already used as {:?}",
+                        name, kind, k
+                    ),
+                    source: source.clone(),
+                    related: self
+                        .events
+                        .get_all_refs(name)
+                        .iter()
+                        .map(|s| errors::RelatedSource {
+                            relation: errors::Relationship::Definition,
+                            source: s.clone(),
+                        })
+                        .collect(),
+                },
+            )),
         }
     }
 
     /// Get the list of the registered events names, ordered by events ref.
-    pub fn ordered_events(&self) -> Result<Vec<(EventRef, Option<EventKind>)>, String> {
-        let m = self.events.lock().map_err(|e| format!("{}", e))?;
-        Ok(m.ordered()
+    pub fn ordered_events(&self) -> Vec<(String, structure::EventRef, structure::EventKind)> {
+        self.events
+            .ordered_values()
             .iter()
-            .enumerate()
-            .map(|e| (e.0, e.1.clone()))
-            .collect())
+            .map(|v| (v.0.clone(), v.1, (*v.2).clone()))
+            .collect()
     }
 }
 
@@ -175,29 +204,183 @@ pub enum JobInstance {
     Unknown,
 }
 
-struct BuilderRef<T: Clone> {
-    builder: T,
-    by_ref: Vec<T>,
+struct LockedBuilderRef<T> {
+    lb: Arc<Mutex<BuilderRef<Arc<T>>>>,
+}
+
+impl<T> Clone for LockedBuilderRef<T> {
+    fn clone(&self) -> Self {
+        Self {
+            lb: self.lb.clone(),
+        }
+    }
+}
+
+impl<T> LockedBuilderRef<T> {
+    pub fn new() -> Self {
+        Self {
+            lb: Arc::new(Mutex::new(BuilderRef::new())),
+        }
+    }
+
+    fn add_primary(
+        &self,
+        name: String,
+        source: lls::model::Source,
+        val: T,
+    ) -> Result<usize, errors::ErrorDetails> {
+        match self.lb.lock() {
+            Ok(mut m) => m.add_primary(name, source, Arc::new(val)),
+            Err(mut e) => (*e.get_mut()).add_primary(name, source, Arc::new(val)),
+        }
+    }
+
+    pub fn add_ref(
+        &self,
+        name: String,
+        source: lls::model::Source,
+    ) -> Result<(usize, Arc<T>), errors::ErrorDetails> {
+        match self.lb.lock() {
+            Ok(mut m) => m.add_ref(name, source).map(|v| (v.0, v.1.clone())),
+            Err(mut e) => (*e.get_mut())
+                .add_ref(name, source)
+                .map(|v| (v.0, v.1.clone())),
+        }
+    }
+
+    pub fn contains(&self, name: &String) -> bool {
+        match self.lb.lock() {
+            Ok(m) => m.contains(name),
+            Err(e) => (*e.get_ref()).contains(name),
+        }
+    }
+
+    pub fn get(&self, name: &String) -> Option<Arc<T>> {
+        match self.lb.lock() {
+            Ok(m) => m.get_val(name).map(|v| v.clone()),
+            Err(e) => (*e.get_ref()).get_val(name).map(|v| v.clone()),
+        }
+    }
+
+    pub fn get_all_refs(&self, name: &String) -> Vec<lls::model::Source> {
+        match self.lb.lock() {
+            Ok(m) => {
+                let mut r = m.get_refs(name);
+                if let Some(s) = m.get_primary(name) {
+                    r.insert(0, s.clone());
+                }
+                r
+            }
+            Err(e) => {
+                let mut r = (*e.get_ref()).get_refs(name).clone();
+                if let Some(s) = (*e.get_ref()).get_primary(name) {
+                    r.insert(0, s.clone());
+                }
+                r
+            }
+        }
+    }
+
+    pub fn ordered_primary(&self) -> Vec<(String, usize, lls::model::Source)> {
+        match self.lb.lock() {
+            Ok(m) => m.ordered_primary(),
+            Err(e) => (*e.get_ref()).ordered_primary(),
+        }
+    }
+
+    pub fn ordered_refs(&self) -> std::ops::Range<usize> {
+        match self.lb.lock() {
+            Ok(m) => m.ordered_refs(),
+            Err(e) => (*e.get_ref()).ordered_refs(),
+        }
+    }
+
+    pub fn ordered_values(&self) -> Vec<(String, usize, Arc<T>)> {
+        match self.lb.lock() {
+            Ok(m) => m
+                .ordered_values()
+                .iter()
+                .map(|v| (v.0.clone(), v.1, v.2.clone()))
+                .collect(),
+            Err(e) => (*e.get_ref())
+                .ordered_values()
+                .iter()
+                .map(|v| (v.0.clone(), v.1, v.2.clone()))
+                .collect(),
+        }
+    }
+}
+
+struct RefEntry<T> {
+    name: String,
+    primary: lls::model::Source,
+    refs: Vec<lls::model::Source>,
+    val: T,
+}
+
+/// Keeps a *Ref (index) to a primary source (index 0) + all its references.
+struct BuilderRef<T> {
+    by_ref: Vec<RefEntry<T>>,
     by_name: HashMap<String, usize>,
 }
 
-impl<T: Clone> BuilderRef<T> {
-    fn new(base: T) -> Self {
+impl<T> BuilderRef<T> {
+    fn new() -> Self {
         BuilderRef {
-            builder: base,
             by_ref: Vec::new(),
             by_name: HashMap::new(),
         }
     }
 
-    fn get_ref(&mut self, name: String) -> usize {
-        if let Some(r) = self.by_name.get(&name) {
-            *r
-        } else {
-            let r = self.by_ref.len();
-            self.by_name.insert(name, r);
-            self.by_ref.push(self.builder.clone());
-            r
+    fn add_primary(
+        &mut self,
+        name: String,
+        source: lls::model::Source,
+        val: T,
+    ) -> Result<usize, errors::ErrorDetails> {
+        match self.by_name.get(&name) {
+            None => {
+                let r = self.by_ref.len();
+                self.by_name.insert(name.clone(), r);
+                let entry = RefEntry {
+                    name: name.clone(),
+                    primary: source,
+                    refs: Vec::new(),
+                    val: val,
+                };
+                self.by_ref.push(entry);
+                Ok(r)
+            }
+            Some(r) => {
+                let v = self.by_ref.get(*r).expect("should exist");
+                Err(errors::ErrorDetails {
+                    message: format!("attempted to register '{}'", name),
+                    source: source,
+                    related: vec![errors::RelatedSource {
+                        relation: errors::Relationship::Definition,
+                        source: v.primary.clone(),
+                    }],
+                })
+            }
+        }
+    }
+
+    fn add_ref(
+        &mut self,
+        name: String,
+        source: lls::model::Source,
+    ) -> Result<(usize, &T), errors::ErrorDetails> {
+        match self.by_name.get(&name) {
+            Some(r) => {
+                let entry = self.by_ref.get_mut(*r).expect("exists");
+                entry.refs.push(source);
+                Ok((*r, &entry.val))
+            }
+            None => Err(errors::ErrorDetails {
+                message: format!("reference to non-existent '{}'", name),
+                source: source,
+                related: Vec::new(),
+            }),
         }
     }
 
@@ -205,32 +388,48 @@ impl<T: Clone> BuilderRef<T> {
         self.by_name.contains_key(name)
     }
 
-    fn get(&self, name: &String) -> Option<&T> {
+    /// Get the source for the primary declaration of the thing.
+    fn get_primary(&self, name: &String) -> Option<&lls::model::Source> {
         if let Some(r) = self.by_name.get(name) {
-            self.by_ref.get(*r)
+            self.by_ref.get(*r).map(|v| &v.primary)
         } else {
             None
         }
     }
 
-    fn update<F: FnOnce(T) -> T>(&mut self, name: &String, f: F) -> Result<(), String> {
+    /// Get everything that references this item.
+    fn get_refs(&self, name: &String) -> Vec<lls::model::Source> {
         if let Some(r) = self.by_name.get(name) {
-            // We want to extract the value out of the index, modify it, then put it back in.
-            // Simulate this with a push blank at the end, swap_remove() to extract the
-            // index and replace it with the final item, modify, then push the modified back
-            // and swap_remove again.
-            self.by_ref.push(self.builder.clone());
-            let val = self.by_ref.swap_remove(*r);
-            let val = f(val);
-            self.by_ref.push(val);
-            self.by_ref.swap_remove(*r);
-            Ok(())
+            self.by_ref.get(*r).expect("exists").refs.clone()
         } else {
-            Err(format!("not registered: {}", name))
+            Vec::new()
         }
     }
 
-    fn ordered(&self) -> &Vec<T> {
-        &self.by_ref
+    fn get_val(&self, name: &String) -> Option<&T> {
+        match self.by_name.get(name) {
+            None => None,
+            Some(r) => self.by_ref.get(*r).map(|e| &e.val),
+        }
+    }
+
+    pub fn ordered_primary(&self) -> Vec<(String, usize, lls::model::Source)> {
+        self.by_ref
+            .iter()
+            .enumerate()
+            .map(|i| (i.1.name.clone(), i.0, i.1.primary.clone()))
+            .collect()
+    }
+
+    pub fn ordered_values(&self) -> Vec<(String, usize, &T)> {
+        self.by_ref
+            .iter()
+            .enumerate()
+            .map(|i| (i.1.name.clone(), i.0, &i.1.val))
+            .collect()
+    }
+
+    pub fn ordered_refs(&self) -> std::ops::Range<usize> {
+        0..self.by_ref.len()
     }
 }

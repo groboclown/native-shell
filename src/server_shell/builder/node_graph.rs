@@ -73,7 +73,7 @@ impl ScriptGraph {
         let index = get_node_index(source, name, &self.node_name_indicies)?;
         match nodes.get(index) {
             Some(v) => Ok(&v),
-            None => Err(errors::BuilderError::NoSuchNode(errors::ErrorDetails {
+            None => Err(errors::BuilderError::NoSuchJob(errors::ErrorDetails {
                 message: format!("no such node: '{}'", name),
                 source: source.clone(),
                 related: vec![],
@@ -534,7 +534,7 @@ fn get_node_index(
 ) -> Result<assemble::NodeIndex, errors::BuilderError> {
     match node_map.get(name) {
         Some(v) => Ok(*v),
-        None => Err(errors::BuilderError::NoSuchNode(errors::ErrorDetails {
+        None => Err(errors::BuilderError::NoSuchJob(errors::ErrorDetails {
             message: format!("referenced unknown node name: {}", name),
             source: source.clone(),
             related: vec![],

@@ -2,9 +2,9 @@
 
 use std::cell::RefCell;
 
+use super::assemble;
 use super::errors;
 use super::node_graph;
-use super::assemble;
 use crate::server_shell::lls::model;
 
 pub type SeqIndex = usize;
@@ -181,7 +181,7 @@ impl<'a> SequenceGen<'a> for StdSequenceStore {
                 }
             }
         }
-        Err(errors::BuilderError::NoSuchNode(errors::ErrorDetails {
+        Err(errors::BuilderError::NoSuchJob(errors::ErrorDetails {
             message: format!("no such node: '{}'", name),
             source: source.clone(),
             related: vec![],
@@ -218,7 +218,7 @@ impl<'a> SequenceGen<'a> for StdSequenceStore {
         let node = self.get_node_named(source, name)?;
         match self.node_exec_seq_map.borrow().get(&node.node_idx) {
             Some(seq_idx) => Ok(*seq_idx),
-            None => Err(errors::BuilderError::NoSuchNode(errors::ErrorDetails {
+            None => Err(errors::BuilderError::NoSuchJob(errors::ErrorDetails {
                 message: format!("no execution sequence for node: '{}'", name),
                 source: source.clone(),
                 related: vec![],
