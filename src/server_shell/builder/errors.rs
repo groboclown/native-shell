@@ -30,10 +30,28 @@ impl ScriptIssues {
     pub fn add_err(&self, err: BuilderError) {
         match self.errs.lock() {
             Ok(mut e) => {
-                e.push(err);
+                Self::push_err(err, &mut e);
             }
             Err(mut e) => {
-                e.get_mut().push(err);
+                Self::push_err(err, e.get_mut());
+            }
+        }
+    }
+
+    fn push_err(err: BuilderError, v: &mut Vec<BuilderError>) {
+        let mut stack = vec![err];
+        loop {
+            if let Some(err) = stack.pop() {
+                match err {
+                    BuilderError::Collection(mut c) => {
+                        stack.append(&mut c);
+                    }
+                    _ => {
+                        v.push(err);
+                    }
+                }
+            } else {
+                break;
             }
         }
     }
@@ -50,23 +68,44 @@ impl ScriptIssues {
     }
 
     pub fn add_result<T>(&self, res: Result<T, BuilderError>) -> Option<T> {
-        if let Err(e) = res {
-            self.add_err(e);
+        match res {
+            Ok(v) => Some(v),
+            Err(e) => {
+                self.add_err(e);
+                None
+            }
         }
-        res.ok()
+    }
+
+    /// Consumes the error for functions that return Result<(), ()>.
+    pub fn consume<T>(&self, res: Result<T, BuilderError>) -> Result<T, ()> {
+        match res {
+            Ok(v) => Ok(v),
+            Err(e) => {
+                self.add_err(e);
+                Err(())
+            }
+        }
     }
 
     pub fn add_errs(&self, mut issues: Vec<BuilderError>) {
+        for err in issues.drain(0..issues.len()) {
+            self.add_err(err);
+        }
+    }
+}
+
+impl Into<BuilderError> for ScriptIssues {
+    fn into(self) -> BuilderError {
         match self.errs.lock() {
-            Ok(mut e) => {
-                for err in issues.drain(0..issues.len()) {
-                    e.push(err);
-                }
-            }
-            Err(mut e) => {
-                let e = e.get_mut();
-                for err in issues.drain(0..issues.len()) {
-                    e.push(err);
+            Ok(m) if m.len() == 1 => m.first().unwrap().clone(),
+            Ok(m) => BuilderError::Collection(m.clone()),
+            Err(e) => {
+                let e = (*e.get_ref()).clone();
+                if e.len() == 1 {
+                    e.first().unwrap().clone()
+                } else {
+                    BuilderError::Collection(e)
                 }
             }
         }
@@ -114,9 +153,9 @@ pub enum BuilderError {
     /// A cycle happened in the streams.
     StreamCycle(ErrorDetails),
     // I/O error.
-    //IOError(std::io::Error),
+    IOError(String), //std::io::Error
     // Zip Error
-    //ZipError(zip::result::ZipError),
+    ZipError(String), // zip::result::ZipError
     /// Many errors.
     Collection(Vec<BuilderError>),
     /// The node's module does not have a state struct.
@@ -137,14 +176,23 @@ pub enum BuilderError {
     LLSBug(ErrorDetails),
     /// Something referenced an event of type A, but something else used it as type B
     EventKindMismatch(ErrorDetails),
+    /// Something generated a panic.
+    General(String),
 }
 
-//impl From<std::io::Error> for BuilderError {
-//    fn from(value: std::io::Error) -> Self {
-//        BuilderError::IOError(value)
-//    }
-//}
+impl From<std::io::Error> for BuilderError {
+    fn from(value: std::io::Error) -> Self {
+        BuilderError::IOError(value.to_string())
+    }
+}
 
+impl From<zip::result::ZipError> for BuilderError {
+    fn from(value: zip::result::ZipError) -> Self {
+        BuilderError::ZipError(value.to_string())
+    }
+}
+
+/// Send the error to stderr.
 pub fn report_errors(err: &BuilderError) {
     match err {
         BuilderError::InvalidLLS(details) => {
@@ -152,15 +200,38 @@ pub fn report_errors(err: &BuilderError) {
             show_source(&details.source);
             show_related(&details);
         }
+        BuilderError::LLSBug(error_details) => {
+            eprintln!("Bug in the LLS construction: {}", error_details.message);
+            show_source(&error_details.source);
+            show_related(error_details);
+        }
         BuilderError::ModuleNotRegistered(details) => {
-            eprintln!("Module not registered: {}", details.message);
+            eprintln!("Referenced unknown module: {}", details.message);
             show_source(&details.source);
             show_related(&details);
+        }
+        BuilderError::MacroNotRegistered(error_details) => {
+            eprintln!("Referenced unknown macro: {}", error_details.message);
+            show_source(&error_details.source);
+            show_related(error_details);
         }
         BuilderError::NoSuchJob(details) => {
             eprintln!("No such job: {}", details.message);
             show_source(&details.source);
             show_related(&details);
+        }
+        BuilderError::JobCommandOverlap(error_details) => {
+            eprintln!(
+                "Job and Command share the same name: {}",
+                error_details.message
+            );
+            show_source(&error_details.source);
+            show_related(error_details);
+        }
+        BuilderError::NoSuchThread(error_details) => {
+            eprintln!("Referenced unknown thread: {}", error_details.message);
+            show_source(&error_details.source);
+            show_related(error_details);
         }
         BuilderError::StreamNotFound(details) => {
             eprintln!("Stream not found: {}", details.message);
@@ -177,12 +248,20 @@ pub fn report_errors(err: &BuilderError) {
             show_source(&details.source);
             show_related(&details);
         }
-        //BuilderError::IOError(e) => {
-        //    eprintln!("I/O error: {}", e);
-        //}
-        //BuilderError::ZipError(e) => {
-        //    eprintln!("Zip error: {}", e);
-        //}
+        BuilderError::EventKindMismatch(error_details) => {
+            eprintln!(
+                "Events referenced different kinds: {}",
+                error_details.message
+            );
+            show_source(&error_details.source);
+            show_related(error_details);
+        }
+        BuilderError::IOError(e) => {
+            eprintln!("I/O error: {}", e);
+        }
+        BuilderError::ZipError(e) => {
+            eprintln!("Zip file error: {}", e);
+        }
         BuilderError::NoStateForModule(error_details) => {
             eprintln!("No state for module: {}", error_details.message);
             show_source(&error_details.source);
@@ -220,6 +299,9 @@ pub fn report_errors(err: &BuilderError) {
             for err in errs {
                 report_errors(err);
             }
+        }
+        BuilderError::General(msg) => {
+            eprintln!("{}", msg);
         }
     }
 }
@@ -269,6 +351,7 @@ fn show_related(details: &ErrorDetails) {
             match related.relation {
                 Relationship::StreamSource => "Stream source",
                 Relationship::StreamTarget => "Stream target",
+                Relationship::Definition => "Source definition",
             }
         );
         show_source(&related.source);

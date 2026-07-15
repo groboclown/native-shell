@@ -11,7 +11,7 @@
 
 use super::super::meta;
 
-pub fn macro_meta() -> Box<dyn meta::MacroMeta> {
+pub fn macro_meta() -> Box<dyn meta::MacroMeta + Send + Sync> {
     Box::new(ShellMacro {})
 }
 

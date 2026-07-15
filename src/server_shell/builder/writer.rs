@@ -1,17 +1,27 @@
 //! Abstraction and implementation of writing sources.
 
-use std::path::Path;
+use std::{
+    collections::HashMap,
+    io,
+    path::Path,
+    sync::{Arc, Mutex},
+};
 
+/// Creates writers for files under the source.
 pub trait SourceWriter {
-    fn writer_for(&self, file_name: &str) -> Result<Box<dyn std::io::Write>, std::io::Error>;
+    /// Get a writer for the relative path.
+    /// This returns an error if another request already happened for the same filename.
+    fn writer_for(&self, file_name: &str) -> Result<Box<dyn io::Write>, io::Error>;
 }
 
+/// Writes sources to a file system under a base path.
+#[derive(Clone)]
 pub struct FileSourceWriter {
     pub base_path: String,
 }
 
 impl SourceWriter for FileSourceWriter {
-    fn writer_for(&self, file_name: &str) -> Result<Box<dyn std::io::Write>, std::io::Error> {
+    fn writer_for<'a, 'b>(&'a self, file_name: &'b str) -> Result<Box<dyn io::Write>, io::Error> {
         let full_path = format!("{}/{}", self.base_path, file_name);
         let full_path = Path::new(full_path.as_str());
         if let Some(parent) = full_path.parent() {
@@ -26,10 +36,63 @@ impl SourceWriter for FileSourceWriter {
 }
 
 impl FileSourceWriter {
-    pub fn new(base_path: &str) -> Result<Self, std::io::Error> {
+    pub fn new(base_path: &str) -> Result<Arc<Self>, io::Error> {
         std::fs::create_dir_all(base_path)?;
-        Ok(FileSourceWriter {
+        Ok(Arc::new(FileSourceWriter {
             base_path: base_path.to_string(),
-        })
+        }))
+    }
+}
+
+/// An in-memory source writer.
+/// Useful for tests.
+#[derive(Clone)]
+pub(crate) struct MemSourceWriter {
+    pub files: Arc<Mutex<HashMap<String, Vec<u8>>>>,
+}
+
+impl SourceWriter for MemSourceWriter {
+    fn writer_for<'a, 'b>(&'a self, file_name: &'b str) -> Result<Box<dyn io::Write>, io::Error> {
+        let file_name = file_name.to_string();
+        let exists = match self.files.lock() {
+            Ok(m) => m.contains_key(&file_name),
+            Err(e) => e.get_ref().contains_key(&file_name),
+        };
+        if exists {
+            Err(io::Error::new(io::ErrorKind::AlreadyExists, file_name))
+        } else {
+            Ok(Box::new(MemPathWriter {
+                file_name: file_name,
+                files: self.files.clone(),
+            }))
+        }
+    }
+}
+
+struct MemPathWriter {
+    file_name: String,
+    files: Arc<Mutex<HashMap<String, Vec<u8>>>>,
+}
+
+impl io::Write for MemPathWriter {
+    fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
+        match self.files.lock() {
+            Ok(mut m) => append_to(&mut m, &self.file_name, buf),
+            Err(mut e) => append_to(e.get_mut(), &self.file_name, buf),
+        }
+        Ok(buf.len())
+    }
+
+    fn flush(&mut self) -> io::Result<()> {
+        Ok(())
+    }
+}
+
+fn append_to<'a, 'b>(map: &'a mut HashMap<String, Vec<u8>>, entry: &String, data: &'b [u8]) {
+    match map.get_mut(entry) {
+        Some(b) => b.extend_from_slice(data),
+        None => {
+            map.insert(entry.clone(), data.into());
+        }
     }
 }

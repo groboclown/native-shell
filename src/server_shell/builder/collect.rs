@@ -17,10 +17,15 @@ pub struct JobSource {
 }
 
 pub enum JobStructure {
-    Inline,
-    Module(Arc<structure::meta::ModuleMeta>),
-    Macro(Arc<Box<dyn meta::MacroMeta>>),
-    Stream,
+    Inline(Arc<lls::model::InlineJob>),
+    Module((Arc<lls::model::ModuleJob>, Arc<structure::meta::ModuleMeta>)),
+    Macro(
+        (
+            Arc<lls::model::MacroJob>,
+            Arc<Box<dyn meta::MacroMeta + Send + Sync>>,
+        ),
+    ),
+    Stream(Arc<lls::model::StreamJob>),
     Unknown,
 }
 
@@ -31,8 +36,7 @@ pub enum JobStructure {
 /// valid module references in the linked-to jobs, and for valid stream references
 /// in the stream jobs.
 pub struct Collector {
-    pub issues: errors::ScriptIssues,
-    threads: LockedBuilderRef<()>,
+    threads: LockedBuilderRef<lls::model::Thread>,
     jobs: LockedBuilderRef<JobSource>,
     events: LockedBuilderRef<structure::EventKind>,
 }
@@ -43,7 +47,6 @@ impl Clone for Collector {
             threads: self.threads.clone(),
             jobs: self.jobs.clone(),
             events: self.events.clone(),
-            issues: self.issues.clone(),
         }
     }
 }
@@ -54,7 +57,6 @@ impl Collector {
             threads: LockedBuilderRef::new(),
             jobs: LockedBuilderRef::new(),
             events: LockedBuilderRef::new(),
-            issues: errors::ScriptIssues::new(),
         }
     }
 
@@ -63,10 +65,10 @@ impl Collector {
     pub fn add_thread(
         &self,
         name: &String,
-        source: &lls::model::Source,
+        source: &lls::model::Thread,
     ) -> Result<structure::ThreadRef, errors::BuilderError> {
         self.threads
-            .add_primary(name.clone(), source.clone(), ())
+            .add_primary(name.clone(), source.source.clone(), source.clone())
             .map_err(|e| errors::BuilderError::LLSBug(e))
     }
 
@@ -86,9 +88,28 @@ impl Collector {
         self.threads.contains(name)
     }
 
+    pub fn get_thread(&self, name: &String) -> Option<Arc<lls::model::Thread>> {
+        self.threads.get(name)
+    }
+
+    /// Get the thread, and returns an error if it was not registered.
+    pub fn get_thread_checked(
+        &self,
+        name: &String,
+        source: &lls::model::Source,
+    ) -> Result<Arc<lls::model::Thread>, errors::BuilderError> {
+        self.threads
+            .get(name)
+            .ok_or(errors::BuilderError::NoSuchThread(errors::ErrorDetails {
+                message: name.clone(),
+                source: source.clone(),
+                related: Vec::new(),
+            }))
+    }
+
     /// Get the list of the registered thread names, ordered by thread ref.
-    pub fn ordered_threads(&self) -> Vec<(String, structure::ThreadRef, lls::model::Source)> {
-        self.threads.ordered_primary()
+    pub fn ordered_threads(&self) -> Vec<(String, structure::ThreadRef, Arc<lls::model::Thread>)> {
+        self.threads.ordered_values()
     }
 
     /// Add the primary job.
@@ -124,6 +145,14 @@ impl Collector {
         self.jobs.get(name)
     }
 
+    pub fn get_job_src(&self, name: &String) -> Option<(lls::model::Source, Arc<JobSource>)> {
+        match self.jobs.get(name) {
+            Some(j) => self.jobs.get_primary(name).map(|p| (p.clone(), j)),
+            None => None,
+        }
+    }
+
+    /// Get the job, and returns an error if it was not registered.
     pub fn get_job_checked(
         &self,
         name: &String,
@@ -139,8 +168,8 @@ impl Collector {
     }
 
     /// Get the list of the registered job names, ordered by job ref.
-    pub fn ordered_jobs(&self) -> Vec<(String, structure::JobRef, lls::model::Source)> {
-        self.jobs.ordered_primary()
+    pub fn ordered_jobs(&self) -> Vec<(String, structure::JobRef, Arc<JobSource>)> {
+        self.jobs.ordered_values()
     }
 
     /// Get the events reference with the given name.
@@ -259,6 +288,13 @@ impl<T> LockedBuilderRef<T> {
         match self.lb.lock() {
             Ok(m) => m.get_val(name).map(|v| v.clone()),
             Err(e) => (*e.get_ref()).get_val(name).map(|v| v.clone()),
+        }
+    }
+
+    pub fn get_primary(&self, name: &String) -> Option<lls::model::Source> {
+        match self.lb.lock() {
+            Ok(m) => m.get_primary(name).map(|v| v.clone()),
+            Err(e) => (*e.get_ref()).get_primary(name).map(|v| v.clone()),
         }
     }
 

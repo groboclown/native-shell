@@ -1,4 +1,4 @@
-use crate::server_shell::lls;
+use crate::server_shell::{builder, lls};
 
 mod samples;
 mod server_shell;
@@ -56,23 +56,20 @@ fn main() {
                 let script_dir = std::env::args()
                     .nth(3)
                     .unwrap_or_else(|| "script-source".to_string());
-                todo!();
-                //let write = match builder::writer::FileSourceWriter::new(&script_dir) {
-                //    Ok(f) => f,
-                //    Err(e) => {
-                //        eprintln!("Error creating file {}: {}", script_dir, e);
-                //        std::process::exit(3);
-                //    }
-                //};
-                //match builder::from_ast::ast_to_module_source(&ast, write) {
-                //    Ok(_) => (),
-                //    Err(e) => {
-                //        eprintln!("Error encountered with script");
-                //        builder::errors::report_errors(&e);
-                //        std::process::exit(4);
-                //    }
-                //}
-                //println!("Module source written to {}", script_dir);
+                let write = match builder::writer::FileSourceWriter::new(&script_dir) {
+                    Ok(f) => f,
+                    Err(e) => {
+                        eprintln!("Error creating file {}: {}", script_dir, e);
+                        std::process::exit(3);
+                    }
+                };
+                let issues = builder::from_lls::lls_to_module_source(&ast, write);
+                if issues.has_issues() {
+                    eprintln!("Error encountered with script");
+                    builder::errors::report_errors(&issues.into());
+                    std::process::exit(4);
+                }
+                println!("Module source written to {}", script_dir);
             }
             Err(e) => {
                 eprintln!("Error loading AST: {}", e);
