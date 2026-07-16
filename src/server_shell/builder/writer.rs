@@ -51,6 +51,21 @@ pub(crate) struct MemSourceWriter {
     pub files: Arc<Mutex<HashMap<String, Vec<u8>>>>,
 }
 
+impl MemSourceWriter {
+    pub fn new() -> Self {
+        Self {
+            files: Arc::new(Mutex::new(HashMap::new())),
+        }
+    }
+
+    pub fn get_for(&self, name: &str) -> Option<Vec<u8>> {
+        match self.files.lock() {
+            Ok(m) => m.get(&name.to_string()).map(|v| v.clone()),
+            Err(e) => (*e.get_ref()).get(name).map(|v| v.clone()),
+        }
+    }
+}
+
 impl SourceWriter for MemSourceWriter {
     fn writer_for<'a, 'b>(&'a self, file_name: &'b str) -> Result<Box<dyn io::Write>, io::Error> {
         let file_name = file_name.to_string();

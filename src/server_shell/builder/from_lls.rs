@@ -35,7 +35,7 @@ pub fn get_script_version(lls: &model::NativeShellLowLevelScriptSchema) -> LlsVe
                 "Unsupported LLS version: {}. Supported versions include: {}",
                 lls.schema_version, LLS_VERSION_1
             ),
-            source: lls.meta.source.clone(),
+            source: (&lls.meta.source).into(),
             related: vec![],
         }))
     }

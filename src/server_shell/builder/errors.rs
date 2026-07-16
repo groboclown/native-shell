@@ -112,27 +112,27 @@ impl Into<BuilderError> for ScriptIssues {
     }
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum Relationship {
     StreamSource,
     StreamTarget,
     Definition,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct RelatedSource {
     pub relation: Relationship,
-    pub source: Source,
+    pub source: ErrSource,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct ErrorDetails {
     pub message: String,
-    pub source: Source,
+    pub source: ErrSource,
     pub related: Vec<RelatedSource>,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum BuilderError {
     /// Error when the LLS is invalid.
     InvalidLLS(ErrorDetails),
@@ -140,6 +140,9 @@ pub enum BuilderError {
     ModuleNotRegistered(ErrorDetails),
     /// Error when a macro is not found.
     MacroNotRegistered(ErrorDetails),
+    MacroNotUsableForCommand(ErrorDetails),
+    MacroNotUsableForJob(ErrorDetails),
+    ModuleNotUsableForCommand(ErrorDetails),
     /// Error when a job or command is not found.
     NoSuchJob(ErrorDetails),
     /// Error when a job and command share the same name.
@@ -212,6 +215,21 @@ pub fn report_errors(err: &BuilderError) {
         }
         BuilderError::MacroNotRegistered(error_details) => {
             eprintln!("Referenced unknown macro: {}", error_details.message);
+            show_source(&error_details.source);
+            show_related(error_details);
+        }
+        BuilderError::MacroNotUsableForCommand(error_details) => {
+            eprintln!("Macro cannot apply to commands: {}", error_details.message);
+            show_source(&error_details.source);
+            show_related(error_details);
+        }
+        BuilderError::MacroNotUsableForJob(error_details) => {
+            eprintln!("Macro cannot apply to jobs: {}", error_details.message);
+            show_source(&error_details.source);
+            show_related(error_details);
+        }
+        BuilderError::ModuleNotUsableForCommand(error_details) => {
+            eprintln!("Module cannot apply to commands: {}", error_details.message);
             show_source(&error_details.source);
             show_related(error_details);
         }
@@ -306,7 +324,7 @@ pub fn report_errors(err: &BuilderError) {
     }
 }
 
-fn show_source(source: &Source) {
+fn show_source(source: &ErrSource) {
     if source.file.is_empty() {
         if let Some(line) = source.line {
             eprint!("Line {}", line);
@@ -318,7 +336,7 @@ fn show_source(source: &Source) {
         show_line(source);
         return;
     }
-    eprint!("{}", *source.file);
+    eprint!("{}", source.file);
     if let Some(line) = source.line {
         eprint!(", line {}", line);
         if let Some(column) = source.column {
@@ -329,10 +347,10 @@ fn show_source(source: &Source) {
     show_line(source);
 }
 
-fn show_line(source: &Source) {
+fn show_line(source: &ErrSource) {
     match &source.text {
         Some(t) => {
-            eprintln!("{}", **t);
+            eprintln!("{}", *t);
             if let Some(column) = source.column {
                 for _ in 0..(column - 1) {
                     eprint!("-");
@@ -355,5 +373,41 @@ fn show_related(details: &ErrorDetails) {
             }
         );
         show_source(&related.source);
+    }
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct ErrSource {
+    pub file: String,
+    pub line: Option<i64>,
+    pub column: Option<i64>,
+    pub text: Option<String>,
+}
+
+impl From<Source> for ErrSource {
+    fn from(value: Source) -> Self {
+        Self {
+            file: (*value.file).clone(),
+            line: value.line.clone(),
+            column: value.column.clone(),
+            text: match value.text {
+                Some(v) => Some((*v).clone()),
+                None => None,
+            },
+        }
+    }
+}
+
+impl From<&Source> for ErrSource {
+    fn from(value: &Source) -> Self {
+        Self {
+            file: (*value.file).clone(),
+            line: value.line.clone(),
+            column: value.column.clone(),
+            text: match &value.text {
+                Some(v) => Some((**v).clone()),
+                None => None,
+            },
+        }
     }
 }

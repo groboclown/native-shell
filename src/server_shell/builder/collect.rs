@@ -36,6 +36,7 @@ pub enum JobStructure {
 /// valid module references in the linked-to jobs, and for valid stream references
 /// in the stream jobs.
 pub struct Collector {
+    pub meta: Arc<lls::model::Metadata>,
     threads: LockedBuilderRef<lls::model::Thread>,
     jobs: LockedBuilderRef<JobSource>,
     events: LockedBuilderRef<structure::EventKind>,
@@ -44,6 +45,7 @@ pub struct Collector {
 impl Clone for Collector {
     fn clone(&self) -> Self {
         Self {
+            meta: self.meta.clone(),
             threads: self.threads.clone(),
             jobs: self.jobs.clone(),
             events: self.events.clone(),
@@ -52,8 +54,9 @@ impl Clone for Collector {
 }
 
 impl Collector {
-    pub fn new() -> Self {
+    pub fn new(meta: &lls::model::Metadata) -> Self {
         Self {
+            meta: Arc::new(meta.clone()),
             threads: LockedBuilderRef::new(),
             jobs: LockedBuilderRef::new(),
             events: LockedBuilderRef::new(),
@@ -102,7 +105,7 @@ impl Collector {
             .get(name)
             .ok_or(errors::BuilderError::NoSuchThread(errors::ErrorDetails {
                 message: name.clone(),
-                source: source.clone(),
+                source: source.into(),
                 related: Vec::new(),
             }))
     }
@@ -162,7 +165,7 @@ impl Collector {
             .get(name)
             .ok_or(errors::BuilderError::NoSuchJob(errors::ErrorDetails {
                 message: name.clone(),
-                source: source.clone(),
+                source: source.into(),
                 related: Vec::new(),
             }))
     }
@@ -170,6 +173,17 @@ impl Collector {
     /// Get the list of the registered job names, ordered by job ref.
     pub fn ordered_jobs(&self) -> Vec<(String, structure::JobRef, Arc<JobSource>)> {
         self.jobs.ordered_values()
+    }
+
+    pub fn ordered_commands(&self) -> Vec<(String, structure::JobRef, Arc<JobSource>)> {
+        let mut ret = Vec::new();
+        let mut jobs = self.jobs.ordered_values();
+        for (n, j, s) in jobs.drain(0..jobs.len()) {
+            if s.is_cmd {
+                ret.push((n, j, s));
+            }
+        }
+        ret
     }
 
     /// Get the events reference with the given name.
@@ -199,14 +213,14 @@ impl Collector {
                         "referenced event '{}' with kind {:?}, but it was already used as {:?}",
                         name, kind, k
                     ),
-                    source: source.clone(),
+                    source: source.into(),
                     related: self
                         .events
                         .get_all_refs(name)
                         .iter()
                         .map(|s| errors::RelatedSource {
                             relation: errors::Relationship::Definition,
-                            source: s.clone(),
+                            source: s.into(),
                         })
                         .collect(),
                 },
@@ -391,10 +405,10 @@ impl<T> BuilderRef<T> {
                 let v = self.by_ref.get(*r).expect("should exist");
                 Err(errors::ErrorDetails {
                     message: format!("attempted to register '{}'", name),
-                    source: source,
+                    source: source.into(),
                     related: vec![errors::RelatedSource {
                         relation: errors::Relationship::Definition,
-                        source: v.primary.clone(),
+                        source: (&v.primary).into(),
                     }],
                 })
             }
@@ -414,7 +428,7 @@ impl<T> BuilderRef<T> {
             }
             None => Err(errors::ErrorDetails {
                 message: format!("reference to non-existent '{}'", name),
-                source: source,
+                source: source.into(),
                 related: Vec::new(),
             }),
         }

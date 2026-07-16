@@ -9,6 +9,7 @@ use super::rustgen;
 use super::writer;
 use crate::server_shell::builder::collect::JobSource;
 use crate::server_shell::builder::errors::ScriptIssues;
+use crate::server_shell::builder::rustgen::helpers;
 use crate::server_shell::lls::model;
 use crate::shell_lib::modules;
 use crate::shell_lib::structure::meta;
@@ -18,9 +19,10 @@ pub fn lls_v1_to_module_source(
     out: Arc<dyn writer::SourceWriter + Send + Sync>,
 ) -> ScriptIssues {
     let issues = ScriptIssues::new();
+    let now = helpers::utc_now();
 
     // Step 1: register all the thread and job definitions.
-    let collector = collect::Collector::new();
+    let collector = collect::Collector::new(&lls.meta);
     pass1(lls, &collector, &issues);
 
     // Step 2: Generate each file group asynchronously.
@@ -30,8 +32,9 @@ pub fn lls_v1_to_module_source(
         let o2 = out.clone();
         let i2 = issues.clone();
         let c2 = collector.clone();
+        let n2 = now.clone();
         std::thread::spawn(move || {
-            let _ = rustgen::commands::gen_commands(i2, c2, o2);
+            let _ = rustgen::commands::gen_commands(i2, c2, o2, &n2);
         })
     };
 
@@ -89,7 +92,7 @@ pub fn get_available_macros()
 
 /// Pull in the names into hashes along with generating their reference IDs.
 /// This must not run in parallel with the later steps.
-fn pass1(
+pub(crate) fn pass1(
     lls: &model::NativeShellLowLevelScriptSchema,
     collector: &collect::Collector,
     issues: &errors::ScriptIssues,
@@ -137,10 +140,10 @@ fn pass1(
             issues.add_err(errors::BuilderError::JobCommandOverlap(
                 errors::ErrorDetails {
                     message: name,
-                    source: source,
+                    source: source.into(),
                     related: vec![errors::RelatedSource {
                         relation: errors::Relationship::Definition,
-                        source: primary.0.clone(),
+                        source: (&primary.0).into(),
                     }],
                 },
             ));
@@ -183,15 +186,16 @@ fn new_module_job_structure(
     job: &model::ModuleJob,
     modules: &HashMap<String, Arc<meta::ModuleMeta>>,
 ) -> Result<collect::JobStructure, errors::BuilderError> {
-    match modules.get(&job.kind) {
+    let mod_name: &String = &(*job.module);
+    match modules.get(mod_name) {
         Some(m) => Ok(collect::JobStructure::Module((
             Arc::new(job.clone()),
             m.clone(),
         ))),
         None => Err(errors::BuilderError::ModuleNotRegistered(
             errors::ErrorDetails {
-                message: job.kind.clone(),
-                source: job.source.clone(),
+                message: mod_name.clone(),
+                source: (&job.source).into(),
                 related: Vec::new(),
             },
         )),
@@ -202,15 +206,16 @@ fn new_macro_job_structure(
     job: &model::MacroJob,
     macros: &HashMap<String, Arc<Box<dyn super::super::meta::MacroMeta + Send + Sync>>>,
 ) -> Result<collect::JobStructure, errors::BuilderError> {
-    match macros.get(&job.kind) {
+    let macro_name: &String = &(*job.macro_);
+    match macros.get(macro_name) {
         Some(m) => Ok(collect::JobStructure::Macro((
             Arc::new(job.clone()),
             m.clone(),
         ))),
         None => Err(errors::BuilderError::MacroNotRegistered(
             errors::ErrorDetails {
-                message: job.kind.clone(),
-                source: job.source.clone(),
+                message: macro_name.clone(),
+                source: (&job.source).into(),
                 related: Vec::new(),
             },
         )),

@@ -4,10 +4,27 @@
 //! This allows for the generators to share this logic to ensure that they
 //! refer to the same things.
 
+use crate::shell_lib::structure::JobRef;
+
 /// Create the command module name.
 /// Usable for both the filename creation and the 'use mod' line.
-pub fn command_module(name: &String) -> String {
-    todo!()
+pub fn command_module(job: JobRef) -> String {
+    format!("c{}", job)
+}
+
+/// Create the name of the command's argument structure.
+pub fn command_arg_struct(job: JobRef) -> String {
+    format!("Cmd{}Args", job)
+}
+
+/// Create the name of the command's state structure.
+pub fn command_state_struct(job: JobRef) -> String {
+    format!("Cmd{}State", job)
+}
+
+/// Create the name of the command's CommandSetup + CommandHandler implementing structure.
+pub fn command_struct(job: JobRef) -> String {
+    format!("Cmd{}Runner", job)
 }
 
 /// Construct a unique, rust-compatible name from the string.

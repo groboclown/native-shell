@@ -41,6 +41,10 @@ pub fn validate(lls: &model::NativeShellLowLevelScriptSchema) -> Vec<ValidationE
     let mut errors = Vec::new();
 
     join_validation_vec(&mut errors, validate_jobs(&lls.meta.source, &lls.jobs));
+    join_validation_vec(
+        &mut errors,
+        validate_commands(&lls.meta.source, &lls.commands),
+    );
 
     // TODO add more validations.
 
@@ -57,6 +61,23 @@ pub fn validate_jobs(
         // Validate the jobs's kind is registered
 
         // TODO more validations
+    }
+
+    errors
+}
+
+pub fn validate_commands(
+    root: &model::Source,
+    commands: &HashMap<model::NativeShellLowLevelScriptSchemaCommandsKey, model::Command>,
+) -> Vec<Option<ValidationError>> {
+    let mut errors = Vec::new();
+
+    if commands.is_empty() {
+        errors.push(Some(ValidationError {
+            message: format!("script requires at least one command"),
+            is_error: true,
+            source: root.clone(),
+        }))
     }
 
     errors
