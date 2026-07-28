@@ -143,6 +143,7 @@ pub enum BuilderError {
     MacroNotUsableForCommand(ErrorDetails),
     MacroNotUsableForJob(ErrorDetails),
     ModuleNotUsableForCommand(ErrorDetails),
+    ModuleNotUsableForJob(ErrorDetails),
     /// Error when a job or command is not found.
     NoSuchJob(ErrorDetails),
     /// Error when a job and command share the same name.
@@ -230,6 +231,11 @@ pub fn report_errors(err: &BuilderError) {
         }
         BuilderError::ModuleNotUsableForCommand(error_details) => {
             eprintln!("Module cannot apply to commands: {}", error_details.message);
+            show_source(&error_details.source);
+            show_related(error_details);
+        }
+        BuilderError::ModuleNotUsableForJob(error_details) => {
+            eprintln!("Module cannot apply to jobs: {}", error_details.message);
             show_source(&error_details.source);
             show_related(error_details);
         }

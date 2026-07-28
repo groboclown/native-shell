@@ -86,7 +86,7 @@ struct Jobj0x0Abort {
 impl structure::EventCallback for Jobj0x0Abort {
     fn on<'a, 'b, 'c>(
         &'a self,
-        _context: &'b Box<dyn structure::job::JobRunnerContext>,
+        _context: &'b dyn structure::ExecCtx,
         _event_ref: structure::EventRef,
         _payload: &'c structure::EventPayload,
     ) -> Result<(), structure::ScriptExit> {

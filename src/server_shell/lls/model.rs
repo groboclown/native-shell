@@ -84,15 +84,10 @@ impl AbsValue {
 #[doc = "  \"description\": \"A parameter for the job. Must provide exactly one of a value or a value-array.\","]
 #[doc = "  \"type\": \"object\","]
 #[doc = "  \"required\": ["]
-#[doc = "    \"name\","]
 #[doc = "    \"source\","]
 #[doc = "    \"value\""]
 #[doc = "  ],"]
 #[doc = "  \"properties\": {"]
-#[doc = "    \"name\": {"]
-#[doc = "      \"description\": \"The name of the parameter.\","]
-#[doc = "      \"type\": \"string\""]
-#[doc = "    },"]
 #[doc = "    \"source\": {"]
 #[doc = "      \"$ref\": \"#/$defs/Source\""]
 #[doc = "    },"]
@@ -107,8 +102,6 @@ impl AbsValue {
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
 pub struct ActionParameter {
-    #[doc = "The name of the parameter."]
-    pub name: ::std::string::String,
     pub source: Source,
     pub value: ComputedValue,
 }
@@ -1221,6 +1214,51 @@ impl ::std::convert::From<ConstantBooleanValue> for ComputedBooleanValue {
         Self::ConstantBooleanValue(value)
     }
 }
+#[doc = "A null value.  Useful for optional values, or when a map entry construction requires removing an entry.\n"]
+#[doc = r""]
+#[doc = r" <details><summary>JSON schema</summary>"]
+#[doc = r""]
+#[doc = r" ```json"]
+#[doc = "{"]
+#[doc = "  \"title\": \"Computed Null Value\","]
+#[doc = "  \"description\": \"A null value.  Useful for optional values, or when a map entry construction requires removing an entry.\\n\","]
+#[doc = "  \"type\": \"object\","]
+#[doc = "  \"required\": ["]
+#[doc = "    \"kind\","]
+#[doc = "    \"source\""]
+#[doc = "  ],"]
+#[doc = "  \"properties\": {"]
+#[doc = "    \"kind\": {"]
+#[doc = "      \"type\": \"string\","]
+#[doc = "      \"const\": \"null\""]
+#[doc = "    },"]
+#[doc = "    \"source\": {"]
+#[doc = "      \"$ref\": \"#/$defs/Source\""]
+#[doc = "    }"]
+#[doc = "  },"]
+#[doc = "  \"additionalProperties\": false,"]
+#[doc = "  \"discriminator\": {"]
+#[doc = "    \"propertyName\": \"kind\""]
+#[doc = "  }"]
+#[doc = "}"]
+#[doc = r" ```"]
+#[doc = r" </details>"]
+#[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
+#[serde(deny_unknown_fields)]
+pub struct ComputedNullValue {
+    pub kind: ::std::string::String,
+    pub source: Source,
+}
+impl ::std::convert::From<&ComputedNullValue> for ComputedNullValue {
+    fn from(value: &ComputedNullValue) -> Self {
+        value.clone()
+    }
+}
+impl ComputedNullValue {
+    pub fn builder() -> builder::ComputedNullValue {
+        Default::default()
+    }
+}
 #[doc = "A computed list value."]
 #[doc = r""]
 #[doc = r" <details><summary>JSON schema</summary>"]
@@ -2152,6 +2190,9 @@ impl ::std::convert::From<ConstantStringValue> for ComputedStringValue {
 #[doc = "    },"]
 #[doc = "    {"]
 #[doc = "      \"$ref\": \"#/$defs/ConstantStringMapListValue\""]
+#[doc = "    },"]
+#[doc = "    {"]
+#[doc = "      \"$ref\": \"#/$def/ComputedNullValue\""]
 #[doc = "    }"]
 #[doc = "  ],"]
 #[doc = "  \"discriminator\": {"]
@@ -2241,6 +2282,7 @@ pub enum ComputedValue {
     LookupStringMapListValue(LookupStringMapListValue),
     RangeStringMapListValue(RangeStringMapListValue),
     ConstantStringMapListValue(ConstantStringMapListValue),
+    ComputedNullValue(ComputedNullValue),
 }
 impl ::std::convert::From<&Self> for ComputedValue {
     fn from(value: &ComputedValue) -> Self {
@@ -2635,6 +2677,76 @@ impl ::std::convert::From<RangeStringMapListValue> for ComputedValue {
 impl ::std::convert::From<ConstantStringMapListValue> for ComputedValue {
     fn from(value: ConstantStringMapListValue) -> Self {
         Self::ConstantStringMapListValue(value)
+    }
+}
+impl ::std::convert::From<ComputedNullValue> for ComputedValue {
+    fn from(value: ComputedNullValue) -> Self {
+        Self::ComputedNullValue(value)
+    }
+}
+#[doc = "`ConstFloat`"]
+#[doc = r""]
+#[doc = r" <details><summary>JSON schema</summary>"]
+#[doc = r""]
+#[doc = r" ```json"]
+#[doc = "{"]
+#[doc = "  \"title\": \"Constant Floating Point Value\","]
+#[doc = "  \"description\": \"A constant floating point number declared within the script.  Used as an inline value.\\n\","]
+#[doc = "  \"type\": \"number\""]
+#[doc = "}"]
+#[doc = r" ```"]
+#[doc = r" </details>"]
+#[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
+#[serde(transparent)]
+pub struct ConstFloat(pub f64);
+impl ::std::ops::Deref for ConstFloat {
+    type Target = f64;
+    fn deref(&self) -> &f64 {
+        &self.0
+    }
+}
+impl ::std::convert::From<ConstFloat> for f64 {
+    fn from(value: ConstFloat) -> Self {
+        value.0
+    }
+}
+impl ::std::convert::From<&ConstFloat> for ConstFloat {
+    fn from(value: &ConstFloat) -> Self {
+        value.clone()
+    }
+}
+impl ::std::convert::From<f64> for ConstFloat {
+    fn from(value: f64) -> Self {
+        Self(value)
+    }
+}
+impl ::std::str::FromStr for ConstFloat {
+    type Err = <f64 as ::std::str::FromStr>::Err;
+    fn from_str(value: &str) -> ::std::result::Result<Self, Self::Err> {
+        Ok(Self(value.parse()?))
+    }
+}
+impl ::std::convert::TryFrom<&str> for ConstFloat {
+    type Error = <f64 as ::std::str::FromStr>::Err;
+    fn try_from(value: &str) -> ::std::result::Result<Self, Self::Error> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<&String> for ConstFloat {
+    type Error = <f64 as ::std::str::FromStr>::Err;
+    fn try_from(value: &String) -> ::std::result::Result<Self, Self::Error> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<String> for ConstFloat {
+    type Error = <f64 as ::std::str::FromStr>::Err;
+    fn try_from(value: String) -> ::std::result::Result<Self, Self::Error> {
+        value.parse()
+    }
+}
+impl ::std::fmt::Display for ConstFloat {
+    fn fmt(&self, f: &mut ::std::fmt::Formatter<'_>) -> ::std::fmt::Result {
+        self.0.fmt(f)
     }
 }
 #[doc = "A constant integer value declared within the script.  Used as an inline value.\n"]
@@ -3151,7 +3263,7 @@ impl ::std::convert::From<ConstantBooleanListValue> for ConstantBooleanListValue
 #[doc = "              \"$ref\": \"#/$defs/ConstantBooleanValue\""]
 #[doc = "            },"]
 #[doc = "            {"]
-#[doc = "              \"$ref\": \"#/$defs/RemoveMapEntry\""]
+#[doc = "              \"$ref\": \"#/$defs/ComputedNullValue\""]
 #[doc = "            }"]
 #[doc = "          ]"]
 #[doc = "        }"]
@@ -3314,7 +3426,7 @@ impl<'de> ::serde::Deserialize<'de> for ConstantBooleanMapValueValueKey {
 #[doc = "      \"$ref\": \"#/$defs/ConstantBooleanValue\""]
 #[doc = "    },"]
 #[doc = "    {"]
-#[doc = "      \"$ref\": \"#/$defs/RemoveMapEntry\""]
+#[doc = "      \"$ref\": \"#/$defs/ComputedNullValue\""]
 #[doc = "    }"]
 #[doc = "  ]"]
 #[doc = "}"]
@@ -3338,7 +3450,7 @@ pub enum ConstantBooleanMapValueValueValue {
     StringEqualBooleanValue(StringEqualBooleanValue),
     NumberEqualBooleanValue(NumberEqualBooleanValue),
     ConstantBooleanValue(ConstantBooleanValue),
-    RemoveMapEntry(RemoveMapEntry),
+    ComputedNullValue(ComputedNullValue),
 }
 impl ::std::convert::From<&Self> for ConstantBooleanMapValueValueValue {
     fn from(value: &ConstantBooleanMapValueValueValue) -> Self {
@@ -3420,9 +3532,9 @@ impl ::std::convert::From<ConstantBooleanValue> for ConstantBooleanMapValueValue
         Self::ConstantBooleanValue(value)
     }
 }
-impl ::std::convert::From<RemoveMapEntry> for ConstantBooleanMapValueValueValue {
-    fn from(value: RemoveMapEntry) -> Self {
-        Self::RemoveMapEntry(value)
+impl ::std::convert::From<ComputedNullValue> for ConstantBooleanMapValueValueValue {
+    fn from(value: ComputedNullValue) -> Self {
+        Self::ComputedNullValue(value)
     }
 }
 #[doc = "A constant boolean value."]
@@ -3995,7 +4107,7 @@ impl ::std::convert::From<ConstantNumberListValue> for ConstantNumberListValueVa
 #[doc = "              \"$ref\": \"#/$defs/ConstantNumberValue\""]
 #[doc = "            },"]
 #[doc = "            {"]
-#[doc = "              \"$ref\": \"#/$defs/RemoveMapEntry\""]
+#[doc = "              \"$ref\": \"#/$defs/ComputedNullValue\""]
 #[doc = "            }"]
 #[doc = "          ]"]
 #[doc = "        }"]
@@ -4188,7 +4300,7 @@ impl<'de> ::serde::Deserialize<'de> for ConstantNumberMapValueValueKey {
 #[doc = "      \"$ref\": \"#/$defs/ConstantNumberValue\""]
 #[doc = "    },"]
 #[doc = "    {"]
-#[doc = "      \"$ref\": \"#/$defs/RemoveMapEntry\""]
+#[doc = "      \"$ref\": \"#/$defs/ComputedNullValue\""]
 #[doc = "    }"]
 #[doc = "  ]"]
 #[doc = "}"]
@@ -4222,7 +4334,7 @@ pub enum ConstantNumberMapValueValueValue {
     NumberListIndexNumberValue(NumberListIndexNumberValue),
     BooleanListIndexNumberValue(BooleanListIndexNumberValue),
     ConstantNumberValue(ConstantNumberValue),
-    RemoveMapEntry(RemoveMapEntry),
+    ComputedNullValue(ComputedNullValue),
 }
 impl ::std::convert::From<&Self> for ConstantNumberMapValueValueValue {
     fn from(value: &ConstantNumberMapValueValueValue) -> Self {
@@ -4354,9 +4466,9 @@ impl ::std::convert::From<ConstantNumberValue> for ConstantNumberMapValueValueVa
         Self::ConstantNumberValue(value)
     }
 }
-impl ::std::convert::From<RemoveMapEntry> for ConstantNumberMapValueValueValue {
-    fn from(value: RemoveMapEntry) -> Self {
-        Self::RemoveMapEntry(value)
+impl ::std::convert::From<ComputedNullValue> for ConstantNumberMapValueValueValue {
+    fn from(value: ComputedNullValue) -> Self {
+        Self::ComputedNullValue(value)
     }
 }
 #[doc = "A constant number value."]
@@ -4459,7 +4571,7 @@ impl ConstantNumberValue {
 #[doc = "              \"$ref\": \"#/$defs/ConstantStringListValue\""]
 #[doc = "            },"]
 #[doc = "            {"]
-#[doc = "              \"$ref\": \"#/$defs/RemoveMapEntry\""]
+#[doc = "              \"$ref\": \"#/$defs/ComputedNullValue\""]
 #[doc = "            }"]
 #[doc = "          ]"]
 #[doc = "        }"]
@@ -4597,7 +4709,7 @@ impl<'de> ::serde::Deserialize<'de> for ConstantStringListMapValueValueKey {
 #[doc = "      \"$ref\": \"#/$defs/ConstantStringListValue\""]
 #[doc = "    },"]
 #[doc = "    {"]
-#[doc = "      \"$ref\": \"#/$defs/RemoveMapEntry\""]
+#[doc = "      \"$ref\": \"#/$defs/ComputedNullValue\""]
 #[doc = "    }"]
 #[doc = "  ]"]
 #[doc = "}"]
@@ -4612,7 +4724,7 @@ pub enum ConstantStringListMapValueValueValue {
     StringListMapKeyValue(StringListMapKeyValue),
     MapKeysStringListValue(MapKeysStringListValue),
     ConstantStringListValue(ConstantStringListValue),
-    RemoveMapEntry(RemoveMapEntry),
+    ComputedNullValue(ComputedNullValue),
 }
 impl ::std::convert::From<&Self> for ConstantStringListMapValueValueValue {
     fn from(value: &ConstantStringListMapValueValueValue) -> Self {
@@ -4649,9 +4761,9 @@ impl ::std::convert::From<ConstantStringListValue> for ConstantStringListMapValu
         Self::ConstantStringListValue(value)
     }
 }
-impl ::std::convert::From<RemoveMapEntry> for ConstantStringListMapValueValueValue {
-    fn from(value: RemoveMapEntry) -> Self {
-        Self::RemoveMapEntry(value)
+impl ::std::convert::From<ComputedNullValue> for ConstantStringListMapValueValueValue {
+    fn from(value: ComputedNullValue) -> Self {
+        Self::ComputedNullValue(value)
     }
 }
 #[doc = "A constant string list value.  Can include expanding a sub-list within the list."]
@@ -5143,7 +5255,7 @@ impl ::std::convert::From<ConstantStringMapListValue> for ConstantStringMapListV
 #[doc = "              \"$ref\": \"#/$defs/ConstantStringValue\""]
 #[doc = "            },"]
 #[doc = "            {"]
-#[doc = "              \"$ref\": \"#/$defs/RemoveMapEntry\""]
+#[doc = "              \"$ref\": \"#/$defs/ComputedNullValue\""]
 #[doc = "            }"]
 #[doc = "          ]"]
 #[doc = "        }"]
@@ -5291,7 +5403,7 @@ impl<'de> ::serde::Deserialize<'de> for ConstantStringMapValueValueKey {
 #[doc = "      \"$ref\": \"#/$defs/ConstantStringValue\""]
 #[doc = "    },"]
 #[doc = "    {"]
-#[doc = "      \"$ref\": \"#/$defs/RemoveMapEntry\""]
+#[doc = "      \"$ref\": \"#/$defs/ComputedNullValue\""]
 #[doc = "    }"]
 #[doc = "  ]"]
 #[doc = "}"]
@@ -5310,7 +5422,7 @@ pub enum ConstantStringMapValueValueValue {
     ListToStringValue(ListToStringValue),
     MapToStringValue(MapToStringValue),
     ConstantStringValue(ConstantStringValue),
-    RemoveMapEntry(RemoveMapEntry),
+    ComputedNullValue(ComputedNullValue),
 }
 impl ::std::convert::From<&Self> for ConstantStringMapValueValueValue {
     fn from(value: &ConstantStringMapValueValueValue) -> Self {
@@ -5367,9 +5479,9 @@ impl ::std::convert::From<ConstantStringValue> for ConstantStringMapValueValueVa
         Self::ConstantStringValue(value)
     }
 }
-impl ::std::convert::From<RemoveMapEntry> for ConstantStringMapValueValueValue {
-    fn from(value: RemoveMapEntry) -> Self {
-        Self::RemoveMapEntry(value)
+impl ::std::convert::From<ComputedNullValue> for ConstantStringMapValueValueValue {
+    fn from(value: ComputedNullValue) -> Self {
+        Self::ComputedNullValue(value)
     }
 }
 #[doc = "A constant string value."]
@@ -6176,7 +6288,7 @@ impl FloorValue {
 #[doc = "          \"$ref\": \"#/$defs/Source\""]
 #[doc = "        },"]
 #[doc = "        \"value\": {"]
-#[doc = "          \"$ref\": \"#/$defs/ConstInt\""]
+#[doc = "          \"$ref\": \"#/$defs/ConstFloat\""]
 #[doc = "        }"]
 #[doc = "      },"]
 #[doc = "      \"additionalProperties\": false"]
@@ -6272,7 +6384,7 @@ impl FloorValue {
 #[doc = "        \"value\": {"]
 #[doc = "          \"type\": \"array\","]
 #[doc = "          \"items\": {"]
-#[doc = "            \"$ref\": \"#/$defs/ConstInt\""]
+#[doc = "            \"$ref\": \"#/$defs/ConstFloat\""]
 #[doc = "          },"]
 #[doc = "          \"maxItems\": 1000,"]
 #[doc = "          \"minItems\": 0"]
@@ -6361,7 +6473,7 @@ impl FloorValue {
 #[doc = "          \"minItems\": 0,"]
 #[doc = "          \"patternProperties\": {"]
 #[doc = "            \".*\": {"]
-#[doc = "              \"$ref\": \"#/$defs/ConstInt\""]
+#[doc = "              \"$ref\": \"#/$defs/ConstFloat\""]
 #[doc = "            }"]
 #[doc = "          }"]
 #[doc = "        }"]
@@ -6483,7 +6595,7 @@ pub enum InitialParameterValue {
     String { source: Source, value: ConstString },
     #[doc = "Compile-Time Number\n\nA constant number value."]
     #[serde(rename = "number")]
-    Number { source: Source, value: ConstInt },
+    Number { source: Source, value: ConstFloat },
     #[doc = "Compile-Time Boolean\n\nA constant boolean (true/false) value."]
     #[serde(rename = "boolean")]
     Boolean {
@@ -6504,7 +6616,7 @@ pub enum InitialParameterValue {
     #[serde(rename = "number-list")]
     NumberList {
         source: Source,
-        value: ::std::vec::Vec<ConstInt>,
+        value: ::std::vec::Vec<ConstFloat>,
     },
     #[doc = "Compile-Time Boolean List\n\nA constant boolean list value."]
     #[serde(rename = "boolean-list")]
@@ -6522,7 +6634,7 @@ pub enum InitialParameterValue {
     #[serde(rename = "number-map")]
     NumberMap {
         source: Source,
-        value: ::std::collections::HashMap<InitialParameterValueValueKey, ConstInt>,
+        value: ::std::collections::HashMap<InitialParameterValueValueKey, ConstFloat>,
     },
     #[doc = "Compile-Time Boolean Map\n\nA constant boolean map value."]
     #[serde(rename = "boolean-map")]
@@ -9555,51 +9667,50 @@ impl MultiplyTwoValues {
         Default::default()
     }
 }
-#[doc = "The parameters for the job."]
+#[doc = "The parameters for the job.  The key is the parameter name."]
 #[doc = r""]
 #[doc = r" <details><summary>JSON schema</summary>"]
 #[doc = r""]
 #[doc = r" ```json"]
 #[doc = "{"]
 #[doc = "  \"title\": \"Named Parameters\","]
-#[doc = "  \"description\": \"The parameters for the job.\","]
-#[doc = "  \"type\": \"array\","]
-#[doc = "  \"items\": {"]
-#[doc = "    \"title\": \"Action Parameter\","]
-#[doc = "    \"description\": \"A parameter for the job. Must provide exactly one of a value or a value-array.\","]
-#[doc = "    \"type\": \"object\","]
-#[doc = "    \"required\": ["]
-#[doc = "      \"name\","]
-#[doc = "      \"source\","]
-#[doc = "      \"value\""]
-#[doc = "    ],"]
-#[doc = "    \"properties\": {"]
-#[doc = "      \"name\": {"]
-#[doc = "        \"description\": \"The name of the parameter.\","]
-#[doc = "        \"type\": \"string\""]
+#[doc = "  \"description\": \"The parameters for the job.  The key is the parameter name.\","]
+#[doc = "  \"type\": \"object\","]
+#[doc = "  \"patternProperties\": {"]
+#[doc = "    \"^.*$\": {"]
+#[doc = "      \"title\": \"Action Parameter\","]
+#[doc = "      \"description\": \"A parameter for the job. Must provide exactly one of a value or a value-array.\","]
+#[doc = "      \"type\": \"object\","]
+#[doc = "      \"required\": ["]
+#[doc = "        \"source\","]
+#[doc = "        \"value\""]
+#[doc = "      ],"]
+#[doc = "      \"properties\": {"]
+#[doc = "        \"source\": {"]
+#[doc = "          \"$ref\": \"#/$defs/Source\""]
+#[doc = "        },"]
+#[doc = "        \"value\": {"]
+#[doc = "          \"$ref\": \"#/$defs/ComputedValue\""]
+#[doc = "        }"]
 #[doc = "      },"]
-#[doc = "      \"source\": {"]
-#[doc = "        \"$ref\": \"#/$defs/Source\""]
-#[doc = "      },"]
-#[doc = "      \"value\": {"]
-#[doc = "        \"$ref\": \"#/$defs/ComputedValue\""]
-#[doc = "      }"]
-#[doc = "    },"]
-#[doc = "    \"additionalProperties\": false"]
+#[doc = "      \"additionalProperties\": false"]
+#[doc = "    }"]
 #[doc = "  }"]
 #[doc = "}"]
 #[doc = r" ```"]
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(transparent)]
-pub struct NamedParameters(pub ::std::vec::Vec<ActionParameter>);
+pub struct NamedParameters(pub ::std::collections::HashMap<NamedParametersKey, ActionParameter>);
 impl ::std::ops::Deref for NamedParameters {
-    type Target = ::std::vec::Vec<ActionParameter>;
-    fn deref(&self) -> &::std::vec::Vec<ActionParameter> {
+    type Target = ::std::collections::HashMap<NamedParametersKey, ActionParameter>;
+    fn deref(&self) -> &::std::collections::HashMap<NamedParametersKey, ActionParameter> {
         &self.0
     }
 }
-impl ::std::convert::From<NamedParameters> for ::std::vec::Vec<ActionParameter> {
+impl ::std::convert::From<NamedParameters>
+    for ::std::collections::HashMap<NamedParametersKey, ActionParameter>
+{
     fn from(value: NamedParameters) -> Self {
         value.0
     }
@@ -9609,9 +9720,86 @@ impl ::std::convert::From<&NamedParameters> for NamedParameters {
         value.clone()
     }
 }
-impl ::std::convert::From<::std::vec::Vec<ActionParameter>> for NamedParameters {
-    fn from(value: ::std::vec::Vec<ActionParameter>) -> Self {
+impl ::std::convert::From<::std::collections::HashMap<NamedParametersKey, ActionParameter>>
+    for NamedParameters
+{
+    fn from(value: ::std::collections::HashMap<NamedParametersKey, ActionParameter>) -> Self {
         Self(value)
+    }
+}
+#[doc = "`NamedParametersKey`"]
+#[doc = r""]
+#[doc = r" <details><summary>JSON schema</summary>"]
+#[doc = r""]
+#[doc = r" ```json"]
+#[doc = "{"]
+#[doc = "  \"type\": \"string\","]
+#[doc = "  \"pattern\": \"^.*$\""]
+#[doc = "}"]
+#[doc = r" ```"]
+#[doc = r" </details>"]
+#[derive(:: serde :: Serialize, Clone, Debug, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[serde(transparent)]
+pub struct NamedParametersKey(::std::string::String);
+impl ::std::ops::Deref for NamedParametersKey {
+    type Target = ::std::string::String;
+    fn deref(&self) -> &::std::string::String {
+        &self.0
+    }
+}
+impl ::std::convert::From<NamedParametersKey> for ::std::string::String {
+    fn from(value: NamedParametersKey) -> Self {
+        value.0
+    }
+}
+impl ::std::convert::From<&NamedParametersKey> for NamedParametersKey {
+    fn from(value: &NamedParametersKey) -> Self {
+        value.clone()
+    }
+}
+impl ::std::str::FromStr for NamedParametersKey {
+    type Err = self::error::ConversionError;
+    fn from_str(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        static PATTERN: ::std::sync::LazyLock<::regress::Regex> =
+            ::std::sync::LazyLock::new(|| ::regress::Regex::new("^.*$").unwrap());
+        if PATTERN.find(value).is_none() {
+            return Err("doesn't match pattern \"^.*$\"".into());
+        }
+        Ok(Self(value.to_string()))
+    }
+}
+impl ::std::convert::TryFrom<&str> for NamedParametersKey {
+    type Error = self::error::ConversionError;
+    fn try_from(value: &str) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<&::std::string::String> for NamedParametersKey {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: &::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl ::std::convert::TryFrom<::std::string::String> for NamedParametersKey {
+    type Error = self::error::ConversionError;
+    fn try_from(
+        value: ::std::string::String,
+    ) -> ::std::result::Result<Self, self::error::ConversionError> {
+        value.parse()
+    }
+}
+impl<'de> ::serde::Deserialize<'de> for NamedParametersKey {
+    fn deserialize<D>(deserializer: D) -> ::std::result::Result<Self, D::Error>
+    where
+        D: ::serde::Deserializer<'de>,
+    {
+        ::std::string::String::deserialize(deserializer)?
+            .parse()
+            .map_err(|e: self::error::ConversionError| {
+                <D::Error as ::serde::de::Error>::custom(e.to_string())
+            })
     }
 }
 #[doc = "A boolean value that is the result of a logical NAND operation on two boolean values."]
@@ -10998,51 +11186,6 @@ impl ::std::convert::From<&RangeStringMapListValue> for RangeStringMapListValue 
 }
 impl RangeStringMapListValue {
     pub fn builder() -> builder::RangeStringMapListValue {
-        Default::default()
-    }
-}
-#[doc = "When a map entry construction requires removing an entry, use this as the value.\n"]
-#[doc = r""]
-#[doc = r" <details><summary>JSON schema</summary>"]
-#[doc = r""]
-#[doc = r" ```json"]
-#[doc = "{"]
-#[doc = "  \"title\": \"Remove Map Entry\","]
-#[doc = "  \"description\": \"When a map entry construction requires removing an entry, use this as the value.\\n\","]
-#[doc = "  \"type\": \"object\","]
-#[doc = "  \"required\": ["]
-#[doc = "    \"kind\","]
-#[doc = "    \"source\""]
-#[doc = "  ],"]
-#[doc = "  \"properties\": {"]
-#[doc = "    \"kind\": {"]
-#[doc = "      \"type\": \"string\","]
-#[doc = "      \"const\": \"null\""]
-#[doc = "    },"]
-#[doc = "    \"source\": {"]
-#[doc = "      \"$ref\": \"#/$defs/Source\""]
-#[doc = "    }"]
-#[doc = "  },"]
-#[doc = "  \"additionalProperties\": false,"]
-#[doc = "  \"discriminator\": {"]
-#[doc = "    \"propertyName\": \"kind\""]
-#[doc = "  }"]
-#[doc = "}"]
-#[doc = r" ```"]
-#[doc = r" </details>"]
-#[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
-#[serde(deny_unknown_fields)]
-pub struct RemoveMapEntry {
-    pub kind: ::std::string::String,
-    pub source: Source,
-}
-impl ::std::convert::From<&RemoveMapEntry> for RemoveMapEntry {
-    fn from(value: &RemoveMapEntry) -> Self {
-        value.clone()
-    }
-}
-impl RemoveMapEntry {
-    pub fn builder() -> builder::RemoveMapEntry {
         Default::default()
     }
 }
@@ -13754,30 +13897,18 @@ pub mod builder {
     }
     #[derive(Clone, Debug)]
     pub struct ActionParameter {
-        name: ::std::result::Result<::std::string::String, ::std::string::String>,
         source: ::std::result::Result<super::Source, ::std::string::String>,
         value: ::std::result::Result<super::ComputedValue, ::std::string::String>,
     }
     impl ::std::default::Default for ActionParameter {
         fn default() -> Self {
             Self {
-                name: Err("no value supplied for name".to_string()),
                 source: Err("no value supplied for source".to_string()),
                 value: Err("no value supplied for value".to_string()),
             }
         }
     }
     impl ActionParameter {
-        pub fn name<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<::std::string::String>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.name = value
-                .try_into()
-                .map_err(|e| format!("error converting supplied value for name: {}", e));
-            self
-        }
         pub fn source<T>(mut self, value: T) -> Self
         where
             T: ::std::convert::TryInto<super::Source>,
@@ -13805,7 +13936,6 @@ pub mod builder {
             value: ActionParameter,
         ) -> ::std::result::Result<Self, super::error::ConversionError> {
             Ok(Self {
-                name: value.name?,
                 source: value.source?,
                 value: value.value?,
             })
@@ -13814,7 +13944,6 @@ pub mod builder {
     impl ::std::convert::From<super::ActionParameter> for ActionParameter {
         fn from(value: super::ActionParameter) -> Self {
             Self {
-                name: Ok(value.name),
                 source: Ok(value.source),
                 value: Ok(value.value),
             }
@@ -14472,6 +14601,60 @@ pub mod builder {
                 description: Ok(value.description),
                 source: Ok(value.source),
                 thread: Ok(value.thread),
+            }
+        }
+    }
+    #[derive(Clone, Debug)]
+    pub struct ComputedNullValue {
+        kind: ::std::result::Result<::std::string::String, ::std::string::String>,
+        source: ::std::result::Result<super::Source, ::std::string::String>,
+    }
+    impl ::std::default::Default for ComputedNullValue {
+        fn default() -> Self {
+            Self {
+                kind: Err("no value supplied for kind".to_string()),
+                source: Err("no value supplied for source".to_string()),
+            }
+        }
+    }
+    impl ComputedNullValue {
+        pub fn kind<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<::std::string::String>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.kind = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for kind: {}", e));
+            self
+        }
+        pub fn source<T>(mut self, value: T) -> Self
+        where
+            T: ::std::convert::TryInto<super::Source>,
+            T::Error: ::std::fmt::Display,
+        {
+            self.source = value
+                .try_into()
+                .map_err(|e| format!("error converting supplied value for source: {}", e));
+            self
+        }
+    }
+    impl ::std::convert::TryFrom<ComputedNullValue> for super::ComputedNullValue {
+        type Error = super::error::ConversionError;
+        fn try_from(
+            value: ComputedNullValue,
+        ) -> ::std::result::Result<Self, super::error::ConversionError> {
+            Ok(Self {
+                kind: value.kind?,
+                source: value.source?,
+            })
+        }
+    }
+    impl ::std::convert::From<super::ComputedNullValue> for ComputedNullValue {
+        fn from(value: super::ComputedNullValue) -> Self {
+            Self {
+                kind: Ok(value.kind),
+                source: Ok(value.source),
             }
         }
     }
@@ -19782,60 +19965,6 @@ pub mod builder {
                 list: Ok(value.list),
                 source: Ok(value.source),
                 start: Ok(value.start),
-            }
-        }
-    }
-    #[derive(Clone, Debug)]
-    pub struct RemoveMapEntry {
-        kind: ::std::result::Result<::std::string::String, ::std::string::String>,
-        source: ::std::result::Result<super::Source, ::std::string::String>,
-    }
-    impl ::std::default::Default for RemoveMapEntry {
-        fn default() -> Self {
-            Self {
-                kind: Err("no value supplied for kind".to_string()),
-                source: Err("no value supplied for source".to_string()),
-            }
-        }
-    }
-    impl RemoveMapEntry {
-        pub fn kind<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<::std::string::String>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.kind = value
-                .try_into()
-                .map_err(|e| format!("error converting supplied value for kind: {}", e));
-            self
-        }
-        pub fn source<T>(mut self, value: T) -> Self
-        where
-            T: ::std::convert::TryInto<super::Source>,
-            T::Error: ::std::fmt::Display,
-        {
-            self.source = value
-                .try_into()
-                .map_err(|e| format!("error converting supplied value for source: {}", e));
-            self
-        }
-    }
-    impl ::std::convert::TryFrom<RemoveMapEntry> for super::RemoveMapEntry {
-        type Error = super::error::ConversionError;
-        fn try_from(
-            value: RemoveMapEntry,
-        ) -> ::std::result::Result<Self, super::error::ConversionError> {
-            Ok(Self {
-                kind: value.kind?,
-                source: value.source?,
-            })
-        }
-    }
-    impl ::std::convert::From<super::RemoveMapEntry> for RemoveMapEntry {
-        fn from(value: super::RemoveMapEntry) -> Self {
-            Self {
-                kind: Ok(value.kind),
-                source: Ok(value.source),
             }
         }
     }

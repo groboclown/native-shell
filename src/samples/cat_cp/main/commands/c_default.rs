@@ -224,7 +224,7 @@ struct TraceCb();
 impl structure::EventCallback for TraceCb {
     fn on<'a, 'b, 'c>(
         &'a self,
-        _context: &'b Box<dyn structure::job::JobRunnerContext>,
+        _context: &'b dyn structure::ExecCtx,
         _event_ref: structure::EventRef,
         payload: &'c structure::EventPayload,
     ) -> Result<(), structure::ScriptExit> {
@@ -241,7 +241,7 @@ struct DebugCb();
 impl structure::EventCallback for DebugCb {
     fn on<'a, 'b, 'c>(
         &'a self,
-        _context: &'b Box<dyn structure::job::JobRunnerContext>,
+        _context: &'b dyn structure::ExecCtx,
         _event_ref: structure::EventRef,
         payload: &'c structure::EventPayload,
     ) -> Result<(), structure::ScriptExit> {
@@ -258,7 +258,7 @@ struct VerboseCb();
 impl structure::EventCallback for VerboseCb {
     fn on<'a, 'b, 'c>(
         &'a self,
-        _context: &'b Box<dyn structure::job::JobRunnerContext>,
+        _context: &'b dyn structure::ExecCtx,
         _event_ref: structure::EventRef,
         payload: &'c structure::EventPayload,
     ) -> Result<(), structure::ScriptExit> {
@@ -275,7 +275,7 @@ struct InfoCb();
 impl structure::EventCallback for InfoCb {
     fn on<'a, 'b, 'c>(
         &'a self,
-        _context: &'b Box<dyn structure::job::JobRunnerContext>,
+        _context: &'b dyn structure::ExecCtx,
         _event_ref: structure::EventRef,
         payload: &'c structure::EventPayload,
     ) -> Result<(), structure::ScriptExit> {
@@ -292,7 +292,7 @@ struct NoticeCb();
 impl structure::EventCallback for NoticeCb {
     fn on<'a, 'b, 'c>(
         &'a self,
-        _context: &'b Box<dyn structure::job::JobRunnerContext>,
+        _context: &'b dyn structure::ExecCtx,
         _event_ref: structure::EventRef,
         payload: &'c structure::EventPayload,
     ) -> Result<(), structure::ScriptExit> {
@@ -311,7 +311,7 @@ struct WarningCb();
 impl structure::EventCallback for WarningCb {
     fn on<'a, 'b, 'c>(
         &'a self,
-        _context: &'b Box<dyn structure::job::JobRunnerContext>,
+        _context: &'b dyn structure::ExecCtx,
         _event_ref: structure::EventRef,
         payload: &'c structure::EventPayload,
     ) -> Result<(), structure::ScriptExit> {
@@ -328,7 +328,7 @@ struct ErrorCb();
 impl structure::EventCallback for ErrorCb {
     fn on<'a, 'b, 'c>(
         &'a self,
-        _context: &'b Box<dyn structure::job::JobRunnerContext>,
+        _context: &'b dyn structure::ExecCtx,
         _event_ref: structure::EventRef,
         payload: &'c structure::EventPayload,
     ) -> Result<(), structure::ScriptExit> {

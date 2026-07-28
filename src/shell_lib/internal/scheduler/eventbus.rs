@@ -8,6 +8,7 @@
 use std::sync::{Arc, RwLock, mpsc};
 
 use crate::shell_lib::helpers::async_signal::SignalNotice;
+use crate::shell_lib::structure::JobRunnerCtx;
 use crate::shell_lib::{
     helpers::mapvec::HashMapVec,
     structure::{
@@ -70,7 +71,7 @@ impl EventCollection for JobEventBus {
         let ctx = Box::new(JobEventBusSerialContext {
             inner: self.inner.clone(),
         });
-        let ctx = ctx as Box<dyn JobRunnerContext>;
+        let ctx = JobRunnerCtx::new(ctx);
         for evt in &events {
             for ch in self.channels.get_ref(evt.0) {
                 ch.send(evt.clone())?;

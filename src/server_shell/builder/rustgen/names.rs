@@ -12,19 +12,35 @@ pub fn command_module(job: JobRef) -> String {
     format!("c{}", job)
 }
 
-/// Create the name of the command's argument structure.
-pub fn command_arg_struct(job: JobRef) -> String {
-    format!("Cmd{}Args", job)
-}
-
-/// Create the name of the command's state structure.
-pub fn command_state_struct(job: JobRef) -> String {
+/// Create the name of the command's state holding structure.
+pub fn command_mod_struct(job: JobRef) -> String {
     format!("Cmd{}State", job)
 }
 
 /// Create the name of the command's CommandSetup + CommandHandler implementing structure.
-pub fn command_struct(job: JobRef) -> String {
+pub fn command_run_struct(job: JobRef) -> String {
     format!("Cmd{}Runner", job)
+}
+
+/// Create the job module name.
+/// Usable for both the filename creation and the 'use mod' line.
+pub fn job_module(job: JobRef) -> String {
+    format!("j{}", job)
+}
+
+/// Create the name of the structure that holds the job module instance.
+pub fn job_mod_struct(job: JobRef) -> String {
+    format!("Job{}", job)
+}
+
+/// Create the name of the job structure::job::JobRunner implementation.
+pub fn job_run_struct(job: JobRef) -> String {
+    format!("Job{}Runner", job)
+}
+
+/// Create the structure for the job event handler.
+pub fn event_handler_struct(job: JobRef, handler: usize) -> String {
+    format!("Job{}Event{}", job, handler)
 }
 
 /// Construct a unique, rust-compatible name from the string.

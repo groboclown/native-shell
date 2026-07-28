@@ -266,6 +266,11 @@ properties:
     type: integer
     minValue: -4294967296
     maxValue: 4294967295
+  ConstFloat:
+    title: Constant Floating Point Value
+    description: >
+      A constant floating point number declared within the script.  Used as an inline value.
+    type: number
   ParamName:
     title: Parameter Name
     description: >
@@ -903,7 +908,7 @@ properties:
           source:
             "$ref": "#/$defs/Source"
           value:
-            "$ref": "#/$defs/ConstInt"
+            "$ref": "#/$defs/ConstFloat"
       - title: Compile-Time Boolean
         description: A constant boolean (true/false) value.
         type: object
@@ -973,7 +978,7 @@ properties:
             minItems: 0
             maxItems: 1000
             items:
-              "$ref": "#/$defs/ConstInt"
+              "$ref": "#/$defs/ConstFloat"
       - title: Compile-Time Boolean List
         description: A constant boolean list value.
         type: object
@@ -1035,7 +1040,7 @@ properties:
             maxItems: 1000
             patternProperties:
               ".*":
-                "$ref": "#/$defs/ConstInt"
+                "$ref": "#/$defs/ConstFloat"
       - title: Compile-Time Boolean Map
         description: A constant boolean map value.
         type: object
@@ -1112,25 +1117,22 @@ properties:
   # Runtime Parameters for Jobs
   NamedParameters:
     title: Named Parameters
-    description: The parameters for the job.
-    type: array
-    items:
-      type: object
-      title: Action Parameter
-      description: A parameter for the job. Must provide exactly one of a value or a value-array.
-      required:
-        - source
-        - name
-        - value
-      additionalProperties: false
-      properties:
-        source:
-          "$ref": "#/$defs/Source"
-        name:
-          type: string
-          description: The name of the parameter.
-        value:
-          "$ref": "#/$defs/ComputedValue"
+    description: The parameters for the job.  The key is the parameter name.
+    type: object
+    patternProperties:
+      "^.*$":
+        type: object
+        title: Action Parameter
+        description: A parameter for the job. Must provide exactly one of a value or a value-array.
+        required:
+          - source
+          - value
+        additionalProperties: false
+        properties:
+          source:
+            "$ref": "#/$defs/Source"
+          value:
+            "$ref": "#/$defs/ComputedValue"
 
   ComputedValue:
     title: Computed Value
@@ -1151,12 +1153,12 @@ properties:
       - "$ref": "#/$composite/ComputedBooleanMapValue"
       - "$ref": "#/$composite/ComputedStringListMapValue"
       - "$ref": "#/$composite/ComputedStringMapListValue"
+      - "$ref": "#/$def/ComputedNullValue"
 
-  RemoveMapEntry:
-    title: Remove Map Entry
+  ComputedNullValue:
+    title: Computed Null Value
     description: >
-      When a map entry construction requires removing an entry, use this
-      as the value.
+      A null value.  Useful for optional values, or when a map entry construction requires removing an entry.
     type: object
     discriminator:
       propertyName: kind
@@ -2710,7 +2712,7 @@ properties:
           ".*":
             oneOf:
               - "$ref": "#/$composite/ComputedStringValue"
-              - "$ref": "#/$defs/RemoveMapEntry"
+              - "$ref": "#/$defs/ComputedNullValue"
 
   # -------------------------------------------------------------------
   # Number Map values
@@ -2787,7 +2789,7 @@ properties:
           ".*":
             oneOf:
               - "$ref": "#/$composite/ComputedNumberValue"
-              - "$ref": "#/$defs/RemoveMapEntry"
+              - "$ref": "#/$defs/ComputedNullValue"
 
   # -------------------------------------------------------------------
   # Boolean Maps
@@ -2864,7 +2866,7 @@ properties:
           ".*":
             oneOf:
               - "$ref": "#/$composite/ComputedBooleanValue"
-              - "$ref": "#/$defs/RemoveMapEntry"
+              - "$ref": "#/$defs/ComputedNullValue"
 
   # -------------------------------------------------------------------
   # Map of string lists
@@ -2941,7 +2943,7 @@ properties:
           ".*":
             oneOf:
               - "$ref": "#/$composite/ComputedStringListValue"
-              - "$ref": "#/$defs/RemoveMapEntry"
+              - "$ref": "#/$defs/ComputedNullValue"
 
   # -------------------------------------------------------------------
   # List of string maps

@@ -43,8 +43,9 @@ pub fn lls_v1_to_module_source(
         let o2 = out.clone();
         let i2 = issues.clone();
         let c2 = collector.clone();
+        let n2 = now.clone();
         std::thread::spawn(move || {
-            let _ = rustgen::jobs::gen_jobs(i2, c2, o2);
+            let _ = rustgen::jobs::gen_jobs(i2, c2, o2, &n2);
         })
     };
 
@@ -211,6 +212,7 @@ fn new_macro_job_structure(
         Some(m) => Ok(collect::JobStructure::Macro((
             Arc::new(job.clone()),
             m.clone(),
+            None, // defined once the macro builds.
         ))),
         None => Err(errors::BuilderError::MacroNotRegistered(
             errors::ErrorDetails {

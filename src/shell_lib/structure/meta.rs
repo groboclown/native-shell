@@ -26,6 +26,7 @@ pub enum ValueType {
 ///
 /// If `optional` is true, then the user does not need to provide a value for this field,
 /// and the code representation will wrap the type in an `Option<ValueType>`.
+#[derive(Clone, Debug)]
 pub struct NamedValue {
     pub name: String,
     // pub description: String,  // use this?
@@ -78,6 +79,7 @@ pub enum StreamInterface {
 }
 
 /// Defines a structure owned by the module that the script will use to interact with the module.
+#[derive(Clone, Debug)]
 pub struct ModuleStructure {
     /// The name of the structure.
     /// It must share the same mod name as the module.
@@ -159,46 +161,26 @@ pub struct CrateDependency {
 }
 
 /// Meta-information about a function that receives events.
+#[derive(Clone, Debug)]
 pub struct EventFunc {
     pub func_name: String,
     pub event_name: String,
     pub kind: EventKind,
-
-    // TODO can this compile fine if the caller always passes mut if the receiver does not use it?
-    pub mutable: bool,
 }
 
 impl EventFunc {
-    pub fn mut_msg(name: &str) -> Self {
-        Self {
-            func_name: name.to_string(),
-            event_name: name.to_string(),
-            kind: EventKind::Message,
-            mutable: true,
-        }
-    }
-    pub fn mut_sig(name: &str) -> Self {
+    pub fn sig(name: &str) -> Self {
         Self {
             func_name: name.to_string(),
             event_name: name.to_string(),
             kind: EventKind::Signal,
-            mutable: true,
         }
     }
-    pub fn imm_msg(name: &str) -> Self {
+    pub fn msg(name: &str) -> Self {
         Self {
             func_name: name.to_string(),
             event_name: name.to_string(),
             kind: EventKind::Message,
-            mutable: false,
-        }
-    }
-    pub fn imm_sig(name: &str) -> Self {
-        Self {
-            func_name: name.to_string(),
-            event_name: name.to_string(),
-            kind: EventKind::Signal,
-            mutable: false,
         }
     }
 }
@@ -240,6 +222,7 @@ pub struct ModuleMeta {
 }
 
 /// Modules that take on the Job role define this meta-structure.
+#[derive(Clone)]
 pub struct JobModuleStruct {
     /// The module's instance struct name.
     ///
@@ -359,8 +342,6 @@ pub struct JobModuleStruct {
     ///   ```rust
     ///   pub fn #[event.func_name](&self, &mut dyn ExecCtx, EventRef, &String) -> Result<(), ScriptExit>
     ///   pub fn #[event.func_name](&self, &mut dyn ExecCtx, EventRef, SignalCode) -> Result<(), ScriptExit>
-    ///   pub fn #[event.func_name](&mut self, &mut dyn ExecCtx, EventRef, &String) -> Result<(), ScriptExit>
-    ///   pub fn #[event.func_name](&mut self, &mut dyn ExecCtx, EventRef, SignalCode) -> Result<(), ScriptExit>
     ///   ```
     pub handlers: Vec<EventFunc>,
 }
@@ -403,6 +384,19 @@ pub struct CommandModuleStruct {
     ///   pub fn #[event.func_name](&mut self, &mut dyn ExecCtx, EventRef, SignalCode) -> Result<(), ScriptExit>
     ///   ```
     pub handlers: Vec<EventFunc>,
+}
+
+impl Into<JobModuleStruct> for &CommandModuleStruct {
+    fn into(self) -> JobModuleStruct {
+        JobModuleStruct {
+            instance_struct: self.instance_struct.clone(),
+            state_struct: self.state_struct.clone(),
+            compile_param_struct: self.compile_param_struct.clone(),
+            runtime_param_struct: None,
+            stream_struct: None,
+            handlers: self.handlers.clone(),
+        }
+    }
 }
 
 /// Helper function to create a crate dependency that uses the latest version.

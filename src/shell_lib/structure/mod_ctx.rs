@@ -39,7 +39,7 @@ pub trait InitCtx {
 pub trait EventCallback {
     fn on<'a, 'b, 'c>(
         &'a self,
-        context: &'b Box<dyn JobRunnerContext>,
+        context: &'b dyn ExecCtx,
         event_ref: EventRef,
         payload: &'c EventPayload,
     ) -> Result<(), ScriptExit>;

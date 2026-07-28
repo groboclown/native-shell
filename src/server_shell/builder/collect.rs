@@ -23,6 +23,7 @@ pub enum JobStructure {
         (
             Arc<lls::model::MacroJob>,
             Arc<Box<dyn meta::MacroMeta + Send + Sync>>,
+            Option<Arc<meta::MacroModule>>, // set once the macro has been built.
         ),
     ),
     Stream(Arc<lls::model::StreamJob>),
@@ -40,6 +41,15 @@ pub struct Collector {
     threads: LockedBuilderRef<lls::model::Thread>,
     jobs: LockedBuilderRef<JobSource>,
     events: LockedBuilderRef<structure::EventKind>,
+    future: Arc<Mutex<Vec<FutureResolve>>>,
+}
+
+#[derive(Clone)]
+struct FutureResolve {
+    job_name: String,
+    source: lls::model::Source,
+    state_field: String,
+    set_type: Option<structure::meta::ValueType>,
 }
 
 impl Clone for Collector {
@@ -49,6 +59,7 @@ impl Clone for Collector {
             threads: self.threads.clone(),
             jobs: self.jobs.clone(),
             events: self.events.clone(),
+            future: self.future.clone(),
         }
     }
 }
@@ -60,6 +71,7 @@ impl Collector {
             threads: LockedBuilderRef::new(),
             jobs: LockedBuilderRef::new(),
             events: LockedBuilderRef::new(),
+            future: Arc::new(Mutex::new(Vec::new())),
         }
     }
 
@@ -170,11 +182,48 @@ impl Collector {
             }))
     }
 
-    /// Get the list of the registered job names, ordered by job ref.
-    pub fn ordered_jobs(&self) -> Vec<(String, structure::JobRef, Arc<JobSource>)> {
-        self.jobs.ordered_values()
+    pub fn set_macro_job_definition(
+        &self,
+        name: &String,
+        source: &lls::model::Source,
+        definition: Arc<meta::MacroModule>,
+    ) -> Result<(), errors::BuilderError> {
+        let job = self.get_job_checked(name, source)?;
+        match &job.structure {
+            JobStructure::Macro(m_j) => self
+                .jobs
+                .update(name, source, |v| JobSource {
+                    structure: JobStructure::Macro((
+                        m_j.0.clone(),
+                        m_j.1.clone(),
+                        Some(definition),
+                    )),
+                    is_cmd: v.is_cmd,
+                })
+                .map_err(|e| errors::BuilderError::NoSuchJob(e)),
+            _ => Err(errors::BuilderError::MacroNotRegistered(
+                errors::ErrorDetails {
+                    message: name.clone(),
+                    source: source.into(),
+                    related: Vec::new(),
+                },
+            )),
+        }
     }
 
+    /// Get the list of the registered job names (not commands), ordered by job ref.
+    pub fn ordered_jobs(&self) -> Vec<(String, structure::JobRef, Arc<JobSource>)> {
+        let mut ret = Vec::new();
+        let mut jobs = self.jobs.ordered_values();
+        for (n, j, s) in jobs.drain(0..jobs.len()) {
+            if !s.is_cmd {
+                ret.push((n, j, s));
+            }
+        }
+        ret
+    }
+
+    /// Get the list of the registered command names (not jobs), ordered by job ref.
     pub fn ordered_commands(&self) -> Vec<(String, structure::JobRef, Arc<JobSource>)> {
         let mut ret = Vec::new();
         let mut jobs = self.jobs.ordered_values();
@@ -184,6 +233,11 @@ impl Collector {
             }
         }
         ret
+    }
+
+    /// Get the list of the registered jobs + commands, ordered by job ref.
+    pub fn ordered_jobs_commands(&self) -> Vec<(String, structure::JobRef, Arc<JobSource>)> {
+        self.jobs.ordered_values()
     }
 
     /// Get the events reference with the given name.
@@ -236,6 +290,150 @@ impl Collector {
             .map(|v| (v.0.clone(), v.1, (*v.2).clone()))
             .collect()
     }
+
+    /// Get the named job's state's field.
+    /// This can return None in the case of macro definitions, when the macro hasn't been declared yet.
+    pub fn get_job_state_field<'a, 'b, 'c, 'd, 'e>(
+        &'a self,
+        source: &'b lls::model::Source,
+        job_name: &'c String,
+        field_name: &'d String,
+        set_to_type: &'e Option<structure::meta::ValueType>,
+    ) -> Result<(structure::JobRef, Option<structure::meta::NamedValue>), errors::BuilderError>
+    {
+        let job_src = self.get_job_checked(job_name, source)?;
+        let job_ref = self
+            .jobs
+            .get_ref_id(job_name)
+            .ok_or(errors::BuilderError::General(
+                "bug: job found but no id found".into(),
+            ))?;
+        let kind = match job_src.is_cmd {
+            true => "command",
+            false => "job",
+        };
+        match &job_src.structure {
+            JobStructure::Module(module) => {
+                match get_field_named(
+                    field_name,
+                    &(get_mod_state_struct(job_name, source, &job_src, &module.1)?.fields),
+                ) {
+                    Some(nv) => Ok((job_ref, Some(nv.clone()))),
+                    None => Err(errors::BuilderError::NoSuchField(errors::ErrorDetails {
+                        message: format!("{} in {} {}", field_name, kind, job_name),
+                        source: source.into(),
+                        related: Vec::new(),
+                    })),
+                }
+            }
+            JobStructure::Macro(m_job) => match &m_job.2 {
+                Some(j) => match get_field_named(
+                    field_name,
+                    &(get_mod_state_struct(job_name, source, &job_src, &j.meta)?.fields),
+                ) {
+                    Some(nv) => Ok((job_ref, Some(nv.clone()))),
+                    None => Err(errors::BuilderError::NoSuchField(errors::ErrorDetails {
+                        message: format!("{} in {} {}", field_name, kind, job_name),
+                        source: source.into(),
+                        related: Vec::new(),
+                    })),
+                },
+                None => {
+                    // Indeterminate; must decide later.
+                    match self.future.lock() {
+                        Ok(mut f) => f.push(FutureResolve {
+                            job_name: job_name.clone(),
+                            source: source.clone(),
+                            state_field: field_name.clone(),
+                            set_type: set_to_type.clone(),
+                        }),
+                        Err(mut e) => (*e.get_mut()).push(FutureResolve {
+                            job_name: job_name.clone(),
+                            source: source.clone(),
+                            state_field: field_name.clone(),
+                            set_type: set_to_type.clone(),
+                        }),
+                    }
+                    Ok((job_ref, None))
+                }
+            },
+            JobStructure::Stream(_) | JobStructure::Unknown | JobStructure::Inline(_) => {
+                // Currently, these job definitions do not allow for defining state.
+                Err(errors::BuilderError::NoSuchField(errors::ErrorDetails {
+                    message: format!("{} in {} {}", field_name, kind, job_name),
+                    source: source.into(),
+                    related: Vec::new(),
+                }))
+            }
+        }
+    }
+
+    /// Resolve all job fields that had a requested lookup, but whose presence or type was not available.
+    /// Call after the construction of all the macro jobs to perform a final resolution of generated
+    /// state fields.
+    pub fn resolve_pending_job_fields(&self) -> Result<(), errors::BuilderError> {
+        todo!()
+    }
+}
+
+fn get_field_named<'a, 'b>(
+    name: &'a String,
+    fields: &'b Vec<structure::meta::NamedValue>,
+) -> Option<&'b structure::meta::NamedValue> {
+    for nv in fields {
+        if nv.name == *name {
+            return Some(nv);
+        }
+    }
+    None
+}
+
+fn get_mod_state_struct<'a, 'b, 'c, 'd>(
+    name: &'a String,
+    source: &'b lls::model::Source,
+    job_src: &'c JobSource,
+    module: &'d structure::meta::ModuleMeta,
+) -> Result<structure::meta::ModuleStructure, errors::BuilderError> {
+    match &job_src.is_cmd {
+        true => match &module.command {
+            Some(c) => match &c.state_struct {
+                Some(s) => Ok(s.clone()),
+                None => Err(errors::BuilderError::NoStateForModule(
+                    errors::ErrorDetails {
+                        message: name.clone(),
+                        source: source.into(),
+                        related: Vec::new(),
+                    },
+                )),
+            },
+            None => Err(errors::BuilderError::ModuleNotUsableForCommand(
+                errors::ErrorDetails {
+                    message: name.clone(),
+                    source: source.into(),
+                    related: Vec::new(),
+                },
+            )),
+        },
+        false => match &module.job {
+            Some(j) => match &j.state_struct {
+                Some(s) => Ok(s.clone()),
+                None => Err(errors::BuilderError::NoStateForModule(
+                    errors::ErrorDetails {
+                        message: name.clone(),
+                        source: source.into(),
+                        related: Vec::new(),
+                    },
+                )),
+            },
+            None => Err(errors::BuilderError::ModuleNotUsableForJob(
+                errors::ErrorDetails {
+                    message: name.clone(),
+                    source: source.into(),
+                    related: Vec::new(),
+                },
+            )),
+        },
+    }
 }
 
 #[derive(Clone)]
@@ -266,7 +464,7 @@ impl<T> LockedBuilderRef<T> {
         }
     }
 
-    fn add_primary(
+    pub fn add_primary(
         &self,
         name: String,
         source: lls::model::Source,
@@ -305,6 +503,13 @@ impl<T> LockedBuilderRef<T> {
         }
     }
 
+    pub fn get_ref_id(&self, name: &String) -> Option<usize> {
+        match self.lb.lock() {
+            Ok(m) => m.get_ref_id(name),
+            Err(e) => (*e.get_ref()).get_ref_id(name),
+        }
+    }
+
     pub fn get_primary(&self, name: &String) -> Option<lls::model::Source> {
         match self.lb.lock() {
             Ok(m) => m.get_primary(name).map(|v| v.clone()),
@@ -328,6 +533,18 @@ impl<T> LockedBuilderRef<T> {
                 }
                 r
             }
+        }
+    }
+
+    pub fn update(
+        &self,
+        name: &String,
+        source: &lls::model::Source,
+        f: impl FnOnce(&T) -> T,
+    ) -> Result<(), errors::ErrorDetails> {
+        match self.lb.lock() {
+            Ok(mut m) => m.update(name, source, |v| Arc::new(f(v.as_ref()))),
+            Err(mut e) => (*e.get_mut()).update(name, source, |v| Arc::new(f(v.as_ref()))),
         }
     }
 
@@ -415,6 +632,36 @@ impl<T> BuilderRef<T> {
         }
     }
 
+    fn update(
+        &mut self,
+        name: &String,
+        source: &lls::model::Source,
+        f: impl FnOnce(&T) -> T,
+    ) -> Result<(), errors::ErrorDetails> {
+        let rid = match self.by_name.get(name) {
+            Some(r) => *r,
+            None => {
+                return Err(errors::ErrorDetails {
+                    message: name.clone(),
+                    source: source.into(),
+                    related: Vec::new(),
+                });
+            }
+        };
+        let old = self.by_ref.get_mut(rid);
+        match old {
+            None => Err(errors::ErrorDetails {
+                message: rid.to_string(),
+                source: source.into(),
+                related: Vec::new(),
+            }),
+            Some(old) => {
+                old.val = f(&old.val);
+                Ok(())
+            }
+        }
+    }
+
     fn add_ref(
         &mut self,
         name: String,
@@ -454,6 +701,10 @@ impl<T> BuilderRef<T> {
         } else {
             Vec::new()
         }
+    }
+
+    fn get_ref_id(&self, name: &String) -> Option<usize> {
+        self.by_name.get(name).map(|f| *f)
     }
 
     fn get_val(&self, name: &String) -> Option<&T> {

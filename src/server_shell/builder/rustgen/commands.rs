@@ -3,7 +3,6 @@
 use std::sync::Arc;
 use std::thread;
 
-use crate::server_shell::builder::rustgen::names;
 use crate::server_shell::lls;
 use crate::shell_lib::structure;
 
@@ -11,6 +10,7 @@ use super::super::collect;
 use super::super::errors;
 use super::super::writer;
 use super::helpers;
+use super::names;
 
 /// Write the rust files related to commands.
 /// Returns an empty result for quick returns.
@@ -21,27 +21,25 @@ pub fn gen_commands(
     now: &String,
 ) -> Result<(), ()> {
     // Each command can be written independently.
-    let mut jobs = Vec::new();
-    for (name, job_ref, cmd) in collector.ordered_jobs().iter() {
-        if cmd.is_cmd {
-            let name = name.clone();
-            let job_ref = *job_ref;
-            let co2 = collector.clone();
-            let c2 = cmd.clone();
-            let i2 = issues.clone();
-            let o2 = out.clone();
-            let n2 = now.clone();
-            jobs.push(thread::spawn(move || {
-                let _ = gen_command_file(name, job_ref, c2, co2, i2, o2, &n2);
-            }));
-        }
+    let mut cmds = Vec::new();
+    for (name, job_ref, cmd) in collector.ordered_commands().iter() {
+        let name = name.clone();
+        let job_ref = *job_ref;
+        let co2 = collector.clone();
+        let c2 = cmd.clone();
+        let i2 = issues.clone();
+        let o2 = out.clone();
+        let n2 = now.clone();
+        cmds.push(thread::spawn(move || {
+            let _ = gen_command_file(name, job_ref, c2, co2, i2, o2, &n2);
+        }));
     }
 
     // Create the command index while the command generators run.
     let _ = gen_command_index(collector, &issues, out, now);
 
     // Wait for the command generators to complete.
-    for j in jobs {
+    for j in cmds {
         issues.add_result(
             j.join()
                 .map_err(|e| errors::BuilderError::General(format!("{:?}", e))),
@@ -85,7 +83,7 @@ fn gen_command_index(
             issues,
             helpers::qualify_name(
                 &vec![names::command_module(*jref)],
-                &names::command_struct(*jref),
+                &names::command_run_struct(*jref),
             ),
         )?;
         helpers::write_str(&mut out, issues, ";\n")?;
@@ -95,7 +93,7 @@ fn gen_command_index(
         // -> '}\n'
         helpers::write_str(&mut out, issues, "\npub enum SubCommand {\n")?;
         for (_, jref, _) in cmds {
-            let struct_name = names::command_struct(jref);
+            let struct_name = names::command_run_struct(jref);
             helpers::write_str(&mut out, issues, "    ")?;
             helpers::write_string_ref(&mut out, issues, &struct_name)?;
             helpers::write_str(&mut out, issues, "(")?;
@@ -113,7 +111,6 @@ fn gen_command_index(
 }
 
 /// Generate the command file.
-/// Commands don't need to lookup other jobs, so the collector isn't passed in.
 fn gen_command_file(
     name: String,
     job_ref: structure::JobRef,
@@ -134,12 +131,29 @@ fn gen_command_file(
             out,
         ),
         collect::JobStructure::Module(module) => {
-            // #1: TODO ensure the module complies with the cmd requirements.
+            // #1: ensure the module complies with the cmd requirements.
+            let settings = create_settings(name, job_ref, &module.0.source, &now);
+            let cmd_mod = match &module.1.command {
+                Some(c) => c,
+                None => {
+                    // Does not support commands.
+                    issues.add_err(errors::BuilderError::ModuleNotUsableForCommand(
+                        errors::ErrorDetails {
+                            message: (&module.1.name).clone(),
+                            source: module.0.source.clone().into(),
+                            related: Vec::new(),
+                        },
+                    ));
+                    return Err(());
+                }
+            };
             // #2: create the job.
+            let job_mod: structure::meta::JobModuleStruct = cmd_mod.into();
             super::job_mod::gen_module_job_file(
-                create_settings(name, job_ref, &module.0.source, &now),
+                settings,
                 module.0.clone(),
                 module.1.clone(),
+                &job_mod,
                 collector,
                 issues,
                 out,
@@ -195,10 +209,8 @@ fn create_settings(
         job_ref,
         parent_module: vec!["commands".to_string()],
         module_name: names::command_module(job_ref),
-        struct_name: names::command_struct(job_ref),
-        init_param_struct: names::command_arg_struct(job_ref),
-        runtime_param_struct: "--commands do not have runtime parameters.".to_string(),
-        state_struct: names::command_state_struct(job_ref),
+        run_struct_name: names::command_run_struct(job_ref),
+        mod_struct_name: names::command_mod_struct(job_ref),
         now: now.clone(),
     }
 }
