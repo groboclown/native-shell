@@ -65,7 +65,7 @@ fn gen_command_index(
     let cmds = collector.ordered_commands();
     for (_, jref, _) in &cmds {
         helpers::write_str(&mut out, issues, "pub mod ")?;
-        helpers::write_string(&mut out, issues, names::command_module(*jref))?;
+        helpers::write_string(&mut out, issues, names::command_ref_module_name(*jref))?;
         helpers::write_str(&mut out, issues, ";\n")?;
     }
 
@@ -82,7 +82,7 @@ fn gen_command_index(
             &mut out,
             issues,
             helpers::qualify_name(
-                &vec![names::command_module(*jref)],
+                &vec![names::command_ref_module_name(*jref)],
                 &names::command_run_struct(*jref),
             ),
         )?;
@@ -100,7 +100,7 @@ fn gen_command_index(
             helpers::write_string(
                 &mut out,
                 issues,
-                helpers::qualify_name(&vec![names::command_module(jref)], &struct_name),
+                helpers::qualify_name(&vec![names::command_ref_module_name(jref)], &struct_name),
             )?;
             helpers::write_str(&mut out, issues, "),\n")?;
         }
@@ -208,7 +208,7 @@ fn create_settings(
         source: source.clone(),
         job_ref,
         parent_module: vec!["commands".to_string()],
-        module_name: names::command_module(job_ref),
+        module_name: names::command_ref_module_name(job_ref),
         run_struct_name: names::command_run_struct(job_ref),
         mod_struct_name: names::command_mod_struct(job_ref),
         now: now.clone(),

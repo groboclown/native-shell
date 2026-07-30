@@ -65,7 +65,7 @@ fn gen_job_index(
     let cmds = collector.ordered_jobs();
     for (_, jref, _) in &cmds {
         helpers::write_str(&mut out, issues, "pub mod ")?;
-        helpers::write_string(&mut out, issues, names::job_module(*jref))?;
+        helpers::write_string(&mut out, issues, names::job_module_name(*jref))?;
         helpers::write_str(&mut out, issues, ";\n")?;
     }
     Ok(())
@@ -163,7 +163,7 @@ fn create_settings(
         source: source.clone(),
         job_ref,
         parent_module: vec!["jobs".to_string()],
-        module_name: names::job_module(job_ref),
+        module_name: names::job_module_name(job_ref),
         mod_struct_name: names::job_mod_struct(job_ref),
         run_struct_name: names::command_run_struct(job_ref),
         now: now.clone(),

@@ -168,10 +168,10 @@ impl Collector {
     }
 
     /// Get the job, and returns an error if it was not registered.
-    pub fn get_job_checked(
-        &self,
-        name: &String,
-        source: &lls::model::Source,
+    pub fn get_job_checked<'a, 'b, 'c>(
+        &'a self,
+        name: &'b String,
+        source: &'c lls::model::Source,
     ) -> Result<Arc<JobSource>, errors::BuilderError> {
         self.jobs
             .get(name)
@@ -293,6 +293,8 @@ impl Collector {
 
     /// Get the named job's state's field.
     /// This can return None in the case of macro definitions, when the macro hasn't been declared yet.
+    /// This does not perform type evaluation; instead, it uses set_to_type as a future
+    /// type evaluation for calls to `resolve_pending_job_fields()`.
     pub fn get_job_state_field<'a, 'b, 'c, 'd, 'e>(
         &'a self,
         source: &'b lls::model::Source,

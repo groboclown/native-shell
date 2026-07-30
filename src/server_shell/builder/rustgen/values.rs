@@ -2,50 +2,14 @@
 
 use std::ops::Deref;
 
-use super::helpers;
+use super::{helpers, lookup};
 use crate::{
     server_shell::{
         builder::{collect, errors},
-        lls,
+        lls::{self, convert::*},
     },
     shell_lib::structure,
 };
-
-/// Does the expected type match the discovered kind?
-/// Though not required, the actual value may be passed in to perform extra validation checks.
-pub fn is_type_match(
-    expected: structure::meta::ValueType,
-    optional: bool,
-    kind: Option<structure::meta::ValueType>,
-    value: Option<String>,
-) -> bool {
-    match kind {
-        None if optional => true,
-        None => false, // !optional
-        Some(kind) => match kind {
-            structure::meta::ValueType::String => {
-                // Strings might be enum types.
-                if let structure::meta::ValueType::Enum(choices) = expected {
-                    match value {
-                        Some(value) => choices.contains(&value),
-
-                        // Should be an "indeterminante" value, because this can't make a solid call.
-                        // But it looks close enough, and later things like compilers may take over the
-                        // checking.
-                        None => true,
-                    }
-                } else {
-                    expected == kind
-                }
-            }
-
-            // Not applicable: value types are never enums; only fields are.
-            structure::meta::ValueType::Enum(_) => panic!("bad state: values can't be enum types"),
-
-            _ => kind == expected,
-        },
-    }
-}
 
 pub fn conv_initial_parameter(
     _issues: &errors::ScriptIssues,
@@ -106,16 +70,24 @@ pub fn conv_initial_parameter(
     }
 }
 
-enum ConvAP<'a> {
+enum ConvAP {
     StrBit(&'static str),
+    StringBit(String),
     Computed(
         (
             Option<structure::meta::ValueType>, // Expected kind
-            &'a lls::model::ComputedValue,
+            // This copies the value.  A reference would be better here,
+            // but there exist some places where we need to construct this,
+            // which makes management of the value difficult.
+            lls::model::ComputedValue,
         ),
     ),
 }
 
+/// Create the runtime (action) parameter value.
+/// This happens within the `run()` function of the JobRunner instance.
+/// At this point, the '&self' reference contains a 'self.runtime'
+/// (Arc<Runtime>) value for looking up state field values.
 pub fn conv_action_parameter<'a, 'b, 'c>(
     issues: &'a errors::ScriptIssues,
     col: &'b collect::Collector,
@@ -128,7 +100,10 @@ pub fn conv_action_parameter<'a, 'b, 'c>(
         }
     };
     let mut ret_str = String::new();
-    let mut stack: Vec<ConvAP<'c>> = vec![ConvAP::Computed((Some(ret_type.clone()), &value.value))];
+    let mut stack: Vec<ConvAP> = vec![ConvAP::Computed((
+        Some(ret_type.clone()),
+        value.value.clone(),
+    ))];
 
     loop {
         let next_v = match stack.pop() {
@@ -142,34 +117,201 @@ pub fn conv_action_parameter<'a, 'b, 'c>(
                 // Append the bit of text.
                 ret_str.push_str(s);
             }
+            ConvAP::StringBit(s) => {
+                // Append the bit of text.
+                ret_str.push_str(s.as_str());
+            }
             ConvAP::Computed((exp_type, val)) => match val {
                 lls::model::ComputedValue::LookupStringValue(lookup_string_value) => {
-                    // TODO may not want early exit on error here.
-                    let (job_ref, field_type) = issues.consume(col.get_job_state_field(
-                        &lookup_string_value.source,
-                        &lookup_string_value.job,
-                        &lookup_string_value.name,
-                        &exp_type,
-                    ))?;
-                    match field_type {
-                        None => {
-                            // The action parameter can't be decided yet.
-                            // Assume it's valid.
-                        }
-                        Some(t) => {}
-                    }
+                    // TODO ensure exp_type is a string value.
                     ret_str.push_str(
-                        format!(
-                            "self.runtime.{}.{}",
-                            super::names::x(job_ref),
-                            lookup_string_value.name
+                        lookup::generate_lookup(
+                            &lookup_string_value.source,
+                            &"self.runtime".to_string(),
+                            &lookup_string_value.job,
+                            &lookup_string_value.name,
+                            &structure::meta::ValueType::String,
+                            false,
+                            issues,
+                            col,
                         )
                         .as_str(),
                     );
                 }
-                lls::model::ComputedValue::ListIndexStringValue(list_index_string_value) => todo!(),
-                lls::model::ComputedValue::MapKeyStringValue(map_key_string_value) => todo!(),
-                lls::model::ComputedValue::SubStringValue(sub_string_value) => todo!(),
+                lls::model::ComputedValue::ListIndexStringValue(list_index_string_value) => {
+                    // TODO ensure exp_type is a string value.
+                    // This needs to take the format: (<list string>).get((<index value>).trunc()).or(<default>)
+                    stack.push(ConvAP::StrBit(")"));
+                    stack.push(ConvAP::Computed((
+                        Some(structure::meta::ValueType::String),
+                        list_index_string_value.default.as_ref().into(),
+                    )));
+                    stack.push(ConvAP::StrBit(").trunc()).or("));
+                    stack.push(ConvAP::Computed((
+                        Some(structure::meta::ValueType::Float),
+                        list_index_string_value.index.as_ref().into(),
+                    )));
+                    stack.push(ConvAP::StrBit(").get(("));
+                    stack.push(ConvAP::Computed((
+                        Some(structure::meta::ValueType::StringList),
+                        list_index_string_value.list.as_ref().into(),
+                    )));
+                    ret_str.push('(');
+                }
+                lls::model::ComputedValue::MapKeyStringValue(map_key_string_value) => {
+                    // TODO ensure exp_type is a string value.
+                    // This takes the format: (<string map>).get(<string>).or(<default>)
+                    stack.push(ConvAP::StrBit(")"));
+                    stack.push(ConvAP::Computed((
+                        Some(structure::meta::ValueType::String),
+                        map_key_string_value.default.as_ref().into(),
+                    )));
+                    stack.push(ConvAP::StrBit(").or("));
+                    stack.push(ConvAP::Computed((
+                        Some(structure::meta::ValueType::String),
+                        map_key_string_value.key.as_ref().into(),
+                    )));
+                    stack.push(ConvAP::StrBit(").get("));
+                    stack.push(ConvAP::Computed((
+                        Some(structure::meta::ValueType::StringMap),
+                        (&map_key_string_value.map).into(),
+                    )));
+                    ret_str.push('(');
+                }
+                lls::model::ComputedValue::SubStringValue(sub_string_value) => {
+                    // TODO ensure exp_type is a string value.
+                    // This uses the substring helper function to do the right behavior.
+                    if let Some(end) = sub_string_value.end {
+                        // It includes an 'end' section, which is the last index to consume.
+                        if sub_string_value.count.is_some() {
+                            issues.add_err(errors::BuilderError::InvalidLLS(
+                                errors::ErrorDetails {
+                                    source: sub_string_value.source.into(),
+                                    message: "cannot specify both 'end' and 'count'".into(),
+                                    related: Vec::new(),
+                                },
+                            ));
+                            ret_str.push_str("panic!(\"end + count\")");
+                            continue;
+                        }
+                        match sub_string_value.start {
+                            Some(start) => {
+                                // Call out:
+                                // crate::shell_lib::helpers::values::sub_string_start_end(
+                                //   (<value>).to_string(), (<start>).trunc() as usize, (<end>).trunc() as i64)
+                                stack.push(ConvAP::StrBit(").trunc() as i64)"));
+                                stack.push(ConvAP::Computed((
+                                    Some(structure::meta::ValueType::Float),
+                                    end.as_ref().into(),
+                                )));
+                                stack.push(ConvAP::StrBit(").trunc() as usize, ("));
+                                stack.push(ConvAP::Computed((
+                                    Some(structure::meta::ValueType::Float),
+                                    start.as_ref().into(),
+                                )));
+                                stack.push(ConvAP::StrBit(").to_string(), ("));
+                                stack.push(ConvAP::Computed((
+                                    Some(structure::meta::ValueType::String),
+                                    sub_string_value.value.as_ref().into(),
+                                )));
+                                ret_str.push_str(
+                                    "crate::shell_lib::helpers::values::sub_string_start_end((",
+                                );
+                            }
+                            None => {
+                                // Call out:
+                                // crate::shell_lib::helpers::values::sub_string_end(
+                                //   (<value>).to_string(), (<end>).trunc() as i64)
+                                stack.push(ConvAP::StrBit(").trunc() as i64)"));
+                                stack.push(ConvAP::Computed((
+                                    Some(structure::meta::ValueType::Float),
+                                    end.as_ref().into(),
+                                )));
+                                stack.push(ConvAP::StrBit(").to_string(), ("));
+                                stack.push(ConvAP::Computed((
+                                    Some(structure::meta::ValueType::String),
+                                    sub_string_value.value.as_ref().into(),
+                                )));
+                                ret_str.push_str(
+                                    "crate::shell_lib::helpers::values::sub_string_end((",
+                                );
+                            }
+                        }
+                    } else if let Some(count) = sub_string_value.count {
+                        match sub_string_value.start {
+                            Some(start) => {
+                                // Call out:
+                                // crate::shell_lib::helpers::values::sub_string_start_count(
+                                //   (<value>).to_string(), (<start>) as usize, (<count>) as i64)
+                                stack.push(ConvAP::StrBit(").trunc() as i64)"));
+                                stack.push(ConvAP::Computed((
+                                    Some(structure::meta::ValueType::Float),
+                                    count.as_ref().into(),
+                                )));
+                                stack.push(ConvAP::StrBit(").trunc() as usize, ("));
+                                stack.push(ConvAP::Computed((
+                                    Some(structure::meta::ValueType::Float),
+                                    start.as_ref().into(),
+                                )));
+                                stack.push(ConvAP::StrBit(").to_string(), ("));
+                                stack.push(ConvAP::Computed((
+                                    Some(structure::meta::ValueType::String),
+                                    sub_string_value.value.as_ref().into(),
+                                )));
+                                ret_str.push_str(
+                                    "crate::shell_lib::helpers::values::sub_string_start_count((",
+                                );
+                            }
+                            None => {
+                                // Call out:
+                                // crate::shell_lib::helpers::values::sub_string_end(
+                                //   (<value>).to_string(), (<count>).trunc() as i64)
+                                // (in this case, end acts the same as count)
+                                stack.push(ConvAP::StrBit(").trunc() as i64)"));
+                                stack.push(ConvAP::Computed((
+                                    Some(structure::meta::ValueType::Float),
+                                    count.as_ref().into(),
+                                )));
+                                stack.push(ConvAP::StrBit(").to_string(), ("));
+                                stack.push(ConvAP::Computed((
+                                    Some(structure::meta::ValueType::String),
+                                    sub_string_value.value.as_ref().into(),
+                                )));
+                                ret_str.push_str(
+                                    "crate::shell_lib::helpers::values::sub_string_end((",
+                                );
+                            }
+                        }
+                    } else {
+                        match sub_string_value.start {
+                            Some(start) => {
+                                // Call out:
+                                // crate::shell_lib::helpers::values::sub_string_start(
+                                //   (<value>).to_string(), (<start>).trunc() as usize)
+                                stack.push(ConvAP::StrBit(").trunc() as usize)"));
+                                stack.push(ConvAP::Computed((
+                                    Some(structure::meta::ValueType::Float),
+                                    start.as_ref().into(),
+                                )));
+                                stack.push(ConvAP::StrBit(").to_string(), ("));
+                                stack.push(ConvAP::Computed((
+                                    Some(structure::meta::ValueType::String),
+                                    sub_string_value.value.as_ref().into(),
+                                )));
+                                ret_str.push_str(
+                                    "crate::shell_lib::helpers::values::sub_string_start((",
+                                );
+                            }
+                            None => {
+                                // Just use the embedded string.
+                                stack.push(ConvAP::Computed((
+                                    Some(structure::meta::ValueType::StringMap),
+                                    sub_string_value.value.as_ref().into(),
+                                )));
+                            }
+                        }
+                    }
+                }
                 lls::model::ComputedValue::TrimStringValue(trim_string_value) => todo!(),
                 lls::model::ComputedValue::NumberToStringValue(number_to_string_value) => todo!(),
                 lls::model::ComputedValue::BooleanToStringValue(boolean_to_string_value) => todo!(),
@@ -313,212 +455,6 @@ pub fn conv_action_parameter<'a, 'b, 'c>(
                 ) => todo!(),
                 lls::model::ComputedValue::ComputedNullValue(computed_null_value) => todo!(),
             },
-        }
-    }
-}
-
-pub fn get_value_type(value: &lls::model::ComputedValue) -> Option<structure::meta::ValueType> {
-    match value {
-        lls::model::ComputedValue::ComputedNullValue(_) => None,
-        lls::model::ComputedValue::LookupStringValue(_) => Some(structure::meta::ValueType::String),
-        lls::model::ComputedValue::ListIndexStringValue(_) => {
-            Some(structure::meta::ValueType::String)
-        }
-        lls::model::ComputedValue::MapKeyStringValue(_) => Some(structure::meta::ValueType::String),
-        lls::model::ComputedValue::SubStringValue(_) => Some(structure::meta::ValueType::String),
-        lls::model::ComputedValue::TrimStringValue(_) => Some(structure::meta::ValueType::String),
-        lls::model::ComputedValue::NumberToStringValue(_) => {
-            Some(structure::meta::ValueType::String)
-        }
-        lls::model::ComputedValue::BooleanToStringValue(_) => {
-            Some(structure::meta::ValueType::String)
-        }
-        lls::model::ComputedValue::ListToStringValue(_) => Some(structure::meta::ValueType::String),
-        lls::model::ComputedValue::MapToStringValue(_) => Some(structure::meta::ValueType::String),
-        lls::model::ComputedValue::ConstantStringValue(_) => {
-            Some(structure::meta::ValueType::String)
-        }
-
-        lls::model::ComputedValue::LookupNumberValue(_) => Some(structure::meta::ValueType::Float),
-        lls::model::ComputedValue::AddTwoValues(_) => Some(structure::meta::ValueType::Float),
-        lls::model::ComputedValue::SubtractTwoValues(_) => Some(structure::meta::ValueType::Float),
-        lls::model::ComputedValue::MultiplyTwoValues(_) => Some(structure::meta::ValueType::Float),
-        lls::model::ComputedValue::DivideTwoValues(_) => Some(structure::meta::ValueType::Float),
-        lls::model::ComputedValue::ModulusTwoValues(_) => Some(structure::meta::ValueType::Float),
-        lls::model::ComputedValue::PowerTwoValues(_) => Some(structure::meta::ValueType::Float),
-        lls::model::ComputedValue::RoundValue(_) => Some(structure::meta::ValueType::Float),
-        lls::model::ComputedValue::FloorValue(_) => Some(structure::meta::ValueType::Float),
-        lls::model::ComputedValue::CeilValue(_) => Some(structure::meta::ValueType::Float),
-        lls::model::ComputedValue::AbsValue(_) => Some(structure::meta::ValueType::Float),
-        lls::model::ComputedValue::SumNumberListValue(_) => Some(structure::meta::ValueType::Float),
-        lls::model::ComputedValue::ProductNumberListValue(_) => {
-            Some(structure::meta::ValueType::Float)
-        }
-        lls::model::ComputedValue::AverageNumberListValue(_) => {
-            Some(structure::meta::ValueType::Float)
-        }
-        lls::model::ComputedValue::MinNumberListValue(_) => Some(structure::meta::ValueType::Float),
-        lls::model::ComputedValue::MaxNumberListValue(_) => Some(structure::meta::ValueType::Float),
-        lls::model::ComputedValue::ListIndexNumberValue(_) => {
-            Some(structure::meta::ValueType::Float)
-        }
-        lls::model::ComputedValue::MapKeyNumberValue(_) => Some(structure::meta::ValueType::Float),
-        lls::model::ComputedValue::CollectionSizeNumberValue(_) => {
-            Some(structure::meta::ValueType::Float)
-        }
-        lls::model::ComputedValue::StringLeftIndexNumberValue(_) => {
-            Some(structure::meta::ValueType::Float)
-        }
-        lls::model::ComputedValue::StringRightIndexNumberValue(_) => {
-            Some(structure::meta::ValueType::Float)
-        }
-        lls::model::ComputedValue::StringListIndexNumberValue(_) => {
-            Some(structure::meta::ValueType::Float)
-        }
-        lls::model::ComputedValue::NumberListIndexNumberValue(_) => {
-            Some(structure::meta::ValueType::Float)
-        }
-        lls::model::ComputedValue::BooleanListIndexNumberValue(_) => {
-            Some(structure::meta::ValueType::Float)
-        }
-        lls::model::ComputedValue::ConstantNumberValue(_) => {
-            Some(structure::meta::ValueType::Float)
-        }
-
-        lls::model::ComputedValue::LookupBooleanValue(_) => {
-            Some(structure::meta::ValueType::Boolean)
-        }
-        lls::model::ComputedValue::AndTwoBooleanValues(_) => {
-            Some(structure::meta::ValueType::Boolean)
-        }
-        lls::model::ComputedValue::OrTwoBooleanValues(_) => {
-            Some(structure::meta::ValueType::Boolean)
-        }
-        lls::model::ComputedValue::NotBooleanValue(_) => Some(structure::meta::ValueType::Boolean),
-        lls::model::ComputedValue::XorTwoBooleanValues(_) => {
-            Some(structure::meta::ValueType::Boolean)
-        }
-        lls::model::ComputedValue::NandTwoBooleanValues(_) => {
-            Some(structure::meta::ValueType::Boolean)
-        }
-        lls::model::ComputedValue::NorTwoBooleanValues(_) => {
-            Some(structure::meta::ValueType::Boolean)
-        }
-        lls::model::ComputedValue::XnorTwoBooleanValues(_) => {
-            Some(structure::meta::ValueType::Boolean)
-        }
-        lls::model::ComputedValue::ListIndexBooleanValue(_) => {
-            Some(structure::meta::ValueType::Boolean)
-        }
-        lls::model::ComputedValue::MapKeyBooleanValue(_) => {
-            Some(structure::meta::ValueType::Boolean)
-        }
-        lls::model::ComputedValue::MapContainsKeyBooleanValue(_) => {
-            Some(structure::meta::ValueType::Boolean)
-        }
-        lls::model::ComputedValue::ListContainsIndexBooleanValue(_) => {
-            Some(structure::meta::ValueType::Boolean)
-        }
-        lls::model::ComputedValue::StringEqualBooleanValue(_) => {
-            Some(structure::meta::ValueType::Boolean)
-        }
-        lls::model::ComputedValue::NumberEqualBooleanValue(_) => {
-            Some(structure::meta::ValueType::Boolean)
-        }
-        lls::model::ComputedValue::ConstantBooleanValue(_) => {
-            Some(structure::meta::ValueType::Boolean)
-        }
-
-        lls::model::ComputedValue::LookupStringListValue(_) => {
-            Some(structure::meta::ValueType::StringList)
-        }
-        lls::model::ComputedValue::SplitStringValue(_) => {
-            Some(structure::meta::ValueType::StringList)
-        }
-        lls::model::ComputedValue::RangeStringListValue(_) => {
-            Some(structure::meta::ValueType::StringList)
-        }
-        lls::model::ComputedValue::StringListMapKeyValue(_) => {
-            Some(structure::meta::ValueType::StringList)
-        }
-        lls::model::ComputedValue::MapKeysStringListValue(_) => {
-            Some(structure::meta::ValueType::StringList)
-        }
-        lls::model::ComputedValue::ConstantStringListValue(_) => {
-            Some(structure::meta::ValueType::StringList)
-        }
-
-        lls::model::ComputedValue::LookupNumberListValue(_) => {
-            Some(structure::meta::ValueType::FloatList)
-        }
-        lls::model::ComputedValue::RangeNumberListValue(_) => {
-            Some(structure::meta::ValueType::FloatList)
-        }
-        lls::model::ComputedValue::ConstantNumberListValue(_) => {
-            Some(structure::meta::ValueType::FloatList)
-        }
-
-        lls::model::ComputedValue::LookupBooleanListValue(_) => {
-            Some(structure::meta::ValueType::BooleanList)
-        }
-        lls::model::ComputedValue::RangeBooleanListValue(_) => {
-            Some(structure::meta::ValueType::BooleanList)
-        }
-        lls::model::ComputedValue::ConstantBooleanListValue(_) => {
-            Some(structure::meta::ValueType::BooleanList)
-        }
-
-        lls::model::ComputedValue::LookupStringMapValue(_) => {
-            Some(structure::meta::ValueType::StringMap)
-        }
-        lls::model::ComputedValue::UnionStringMapValue(_) => {
-            Some(structure::meta::ValueType::StringMap)
-        }
-        lls::model::ComputedValue::StringMapListIndexValue(_) => {
-            Some(structure::meta::ValueType::StringMap)
-        }
-        lls::model::ComputedValue::ConstantStringMapValue(_) => {
-            Some(structure::meta::ValueType::StringMap)
-        }
-
-        lls::model::ComputedValue::LookupNumberMapValue(_) => {
-            Some(structure::meta::ValueType::FloatMap)
-        }
-        lls::model::ComputedValue::UnionNumberMapValue(_) => {
-            Some(structure::meta::ValueType::FloatMap)
-        }
-        lls::model::ComputedValue::ConstantNumberMapValue(_) => {
-            Some(structure::meta::ValueType::FloatMap)
-        }
-
-        lls::model::ComputedValue::LookupBooleanMapValue(_) => {
-            Some(structure::meta::ValueType::BooleanMap)
-        }
-        lls::model::ComputedValue::UnionBooleanMapValue(_) => {
-            Some(structure::meta::ValueType::BooleanMap)
-        }
-        lls::model::ComputedValue::ConstantBooleanMapValue(_) => {
-            Some(structure::meta::ValueType::BooleanMap)
-        }
-
-        lls::model::ComputedValue::LookupStringListMapValue(_) => {
-            Some(structure::meta::ValueType::StringListMap)
-        }
-        lls::model::ComputedValue::UnionStringListMapValue(_) => {
-            Some(structure::meta::ValueType::StringListMap)
-        }
-        lls::model::ComputedValue::ConstantStringListMapValue(_) => {
-            Some(structure::meta::ValueType::StringListMap)
-        }
-
-        lls::model::ComputedValue::LookupStringMapListValue(_) => {
-            Some(structure::meta::ValueType::StringMapList)
-        }
-        lls::model::ComputedValue::RangeStringMapListValue(_) => {
-            Some(structure::meta::ValueType::StringMapList)
-        }
-        lls::model::ComputedValue::ConstantStringMapListValue(_) => {
-            Some(structure::meta::ValueType::StringMapList)
         }
     }
 }

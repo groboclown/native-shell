@@ -5,9 +5,12 @@ use std::{
     sync::Arc,
 };
 
-use crate::server_shell::{builder::errors, lls};
+use crate::{
+    server_shell::{builder::errors, lls},
+    shell_lib::structure,
+};
 
-pub const SOURCE_MODULE: &str = "crate::shell_lib::structure::Source";
+pub const SOURCE_ABS: &'static str = "crate::shell_lib::structure::Source";
 
 /// Write a String to the output, passing errors to the issue set.
 pub fn write_string<'a, 'b>(
@@ -48,7 +51,6 @@ pub fn write_str<'a, 'b, 'c>(
     )
 }
 
-const CRATE_PREFIX: &str = "crate";
 const _MOD_JOIN: &str = "::";
 
 /// Qualify the name with the module parts.
@@ -61,6 +63,35 @@ pub fn qualify_name(module: &Vec<String>, name: &String) -> String {
     ret.push_str(_MOD_JOIN);
     ret.push_str(name.as_str());
     ret
+}
+
+const SCRIPT_EXIT_ABS: &'static str = "crate::shell_lib::structure::ScriptExit";
+
+/// Create the ScriptExit object, as rust code, for reporting an error.
+pub fn script_exit<'a, 'b, S: Into<String>>(
+    source: &'a lls::model::Source,
+    exit_code: structure::ExitCode,
+    message: S,
+) -> String {
+    let source = structure::Source::new(
+        source.file.as_str(),
+        source.line.unwrap_or(0),
+        source.column.unwrap_or(0),
+    );
+    format!(
+        "{}::new({}, Some({}))",
+        SCRIPT_EXIT_ABS,
+        exit_code,
+        as_rust_str(&format!("{}: {}", source, message.into()))
+    )
+}
+
+pub fn return_script_exit<'a, 'b, S: Into<String>>(
+    source: &'a lls::model::Source,
+    exit_code: structure::ExitCode,
+    message: S,
+) -> String {
+    format!("return Err({});", script_exit(source, exit_code, message))
 }
 
 /// Convert a String to a Rust string literal.
@@ -200,14 +231,6 @@ fn get_spdx_code(meta: &Arc<lls::model::Metadata>, prefix: &str, suffix: &str) -
 pub fn utc_now() -> String {
     let current_utc = chrono::Utc::now();
     current_utc.to_rfc3339()
-}
-
-/// Allows construction of the 'use X;' expressions at the top of the Rust module.
-pub struct UseGroups {
-    mod_name: String,
-    u_lib: HashSet<String>,
-    u_crate: HashSet<String>,
-    u_rel: HashSet<(u32, String)>,
 }
 
 #[cfg(test)]

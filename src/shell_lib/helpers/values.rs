@@ -26,7 +26,7 @@ pub fn union_maps<V: Clone>(maps: &Vec<HashMap<String, Option<V>>>) -> HashMap<S
 
 /// Finalizes a map by converting Option<V> to V.
 /// If a key has a None value, it is not included in the final map.
-pub fn finalize_map<V: Clone>(map: &HashMap<String, Option<V>>) -> HashMap<String, V>{
+pub fn finalize_map<V: Clone>(map: &HashMap<String, Option<V>>) -> HashMap<String, V> {
     let mut result: HashMap<String, V> = HashMap::new();
     // Convert Option<V> to V.
     for (key, value) in map.iter() {
@@ -70,5 +70,66 @@ pub fn trim_string(value: &str, trim_chars: Option<&str>) -> String {
         value.trim_matches(|v| chars.contains(v)).to_string()
     } else {
         value.trim().to_string()
+    }
+}
+
+/// Removes the first 'start' characters from the string.
+pub fn sub_string_start(value: &str, start: usize) -> String {
+    value.chars().skip(start).collect()
+}
+
+/// Returns the first characters up to index 'end' in the string.
+/// If 'end' is < 0, then this indicates the index from the right.
+pub fn sub_string_end(value: &str, end: i64) -> String {
+    let mut count = end;
+    if count < 0 {
+        count = value.len() as i64 + count;
+    }
+    if count <= 0 {
+        String::new()
+    } else {
+        value.chars().take(count as usize).collect()
+    }
+}
+
+/// Returns the string at positions from 'start' up to and including 'end'.
+/// If 'end' is < 0, then this indicates the index from the right.
+pub fn sub_string_start_end(value: &str, start: usize, end: usize) -> String {
+    let mut end = end as i64;
+    if end < 0 {
+        end = value.len() as i64 + end;
+    }
+    let count = end - start as i64;
+    if count <= 0 {
+        String::new()
+    } else {
+        value.chars().skip(start).take(count as usize).collect()
+    }
+}
+
+/// Returns the 'count' characters after the 'start' position.
+pub fn sub_string_start_count(value: &str, start: usize, count: usize) -> String {
+    value.chars().skip(start).take(count).collect()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_sub_string_start() {
+        assert_eq!(sub_string_start("01234", 2), "234".to_string());
+        assert_eq!(sub_string_start("01234", 5), "".to_string());
+        assert_eq!(sub_string_start("01234", 30), "".to_string());
+    }
+
+    #[test]
+    fn test_sub_string_end() {
+        assert_eq!(sub_string_end("01234", 2), "01".to_string());
+        assert_eq!(sub_string_end("01234", 5), "01234".to_string());
+        assert_eq!(sub_string_end("01234", 30), "01234".to_string());
+        assert_eq!(sub_string_end("01234", -2), "012".to_string());
+        assert_eq!(sub_string_end("01234", -5), "".to_string());
+        assert_eq!(sub_string_end("01234", -30), "".to_string());
     }
 }

@@ -10,6 +10,8 @@
 //!   3. NS Builder turns the low-level script into project code (a Rust project, in this case).
 //!   4. The make chain ("cargo build", in this case) turns the project code into the final compiled file.
 
+pub mod convert;
 pub mod llsio;
 pub mod model;
 pub mod validate;
+
