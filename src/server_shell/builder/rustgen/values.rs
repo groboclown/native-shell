@@ -122,6 +122,13 @@ pub fn conv_action_parameter<'a, 'b, 'c>(
                 ret_str.push_str(s.as_str());
             }
             ConvAP::Computed((exp_type, val)) => match val {
+                lls::model::ComputedValue::ComputedNullValue(_) => {
+                    // Receivers allow this value for list values and map values
+                    // and optional top-level values.
+                    // TODO encode optional into the expected type.
+                    ret_str.push_str("None");
+                }
+
                 lls::model::ComputedValue::LookupStringValue(lookup_string_value) => {
                     // TODO ensure exp_type is a string value.
                     ret_str.push_str(
@@ -312,12 +319,98 @@ pub fn conv_action_parameter<'a, 'b, 'c>(
                         }
                     }
                 }
-                lls::model::ComputedValue::TrimStringValue(trim_string_value) => todo!(),
-                lls::model::ComputedValue::NumberToStringValue(number_to_string_value) => todo!(),
-                lls::model::ComputedValue::BooleanToStringValue(boolean_to_string_value) => todo!(),
+                lls::model::ComputedValue::TrimStringValue(trim_string_value) => {
+                    // TODO ensure exp_type is a string value.
+                    match trim_string_value.trim_chars {
+                        Some(chars) => {
+                            // Format with:
+                            // (<value>).to_string().trim_matches(
+                            //   (<chars>).to_string().chars().collect::<Vec<char>>().as_slice())
+                            stack.push(ConvAP::StrBit(
+                                ").to_string().chars().collect::<Vec<char>>().as_slice())",
+                            ));
+                            stack.push(ConvAP::Computed((
+                                Some(structure::meta::ValueType::String),
+                                chars.as_ref().into(),
+                            )));
+                            stack.push(ConvAP::StrBit(").to_string().trim_matches("));
+                            stack.push(ConvAP::Computed((
+                                Some(structure::meta::ValueType::String),
+                                trim_string_value.value.as_ref().into(),
+                            )));
+                            ret_str.push('(');
+                        }
+                        None => {
+                            // Whitespace.
+                            // Format: (<value>).to_string().trim()
+                            stack.push(ConvAP::StrBit(").to_string().trim()"));
+                            stack.push(ConvAP::Computed((
+                                Some(structure::meta::ValueType::String),
+                                trim_string_value.value.as_ref().into(),
+                            )));
+                            ret_str.push('(');
+                        }
+                    }
+                }
+                lls::model::ComputedValue::NumberToStringValue(number_to_string_value) => {
+                    // TODO ensure exp_type is a string value.
+                    match number_to_string_value.format {
+                        Some(format) => {
+                            // Format: format!(<format string>, <value>)
+                            stack.push(ConvAP::StrBit(")"));
+                            stack.push(ConvAP::Computed((
+                                Some(structure::meta::ValueType::Float),
+                                number_to_string_value.value.as_ref().into(),
+                            )));
+                            stack.push(ConvAP::StringBit(format!(
+                                "{}, ",
+                                helpers::as_rust_str(&format.value)
+                            )));
+                            ret_str.push_str("format!(");
+                        }
+                        None => {
+                            // Format: (<value>).to_string()
+                            stack.push(ConvAP::StrBit(").to_string()"));
+                            stack.push(ConvAP::Computed((
+                                Some(structure::meta::ValueType::Float),
+                                number_to_string_value.value.as_ref().into(),
+                            )));
+                            ret_str.push('(');
+                        }
+                    }
+                }
+                lls::model::ComputedValue::BooleanToStringValue(boolean_to_string_value) => {
+                    // TODO ensure exp_type is a string value.
+                    // format: match <value> { true => "true" or <true>, false => "false" or <false> }
+                    stack.push(ConvAP::StrBit(",}"));
+                    stack.push(match boolean_to_string_value.false_string {
+                        Some(s) => ConvAP::Computed((
+                            Some(structure::meta::ValueType::String),
+                            s.as_ref().into(),
+                        )),
+                        None => ConvAP::StringBit(helpers::as_rust_str(&"false".to_string())),
+                    });
+                    stack.push(ConvAP::StrBit(", false => "));
+                    stack.push(match boolean_to_string_value.true_string {
+                        Some(s) => ConvAP::Computed((
+                            Some(structure::meta::ValueType::String),
+                            s.as_ref().into(),
+                        )),
+                        None => ConvAP::StringBit(helpers::as_rust_str(&"true".to_string())),
+                    });
+                    stack.push(ConvAP::StrBit(" { true => "));
+                    stack.push(ConvAP::Computed((
+                        Some(structure::meta::ValueType::Boolean),
+                        boolean_to_string_value.value.as_ref().into(),
+                    )));
+                    ret_str.push_str("match ");
+                }
                 lls::model::ComputedValue::ListToStringValue(list_to_string_value) => todo!(),
                 lls::model::ComputedValue::MapToStringValue(map_to_string_value) => todo!(),
-                lls::model::ComputedValue::ConstantStringValue(constant_string_value) => todo!(),
+                lls::model::ComputedValue::ConstantStringValue(constant_string_value) => {
+                    // TODO ensure exp_type is a string value.
+                    ret_str.push_str(&helpers::as_rust_str(&constant_string_value.value));
+                }
 
                 lls::model::ComputedValue::LookupNumberValue(lookup_number_value) => todo!(),
                 lls::model::ComputedValue::AddTwoValues(add_two_values) => todo!(),
@@ -453,7 +546,6 @@ pub fn conv_action_parameter<'a, 'b, 'c>(
                 lls::model::ComputedValue::ConstantStringMapListValue(
                     constant_string_map_list_value,
                 ) => todo!(),
-                lls::model::ComputedValue::ComputedNullValue(computed_null_value) => todo!(),
             },
         }
     }

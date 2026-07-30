@@ -298,6 +298,61 @@ impl Into<model::ComputedValue> for &model::ComputedNumberValue {
     }
 }
 
+impl Into<model::ComputedValue> for &model::ComputedBooleanValue {
+    fn into(self) -> model::ComputedValue {
+        match self {
+            model::ComputedBooleanValue::LookupBooleanValue(lookup_boolean_value) => {
+                model::ComputedValue::LookupBooleanValue(lookup_boolean_value.clone())
+            }
+            model::ComputedBooleanValue::AndTwoBooleanValues(and_two_boolean_values) => {
+                model::ComputedValue::AndTwoBooleanValues(and_two_boolean_values.clone())
+            }
+            model::ComputedBooleanValue::OrTwoBooleanValues(or_two_boolean_values) => {
+                model::ComputedValue::OrTwoBooleanValues(or_two_boolean_values.clone())
+            }
+            model::ComputedBooleanValue::NotBooleanValue(not_boolean_value) => {
+                model::ComputedValue::NotBooleanValue(not_boolean_value.clone())
+            }
+            model::ComputedBooleanValue::XorTwoBooleanValues(xor_two_boolean_values) => {
+                model::ComputedValue::XorTwoBooleanValues(xor_two_boolean_values.clone())
+            }
+            model::ComputedBooleanValue::NandTwoBooleanValues(nand_two_boolean_values) => {
+                model::ComputedValue::NandTwoBooleanValues(nand_two_boolean_values.clone())
+            }
+            model::ComputedBooleanValue::NorTwoBooleanValues(nor_two_boolean_values) => {
+                model::ComputedValue::NorTwoBooleanValues(nor_two_boolean_values.clone())
+            }
+            model::ComputedBooleanValue::XnorTwoBooleanValues(xnor_two_boolean_values) => {
+                model::ComputedValue::XnorTwoBooleanValues(xnor_two_boolean_values.clone())
+            }
+            model::ComputedBooleanValue::ListIndexBooleanValue(list_index_boolean_value) => {
+                model::ComputedValue::ListIndexBooleanValue(list_index_boolean_value.clone())
+            }
+            model::ComputedBooleanValue::MapKeyBooleanValue(map_key_boolean_value) => {
+                model::ComputedValue::MapKeyBooleanValue(map_key_boolean_value.clone())
+            }
+            model::ComputedBooleanValue::MapContainsKeyBooleanValue(
+                map_contains_key_boolean_value,
+            ) => model::ComputedValue::MapContainsKeyBooleanValue(
+                map_contains_key_boolean_value.clone(),
+            ),
+            model::ComputedBooleanValue::ListContainsIndexBooleanValue(
+                list_contains_index_boolean_value,
+            ) => model::ComputedValue::ListContainsIndexBooleanValue(
+                list_contains_index_boolean_value.clone(),
+            ),
+            model::ComputedBooleanValue::StringEqualBooleanValue(string_equal_boolean_value) => {
+                model::ComputedValue::StringEqualBooleanValue(string_equal_boolean_value.clone())
+            }
+            model::ComputedBooleanValue::NumberEqualBooleanValue(number_equal_boolean_value) => {
+                model::ComputedValue::NumberEqualBooleanValue(number_equal_boolean_value.clone())
+            }
+            model::ComputedBooleanValue::ConstantBooleanValue(constant_boolean_value) => {
+                model::ComputedValue::ConstantBooleanValue(constant_boolean_value.clone())
+            }
+        }
+    }
+}
 impl Into<model::ComputedValue> for &model::ComputedStringListValue {
     fn into(self) -> model::ComputedValue {
         match self {

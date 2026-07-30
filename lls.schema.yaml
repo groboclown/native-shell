@@ -1321,7 +1321,7 @@ properties:
       value:
         "$ref": "#/$composite/ComputedNumberValue"
       format:
-        "$ref": "#/$composite/ComputedStringValue"
+        "$ref": "#/$defs/ConstantStringValue"
   BooleanToStringValue:
     title: Boolean to String Value
     description: A string value that is the string representation of a boolean.
@@ -1683,7 +1683,7 @@ properties:
         "$ref": "#/$composite/ComputedNumberListValue"
   AverageNumberListValue:
     title: Average Number List Value
-    description: A number value that is the average of all numbers in a list.
+    description: A number value that is the arithmetic average of all numbers in a list.
     type: object
     discriminator:
       propertyName: kind

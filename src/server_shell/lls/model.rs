@@ -10485,7 +10485,7 @@ impl NumberListIndexNumberValue {
 #[doc = "  ],"]
 #[doc = "  \"properties\": {"]
 #[doc = "    \"format\": {"]
-#[doc = "      \"$ref\": \"#/$defs/ComputedStringValue\""]
+#[doc = "      \"$ref\": \"#/$defs/ConstantStringValue\""]
 #[doc = "    },"]
 #[doc = "    \"kind\": {"]
 #[doc = "      \"type\": \"string\","]
@@ -10510,7 +10510,7 @@ impl NumberListIndexNumberValue {
 #[serde(deny_unknown_fields)]
 pub struct NumberToStringValue {
     #[serde(default, skip_serializing_if = "::std::option::Option::is_none")]
-    pub format: ::std::option::Option<::std::boxed::Box<ComputedStringValue>>,
+    pub format: ::std::option::Option<ConstantStringValue>,
     pub kind: ::std::string::String,
     pub source: Source,
     pub value: ::std::boxed::Box<ComputedNumberValue>,
@@ -19074,7 +19074,7 @@ pub mod builder {
     #[derive(Clone, Debug)]
     pub struct NumberToStringValue {
         format: ::std::result::Result<
-            ::std::option::Option<::std::boxed::Box<super::ComputedStringValue>>,
+            ::std::option::Option<super::ConstantStringValue>,
             ::std::string::String,
         >,
         kind: ::std::result::Result<::std::string::String, ::std::string::String>,
@@ -19097,9 +19097,7 @@ pub mod builder {
     impl NumberToStringValue {
         pub fn format<T>(mut self, value: T) -> Self
         where
-            T: ::std::convert::TryInto<
-                ::std::option::Option<::std::boxed::Box<super::ComputedStringValue>>,
-            >,
+            T: ::std::convert::TryInto<::std::option::Option<super::ConstantStringValue>>,
             T::Error: ::std::fmt::Display,
         {
             self.format = value
