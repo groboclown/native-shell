@@ -1,6 +1,6 @@
 //! Handle turning the model's computed values into Rust code.
 
-use std::ops::Deref;
+use std::{collections::HashMap, ops::Deref};
 
 use super::{helpers, lookup};
 use crate::{
@@ -129,6 +129,10 @@ pub fn conv_action_parameter<'a, 'b, 'c>(
                     ret_str.push_str("None");
                 }
 
+                // ----------------------------------------------------
+                // String
+                // TODO have all of these generate a String object, rather than a &str.
+                //      That will force conformity in how the code uses the generated value.
                 lls::model::ComputedValue::LookupStringValue(lookup_string_value) => {
                     // TODO ensure exp_type is a string value.
                     ret_str.push_str(
@@ -405,14 +409,83 @@ pub fn conv_action_parameter<'a, 'b, 'c>(
                     )));
                     ret_str.push_str("match ");
                 }
-                lls::model::ComputedValue::ListToStringValue(list_to_string_value) => todo!(),
-                lls::model::ComputedValue::MapToStringValue(map_to_string_value) => todo!(),
+                lls::model::ComputedValue::ListToStringValue(list_to_string_value) => {
+                    // TODO ensure exp_type is a string value.
+                    // Format:
+                    //   (<list>).join(&(<separator>))
+                    stack.push(ConvAP::StrBit("))"));
+                    stack.push(match list_to_string_value.separator {
+                        Some(s) => ConvAP::Computed((
+                            Some(structure::meta::ValueType::String),
+                            s.as_ref().into(),
+                        )),
+                        None => ConvAP::StringBit(helpers::as_rust_string(&", ".to_string())),
+                    });
+                    stack.push(ConvAP::StrBit(").join(&("));
+                    stack.push(ConvAP::Computed((
+                        Some(structure::meta::ValueType::StringList),
+                        list_to_string_value.value.as_ref().into(),
+                    )));
+                    ret_str.push('(');
+                }
+                lls::model::ComputedValue::MapToStringValue(map_to_string_value) => {
+                    // TODO ensure exp_type is a string value.
+                    // Format:
+                    //
+                    // let s: String = (HashMap::<String, String>::new())
+                    //    .iter()
+                    //    .map(|(k, v)| format!("{}{}{}", k, key_sep, v))
+                    //    .collect::<Vec<String>>()
+                    //    .join(&(item_sep));
+                    stack.push(ConvAP::StrBit("))"));
+                    stack.push(match map_to_string_value.item_separator {
+                        Some(s) => ConvAP::Computed((
+                            Some(structure::meta::ValueType::String),
+                            s.as_ref().into(),
+                        )),
+                        None => ConvAP::StringBit(helpers::as_rust_string(&", ".to_string())),
+                    });
+                    stack.push(ConvAP::StrBit(", v)).collect::<Vec<String>>().join(&("));
+                    stack.push(match map_to_string_value.key_separator {
+                        Some(s) => ConvAP::Computed((
+                            Some(structure::meta::ValueType::String),
+                            s.as_ref().into(),
+                        )),
+                        None => ConvAP::StringBit(helpers::as_rust_string(&"=".to_string())),
+                    });
+                    stack.push(ConvAP::StrBit(
+                        ").iter().map(|(k, v)| format!(\"{}{}{}\", k, ",
+                    ));
+                    stack.push(ConvAP::Computed((
+                        Some(structure::meta::ValueType::StringMap),
+                        (&map_to_string_value.value).into(),
+                    )));
+                    ret_str.push('(');
+                }
                 lls::model::ComputedValue::ConstantStringValue(constant_string_value) => {
                     // TODO ensure exp_type is a string value.
-                    ret_str.push_str(&helpers::as_rust_str(&constant_string_value.value));
+                    ret_str.push_str(&helpers::as_rust_string(&constant_string_value.value));
                 }
 
-                lls::model::ComputedValue::LookupNumberValue(lookup_number_value) => todo!(),
+                // ----------------------------------------------------
+                // Number Values
+                // These must all treat the number as a f64.
+                lls::model::ComputedValue::LookupNumberValue(lookup_number_value) => {
+                    // TODO ensure exp_type is a number value.
+                    ret_str.push_str(
+                        lookup::generate_lookup(
+                            &lookup_number_value.source,
+                            &"self.runtime".to_string(),
+                            &lookup_number_value.job,
+                            &lookup_number_value.name,
+                            &structure::meta::ValueType::Float,
+                            false,
+                            issues,
+                            col,
+                        )
+                        .as_str(),
+                    );
+                }
                 lls::model::ComputedValue::AddTwoValues(add_two_values) => todo!(),
                 lls::model::ComputedValue::SubtractTwoValues(subtract_two_values) => todo!(),
                 lls::model::ComputedValue::MultiplyTwoValues(multiply_two_values) => todo!(),
@@ -452,8 +525,29 @@ pub fn conv_action_parameter<'a, 'b, 'c>(
                 lls::model::ComputedValue::BooleanListIndexNumberValue(
                     boolean_list_index_number_value,
                 ) => todo!(),
-                lls::model::ComputedValue::ConstantNumberValue(constant_number_value) => todo!(),
-                lls::model::ComputedValue::LookupBooleanValue(lookup_boolean_value) => todo!(),
+                lls::model::ComputedValue::ConstantNumberValue(constant_number_value) => {
+                    // TODO ensure exp_type is a number value.
+                    ret_str.push_str(constant_number_value.value.to_string().as_str());
+                }
+
+                // ----------------------------------------------------
+                // Boolean values
+                lls::model::ComputedValue::LookupBooleanValue(lookup_boolean_value) => {
+                    // TODO ensure exp_type is a boolean value.
+                    ret_str.push_str(
+                        lookup::generate_lookup(
+                            &lookup_boolean_value.source,
+                            &"self.runtime".to_string(),
+                            &lookup_boolean_value.job,
+                            &lookup_boolean_value.name,
+                            &structure::meta::ValueType::Boolean,
+                            false,
+                            issues,
+                            col,
+                        )
+                        .as_str(),
+                    );
+                }
                 lls::model::ComputedValue::AndTwoBooleanValues(and_two_boolean_values) => todo!(),
                 lls::model::ComputedValue::OrTwoBooleanValues(or_two_boolean_values) => todo!(),
                 lls::model::ComputedValue::NotBooleanValue(not_boolean_value) => todo!(),
@@ -477,9 +571,27 @@ pub fn conv_action_parameter<'a, 'b, 'c>(
                 lls::model::ComputedValue::NumberEqualBooleanValue(number_equal_boolean_value) => {
                     todo!()
                 }
-                lls::model::ComputedValue::ConstantBooleanValue(constant_boolean_value) => todo!(),
+                lls::model::ComputedValue::ConstantBooleanValue(constant_boolean_value) => {
+                    ret_str.push_str(helpers::as_rust_bool(constant_boolean_value.value));
+                }
+
+                // ----------------------------------------------------
+                // String List (Vec<String>) Values
                 lls::model::ComputedValue::LookupStringListValue(lookup_string_list_value) => {
-                    todo!()
+                    // TODO ensure exp_type is a string list value.
+                    ret_str.push_str(
+                        lookup::generate_lookup(
+                            &lookup_string_list_value.source,
+                            &"self.runtime".to_string(),
+                            &lookup_string_list_value.job,
+                            &lookup_string_list_value.name,
+                            &structure::meta::ValueType::StringList,
+                            false,
+                            issues,
+                            col,
+                        )
+                        .as_str(),
+                    );
                 }
                 lls::model::ComputedValue::SplitStringValue(split_string_value) => todo!(),
                 lls::model::ComputedValue::RangeStringListValue(range_string_list_value) => todo!(),
@@ -490,17 +602,88 @@ pub fn conv_action_parameter<'a, 'b, 'c>(
                     todo!()
                 }
                 lls::model::ComputedValue::ConstantStringListValue(constant_string_list_value) => {
-                    todo!()
+                    // TODO ensure exp_type is a string list value.
+                    // This is a series of 'join' statements for flattened lists.
+                    //   (vec![values, ...] | list_ref).join(vec![values, ...] | list_ref) ...
+                    stack.push(ConvAP::StrBit(")"));
+                    let mut first = false;
+                    let mut in_vec = false;
+                    for val in &constant_string_list_value.value {
+                        let str_list = is_string_list(&val);
+                        stack.push(ConvAP::Computed((
+                            Some(match str_list {
+                                true => structure::meta::ValueType::StringList,
+                                false => structure::meta::ValueType::String,
+                            }),
+                            val.into(),
+                        )));
+                        // General wrapper handler.
+                        if str_list {
+                            if first {
+                                // Nothing to do...
+                            } else if in_vec {
+                                stack.push(ConvAP::StrBit("]).join("));
+                                in_vec = false;
+                            } else {
+                                stack.push(ConvAP::StrBit(").join("));
+                            }
+                        } else if first {
+                            // First item is a non-list.
+                            stack.push(ConvAP::StrBit("vec!["));
+                            in_vec = true;
+                        } else if !in_vec {
+                            // Join in a list of non-list items.
+                            stack.push(ConvAP::StrBit(").join(vec!["));
+                            in_vec = true;
+                        } else {
+                            // In a vector, and not a string list to append.
+                            stack.push(ConvAP::StrBit(", "))
+                        }
+                        first = false;
+                    }
+                    ret_str.push('(');
                 }
+
+                // ----------------------------------------------------
+                // Number List (Vec<f64>) Values
                 lls::model::ComputedValue::LookupNumberListValue(lookup_number_list_value) => {
-                    todo!()
+                    // TODO ensure exp_type is a number list value.
+                    ret_str.push_str(
+                        lookup::generate_lookup(
+                            &lookup_number_list_value.source,
+                            &"self.runtime".to_string(),
+                            &lookup_number_list_value.job,
+                            &lookup_number_list_value.name,
+                            &structure::meta::ValueType::FloatList,
+                            false,
+                            issues,
+                            col,
+                        )
+                        .as_str(),
+                    );
                 }
                 lls::model::ComputedValue::RangeNumberListValue(range_number_list_value) => todo!(),
                 lls::model::ComputedValue::ConstantNumberListValue(constant_number_list_value) => {
                     todo!()
                 }
+
+                // ----------------------------------------------------
+                // Boolean list (Vec<bool>) Values
                 lls::model::ComputedValue::LookupBooleanListValue(lookup_boolean_list_value) => {
-                    todo!()
+                    // TODO ensure exp_type is a boolean list value.
+                    ret_str.push_str(
+                        lookup::generate_lookup(
+                            &lookup_boolean_list_value.source,
+                            &"self.runtime".to_string(),
+                            &lookup_boolean_list_value.job,
+                            &lookup_boolean_list_value.name,
+                            &structure::meta::ValueType::BooleanList,
+                            false,
+                            issues,
+                            col,
+                        )
+                        .as_str(),
+                    );
                 }
                 lls::model::ComputedValue::RangeBooleanListValue(range_boolean_list_value) => {
                     todo!()
@@ -508,7 +691,25 @@ pub fn conv_action_parameter<'a, 'b, 'c>(
                 lls::model::ComputedValue::ConstantBooleanListValue(
                     constant_boolean_list_value,
                 ) => todo!(),
-                lls::model::ComputedValue::LookupStringMapValue(lookup_string_map_value) => todo!(),
+
+                // ----------------------------------------------------
+                // String Map (HashMap<String, String>) Values
+                lls::model::ComputedValue::LookupStringMapValue(lookup_string_map_value) => {
+                    // TODO ensure exp_type is a string map value.
+                    ret_str.push_str(
+                        lookup::generate_lookup(
+                            &lookup_string_map_value.source,
+                            &"self.runtime".to_string(),
+                            &lookup_string_map_value.job,
+                            &lookup_string_map_value.name,
+                            &structure::meta::ValueType::StringMap,
+                            false,
+                            issues,
+                            col,
+                        )
+                        .as_str(),
+                    );
+                }
                 lls::model::ComputedValue::UnionStringMapValue(union_string_map_value) => todo!(),
                 lls::model::ComputedValue::StringMapListIndexValue(string_map_list_index_value) => {
                     todo!()
@@ -516,11 +717,18 @@ pub fn conv_action_parameter<'a, 'b, 'c>(
                 lls::model::ComputedValue::ConstantStringMapValue(constant_string_map_value) => {
                     todo!()
                 }
+
+                // ----------------------------------------------------
+                // Number Map (HashMap<String, f64>) Values
                 lls::model::ComputedValue::LookupNumberMapValue(lookup_number_map_value) => todo!(),
                 lls::model::ComputedValue::UnionNumberMapValue(union_number_map_value) => todo!(),
                 lls::model::ComputedValue::ConstantNumberMapValue(constant_number_map_value) => {
                     todo!()
                 }
+
+                // ----------------------------------------------------
+                // Boolean Map (HashMap<String, bool>) Values
+                // (could also use HashSet<String>)
                 lls::model::ComputedValue::LookupBooleanMapValue(lookup_boolean_map_value) => {
                     todo!()
                 }
@@ -528,6 +736,9 @@ pub fn conv_action_parameter<'a, 'b, 'c>(
                 lls::model::ComputedValue::ConstantBooleanMapValue(constant_boolean_map_value) => {
                     todo!()
                 }
+
+                // ----------------------------------------------------
+                // String List Map (HashMap<String, Vec<String>>) Values
                 lls::model::ComputedValue::LookupStringListMapValue(
                     lookup_string_list_map_value,
                 ) => todo!(),
@@ -537,6 +748,9 @@ pub fn conv_action_parameter<'a, 'b, 'c>(
                 lls::model::ComputedValue::ConstantStringListMapValue(
                     constant_string_list_map_value,
                 ) => todo!(),
+
+                // ----------------------------------------------------
+                // String Map List (Vec<HashMap<String, String>>) Values
                 lls::model::ComputedValue::LookupStringMapListValue(
                     lookup_string_map_list_value,
                 ) => todo!(),

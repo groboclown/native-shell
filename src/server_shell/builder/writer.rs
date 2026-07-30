@@ -7,11 +7,13 @@ use std::{
     sync::{Arc, Mutex},
 };
 
+use super::errors;
+
 /// Creates writers for files under the source.
 pub trait SourceWriter {
     /// Get a writer for the relative path.
     /// This returns an error if another request already happened for the same filename.
-    fn writer_for(&self, file_name: &str) -> Result<Box<dyn io::Write>, io::Error>;
+    fn writer_for(&self, file_name: &str) -> Result<Box<dyn io::Write>, errors::BuilderError>;
 }
 
 /// Writes sources to a file system under a base path.
@@ -21,12 +23,15 @@ pub struct FileSourceWriter {
 }
 
 impl SourceWriter for FileSourceWriter {
-    fn writer_for<'a, 'b>(&'a self, file_name: &'b str) -> Result<Box<dyn io::Write>, io::Error> {
+    fn writer_for<'a, 'b>(
+        &'a self,
+        file_name: &'b str,
+    ) -> Result<Box<dyn io::Write>, errors::BuilderError> {
         let full_path = format!("{}/{}", self.base_path, file_name);
         let full_path = Path::new(full_path.as_str());
         if let Some(parent) = full_path.parent() {
             if !parent.exists() {
-                std::fs::create_dir(parent)?;
+                std::fs::create_dir_all(parent).map_err(|e| errors::file_err(parent, e))?;
             }
         }
 
@@ -36,8 +41,8 @@ impl SourceWriter for FileSourceWriter {
 }
 
 impl FileSourceWriter {
-    pub fn new(base_path: &str) -> Result<Arc<Self>, io::Error> {
-        std::fs::create_dir_all(base_path)?;
+    pub fn new(base_path: &str) -> Result<Arc<Self>, errors::BuilderError> {
+        std::fs::create_dir_all(base_path).map_err(|e| errors::file_err(base_path, e))?;
         Ok(Arc::new(FileSourceWriter {
             base_path: base_path.to_string(),
         }))
@@ -67,14 +72,20 @@ impl MemSourceWriter {
 }
 
 impl SourceWriter for MemSourceWriter {
-    fn writer_for<'a, 'b>(&'a self, file_name: &'b str) -> Result<Box<dyn io::Write>, io::Error> {
+    fn writer_for<'a, 'b>(
+        &'a self,
+        file_name: &'b str,
+    ) -> Result<Box<dyn io::Write>, errors::BuilderError> {
         let file_name = file_name.to_string();
         let exists = match self.files.lock() {
             Ok(m) => m.contains_key(&file_name),
             Err(e) => e.get_ref().contains_key(&file_name),
         };
         if exists {
-            Err(io::Error::new(io::ErrorKind::AlreadyExists, file_name))
+            Err(errors::file_err(
+                file_name.clone(),
+                io::Error::new(io::ErrorKind::AlreadyExists, file_name),
+            ))
         } else {
             Ok(Box::new(MemPathWriter {
                 file_name: file_name,

@@ -1,4 +1,7 @@
-use crate::server_shell::{builder, lls};
+use crate::server_shell::{
+    builder::{self, errors},
+    lls,
+};
 
 mod samples;
 mod server_shell;
@@ -10,11 +13,11 @@ fn main() {
         .nth(1)
         .unwrap_or_else(|| "help".to_string());
     if action == "help" {
-        println!("Usage: astio <action> <ast file>");
+        println!("Usage: llsio <action> LLS file>");
         println!("Actions:");
-        println!("  validate - Validate the AST");
+        println!("  validate - Validate the LLS");
         println!(
-            "  build    - Build the script from the AST.  Takes an extra argument, the output source directory (defaults to 'script-source')."
+            "  build    - Build the script from the LLS.  Takes an extra argument, the output source directory (defaults to 'script-source')."
         );
         println!("  help     - Show this help message");
     } else if action == "validate" {
@@ -59,7 +62,7 @@ fn main() {
                 let write = match builder::writer::FileSourceWriter::new(&script_dir) {
                     Ok(f) => f,
                     Err(e) => {
-                        eprintln!("Error creating file {}: {}", script_dir, e);
+                        errors::report_errors(&e);
                         std::process::exit(3);
                     }
                 };
@@ -72,7 +75,7 @@ fn main() {
                 println!("Module source written to {}", script_dir);
             }
             Err(e) => {
-                eprintln!("Error loading AST: {}", e);
+                eprintln!("Error loading LLS: {}", e);
                 std::process::exit(2);
             }
         }

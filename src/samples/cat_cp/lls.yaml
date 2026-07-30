@@ -196,9 +196,10 @@ jobs:
     kind: module
     module: cat
     initial-parameters: {}
+    rerunnable: true
     runtime-parameters:
-      - source: { file: "script.ns" }
-        name: filenames
+      filenames:
+        source: { file: "script.ns" }
         value:
           source: { file: "script.ns" }
           kind: constant-string-list

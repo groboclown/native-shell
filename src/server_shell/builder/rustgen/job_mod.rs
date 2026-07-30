@@ -412,10 +412,24 @@ fn gen_param_struct<K: Into<String> + Clone, V: Clone>(
                     }
                 }
                 helpers::write_str(out, &issues, ", ")?;
-                todo!();
             }
         }
     }
+
+    // Close off the block.
+    helpers::write_str(out, &issues, block_end)?;
+
+    // Check if there's any remaining fields that weren't set.
+    for k in remaining_user_fields.keys() {
+        issues.add_err(errors::BuilderError::RequiredFieldMissing(
+            errors::ErrorDetails {
+                source: source.into(),
+                message: k.clone(),
+                related: Vec::new(),
+            },
+        ));
+    }
+
     helpers::write_str(out, &issues, block_end)?;
     Ok(())
 }
@@ -432,7 +446,7 @@ fn collect_keys<K: Into<String> + Clone, V: Clone>(map: &HashMap<K, V>) -> HashM
 mod tests {
     use super::*;
     use crate::server_shell::builder::{rustgen::jobs::JobSettings, writer::MemSourceWriter};
-    use std::{io::Read, str::FromStr, sync::Arc};
+    use std::{io::Read, print, str::FromStr, sync::Arc};
 
     #[test]
     fn simplest_job() {
@@ -512,6 +526,7 @@ mod tests {
         assert_eq!(first.0, &"src/jobs/m1.rs".to_string());
         let mut out = String::new();
         first.1.as_slice().read_to_string(&mut out).unwrap();
+        println!("{}", out.replace("\n", "|\n"));
         assert_eq!(
             out,
             r#"//SPDX:MIT
@@ -526,6 +541,7 @@ pub struct Job1 {
 impl Job1 {
     pub fn new(ctx: &mut dyn crate::shell_lib::structure::InitCtx) -> Result<Self, crate::shell_lib::structure::ScriptExit> {
         let state = ::std::sync::Arc::new(cm::test::JM1::new(crate::shell_lib::structure::Source::new("f.sh", 2, 1), &mut ctx));
+
         Ok(Self { state })
     }
 
@@ -557,6 +573,7 @@ impl crate::shell_lib::structure::job::JobRunner for Job1Runner {
         ctx: Box<dyn crate::shell_lib::structure::job::JobRunnerContext>,
     ) -> Result<crate::shell_lib::structure::ScriptExit, crate::shell_lib::structure::ScriptExit> {
         let mut ctx = crate::shell_lib::structure::JobRunnerCtx::new(ctx);
+
         self.state.exec(&mut ctx)
     }
 }

@@ -225,14 +225,14 @@ impl AndTwoBooleanValues {
         Default::default()
     }
 }
-#[doc = "A number value that is the average of all numbers in a list."]
+#[doc = "A number value that is the arithmetic average of all numbers in a list."]
 #[doc = r""]
 #[doc = r" <details><summary>JSON schema</summary>"]
 #[doc = r""]
 #[doc = r" ```json"]
 #[doc = "{"]
 #[doc = "  \"title\": \"Average Number List Value\","]
-#[doc = "  \"description\": \"A number value that is the average of all numbers in a list.\","]
+#[doc = "  \"description\": \"A number value that is the arithmetic average of all numbers in a list.\","]
 #[doc = "  \"type\": \"object\","]
 #[doc = "  \"required\": ["]
 #[doc = "    \"kind\","]
@@ -7684,14 +7684,14 @@ impl ListIndexStringValue {
         Default::default()
     }
 }
-#[doc = "A string value that is the string representation of a list."]
+#[doc = "A string value that is the string representation of a list.  If no separator is given, this defaults to ', '.\n"]
 #[doc = r""]
 #[doc = r" <details><summary>JSON schema</summary>"]
 #[doc = r""]
 #[doc = r" ```json"]
 #[doc = "{"]
 #[doc = "  \"title\": \"List to String Value\","]
-#[doc = "  \"description\": \"A string value that is the string representation of a list.\","]
+#[doc = "  \"description\": \"A string value that is the string representation of a list.  If no separator is given, this defaults to ', '.\\n\","]
 #[doc = "  \"type\": \"object\","]
 #[doc = "  \"required\": ["]
 #[doc = "    \"kind\","]
@@ -9130,14 +9130,14 @@ impl ::std::convert::From<ConstantStringListMapValue> for MapKeysStringListValue
         Self::ConstantStringListMapValue(value)
     }
 }
-#[doc = "A string value that is the string representation of a map."]
+#[doc = "A string value that is the string representation of a map. The key-separator defaults to '=', and the item-separator defaults to ', '.\n"]
 #[doc = r""]
 #[doc = r" <details><summary>JSON schema</summary>"]
 #[doc = r""]
 #[doc = r" ```json"]
 #[doc = "{"]
 #[doc = "  \"title\": \"Map to String Value\","]
-#[doc = "  \"description\": \"A string value that is the string representation of a map.\","]
+#[doc = "  \"description\": \"A string value that is the string representation of a map. The key-separator defaults to '=', and the item-separator defaults to ', '.\\n\","]
 #[doc = "  \"type\": \"object\","]
 #[doc = "  \"required\": ["]
 #[doc = "    \"kind\","]
@@ -10499,7 +10499,7 @@ impl NumberListIndexNumberValue {
 #[doc = "    }"]
 #[doc = "  },"]
 #[doc = "  \"additionalProperties\": false,"]
-#[doc = "  \"$comment\": \"We may want to expand the format into an explicit definition so it does not require additional parsing.  At the moment, this is the printf format string.\\n\","]
+#[doc = "  \"$comment\": \"We may want to expand the format into an explicit definition so it does not require additional parsing.  At the moment, this is the Rust format! string, and only takes a constant string as the formatter.\\n\","]
 #[doc = "  \"discriminator\": {"]
 #[doc = "    \"propertyName\": \"kind\""]
 #[doc = "  }"]

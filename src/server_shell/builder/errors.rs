@@ -190,6 +190,10 @@ impl From<std::io::Error> for BuilderError {
     }
 }
 
+pub fn file_err<T: std::fmt::Debug>(name: T, err: std::io::Error) -> BuilderError {
+    BuilderError::IOError(format!("{:#?}: {}", name, err.to_string()))
+}
+
 impl From<zip::result::ZipError> for BuilderError {
     fn from(value: zip::result::ZipError) -> Self {
         BuilderError::ZipError(value.to_string())

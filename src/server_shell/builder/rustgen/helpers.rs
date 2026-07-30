@@ -240,8 +240,8 @@ mod tests {
     #[test]
     fn test_qualify_name() {
         let test_data: &[(&[&str], &str, &str)] = &[
-            (&["a"], "b", "crate::a::b"),
-            (&["abc", "def"], "hij", "crate::abc::def::hij"),
+            (&["a"], "b", "a::b"),
+            (&["abc", "def"], "hij", "abc::def::hij"),
         ];
         for (pak, name, exp) in test_data {
             assert_eq!(

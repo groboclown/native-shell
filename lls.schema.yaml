@@ -1311,7 +1311,8 @@ properties:
     additionalProperties: false
     "$comment": >
       We may want to expand the format into an explicit definition so it does
-      not require additional parsing.  At the moment, this is the printf format string.
+      not require additional parsing.  At the moment, this is the Rust format! string,
+      and only takes a constant string as the formatter.
     properties:
       source:
         "$ref": "#/$defs/Source"
@@ -1347,7 +1348,9 @@ properties:
         "$ref": "#/$composite/ComputedStringValue"
   ListToStringValue:
     title: List to String Value
-    description: A string value that is the string representation of a list.
+    description: >
+      A string value that is the string representation of a list.  If no separator is given, this
+      defaults to ', '.
     type: object
     discriminator:
       propertyName: kind
@@ -1368,7 +1371,9 @@ properties:
         "$ref": "#/$composite/ComputedStringValue"
   MapToStringValue:
     title: Map to String Value
-    description: A string value that is the string representation of a map.
+    description: >
+      A string value that is the string representation of a map.
+      The key-separator defaults to '=', and the item-separator defaults to ', '.
     type: object
     discriminator:
       propertyName: kind

@@ -54,7 +54,7 @@ fn gen_job_index(
     out: Arc<dyn writer::SourceWriter + Send + Sync>,
     now: &String,
 ) -> Result<(), ()> {
-    let mut out = issues.consume(out.writer_for("jobs.rs").map_err(|e| e.into()))?;
+    let mut out = issues.consume(out.writer_for("jobs.rs"))?;
     helpers::write_string(
         &mut out,
         issues,
@@ -81,7 +81,7 @@ fn gen_job_files(
     out: Arc<dyn writer::SourceWriter + Send + Sync>,
     now: &String,
 ) -> Result<(), ()> {
-    assert!(job.is_cmd);
+    assert!(!job.is_cmd);
 
     match &job.structure {
         collect::JobStructure::Inline(inline) => super::job_inline::gen_inline_job_file(

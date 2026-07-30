@@ -167,6 +167,45 @@ pub fn get_value_type(value: &model::ComputedValue) -> Option<structure::meta::V
     }
 }
 
+/// Return 'true' if the string list value item references a list.
+pub fn is_string_list(value: &model::ConstantStringListValueValueItem) -> bool {
+    match value {
+        model::ConstantStringListValueValueItem::LookupStringValue(lookup_string_value) => true,
+        model::ConstantStringListValueValueItem::ListIndexStringValue(list_index_string_value) => {
+            true
+        }
+        model::ConstantStringListValueValueItem::MapKeyStringValue(map_key_string_value) => true,
+        model::ConstantStringListValueValueItem::SubStringValue(sub_string_value) => true,
+        model::ConstantStringListValueValueItem::TrimStringValue(trim_string_value) => true,
+        model::ConstantStringListValueValueItem::NumberToStringValue(number_to_string_value) => {
+            true
+        }
+        model::ConstantStringListValueValueItem::BooleanToStringValue(boolean_to_string_value) => {
+            true
+        }
+        model::ConstantStringListValueValueItem::ListToStringValue(list_to_string_value) => true,
+        model::ConstantStringListValueValueItem::MapToStringValue(map_to_string_value) => true,
+        model::ConstantStringListValueValueItem::ConstantStringValue(constant_string_value) => true,
+
+        model::ConstantStringListValueValueItem::LookupStringListValue(
+            lookup_string_list_value,
+        ) => false,
+        model::ConstantStringListValueValueItem::SplitStringValue(split_string_value) => false,
+        model::ConstantStringListValueValueItem::RangeStringListValue(range_string_list_value) => {
+            false
+        }
+        model::ConstantStringListValueValueItem::StringListMapKeyValue(
+            string_list_map_key_value,
+        ) => false,
+        model::ConstantStringListValueValueItem::MapKeysStringListValue(
+            map_keys_string_list_value,
+        ) => false,
+        model::ConstantStringListValueValueItem::ConstantStringListValue(
+            constant_string_list_value,
+        ) => false,
+    }
+}
+
 impl Into<model::ComputedValue> for &model::ComputedStringValue {
     fn into(self) -> model::ComputedValue {
         match self {
@@ -378,6 +417,42 @@ impl Into<model::ComputedValue> for &model::ComputedStringListValue {
     }
 }
 
+impl Into<model::ComputedValue> for &model::ComputedNumberListValue {
+    fn into(self) -> model::ComputedValue {
+        match self {
+            model::ComputedNumberListValue::LookupNumberListValue(lookup_number_list_value) => {
+                model::ComputedValue::LookupNumberListValue(lookup_number_list_value.clone())
+            }
+            model::ComputedNumberListValue::RangeNumberListValue(range_number_list_value) => {
+                model::ComputedValue::RangeNumberListValue(range_number_list_value.clone())
+            }
+            model::ComputedNumberListValue::ConstantNumberListValue(constant_number_list_value) => {
+                model::ComputedValue::ConstantNumberListValue(constant_number_list_value.clone())
+            }
+        }
+    }
+}
+
+impl Into<model::ComputedValue> for &model::ComputedBooleanListValue {
+    fn into(self) -> model::ComputedValue {
+        match self {
+            model::ComputedBooleanListValue::LookupBooleanListValue(lookup_boolean_list_value) => {
+                model::ComputedValue::LookupBooleanListValue(lookup_boolean_list_value.clone())
+            }
+            model::ComputedBooleanListValue::RangeBooleanListValue(range_boolean_list_value) => {
+                model::ComputedValue::RangeBooleanListValue(
+                    range_boolean_list_value.as_ref().clone(),
+                )
+            }
+            model::ComputedBooleanListValue::ConstantBooleanListValue(
+                constant_boolean_list_value,
+            ) => {
+                model::ComputedValue::ConstantBooleanListValue(constant_boolean_list_value.clone())
+            }
+        }
+    }
+}
+
 impl Into<model::ComputedValue> for &model::ComputedStringMapValue {
     fn into(self) -> model::ComputedValue {
         match self {
@@ -395,6 +470,133 @@ impl Into<model::ComputedValue> for &model::ComputedStringMapValue {
             model::ComputedStringMapValue::ConstantStringMapValue(constant_string_map_value) => {
                 model::ComputedValue::ConstantStringMapValue(constant_string_map_value.clone())
             }
+        }
+    }
+}
+
+impl Into<model::ComputedValue> for &model::ComputedNumberMapValue {
+    fn into(self) -> model::ComputedValue {
+        match self {
+            model::ComputedNumberMapValue::LookupNumberMapValue(lookup_number_map_value) => {
+                model::ComputedValue::LookupNumberMapValue(lookup_number_map_value.clone())
+            }
+            model::ComputedNumberMapValue::UnionNumberMapValue(union_number_map_value) => {
+                model::ComputedValue::UnionNumberMapValue(union_number_map_value.clone())
+            }
+            model::ComputedNumberMapValue::ConstantNumberMapValue(constant_number_map_value) => {
+                model::ComputedValue::ConstantNumberMapValue(constant_number_map_value.clone())
+            }
+        }
+    }
+}
+
+impl Into<model::ComputedValue> for &model::ComputedBooleanMapValue {
+    fn into(self) -> model::ComputedValue {
+        match self {
+            model::ComputedBooleanMapValue::LookupBooleanMapValue(lookup_boolean_map_value) => {
+                model::ComputedValue::LookupBooleanMapValue(lookup_boolean_map_value.clone())
+            }
+            model::ComputedBooleanMapValue::UnionBooleanMapValue(union_boolean_map_value) => {
+                model::ComputedValue::UnionBooleanMapValue(union_boolean_map_value.clone())
+            }
+            model::ComputedBooleanMapValue::ConstantBooleanMapValue(constant_boolean_map_value) => {
+                model::ComputedValue::ConstantBooleanMapValue(constant_boolean_map_value.clone())
+            }
+        }
+    }
+}
+
+impl Into<model::ComputedValue> for &model::ComputedStringListMapValue {
+    fn into(self) -> model::ComputedValue {
+        match self {
+            model::ComputedStringListMapValue::LookupStringListMapValue(
+                lookup_string_list_map_value,
+            ) => {
+                model::ComputedValue::LookupStringListMapValue(lookup_string_list_map_value.clone())
+            }
+            model::ComputedStringListMapValue::UnionStringListMapValue(
+                union_string_list_map_value,
+            ) => model::ComputedValue::UnionStringListMapValue(union_string_list_map_value.clone()),
+            model::ComputedStringListMapValue::ConstantStringListMapValue(
+                constant_string_list_map_value,
+            ) => model::ComputedValue::ConstantStringListMapValue(
+                constant_string_list_map_value.clone(),
+            ),
+        }
+    }
+}
+
+impl Into<model::ComputedValue> for &model::ComputedStringMapListValue {
+    fn into(self) -> model::ComputedValue {
+        match self {
+            model::ComputedStringMapListValue::LookupStringMapListValue(
+                lookup_string_map_list_value,
+            ) => {
+                model::ComputedValue::LookupStringMapListValue(lookup_string_map_list_value.clone())
+            }
+            model::ComputedStringMapListValue::RangeStringMapListValue(
+                range_string_map_list_value,
+            ) => model::ComputedValue::RangeStringMapListValue(range_string_map_list_value.clone()),
+            model::ComputedStringMapListValue::ConstantStringMapListValue(
+                constant_string_map_list_value,
+            ) => model::ComputedValue::ConstantStringMapListValue(
+                constant_string_map_list_value.clone(),
+            ),
+        }
+    }
+}
+
+impl Into<model::ComputedValue> for &model::ConstantStringListValueValueItem {
+    fn into(self) -> model::ComputedValue {
+        match self {
+            model::ConstantStringListValueValueItem::LookupStringValue(lookup_string_value) => {
+                model::ComputedValue::LookupStringValue(lookup_string_value.clone())
+            }
+            model::ConstantStringListValueValueItem::ListIndexStringValue(
+                list_index_string_value,
+            ) => model::ComputedValue::ListIndexStringValue(list_index_string_value.clone()),
+            model::ConstantStringListValueValueItem::MapKeyStringValue(map_key_string_value) => {
+                model::ComputedValue::MapKeyStringValue(map_key_string_value.clone())
+            }
+            model::ConstantStringListValueValueItem::SubStringValue(sub_string_value) => {
+                model::ComputedValue::SubStringValue(sub_string_value.clone())
+            }
+            model::ConstantStringListValueValueItem::TrimStringValue(trim_string_value) => {
+                model::ComputedValue::TrimStringValue(trim_string_value.clone())
+            }
+            model::ConstantStringListValueValueItem::NumberToStringValue(
+                number_to_string_value,
+            ) => model::ComputedValue::NumberToStringValue(number_to_string_value.clone()),
+            model::ConstantStringListValueValueItem::BooleanToStringValue(
+                boolean_to_string_value,
+            ) => model::ComputedValue::BooleanToStringValue(boolean_to_string_value.clone()),
+            model::ConstantStringListValueValueItem::ListToStringValue(list_to_string_value) => {
+                model::ComputedValue::ListToStringValue(list_to_string_value.clone())
+            }
+            model::ConstantStringListValueValueItem::MapToStringValue(map_to_string_value) => {
+                model::ComputedValue::MapToStringValue(map_to_string_value.clone())
+            }
+            model::ConstantStringListValueValueItem::ConstantStringValue(constant_string_value) => {
+                model::ComputedValue::ConstantStringValue(constant_string_value.clone())
+            }
+            model::ConstantStringListValueValueItem::LookupStringListValue(
+                lookup_string_list_value,
+            ) => model::ComputedValue::LookupStringListValue(lookup_string_list_value.clone()),
+            model::ConstantStringListValueValueItem::SplitStringValue(split_string_value) => {
+                model::ComputedValue::SplitStringValue(split_string_value.clone())
+            }
+            model::ConstantStringListValueValueItem::RangeStringListValue(
+                range_string_list_value,
+            ) => model::ComputedValue::RangeStringListValue(range_string_list_value.clone()),
+            model::ConstantStringListValueValueItem::StringListMapKeyValue(
+                string_list_map_key_value,
+            ) => model::ComputedValue::StringListMapKeyValue(string_list_map_key_value.clone()),
+            model::ConstantStringListValueValueItem::MapKeysStringListValue(
+                map_keys_string_list_value,
+            ) => model::ComputedValue::MapKeysStringListValue(map_keys_string_list_value.clone()),
+            model::ConstantStringListValueValueItem::ConstantStringListValue(
+                constant_string_list_value,
+            ) => model::ComputedValue::ConstantStringListValue(constant_string_list_value.clone()),
         }
     }
 }

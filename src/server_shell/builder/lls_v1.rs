@@ -1,4 +1,4 @@
-//! Turns the AST into a module source.
+//! Turns the LLS into a module source.
 
 use std::collections::HashMap;
 use std::sync::Arc;

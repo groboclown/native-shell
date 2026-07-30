@@ -190,8 +190,14 @@ fn generate_one_command_lookup<'a, 'b, 'c, 'd, 'e, 'f, 'g>(
                 return format!("panic!(\"\")");
             }
         }
-        Some(_) => todo!(),
-        None => todo!(),
+        Some((job_ref, _)) => {
+            // No field found, so can't determine the type yet.  Assume it's valid.
+            job_ref
+        }
+        None => {
+            // Error
+            return format!("panic!(\"\")");
+        }
     };
     let mut ret = format!(
         "match {}.{}() {{ {}::{}(j) => j.{},",

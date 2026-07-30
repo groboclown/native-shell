@@ -95,9 +95,9 @@
       "initial-parameters": {},
       "kind": "module",
       "module": "cat",
-      "runtime-parameters": [
-        {
-          "name": "filenames",
+      "rerunnable": true,
+      "runtime-parameters": {
+        "filenames": {
           "source": {
             "file": "script.ns"
           },
@@ -118,7 +118,7 @@
             ]
           }
         }
-      ],
+      },
       "source": {
         "file": "script.ns"
       }
