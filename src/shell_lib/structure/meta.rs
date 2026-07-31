@@ -97,7 +97,7 @@ pub struct ModuleStructure {
 pub struct FixedStreamDef {
     /// The name of the stream.
     pub name: Option<String>,
-    // pub description: String,  // use this?
+
     /// The file descriptor index for the stream.
     /// The actual file descriptor passed to the module's code can be any number, but it will assign it to this index.
     /// A stream must have at least one of the name or index; both indicates the name acts as an alias.

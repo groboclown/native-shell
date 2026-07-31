@@ -160,6 +160,10 @@ impl Collector {
         self.jobs.get(name)
     }
 
+    pub fn get_job_ref(&self, name: &String) -> Option<structure::JobRef> {
+        self.jobs.get_ref_id(name)
+    }
+
     pub fn get_job_src(&self, name: &String) -> Option<(lls::model::Source, Arc<JobSource>)> {
         match self.jobs.get(name) {
             Some(j) => self.jobs.get_primary(name).map(|p| (p.clone(), j)),

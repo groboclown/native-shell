@@ -9,5 +9,6 @@ pub mod job_stream;
 pub mod jobs;
 pub mod lookup;
 pub mod names;
+pub mod streams;
 pub mod types;
 pub mod values;

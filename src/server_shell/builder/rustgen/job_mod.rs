@@ -217,9 +217,18 @@ impl crate::shell_lib::structure::job::JobRunner for {} {{
     if let Some(s) = &job_mod.stream_struct {
         stream_arg = ", streams";
         helpers::write_str(&mut out, &issues, "        let streams = ")?;
-        // TODO add in stream parameter generation.
+        helpers::write_string(
+            &mut out,
+            &issues,
+            super::streams::gen_streams_struct(
+                &module.mod_name,
+                settings.job_ref,
+                s,
+                super::streams::find_streams_for_job(settings.job_ref, &collector),
+                &issues,
+            ),
+        )?;
         helpers::write_str(&mut out, &issues, ";\n")?;
-        todo!();
     }
 
     helpers::write_string(
