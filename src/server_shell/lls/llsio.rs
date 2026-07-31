@@ -15,10 +15,10 @@ pub fn read_reader<R: std::io::Read>(
 }
 
 /// Read the model from a file path.
-pub fn read_file(
-    path: String,
+pub fn read_file<'a, P: Into<&'a std::path::Path>>(
+    path: P,
 ) -> Result<model::NativeShellLowLevelScriptSchema, serde_json::Error> {
-    let file = std::fs::File::open(path).map_err(|e| serde_json::Error::io(e))?;
+    let file = std::fs::File::open(path.into()).map_err(|e| serde_json::Error::io(e))?;
     read_reader(file)
 }
 

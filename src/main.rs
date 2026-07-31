@@ -1,3 +1,5 @@
+use std::ffi::OsString;
+
 use crate::server_shell::{
     builder::{self, errors},
     lls,
@@ -22,9 +24,12 @@ fn main() {
         println!("  help     - Show this help message");
     } else if action == "validate" {
         match lls::llsio::read_file(
-            std::env::args()
-                .nth(2)
-                .unwrap_or_else(|| "lls.json".to_string()),
+            std::path::PathBuf::from(
+                std::env::args_os()
+                    .nth(2)
+                    .unwrap_or(OsString::from("lls.json")),
+            )
+            .as_path(),
         ) {
             Ok(ast) => {
                 let errors = lls::validate::validate(&ast);
@@ -44,9 +49,12 @@ fn main() {
         }
     } else if action == "build" {
         match lls::llsio::read_file(
-            std::env::args()
-                .nth(2)
-                .unwrap_or_else(|| "lls.json".to_string()),
+            std::path::PathBuf::from(
+                std::env::args_os()
+                    .nth(2)
+                    .unwrap_or(OsString::from("lls.json")),
+            )
+            .as_path(),
         ) {
             Ok(ast) => {
                 let errors = lls::validate::validate(&ast);
@@ -56,10 +64,12 @@ fn main() {
                     }
                     std::process::exit(1);
                 }
-                let script_dir = std::env::args()
+                let script_dir = std::env::args_os()
                     .nth(3)
-                    .unwrap_or_else(|| "script-source".to_string());
-                let write = match builder::writer::FileSourceWriter::new(&script_dir) {
+                    .unwrap_or(OsString::from("script-source"));
+                let write = match builder::writer::FileSourceWriter::new(
+                    std::path::PathBuf::from(script_dir.clone()).as_path(),
+                ) {
                     Ok(f) => f,
                     Err(e) => {
                         errors::report_errors(&e);
@@ -72,7 +82,7 @@ fn main() {
                     builder::errors::report_errors(&issues.into());
                     std::process::exit(4);
                 }
-                println!("Module source written to {}", script_dir);
+                println!("Module source written to {}", script_dir.to_string_lossy());
             }
             Err(e) => {
                 eprintln!("Error loading LLS: {}", e);
@@ -81,19 +91,19 @@ fn main() {
         }
     } else if action == "cat-sample" {
         // Capture the command line arguments for the sample, skipping over the 'sample' action argument.
-        let mut arg_itr = std::env::args().into_iter();
-        let mut argv = vec![arg_itr.next().expect("No program name provided")];
-        arg_itr.next();
-        for arg in arg_itr {
+        let mut arg_iter = std::env::args().into_iter();
+        let mut argv = vec![arg_iter.next().expect("No program name provided")];
+        arg_iter.next();
+        for arg in arg_iter {
             argv.push(arg);
         }
         crate::samples::cat_cp::main::main(argv, std::env::vars_os().collect());
     } else if action == "tee-sample" {
         // Capture the command line arguments for the sample, skipping over the 'sample' action argument.
-        let mut arg_itr = std::env::args().into_iter();
-        let mut argv = vec![arg_itr.next().expect("No program name provided")];
-        arg_itr.next();
-        for arg in arg_itr {
+        let mut arg_iter = std::env::args().into_iter();
+        let mut argv = vec![arg_iter.next().expect("No program name provided")];
+        arg_iter.next();
+        for arg in arg_iter {
             argv.push(arg);
         }
         //crate::samples::tee_merge::main::main(argv, std::env::vars().collect());

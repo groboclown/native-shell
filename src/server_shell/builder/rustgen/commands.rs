@@ -54,7 +54,7 @@ fn gen_command_index(
     out: Arc<dyn writer::SourceWriter + Send + Sync>,
     now: &String,
 ) -> Result<(), ()> {
-    let mut out = issues.consume(out.writer_for("commands.rs").map_err(|e| e.into()))?;
+    let mut out = issues.consume(out.writer_for(&names::commands_file()))?;
     helpers::write_string(
         &mut out,
         issues,
@@ -207,7 +207,7 @@ fn create_settings(
         name,
         source: source.clone(),
         job_ref,
-        parent_module: vec!["commands".to_string()],
+        job_file: names::command_ref_file(job_ref),
         module_name: names::command_ref_module_name(job_ref),
         run_struct_name: names::command_run_struct(job_ref),
         mod_struct_name: names::command_mod_struct(job_ref),
@@ -289,7 +289,7 @@ pub use c0::Cmd0Runner;
             .expect("should run fine");
         let cmd_file: String = String::from_utf8(
             mem_out
-                .get_for("commands.rs")
+                .get_for("src/commands.rs")
                 .expect("should have created file"),
         )
         .expect("bad utf-8 encoding");

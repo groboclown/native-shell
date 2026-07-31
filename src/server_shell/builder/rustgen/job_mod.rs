@@ -20,17 +20,7 @@ pub fn gen_module_job_file(
     issues: errors::ScriptIssues,
     out: Arc<dyn writer::SourceWriter + Send + Sync>,
 ) -> Result<(), ()> {
-    let mut out = issues.consume(
-        out.writer_for(
-            format!(
-                "src/{}/{}.rs",
-                settings.parent_module.join("/"),
-                settings.module_name
-            )
-            .as_str(),
-        )
-        .map_err(|e| e.into()),
-    )?;
+    let mut out = issues.consume(out.writer_for(&settings.job_file))?;
     helpers::write_string(
         &mut out,
         &issues,
@@ -446,7 +436,7 @@ fn collect_keys<K: Into<String> + Clone, V: Clone>(map: &HashMap<K, V>) -> HashM
 mod tests {
     use super::*;
     use crate::server_shell::builder::{rustgen::jobs::JobSettings, writer::MemSourceWriter};
-    use std::{io::Read, print, str::FromStr, sync::Arc};
+    use std::{io::Read, str::FromStr, sync::Arc};
 
     #[test]
     fn simplest_job() {
@@ -502,7 +492,7 @@ mod tests {
                 name: "job 1".to_string(),
                 source: source.clone(),
                 job_ref: 12,
-                parent_module: vec!["jobs".to_string()],
+                job_file: std::path::PathBuf::from("src/jobs/m1.rs"),
                 module_name: "m1".to_string(),
                 run_struct_name: "Job1Runner".to_string(),
                 mod_struct_name: "Job1".to_string(),

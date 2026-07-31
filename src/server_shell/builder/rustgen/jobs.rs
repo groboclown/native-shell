@@ -54,7 +54,7 @@ fn gen_job_index(
     out: Arc<dyn writer::SourceWriter + Send + Sync>,
     now: &String,
 ) -> Result<(), ()> {
-    let mut out = issues.consume(out.writer_for("jobs.rs"))?;
+    let mut out = issues.consume(out.writer_for(&names::jobs_file()))?;
     helpers::write_string(
         &mut out,
         issues,
@@ -65,7 +65,7 @@ fn gen_job_index(
     let cmds = collector.ordered_jobs();
     for (_, jref, _) in &cmds {
         helpers::write_str(&mut out, issues, "pub mod ")?;
-        helpers::write_string(&mut out, issues, names::job_module_name(*jref))?;
+        helpers::write_string(&mut out, issues, names::job_ref_module_name(*jref))?;
         helpers::write_str(&mut out, issues, ";\n")?;
     }
     Ok(())
@@ -162,9 +162,9 @@ fn create_settings(
         name,
         source: source.clone(),
         job_ref,
-        parent_module: vec!["jobs".to_string()],
-        module_name: names::job_module_name(job_ref),
-        mod_struct_name: names::job_mod_struct(job_ref),
+        job_file: names::job_ref_file(job_ref),
+        module_name: names::job_ref_module_name(job_ref),
+        mod_struct_name: names::job_ref_mod_struct(job_ref),
         run_struct_name: names::command_run_struct(job_ref),
         now: now.clone(),
     }
@@ -175,7 +175,7 @@ pub struct JobSettings {
     pub name: String,
     pub source: lls::model::Source,
     pub job_ref: structure::JobRef,
-    pub parent_module: Vec<String>,
+    pub job_file: std::path::PathBuf,
     pub module_name: String,
     pub run_struct_name: String,
     pub mod_struct_name: String,

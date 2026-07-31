@@ -15,7 +15,8 @@ pub fn extract_libs<SW: SourceWriter>(out: &SW) -> Result<(), BuilderError> {
         if file.is_dir() {
             continue;
         }
-        let mut outfile = out.writer_for(file.name())?;
+        let outfile = std::path::PathBuf::from(file.name());
+        let mut outfile = out.writer_for(outfile.as_path())?;
         std::io::copy(&mut file, &mut outfile)?;
     }
     Ok(())

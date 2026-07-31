@@ -11,6 +11,8 @@
 //!    *_module_path() -> the relative path of the module (Vec<String>).  Can be used to construct the
 //!                       file system path or the module path.
 //!    *_mod() ->         the absolute module path (Vec<String>); includes 'crate' at the start.
+//!    *_file() ->        the OS path to the file (if it can be referenced as a file), relative to the project root.
+//!    *_dir() ->         the OS path to the directory (if it can be referenced as a directory), relative to the project root.
 
 use crate::shell_lib::structure::JobRef;
 
@@ -24,6 +26,17 @@ pub const CRATE_MODULE_NAME: &'static str = "crate";
 pub fn crate_module_name() -> String {
     CRATE_MODULE_NAME.to_string()
 }
+
+/// Location of the root source directory, inside the project directory.
+pub const SRC_DIR_NAME: &'static str = "src";
+
+/// Location of the source directory.
+pub fn src_dir() -> std::path::PathBuf {
+    SRC_DIR_NAME.into()
+}
+
+pub const RUST_DOT_EXT: &'static str = ".rs";
+pub const RUST_EXT: &'static str = "rs";
 
 // --------------------------------------------------------------------
 // Runtime structure
@@ -49,6 +62,13 @@ pub fn runtime_mod() -> Vec<String> {
     let mut ret = vec![crate_module_name()];
     ret.append(&mut runtime_module_path());
     ret
+}
+
+/// The runtime filename.
+pub fn runtime_file() -> std::path::PathBuf {
+    let mut ret = src_dir();
+    ret.push(RUNTIME_MODULE_NAME);
+    ret.with_added_extension(RUST_EXT)
 }
 
 /// The 'pub struct {}' name.
@@ -91,14 +111,26 @@ pub fn commands_module_name() -> String {
     COMMANDS_MODULE_NAME.to_string()
 }
 
-pub fn commands_module_path() -> Vec<String> {
-    vec![commands_module_name()]
+pub fn commands_module_path() -> [&'static str; 1] {
+    [COMMANDS_MODULE_NAME]
 }
 
-pub fn commands_mod() -> Vec<String> {
-    let mut ret = vec![crate_module_name()];
-    ret.append(&mut commands_module_path());
+pub fn commands_mod() -> [&'static str; 2] {
+    [CRATE_MODULE_NAME, COMMANDS_MODULE_NAME]
+}
+
+/// The directory containing the command sources.
+pub fn commands_dir() -> std::path::PathBuf {
+    let mut ret = src_dir();
+    for el in commands_module_path() {
+        ret.push(el);
+    }
     ret
+}
+
+/// The module file for the commands.
+pub fn commands_file() -> std::path::PathBuf {
+    commands_dir().with_added_extension(RUST_EXT)
 }
 
 /// Create the command module name.
@@ -109,9 +141,7 @@ pub fn command_ref_module_name(job: JobRef) -> String {
 
 /// Relative path to the command module.
 pub fn command_ref_module_path(job: JobRef) -> Vec<String> {
-    let mut ret = commands_module_path();
-    ret.push(command_ref_module_name(job));
-    ret
+    vec![commands_module_name(), command_ref_module_name(job)]
 }
 
 /// The full command module name.
@@ -119,6 +149,15 @@ pub fn command_ref_mod(job: JobRef) -> Vec<String> {
     let mut ret = vec![crate_module_name()];
     ret.append(&mut command_ref_module_path(job));
     ret
+}
+
+/// The location of the Rust source file containing the command.
+pub fn command_ref_file(job: JobRef) -> std::path::PathBuf {
+    let mut ret = src_dir();
+    for el in command_ref_module_path(job) {
+        ret.push(el);
+    }
+    ret.with_added_extension(RUST_EXT)
 }
 
 /// Create the name of the command's state holding structure.
@@ -144,28 +183,65 @@ pub fn command_runtime_enum_name(job: JobRef) -> String {
 /// The name of the module containing the job modules.
 pub const JOBS_MODULE_NAME: &'static str = "jobs";
 
+pub fn jobs_module_name() -> String {
+    JOBS_MODULE_NAME.to_string()
+}
+
+pub fn jobs_module_path() -> [&'static str; 1] {
+    [JOBS_MODULE_NAME]
+}
+
+pub fn jobs_mod() -> [&'static str; 2] {
+    [CRATE_MODULE_NAME, JOBS_MODULE_NAME]
+}
+
+/// Directory containing the jobs module files.
+pub fn jobs_dir() -> std::path::PathBuf {
+    let mut ret = src_dir();
+    for el in jobs_module_path() {
+        ret.push(el);
+    }
+    ret
+}
+
+/// File wrapping the jobs module.
+pub fn jobs_file() -> std::path::PathBuf {
+    jobs_dir().with_added_extension(RUST_EXT)
+}
+
 /// Create the job module name.
 /// Usable for both the filename creation and the 'use mod' line.
-pub fn job_module_name(job: JobRef) -> String {
+pub fn job_ref_module_name(job: JobRef) -> String {
     format!("j{}", job)
 }
 
-/// The full job module path.
-pub fn job_module(job: JobRef) -> Vec<String> {
-    vec![
-        "crate".to_string(),
-        JOBS_MODULE_NAME.to_string(),
-        job_module_name(job),
-    ]
+pub fn job_ref_module_path(job: JobRef) -> Vec<String> {
+    let mut ret: Vec<String> = Vec::from_iter(jobs_module_path().iter().map(|v| v.to_string()));
+    ret.push(job_ref_module_name(job));
+    ret
+}
+
+/// The full job module (crate::...).
+pub fn job_ref_mod(job: JobRef) -> Vec<String> {
+    let mut ret = vec![crate_module_name()];
+    ret.append(&mut job_ref_module_path(job));
+    ret
+}
+
+/// The path to the job module's Rust source file.
+pub fn job_ref_file(job: JobRef) -> std::path::PathBuf {
+    let mut ret = jobs_dir();
+    ret.push(job_ref_module_name(job));
+    ret.with_added_extension(RUST_EXT)
 }
 
 /// Create the name of the structure that holds the job module instance.
-pub fn job_mod_struct(job: JobRef) -> String {
+pub fn job_ref_mod_struct(job: JobRef) -> String {
     format!("Job{}", job)
 }
 
 /// Create the name of the job structure::job::JobRunner implementation.
-pub fn job_run_struct(job: JobRef) -> String {
+pub fn job_ref_run_struct(job: JobRef) -> String {
     format!("Job{}Runner", job)
 }
 

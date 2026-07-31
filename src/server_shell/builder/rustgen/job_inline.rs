@@ -19,17 +19,7 @@ pub fn gen_inline_job_file(
     issues: errors::ScriptIssues,
     out: Arc<dyn writer::SourceWriter + Send + Sync>,
 ) -> Result<(), ()> {
-    let mut out = issues.consume(
-        out.writer_for(
-            format!(
-                "{}/{}.rs",
-                settings.parent_module.join("/"),
-                settings.module_name
-            )
-            .as_str(),
-        )
-        .map_err(|e| e.into()),
-    )?;
+    let mut out = issues.consume(out.writer_for(&settings.job_file))?;
     helpers::write_string(
         &mut out,
         &issues,

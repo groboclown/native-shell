@@ -3,7 +3,7 @@
 use std::{
     collections::HashMap,
     io,
-    path::Path,
+    path::{Path, PathBuf},
     sync::{Arc, Mutex},
 };
 
@@ -13,38 +13,42 @@ use super::errors;
 pub trait SourceWriter {
     /// Get a writer for the relative path.
     /// This returns an error if another request already happened for the same filename.
-    fn writer_for(&self, file_name: &str) -> Result<Box<dyn io::Write>, errors::BuilderError>;
+    fn writer_for<'a, 'b>(
+        &'a self,
+        file_name: &'b Path,
+    ) -> Result<Box<dyn io::Write>, errors::BuilderError>;
 }
 
 /// Writes sources to a file system under a base path.
 #[derive(Clone)]
 pub struct FileSourceWriter {
-    pub base_path: String,
+    pub base_path: Arc<PathBuf>,
 }
 
 impl SourceWriter for FileSourceWriter {
     fn writer_for<'a, 'b>(
         &'a self,
-        file_name: &'b str,
+        file_name: &'b Path,
     ) -> Result<Box<dyn io::Write>, errors::BuilderError> {
-        let full_path = format!("{}/{}", self.base_path, file_name);
-        let full_path = Path::new(full_path.as_str());
+        let mut full_path = self.base_path.as_ref().clone();
+        full_path.push(file_name);
         if let Some(parent) = full_path.parent() {
             if !parent.exists() {
                 std::fs::create_dir_all(parent).map_err(|e| errors::file_err(parent, e))?;
             }
         }
 
-        let file = std::fs::File::create(full_path)?;
+        let file = std::fs::File::create(full_path.as_path())?;
         Ok(Box::new(file))
     }
 }
 
 impl FileSourceWriter {
-    pub fn new(base_path: &str) -> Result<Arc<Self>, errors::BuilderError> {
-        std::fs::create_dir_all(base_path).map_err(|e| errors::file_err(base_path, e))?;
+    pub fn new<'a, T: Into<&'a Path>>(base_path: T) -> Result<Arc<Self>, errors::BuilderError> {
+        let p: &'a Path = base_path.into();
+        std::fs::create_dir_all(p).map_err(|e| errors::file_err(p, e))?;
         Ok(Arc::new(FileSourceWriter {
-            base_path: base_path.to_string(),
+            base_path: Arc::new(PathBuf::from(p)),
         }))
     }
 }
@@ -74,9 +78,10 @@ impl MemSourceWriter {
 impl SourceWriter for MemSourceWriter {
     fn writer_for<'a, 'b>(
         &'a self,
-        file_name: &'b str,
+        file_name: &'b Path,
     ) -> Result<Box<dyn io::Write>, errors::BuilderError> {
-        let file_name = file_name.to_string();
+        let file_name: &'b Path = file_name.into();
+        let file_name = file_name.as_os_str().to_string_lossy().to_string();
         let exists = match self.files.lock() {
             Ok(m) => m.contains_key(&file_name),
             Err(e) => e.get_ref().contains_key(&file_name),
