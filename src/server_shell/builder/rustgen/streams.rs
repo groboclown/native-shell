@@ -35,7 +35,7 @@ pub fn gen_streams_struct(
                 structure::meta::StreamInterface::ReadWrite => {
                     (".into::<Box<dyn std::io::Read + Send + Sync>>()", true)
                 }
-                structure::meta::StreamInterface::Fd => {
+                structure::meta::StreamInterface::FD => {
                     (".into::<std::io::Result<std::os::fd::OwnedFd>>()?", true)
                 }
             },
@@ -43,7 +43,7 @@ pub fn gen_streams_struct(
                 structure::meta::StreamInterface::ReadWrite => {
                     (".into::<Box<dyn std::io::Write + Send + Sync>>()", false)
                 }
-                structure::meta::StreamInterface::Fd => {
+                structure::meta::StreamInterface::FD => {
                     (".into::<std::io::Result<std::os::fd::OwnedFd>>()?", false)
                 }
             },

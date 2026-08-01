@@ -75,7 +75,7 @@ pub enum StreamInterface {
     ReadWrite,
 
     /// A file descriptor.
-    Fd,
+    FD,
 }
 
 /// Defines a structure owned by the module that the script will use to interact with the module.

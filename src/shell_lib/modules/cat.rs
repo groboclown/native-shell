@@ -51,7 +51,7 @@ pub fn module_meta() -> ModuleMeta {
                 fixed_streams: vec![FixedStreamDef {
                     name: Some("output".to_string()),
                     fd_index: Some(0),
-                    stream_type: StreamType::Output(StreamInterface::Fd),
+                    stream_type: StreamType::Output(StreamInterface::FD),
                     required: true,
                 }],
                 input_variable: None,

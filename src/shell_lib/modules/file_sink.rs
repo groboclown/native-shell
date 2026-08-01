@@ -13,10 +13,7 @@ use crate::shell_lib::structure::meta::{
     NamedValue, StreamInterface, StreamType, ValueType,
 };
 use crate::shell_lib::structure::{ExecCtx, ExitCode, InitCtx, ScriptExit};
-use crate::shell_lib::{
-    helpers::abort_handler,
-    structure::{job, source::Source},
-};
+use crate::shell_lib::{helpers::abort_handler, structure::source::Source};
 
 const BUFFER_SIZE: usize = 8192;
 
@@ -66,7 +63,7 @@ pub fn module_meta() -> ModuleMeta {
                 fixed_streams: vec![FixedStreamDef {
                     name: Some("input".to_string()),
                     fd_index: Some(0),
-                    stream_type: StreamType::Input(StreamInterface::Fd),
+                    stream_type: StreamType::Input(StreamInterface::FD),
                     required: true,
                 }],
                 input_variable: None,
