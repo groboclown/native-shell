@@ -164,6 +164,21 @@ impl Collector {
         self.jobs.get_ref_id(name)
     }
 
+    /// Get the job reference, and returns an error if it was not registered.
+    pub fn get_job_ref_checked<'a, 'b, 'c>(
+        &'a self,
+        name: &'b String,
+        source: &'c lls::model::Source,
+    ) -> Result<structure::JobRef, errors::BuilderError> {
+        self.jobs
+            .get_ref_id(name)
+            .ok_or(errors::BuilderError::NoSuchJob(errors::ErrorDetails {
+                message: name.clone(),
+                source: source.into(),
+                related: Vec::new(),
+            }))
+    }
+
     pub fn get_job_src(&self, name: &String) -> Option<(lls::model::Source, Arc<JobSource>)> {
         match self.jobs.get(name) {
             Some(j) => self.jobs.get_primary(name).map(|p| (p.clone(), j)),
