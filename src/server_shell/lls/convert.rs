@@ -5,164 +5,111 @@ use crate::shell_lib::structure;
 
 use super::model;
 
-pub fn get_value_type(value: &model::ComputedValue) -> Option<structure::meta::ValueType> {
+pub fn get_value_type(value: &model::ComputedValue) -> structure::meta::ValueType {
     match value {
-        model::ComputedValue::ComputedNullValue(_) => None,
-        model::ComputedValue::LookupStringValue(_) => Some(structure::meta::ValueType::String),
-        model::ComputedValue::ListIndexStringValue(_) => Some(structure::meta::ValueType::String),
-        model::ComputedValue::MapKeyStringValue(_) => Some(structure::meta::ValueType::String),
-        model::ComputedValue::SubStringValue(_) => Some(structure::meta::ValueType::String),
-        model::ComputedValue::TrimStringValue(_) => Some(structure::meta::ValueType::String),
-        model::ComputedValue::NumberToStringValue(_) => Some(structure::meta::ValueType::String),
-        model::ComputedValue::BooleanToStringValue(_) => Some(structure::meta::ValueType::String),
-        model::ComputedValue::ListToStringValue(_) => Some(structure::meta::ValueType::String),
-        model::ComputedValue::MapToStringValue(_) => Some(structure::meta::ValueType::String),
-        model::ComputedValue::ConstantStringValue(_) => Some(structure::meta::ValueType::String),
+        model::ComputedValue::LookupStringValue(_) => structure::meta::ValueType::String,
+        model::ComputedValue::ListIndexStringValue(_) => structure::meta::ValueType::String,
+        model::ComputedValue::MapKeyStringValue(_) => structure::meta::ValueType::String,
+        model::ComputedValue::SubStringValue(_) => structure::meta::ValueType::String,
+        model::ComputedValue::TrimStringValue(_) => structure::meta::ValueType::String,
+        model::ComputedValue::NumberToStringValue(_) => structure::meta::ValueType::String,
+        model::ComputedValue::BooleanToStringValue(_) => structure::meta::ValueType::String,
+        model::ComputedValue::ListToStringValue(_) => structure::meta::ValueType::String,
+        model::ComputedValue::MapToStringValue(_) => structure::meta::ValueType::String,
+        model::ComputedValue::ConstantStringValue(_) => structure::meta::ValueType::String,
 
-        model::ComputedValue::LookupNumberValue(_) => Some(structure::meta::ValueType::Float),
-        model::ComputedValue::AddTwoValues(_) => Some(structure::meta::ValueType::Float),
-        model::ComputedValue::SubtractTwoValues(_) => Some(structure::meta::ValueType::Float),
-        model::ComputedValue::MultiplyTwoValues(_) => Some(structure::meta::ValueType::Float),
-        model::ComputedValue::DivideTwoValues(_) => Some(structure::meta::ValueType::Float),
-        model::ComputedValue::ModulusTwoValues(_) => Some(structure::meta::ValueType::Float),
-        model::ComputedValue::PowerTwoValues(_) => Some(structure::meta::ValueType::Float),
-        model::ComputedValue::RoundValue(_) => Some(structure::meta::ValueType::Float),
-        model::ComputedValue::FloorValue(_) => Some(structure::meta::ValueType::Float),
-        model::ComputedValue::CeilValue(_) => Some(structure::meta::ValueType::Float),
-        model::ComputedValue::AbsValue(_) => Some(structure::meta::ValueType::Float),
-        model::ComputedValue::SumNumberListValue(_) => Some(structure::meta::ValueType::Float),
-        model::ComputedValue::ProductNumberListValue(_) => Some(structure::meta::ValueType::Float),
-        model::ComputedValue::AverageNumberListValue(_) => Some(structure::meta::ValueType::Float),
-        model::ComputedValue::MinNumberListValue(_) => Some(structure::meta::ValueType::Float),
-        model::ComputedValue::MaxNumberListValue(_) => Some(structure::meta::ValueType::Float),
-        model::ComputedValue::ListIndexNumberValue(_) => Some(structure::meta::ValueType::Float),
-        model::ComputedValue::MapKeyNumberValue(_) => Some(structure::meta::ValueType::Float),
-        model::ComputedValue::CollectionSizeNumberValue(_) => {
-            Some(structure::meta::ValueType::Float)
-        }
-        model::ComputedValue::StringLeftIndexNumberValue(_) => {
-            Some(structure::meta::ValueType::Float)
-        }
-        model::ComputedValue::StringRightIndexNumberValue(_) => {
-            Some(structure::meta::ValueType::Float)
-        }
-        model::ComputedValue::StringListIndexNumberValue(_) => {
-            Some(structure::meta::ValueType::Float)
-        }
-        model::ComputedValue::NumberListIndexNumberValue(_) => {
-            Some(structure::meta::ValueType::Float)
-        }
-        model::ComputedValue::BooleanListIndexNumberValue(_) => {
-            Some(structure::meta::ValueType::Float)
-        }
-        model::ComputedValue::ConstantNumberValue(_) => Some(structure::meta::ValueType::Float),
+        model::ComputedValue::LookupNumberValue(_) => structure::meta::ValueType::Float,
+        model::ComputedValue::AddTwoValues(_) => structure::meta::ValueType::Float,
+        model::ComputedValue::SubtractTwoValues(_) => structure::meta::ValueType::Float,
+        model::ComputedValue::MultiplyTwoValues(_) => structure::meta::ValueType::Float,
+        model::ComputedValue::DivideTwoValues(_) => structure::meta::ValueType::Float,
+        model::ComputedValue::ModulusTwoValues(_) => structure::meta::ValueType::Float,
+        model::ComputedValue::PowerTwoValues(_) => structure::meta::ValueType::Float,
+        model::ComputedValue::RoundValue(_) => structure::meta::ValueType::Float,
+        model::ComputedValue::FloorValue(_) => structure::meta::ValueType::Float,
+        model::ComputedValue::CeilValue(_) => structure::meta::ValueType::Float,
+        model::ComputedValue::AbsValue(_) => structure::meta::ValueType::Float,
+        model::ComputedValue::SumNumberListValue(_) => structure::meta::ValueType::Float,
+        model::ComputedValue::ProductNumberListValue(_) => structure::meta::ValueType::Float,
+        model::ComputedValue::AverageNumberListValue(_) => structure::meta::ValueType::Float,
+        model::ComputedValue::MinNumberListValue(_) => structure::meta::ValueType::Float,
+        model::ComputedValue::MaxNumberListValue(_) => structure::meta::ValueType::Float,
+        model::ComputedValue::ListIndexNumberValue(_) => structure::meta::ValueType::Float,
+        model::ComputedValue::MapKeyNumberValue(_) => structure::meta::ValueType::Float,
+        model::ComputedValue::CollectionSizeNumberValue(_) => structure::meta::ValueType::Float,
+        model::ComputedValue::StringLeftIndexNumberValue(_) => structure::meta::ValueType::Float,
+        model::ComputedValue::StringRightIndexNumberValue(_) => structure::meta::ValueType::Float,
+        model::ComputedValue::StringListIndexNumberValue(_) => structure::meta::ValueType::Float,
+        model::ComputedValue::NumberListIndexNumberValue(_) => structure::meta::ValueType::Float,
+        model::ComputedValue::BooleanListIndexNumberValue(_) => structure::meta::ValueType::Float,
+        model::ComputedValue::ConstantNumberValue(_) => structure::meta::ValueType::Float,
 
-        model::ComputedValue::LookupBooleanValue(_) => Some(structure::meta::ValueType::Boolean),
-        model::ComputedValue::AndTwoBooleanValues(_) => Some(structure::meta::ValueType::Boolean),
-        model::ComputedValue::OrTwoBooleanValues(_) => Some(structure::meta::ValueType::Boolean),
-        model::ComputedValue::NotBooleanValue(_) => Some(structure::meta::ValueType::Boolean),
-        model::ComputedValue::XorTwoBooleanValues(_) => Some(structure::meta::ValueType::Boolean),
-        model::ComputedValue::NandTwoBooleanValues(_) => Some(structure::meta::ValueType::Boolean),
-        model::ComputedValue::NorTwoBooleanValues(_) => Some(structure::meta::ValueType::Boolean),
-        model::ComputedValue::XnorTwoBooleanValues(_) => Some(structure::meta::ValueType::Boolean),
-        model::ComputedValue::ListIndexBooleanValue(_) => Some(structure::meta::ValueType::Boolean),
-        model::ComputedValue::MapKeyBooleanValue(_) => Some(structure::meta::ValueType::Boolean),
-        model::ComputedValue::MapContainsKeyBooleanValue(_) => {
-            Some(structure::meta::ValueType::Boolean)
-        }
+        model::ComputedValue::LookupBooleanValue(_) => structure::meta::ValueType::Boolean,
+        model::ComputedValue::AndTwoBooleanValues(_) => structure::meta::ValueType::Boolean,
+        model::ComputedValue::OrTwoBooleanValues(_) => structure::meta::ValueType::Boolean,
+        model::ComputedValue::NotBooleanValue(_) => structure::meta::ValueType::Boolean,
+        model::ComputedValue::XorTwoBooleanValues(_) => structure::meta::ValueType::Boolean,
+        model::ComputedValue::NandTwoBooleanValues(_) => structure::meta::ValueType::Boolean,
+        model::ComputedValue::NorTwoBooleanValues(_) => structure::meta::ValueType::Boolean,
+        model::ComputedValue::XnorTwoBooleanValues(_) => structure::meta::ValueType::Boolean,
+        model::ComputedValue::ListIndexBooleanValue(_) => structure::meta::ValueType::Boolean,
+        model::ComputedValue::MapKeyBooleanValue(_) => structure::meta::ValueType::Boolean,
+        model::ComputedValue::MapContainsKeyBooleanValue(_) => structure::meta::ValueType::Boolean,
         model::ComputedValue::ListContainsIndexBooleanValue(_) => {
-            Some(structure::meta::ValueType::Boolean)
+            structure::meta::ValueType::Boolean
         }
-        model::ComputedValue::StringEqualBooleanValue(_) => {
-            Some(structure::meta::ValueType::Boolean)
-        }
-        model::ComputedValue::NumberEqualBooleanValue(_) => {
-            Some(structure::meta::ValueType::Boolean)
-        }
-        model::ComputedValue::ConstantBooleanValue(_) => Some(structure::meta::ValueType::Boolean),
+        model::ComputedValue::StringEqualBooleanValue(_) => structure::meta::ValueType::Boolean,
+        model::ComputedValue::NumberEqualBooleanValue(_) => structure::meta::ValueType::Boolean,
+        model::ComputedValue::ConstantBooleanValue(_) => structure::meta::ValueType::Boolean,
 
-        model::ComputedValue::LookupStringListValue(_) => {
-            Some(structure::meta::ValueType::StringList)
-        }
-        model::ComputedValue::SplitStringValue(_) => Some(structure::meta::ValueType::StringList),
-        model::ComputedValue::RangeStringListValue(_) => {
-            Some(structure::meta::ValueType::StringList)
-        }
-        model::ComputedValue::StringListMapKeyValue(_) => {
-            Some(structure::meta::ValueType::StringList)
-        }
-        model::ComputedValue::MapKeysStringListValue(_) => {
-            Some(structure::meta::ValueType::StringList)
-        }
-        model::ComputedValue::ConstantStringListValue(_) => {
-            Some(structure::meta::ValueType::StringList)
-        }
+        model::ComputedValue::LookupStringListValue(_) => structure::meta::ValueType::StringList,
+        model::ComputedValue::SplitStringValue(_) => structure::meta::ValueType::StringList,
+        model::ComputedValue::RangeStringListValue(_) => structure::meta::ValueType::StringList,
+        model::ComputedValue::StringListMapKeyValue(_) => structure::meta::ValueType::StringList,
+        model::ComputedValue::MapKeysStringListValue(_) => structure::meta::ValueType::StringList,
+        model::ComputedValue::ConstantStringListValue(_) => structure::meta::ValueType::StringList,
 
-        model::ComputedValue::LookupNumberListValue(_) => {
-            Some(structure::meta::ValueType::FloatList)
-        }
-        model::ComputedValue::RangeNumberListValue(_) => {
-            Some(structure::meta::ValueType::FloatList)
-        }
-        model::ComputedValue::ConstantNumberListValue(_) => {
-            Some(structure::meta::ValueType::FloatList)
-        }
+        model::ComputedValue::LookupNumberListValue(_) => structure::meta::ValueType::FloatList,
+        model::ComputedValue::RangeNumberListValue(_) => structure::meta::ValueType::FloatList,
+        model::ComputedValue::ConstantNumberListValue(_) => structure::meta::ValueType::FloatList,
 
-        model::ComputedValue::LookupBooleanListValue(_) => {
-            Some(structure::meta::ValueType::BooleanList)
-        }
-        model::ComputedValue::RangeBooleanListValue(_) => {
-            Some(structure::meta::ValueType::BooleanList)
-        }
+        model::ComputedValue::LookupBooleanListValue(_) => structure::meta::ValueType::BooleanList,
+        model::ComputedValue::RangeBooleanListValue(_) => structure::meta::ValueType::BooleanList,
         model::ComputedValue::ConstantBooleanListValue(_) => {
-            Some(structure::meta::ValueType::BooleanList)
+            structure::meta::ValueType::BooleanList
         }
 
-        model::ComputedValue::LookupStringMapValue(_) => {
-            Some(structure::meta::ValueType::StringMap)
-        }
-        model::ComputedValue::UnionStringMapValue(_) => Some(structure::meta::ValueType::StringMap),
-        model::ComputedValue::StringMapListIndexValue(_) => {
-            Some(structure::meta::ValueType::StringMap)
-        }
-        model::ComputedValue::ConstantStringMapValue(_) => {
-            Some(structure::meta::ValueType::StringMap)
-        }
+        model::ComputedValue::LookupStringMapValue(_) => structure::meta::ValueType::StringMap,
+        model::ComputedValue::UnionStringMapValue(_) => structure::meta::ValueType::StringMap,
+        model::ComputedValue::StringMapListIndexValue(_) => structure::meta::ValueType::StringMap,
+        model::ComputedValue::ConstantStringMapValue(_) => structure::meta::ValueType::StringMap,
 
-        model::ComputedValue::LookupNumberMapValue(_) => Some(structure::meta::ValueType::FloatMap),
-        model::ComputedValue::UnionNumberMapValue(_) => Some(structure::meta::ValueType::FloatMap),
-        model::ComputedValue::ConstantNumberMapValue(_) => {
-            Some(structure::meta::ValueType::FloatMap)
-        }
+        model::ComputedValue::LookupNumberMapValue(_) => structure::meta::ValueType::FloatMap,
+        model::ComputedValue::UnionNumberMapValue(_) => structure::meta::ValueType::FloatMap,
+        model::ComputedValue::ConstantNumberMapValue(_) => structure::meta::ValueType::FloatMap,
 
-        model::ComputedValue::LookupBooleanMapValue(_) => {
-            Some(structure::meta::ValueType::BooleanMap)
-        }
-        model::ComputedValue::UnionBooleanMapValue(_) => {
-            Some(structure::meta::ValueType::BooleanMap)
-        }
-        model::ComputedValue::ConstantBooleanMapValue(_) => {
-            Some(structure::meta::ValueType::BooleanMap)
-        }
+        model::ComputedValue::LookupBooleanMapValue(_) => structure::meta::ValueType::BooleanMap,
+        model::ComputedValue::UnionBooleanMapValue(_) => structure::meta::ValueType::BooleanMap,
+        model::ComputedValue::ConstantBooleanMapValue(_) => structure::meta::ValueType::BooleanMap,
 
         model::ComputedValue::LookupStringListMapValue(_) => {
-            Some(structure::meta::ValueType::StringListMap)
+            structure::meta::ValueType::StringListMap
         }
         model::ComputedValue::UnionStringListMapValue(_) => {
-            Some(structure::meta::ValueType::StringListMap)
+            structure::meta::ValueType::StringListMap
         }
         model::ComputedValue::ConstantStringListMapValue(_) => {
-            Some(structure::meta::ValueType::StringListMap)
+            structure::meta::ValueType::StringListMap
         }
 
         model::ComputedValue::LookupStringMapListValue(_) => {
-            Some(structure::meta::ValueType::StringMapList)
+            structure::meta::ValueType::StringMapList
         }
         model::ComputedValue::RangeStringMapListValue(_) => {
-            Some(structure::meta::ValueType::StringMapList)
+            structure::meta::ValueType::StringMapList
         }
         model::ComputedValue::ConstantStringMapListValue(_) => {
-            Some(structure::meta::ValueType::StringMapList)
+            structure::meta::ValueType::StringMapList
         }
     }
 }
@@ -170,39 +117,23 @@ pub fn get_value_type(value: &model::ComputedValue) -> Option<structure::meta::V
 /// Return 'true' if the string list value item references a list.
 pub fn is_string_list(value: &model::ConstantStringListValueValueItem) -> bool {
     match value {
-        model::ConstantStringListValueValueItem::LookupStringValue(lookup_string_value) => true,
-        model::ConstantStringListValueValueItem::ListIndexStringValue(list_index_string_value) => {
-            true
-        }
-        model::ConstantStringListValueValueItem::MapKeyStringValue(map_key_string_value) => true,
-        model::ConstantStringListValueValueItem::SubStringValue(sub_string_value) => true,
-        model::ConstantStringListValueValueItem::TrimStringValue(trim_string_value) => true,
-        model::ConstantStringListValueValueItem::NumberToStringValue(number_to_string_value) => {
-            true
-        }
-        model::ConstantStringListValueValueItem::BooleanToStringValue(boolean_to_string_value) => {
-            true
-        }
-        model::ConstantStringListValueValueItem::ListToStringValue(list_to_string_value) => true,
-        model::ConstantStringListValueValueItem::MapToStringValue(map_to_string_value) => true,
-        model::ConstantStringListValueValueItem::ConstantStringValue(constant_string_value) => true,
+        model::ConstantStringListValueValueItem::LookupStringValue(_) => true,
+        model::ConstantStringListValueValueItem::ListIndexStringValue(_) => true,
+        model::ConstantStringListValueValueItem::MapKeyStringValue(_) => true,
+        model::ConstantStringListValueValueItem::SubStringValue(_) => true,
+        model::ConstantStringListValueValueItem::TrimStringValue(_) => true,
+        model::ConstantStringListValueValueItem::NumberToStringValue(_) => true,
+        model::ConstantStringListValueValueItem::BooleanToStringValue(_) => true,
+        model::ConstantStringListValueValueItem::ListToStringValue(_) => true,
+        model::ConstantStringListValueValueItem::MapToStringValue(_) => true,
+        model::ConstantStringListValueValueItem::ConstantStringValue(_) => true,
 
-        model::ConstantStringListValueValueItem::LookupStringListValue(
-            lookup_string_list_value,
-        ) => false,
-        model::ConstantStringListValueValueItem::SplitStringValue(split_string_value) => false,
-        model::ConstantStringListValueValueItem::RangeStringListValue(range_string_list_value) => {
-            false
-        }
-        model::ConstantStringListValueValueItem::StringListMapKeyValue(
-            string_list_map_key_value,
-        ) => false,
-        model::ConstantStringListValueValueItem::MapKeysStringListValue(
-            map_keys_string_list_value,
-        ) => false,
-        model::ConstantStringListValueValueItem::ConstantStringListValue(
-            constant_string_list_value,
-        ) => false,
+        model::ConstantStringListValueValueItem::LookupStringListValue(_) => false,
+        model::ConstantStringListValueValueItem::SplitStringValue(_) => false,
+        model::ConstantStringListValueValueItem::RangeStringListValue(_) => false,
+        model::ConstantStringListValueValueItem::StringListMapKeyValue(_) => false,
+        model::ConstantStringListValueValueItem::MapKeysStringListValue(_) => false,
+        model::ConstantStringListValueValueItem::ConstantStringListValue(_) => false,
     }
 }
 

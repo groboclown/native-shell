@@ -5,68 +5,65 @@ use std::{collections::HashMap, ops::Deref};
 use super::{helpers, lookup};
 use crate::{
     server_shell::{
-        builder::{collect, errors},
+        builder::{collect, errors, rustgen::names},
         lls::{self, convert::*},
     },
     shell_lib::structure,
 };
 
+/// Convert the parameter into Rust code.
 pub fn conv_initial_parameter(
     _issues: &errors::ScriptIssues,
     _col: &collect::Collector,
     value: &lls::model::Parameter,
-) -> Result<Option<(structure::meta::ValueType, String)>, ()> {
+) -> Result<(structure::meta::ValueType, String), ()> {
     match &value.value {
-        lls::model::InitialParameterValue::String { source: _, value } => Ok(Some((
+        lls::model::InitialParameterValue::String { source: _, value } => Ok((
             structure::meta::ValueType::String,
             helpers::as_rust_string(&value.clone().into()),
-        ))),
-        lls::model::InitialParameterValue::Number { source: _, value } => {
-            // Numeric conversion: just use to_string.
-            Ok(Some((
-                structure::meta::ValueType::Float,
-                helpers::as_rust_float(*value.deref()),
-            )))
-        }
-        lls::model::InitialParameterValue::Boolean { source: _, value } => Ok(Some((
+        )),
+        lls::model::InitialParameterValue::Number { source: _, value } => Ok((
+            structure::meta::ValueType::Float,
+            helpers::as_rust_float(*value.deref()),
+        )),
+        lls::model::InitialParameterValue::Boolean { source: _, value } => Ok((
             structure::meta::ValueType::Boolean,
             helpers::as_rust_bool(*value).to_string(),
-        ))),
-        lls::model::InitialParameterValue::Null { source: _ } => Ok(None),
-        lls::model::InitialParameterValue::StringList { source: _, value } => Ok(Some((
+        )),
+        lls::model::InitialParameterValue::StringList { source: _, value } => Ok((
             structure::meta::ValueType::StringList,
             helpers::as_rust_string_list(value),
-        ))),
-        lls::model::InitialParameterValue::NumberList { source: _, value } => Ok(Some((
+        )),
+        lls::model::InitialParameterValue::NumberList { source: _, value } => Ok((
             structure::meta::ValueType::FloatList,
             helpers::as_rust_float_list(value),
-        ))),
-        lls::model::InitialParameterValue::BooleanList { source: _, value } => Ok(Some((
+        )),
+        lls::model::InitialParameterValue::BooleanList { source: _, value } => Ok((
             structure::meta::ValueType::BooleanList,
             helpers::as_rust_bool_list(value),
-        ))),
-        lls::model::InitialParameterValue::StringMap { source: _, value } => Ok(Some((
+        )),
+        lls::model::InitialParameterValue::StringMap { source: _, value } => Ok((
             structure::meta::ValueType::StringMap,
             helpers::as_rust_map(value, |v| helpers::as_rust_string(v)),
-        ))),
-        lls::model::InitialParameterValue::NumberMap { source: _, value } => Ok(Some((
+        )),
+        lls::model::InitialParameterValue::NumberMap { source: _, value } => Ok((
             structure::meta::ValueType::FloatMap,
             helpers::as_rust_map(value, |v| helpers::as_rust_float(*v.deref())),
-        ))),
-        lls::model::InitialParameterValue::BooleanMap { source: _, value } => Ok(Some((
+        )),
+        lls::model::InitialParameterValue::BooleanMap { source: _, value } => Ok((
             structure::meta::ValueType::BooleanMap,
             helpers::as_rust_map(value, |v| helpers::as_rust_bool(*v).to_string()),
-        ))),
-        lls::model::InitialParameterValue::StringListMap { source: _, value } => Ok(Some((
+        )),
+        lls::model::InitialParameterValue::StringListMap { source: _, value } => Ok((
             structure::meta::ValueType::StringListMap,
             helpers::as_rust_map(value, |v| helpers::as_rust_string_list(v)),
-        ))),
-        lls::model::InitialParameterValue::StringMapList { source: _, value } => Ok(Some((
+        )),
+        lls::model::InitialParameterValue::StringMapList { source: _, value } => Ok((
             structure::meta::ValueType::StringMapList,
             helpers::as_rust_list(value, |v| {
                 helpers::as_rust_map(v, |s| helpers::as_rust_string(s))
             }),
-        ))),
+        )),
     }
 }
 
@@ -92,13 +89,8 @@ pub fn conv_action_parameter<'a, 'b, 'c>(
     issues: &'a errors::ScriptIssues,
     col: &'b collect::Collector,
     value: &'c lls::model::ActionParameter,
-) -> Result<Option<(structure::meta::ValueType, String)>, ()> {
-    let mut ret_type = match get_value_type(&value.value) {
-        Some(t) => t,
-        None => {
-            return Ok(None);
-        }
-    };
+) -> Result<(structure::meta::ValueType, String), ()> {
+    let mut ret_type = get_value_type(&value.value);
     let mut ret_str = String::new();
     let mut stack: Vec<ConvAP> = vec![ConvAP::Computed((
         Some(ret_type.clone()),
@@ -109,7 +101,7 @@ pub fn conv_action_parameter<'a, 'b, 'c>(
         let next_v = match stack.pop() {
             Some(v) => v,
             None => {
-                return Ok(Some((ret_type.clone(), ret_str)));
+                return Ok((ret_type.clone(), ret_str));
             }
         };
         match next_v {
@@ -122,13 +114,6 @@ pub fn conv_action_parameter<'a, 'b, 'c>(
                 ret_str.push_str(s.as_str());
             }
             ConvAP::Computed((exp_type, val)) => match val {
-                lls::model::ComputedValue::ComputedNullValue(_) => {
-                    // Receivers allow this value for list values and map values
-                    // and optional top-level values.
-                    // TODO encode optional into the expected type.
-                    ret_str.push_str("None");
-                }
-
                 // ----------------------------------------------------
                 // String
                 // TODO have all of these generate a String object, rather than a &str.

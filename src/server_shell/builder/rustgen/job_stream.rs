@@ -502,12 +502,7 @@ fn setup_stream<'a, 'b, 'c>(
                     }
                 };
                 let to_param = match super::values::conv_action_parameter(issues, col, &to_param) {
-                    Ok(s) => match s {
-                        Some((_, s)) => s,
-                        None => {
-                            return None;
-                        }
-                    },
+                    Ok(s) => s,
                     Err(_) => {
                         return None;
                     }
@@ -531,7 +526,7 @@ fn setup_stream<'a, 'b, 'c>(
                             &from_field_name,
                             from_job_ref,
                             &from_field_name,
-                            to_param,
+                            to_param.1,
                         ),
                     }),
                 }
@@ -566,12 +561,7 @@ fn setup_stream<'a, 'b, 'c>(
                 };
                 let from_param =
                     match super::values::conv_action_parameter(issues, col, &from_param) {
-                        Ok(s) => match s {
-                            Some((_, s)) => s,
-                            None => {
-                                return None;
-                            }
-                        },
+                        Ok(s) => s,
                         Err(_) => {
                             return None;
                         }
@@ -591,7 +581,7 @@ fn setup_stream<'a, 'b, 'c>(
                             r#"
         let (stream{}_{}, stream{}_{}_inp) = stream::fd::FdIn::from_file(std::fs::File::open({})?).into_fd();
 "#,
-                            to_job_ref, &to_field_name, to_job_ref, &to_field_name, from_param,
+                            to_job_ref, &to_field_name, to_job_ref, &to_field_name, from_param.1,
                         ),
                     }),
                 }

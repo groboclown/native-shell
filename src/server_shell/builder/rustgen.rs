@@ -1,5 +1,6 @@
 //SPDX:MIT
 
+pub mod code_gen;
 pub mod commands;
 pub mod helpers;
 pub mod job_inline;

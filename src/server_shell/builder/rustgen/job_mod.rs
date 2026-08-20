@@ -300,7 +300,7 @@ fn gen_param_struct<K: Into<String> + Clone, V: Clone>(
         &errors::ScriptIssues,
         &collect::Collector,
         &V,
-    ) -> Result<Option<(structure::meta::ValueType, String)>, ()>,
+    ) -> Result<(structure::meta::ValueType, String), ()>,
 ) -> Result<(), ()> {
     helpers::write_string(out, &issues, helpers::qualify_name(mod_name, &params.name))?;
     let use_field_name: bool;
@@ -347,70 +347,39 @@ fn gen_param_struct<K: Into<String> + Clone, V: Clone>(
             }
             Some(val) => {
                 let c_val = value_conv(issues, col, &val)?;
-                match c_val {
-                    None if !field.optional => {
-                        issues.add_err(errors::BuilderError::FieldTypeMismatch(
-                            errors::ErrorDetails {
-                                message: field.name.clone(),
-                                // TODO the source should come from the parameter value source,
-                                //      but the type declaration makes that not possible.
-                                // source: val.source.clone(),
-                                source: source.into(),
-                                related: Vec::new(),
-                            },
-                        ));
-                        continue;
-                    }
-                    None => {
-                        helpers::write_string(
-                            out,
-                            &issues,
-                            format!(
-                                "{}None, ",
-                                match use_field_name {
-                                    true => format!("{}: ", field.name),
-                                    false => "".to_string(),
-                                },
-                            ),
-                        )?;
-                    }
-                    Some((s_t, s_val)) => {
-                        if s_t != field.value_type {
-                            issues.add_err(errors::BuilderError::FieldTypeMismatch(
-                                errors::ErrorDetails {
-                                    message: field.name.clone(),
-                                    // TODO the source should come from the parameter value source,
-                                    //      but the type declaration makes that not possible.
-                                    // source: val.source.clone(),
-                                    source: source.into(),
-                                    related: Vec::new(),
-                                },
-                            ));
-                            continue;
-                        }
-                        helpers::write_string(
-                            out,
-                            &issues,
-                            format!(
-                                "{}{}{}{}, ",
-                                match use_field_name {
-                                    true => format!("{}: ", field.name),
-                                    false => "".to_string(),
-                                },
-                                match field.optional {
-                                    true => "Some(",
-                                    false => "",
-                                },
-                                s_val,
-                                match field.optional {
-                                    true => ")",
-                                    false => "",
-                                },
-                            ),
-                        )?;
-                    }
+                if c_val.0 != field.value_type {
+                    issues.add_err(errors::BuilderError::FieldTypeMismatch(
+                        errors::ErrorDetails {
+                            message: field.name.clone(),
+                            // TODO the source should come from the parameter value source,
+                            //      but the type declaration makes that not possible.
+                            // source: val.source.clone(),
+                            source: source.into(),
+                            related: Vec::new(),
+                        },
+                    ));
+                    continue;
                 }
-                helpers::write_str(out, &issues, ", ")?;
+                helpers::write_string(
+                    out,
+                    &issues,
+                    format!(
+                        "{}{}{}{}, ",
+                        match use_field_name {
+                            true => format!("{}: ", field.name),
+                            false => "".to_string(),
+                        },
+                        match field.optional {
+                            true => "Some(",
+                            false => "",
+                        },
+                        c_val.1,
+                        match field.optional {
+                            true => ")",
+                            false => "",
+                        },
+                    ),
+                )?;
             }
         }
     }

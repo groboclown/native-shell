@@ -26,6 +26,8 @@ pub enum ValueType {
 ///
 /// If `optional` is true, then the user does not need to provide a value for this field,
 /// and the code representation will wrap the type in an `Option<ValueType>`.
+/// Note that the values settable by a user do not include 'null' like values, so 'optional'
+/// only means that the user did not set the value.
 #[derive(Clone, Debug)]
 pub struct NamedValue {
     pub name: String,
@@ -34,7 +36,7 @@ pub struct NamedValue {
     pub optional: bool,
 }
 
-/// The code that evaluates a parameter value at runtime.
+/// The Rust code that evaluates a parameter value at runtime.
 pub type ParameterValueCode = String;
 
 #[derive(Clone, Debug)]

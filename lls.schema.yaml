@@ -856,7 +856,9 @@ properties:
   InitialParameters:
     type: object
     title: Initial Parameters
-    description: The compile-time parameters for the node.  These parameters are static and help initialize the module.
+    description: >
+      The compile-time parameters for the node.  These parameters are static and help initialize the module.
+      Note that these do not include a 'null' like value.  That's very intentional.
     minItems: 0
     maxItems: 1000
     patternProperties:
@@ -926,19 +928,6 @@ properties:
           value:
             description: The constant boolean value.
             type: boolean
-      - title: Compile-Time Null
-        description: A constant null value.
-        type: object
-        required:
-          - kind
-          - source
-        additionalProperties: false
-        properties:
-          kind:
-            const: "null"
-            type: string
-          source:
-            "$ref": "#/$defs/Source"
       - title: Compile-Time String List
         description: A constant string list value.
         type: object
@@ -1153,12 +1142,11 @@ properties:
       - "$ref": "#/$composite/ComputedBooleanMapValue"
       - "$ref": "#/$composite/ComputedStringListMapValue"
       - "$ref": "#/$composite/ComputedStringMapListValue"
-      - "$ref": "#/$def/ComputedNullValue"
 
-  ComputedNullValue:
-    title: Computed Null Value
+  ComputedMissingValue:
+    title: Computed Missing Value
     description: >
-      A null value.  Useful for optional values, or when a map entry construction requires removing an entry.
+      Marks that a map entry construction requires removing an entry.
     type: object
     discriminator:
       propertyName: kind
@@ -1168,7 +1156,7 @@ properties:
     additionalProperties: false
     properties:
       kind:
-        const: "null"
+        const: "missing"
         type: string
       source:
         "$ref": "#/$defs/Source"
@@ -2693,7 +2681,7 @@ properties:
     title: Constant String Map Value
     description: >
       A constant string map value.  Can include expanding a sub-map within the map.
-      This also includes a 'null' value for the key to allow blanking out values if used in a union.
+      This also includes a 'missing' value for the key to allow blanking out values if used in a union.
     type: object
     discriminator:
       propertyName: kind
@@ -2717,7 +2705,7 @@ properties:
           ".*":
             oneOf:
               - "$ref": "#/$composite/ComputedStringValue"
-              - "$ref": "#/$defs/ComputedNullValue"
+              - "$ref": "#/$defs/ComputedMissingValue"
 
   # -------------------------------------------------------------------
   # Number Map values
@@ -2770,7 +2758,7 @@ properties:
     title: Constant Number Map Value
     description: >
       A constant number map value.  Can include expanding a sub-map within the map.
-      This also includes a 'null' value for the key to allow blanking out values if used in a union.
+      This also includes a 'missing' value for the key to allow blanking out values if used in a union.
     type: object
     discriminator:
       propertyName: kind
@@ -2794,7 +2782,7 @@ properties:
           ".*":
             oneOf:
               - "$ref": "#/$composite/ComputedNumberValue"
-              - "$ref": "#/$defs/ComputedNullValue"
+              - "$ref": "#/$defs/ComputedMissingValue"
 
   # -------------------------------------------------------------------
   # Boolean Maps
@@ -2847,7 +2835,7 @@ properties:
     title: Constant Boolean Map Value
     description: >
       A constant boolean map value.  Can include expanding a sub-map within the map.
-      This also includes a 'null' value for the key to allow blanking out values if used in a union.
+      This also includes a 'Missing' value for the key to allow blanking out values if used in a union.
     type: object
     discriminator:
       propertyName: kind
@@ -2871,7 +2859,7 @@ properties:
           ".*":
             oneOf:
               - "$ref": "#/$composite/ComputedBooleanValue"
-              - "$ref": "#/$defs/ComputedNullValue"
+              - "$ref": "#/$defs/ComputedMissingValue"
 
   # -------------------------------------------------------------------
   # Map of string lists
@@ -2924,7 +2912,7 @@ properties:
     title: Constant String List Map Value
     description: >
       A constant string-list map value.  Can include expanding a sub-map within the map.
-      This also includes a 'null' value for the key to allow blanking out values if used in a union.
+      This also includes a 'missing' value for the key to allow blanking out values if used in a union.
     type: object
     discriminator:
       propertyName: kind
@@ -2948,7 +2936,7 @@ properties:
           ".*":
             oneOf:
               - "$ref": "#/$composite/ComputedStringListValue"
-              - "$ref": "#/$defs/ComputedNullValue"
+              - "$ref": "#/$defs/ComputedMissingValue"
 
   # -------------------------------------------------------------------
   # List of string maps

@@ -39,6 +39,18 @@ pub const RUST_DOT_EXT: &'static str = ".rs";
 pub const RUST_EXT: &'static str = "rs";
 
 // --------------------------------------------------------------------
+// Rust Standard Libraries
+
+pub const STD_NONE: &'static str = "std::option::Option::None";
+
+// --------------------------------------------------------------------
+// Shell Library Names
+
+pub const SHELL_LIB: &'static str = "crate::shell_lib";
+pub const SHELL_LIB_STRUCT: &'static str = "crate::shell_lib::structure";
+pub const SHELL_LIB_SOURCE: &'static str = "crate::shell_lib::structure::Source";
+
+// --------------------------------------------------------------------
 // Runtime structure
 //
 // The crate::runtime structure contains references to all the commands and jobs,

@@ -1214,14 +1214,14 @@ impl ::std::convert::From<ConstantBooleanValue> for ComputedBooleanValue {
         Self::ConstantBooleanValue(value)
     }
 }
-#[doc = "A null value.  Useful for optional values, or when a map entry construction requires removing an entry.\n"]
+#[doc = "Marks that a map entry construction requires removing an entry.\n"]
 #[doc = r""]
 #[doc = r" <details><summary>JSON schema</summary>"]
 #[doc = r""]
 #[doc = r" ```json"]
 #[doc = "{"]
-#[doc = "  \"title\": \"Computed Null Value\","]
-#[doc = "  \"description\": \"A null value.  Useful for optional values, or when a map entry construction requires removing an entry.\\n\","]
+#[doc = "  \"title\": \"Computed Missing Value\","]
+#[doc = "  \"description\": \"Marks that a map entry construction requires removing an entry.\\n\","]
 #[doc = "  \"type\": \"object\","]
 #[doc = "  \"required\": ["]
 #[doc = "    \"kind\","]
@@ -1230,7 +1230,7 @@ impl ::std::convert::From<ConstantBooleanValue> for ComputedBooleanValue {
 #[doc = "  \"properties\": {"]
 #[doc = "    \"kind\": {"]
 #[doc = "      \"type\": \"string\","]
-#[doc = "      \"const\": \"null\""]
+#[doc = "      \"const\": \"missing\""]
 #[doc = "    },"]
 #[doc = "    \"source\": {"]
 #[doc = "      \"$ref\": \"#/$defs/Source\""]
@@ -1245,17 +1245,17 @@ impl ::std::convert::From<ConstantBooleanValue> for ComputedBooleanValue {
 #[doc = r" </details>"]
 #[derive(:: serde :: Deserialize, :: serde :: Serialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
-pub struct ComputedNullValue {
+pub struct ComputedMissingValue {
     pub kind: ::std::string::String,
     pub source: Source,
 }
-impl ::std::convert::From<&ComputedNullValue> for ComputedNullValue {
-    fn from(value: &ComputedNullValue) -> Self {
+impl ::std::convert::From<&ComputedMissingValue> for ComputedMissingValue {
+    fn from(value: &ComputedMissingValue) -> Self {
         value.clone()
     }
 }
-impl ComputedNullValue {
-    pub fn builder() -> builder::ComputedNullValue {
+impl ComputedMissingValue {
+    pub fn builder() -> builder::ComputedMissingValue {
         Default::default()
     }
 }
@@ -2190,9 +2190,6 @@ impl ::std::convert::From<ConstantStringValue> for ComputedStringValue {
 #[doc = "    },"]
 #[doc = "    {"]
 #[doc = "      \"$ref\": \"#/$defs/ConstantStringMapListValue\""]
-#[doc = "    },"]
-#[doc = "    {"]
-#[doc = "      \"$ref\": \"#/$def/ComputedNullValue\""]
 #[doc = "    }"]
 #[doc = "  ],"]
 #[doc = "  \"discriminator\": {"]
@@ -2282,7 +2279,6 @@ pub enum ComputedValue {
     LookupStringMapListValue(LookupStringMapListValue),
     RangeStringMapListValue(RangeStringMapListValue),
     ConstantStringMapListValue(ConstantStringMapListValue),
-    ComputedNullValue(ComputedNullValue),
 }
 impl ::std::convert::From<&Self> for ComputedValue {
     fn from(value: &ComputedValue) -> Self {
@@ -2677,11 +2673,6 @@ impl ::std::convert::From<RangeStringMapListValue> for ComputedValue {
 impl ::std::convert::From<ConstantStringMapListValue> for ComputedValue {
     fn from(value: ConstantStringMapListValue) -> Self {
         Self::ConstantStringMapListValue(value)
-    }
-}
-impl ::std::convert::From<ComputedNullValue> for ComputedValue {
-    fn from(value: ComputedNullValue) -> Self {
-        Self::ComputedNullValue(value)
     }
 }
 #[doc = "`ConstFloat`"]
@@ -3187,14 +3178,14 @@ impl ::std::convert::From<ConstantBooleanListValue> for ConstantBooleanListValue
         Self::ConstantBooleanListValue(value)
     }
 }
-#[doc = "A constant boolean map value.  Can include expanding a sub-map within the map. This also includes a 'null' value for the key to allow blanking out values if used in a union.\n"]
+#[doc = "A constant boolean map value.  Can include expanding a sub-map within the map. This also includes a 'Missing' value for the key to allow blanking out values if used in a union.\n"]
 #[doc = r""]
 #[doc = r" <details><summary>JSON schema</summary>"]
 #[doc = r""]
 #[doc = r" ```json"]
 #[doc = "{"]
 #[doc = "  \"title\": \"Constant Boolean Map Value\","]
-#[doc = "  \"description\": \"A constant boolean map value.  Can include expanding a sub-map within the map. This also includes a 'null' value for the key to allow blanking out values if used in a union.\\n\","]
+#[doc = "  \"description\": \"A constant boolean map value.  Can include expanding a sub-map within the map. This also includes a 'Missing' value for the key to allow blanking out values if used in a union.\\n\","]
 #[doc = "  \"type\": \"object\","]
 #[doc = "  \"required\": ["]
 #[doc = "    \"kind\","]
@@ -3263,7 +3254,7 @@ impl ::std::convert::From<ConstantBooleanListValue> for ConstantBooleanListValue
 #[doc = "              \"$ref\": \"#/$defs/ConstantBooleanValue\""]
 #[doc = "            },"]
 #[doc = "            {"]
-#[doc = "              \"$ref\": \"#/$defs/ComputedNullValue\""]
+#[doc = "              \"$ref\": \"#/$defs/ComputedMissingValue\""]
 #[doc = "            }"]
 #[doc = "          ]"]
 #[doc = "        }"]
@@ -3426,7 +3417,7 @@ impl<'de> ::serde::Deserialize<'de> for ConstantBooleanMapValueValueKey {
 #[doc = "      \"$ref\": \"#/$defs/ConstantBooleanValue\""]
 #[doc = "    },"]
 #[doc = "    {"]
-#[doc = "      \"$ref\": \"#/$defs/ComputedNullValue\""]
+#[doc = "      \"$ref\": \"#/$defs/ComputedMissingValue\""]
 #[doc = "    }"]
 #[doc = "  ]"]
 #[doc = "}"]
@@ -3450,7 +3441,7 @@ pub enum ConstantBooleanMapValueValueValue {
     StringEqualBooleanValue(StringEqualBooleanValue),
     NumberEqualBooleanValue(NumberEqualBooleanValue),
     ConstantBooleanValue(ConstantBooleanValue),
-    ComputedNullValue(ComputedNullValue),
+    ComputedMissingValue(ComputedMissingValue),
 }
 impl ::std::convert::From<&Self> for ConstantBooleanMapValueValueValue {
     fn from(value: &ConstantBooleanMapValueValueValue) -> Self {
@@ -3532,9 +3523,9 @@ impl ::std::convert::From<ConstantBooleanValue> for ConstantBooleanMapValueValue
         Self::ConstantBooleanValue(value)
     }
 }
-impl ::std::convert::From<ComputedNullValue> for ConstantBooleanMapValueValueValue {
-    fn from(value: ComputedNullValue) -> Self {
-        Self::ComputedNullValue(value)
+impl ::std::convert::From<ComputedMissingValue> for ConstantBooleanMapValueValueValue {
+    fn from(value: ComputedMissingValue) -> Self {
+        Self::ComputedMissingValue(value)
     }
 }
 #[doc = "A constant boolean value."]
@@ -4001,14 +3992,14 @@ impl ::std::convert::From<ConstantNumberListValue> for ConstantNumberListValueVa
         Self::ConstantNumberListValue(value)
     }
 }
-#[doc = "A constant number map value.  Can include expanding a sub-map within the map. This also includes a 'null' value for the key to allow blanking out values if used in a union.\n"]
+#[doc = "A constant number map value.  Can include expanding a sub-map within the map. This also includes a 'missing' value for the key to allow blanking out values if used in a union.\n"]
 #[doc = r""]
 #[doc = r" <details><summary>JSON schema</summary>"]
 #[doc = r""]
 #[doc = r" ```json"]
 #[doc = "{"]
 #[doc = "  \"title\": \"Constant Number Map Value\","]
-#[doc = "  \"description\": \"A constant number map value.  Can include expanding a sub-map within the map. This also includes a 'null' value for the key to allow blanking out values if used in a union.\\n\","]
+#[doc = "  \"description\": \"A constant number map value.  Can include expanding a sub-map within the map. This also includes a 'missing' value for the key to allow blanking out values if used in a union.\\n\","]
 #[doc = "  \"type\": \"object\","]
 #[doc = "  \"required\": ["]
 #[doc = "    \"kind\","]
@@ -4107,7 +4098,7 @@ impl ::std::convert::From<ConstantNumberListValue> for ConstantNumberListValueVa
 #[doc = "              \"$ref\": \"#/$defs/ConstantNumberValue\""]
 #[doc = "            },"]
 #[doc = "            {"]
-#[doc = "              \"$ref\": \"#/$defs/ComputedNullValue\""]
+#[doc = "              \"$ref\": \"#/$defs/ComputedMissingValue\""]
 #[doc = "            }"]
 #[doc = "          ]"]
 #[doc = "        }"]
@@ -4300,7 +4291,7 @@ impl<'de> ::serde::Deserialize<'de> for ConstantNumberMapValueValueKey {
 #[doc = "      \"$ref\": \"#/$defs/ConstantNumberValue\""]
 #[doc = "    },"]
 #[doc = "    {"]
-#[doc = "      \"$ref\": \"#/$defs/ComputedNullValue\""]
+#[doc = "      \"$ref\": \"#/$defs/ComputedMissingValue\""]
 #[doc = "    }"]
 #[doc = "  ]"]
 #[doc = "}"]
@@ -4334,7 +4325,7 @@ pub enum ConstantNumberMapValueValueValue {
     NumberListIndexNumberValue(NumberListIndexNumberValue),
     BooleanListIndexNumberValue(BooleanListIndexNumberValue),
     ConstantNumberValue(ConstantNumberValue),
-    ComputedNullValue(ComputedNullValue),
+    ComputedMissingValue(ComputedMissingValue),
 }
 impl ::std::convert::From<&Self> for ConstantNumberMapValueValueValue {
     fn from(value: &ConstantNumberMapValueValueValue) -> Self {
@@ -4466,9 +4457,9 @@ impl ::std::convert::From<ConstantNumberValue> for ConstantNumberMapValueValueVa
         Self::ConstantNumberValue(value)
     }
 }
-impl ::std::convert::From<ComputedNullValue> for ConstantNumberMapValueValueValue {
-    fn from(value: ComputedNullValue) -> Self {
-        Self::ComputedNullValue(value)
+impl ::std::convert::From<ComputedMissingValue> for ConstantNumberMapValueValueValue {
+    fn from(value: ComputedMissingValue) -> Self {
+        Self::ComputedMissingValue(value)
     }
 }
 #[doc = "A constant number value."]
@@ -4522,14 +4513,14 @@ impl ConstantNumberValue {
         Default::default()
     }
 }
-#[doc = "A constant string-list map value.  Can include expanding a sub-map within the map. This also includes a 'null' value for the key to allow blanking out values if used in a union.\n"]
+#[doc = "A constant string-list map value.  Can include expanding a sub-map within the map. This also includes a 'missing' value for the key to allow blanking out values if used in a union.\n"]
 #[doc = r""]
 #[doc = r" <details><summary>JSON schema</summary>"]
 #[doc = r""]
 #[doc = r" ```json"]
 #[doc = "{"]
 #[doc = "  \"title\": \"Constant String List Map Value\","]
-#[doc = "  \"description\": \"A constant string-list map value.  Can include expanding a sub-map within the map. This also includes a 'null' value for the key to allow blanking out values if used in a union.\\n\","]
+#[doc = "  \"description\": \"A constant string-list map value.  Can include expanding a sub-map within the map. This also includes a 'missing' value for the key to allow blanking out values if used in a union.\\n\","]
 #[doc = "  \"type\": \"object\","]
 #[doc = "  \"required\": ["]
 #[doc = "    \"kind\","]
@@ -4571,7 +4562,7 @@ impl ConstantNumberValue {
 #[doc = "              \"$ref\": \"#/$defs/ConstantStringListValue\""]
 #[doc = "            },"]
 #[doc = "            {"]
-#[doc = "              \"$ref\": \"#/$defs/ComputedNullValue\""]
+#[doc = "              \"$ref\": \"#/$defs/ComputedMissingValue\""]
 #[doc = "            }"]
 #[doc = "          ]"]
 #[doc = "        }"]
@@ -4709,7 +4700,7 @@ impl<'de> ::serde::Deserialize<'de> for ConstantStringListMapValueValueKey {
 #[doc = "      \"$ref\": \"#/$defs/ConstantStringListValue\""]
 #[doc = "    },"]
 #[doc = "    {"]
-#[doc = "      \"$ref\": \"#/$defs/ComputedNullValue\""]
+#[doc = "      \"$ref\": \"#/$defs/ComputedMissingValue\""]
 #[doc = "    }"]
 #[doc = "  ]"]
 #[doc = "}"]
@@ -4724,7 +4715,7 @@ pub enum ConstantStringListMapValueValueValue {
     StringListMapKeyValue(StringListMapKeyValue),
     MapKeysStringListValue(MapKeysStringListValue),
     ConstantStringListValue(ConstantStringListValue),
-    ComputedNullValue(ComputedNullValue),
+    ComputedMissingValue(ComputedMissingValue),
 }
 impl ::std::convert::From<&Self> for ConstantStringListMapValueValueValue {
     fn from(value: &ConstantStringListMapValueValueValue) -> Self {
@@ -4761,9 +4752,9 @@ impl ::std::convert::From<ConstantStringListValue> for ConstantStringListMapValu
         Self::ConstantStringListValue(value)
     }
 }
-impl ::std::convert::From<ComputedNullValue> for ConstantStringListMapValueValueValue {
-    fn from(value: ComputedNullValue) -> Self {
-        Self::ComputedNullValue(value)
+impl ::std::convert::From<ComputedMissingValue> for ConstantStringListMapValueValueValue {
+    fn from(value: ComputedMissingValue) -> Self {
+        Self::ComputedMissingValue(value)
     }
 }
 #[doc = "A constant string list value.  Can include expanding a sub-list within the list."]
@@ -5194,14 +5185,14 @@ impl ::std::convert::From<ConstantStringMapListValue> for ConstantStringMapListV
         Self::ConstantStringMapListValue(value)
     }
 }
-#[doc = "A constant string map value.  Can include expanding a sub-map within the map. This also includes a 'null' value for the key to allow blanking out values if used in a union.\n"]
+#[doc = "A constant string map value.  Can include expanding a sub-map within the map. This also includes a 'missing' value for the key to allow blanking out values if used in a union.\n"]
 #[doc = r""]
 #[doc = r" <details><summary>JSON schema</summary>"]
 #[doc = r""]
 #[doc = r" ```json"]
 #[doc = "{"]
 #[doc = "  \"title\": \"Constant String Map Value\","]
-#[doc = "  \"description\": \"A constant string map value.  Can include expanding a sub-map within the map. This also includes a 'null' value for the key to allow blanking out values if used in a union.\\n\","]
+#[doc = "  \"description\": \"A constant string map value.  Can include expanding a sub-map within the map. This also includes a 'missing' value for the key to allow blanking out values if used in a union.\\n\","]
 #[doc = "  \"type\": \"object\","]
 #[doc = "  \"required\": ["]
 #[doc = "    \"kind\","]
@@ -5255,7 +5246,7 @@ impl ::std::convert::From<ConstantStringMapListValue> for ConstantStringMapListV
 #[doc = "              \"$ref\": \"#/$defs/ConstantStringValue\""]
 #[doc = "            },"]
 #[doc = "            {"]
-#[doc = "              \"$ref\": \"#/$defs/ComputedNullValue\""]
+#[doc = "              \"$ref\": \"#/$defs/ComputedMissingValue\""]
 #[doc = "            }"]
 #[doc = "          ]"]
 #[doc = "        }"]
@@ -5403,7 +5394,7 @@ impl<'de> ::serde::Deserialize<'de> for ConstantStringMapValueValueKey {
 #[doc = "      \"$ref\": \"#/$defs/ConstantStringValue\""]
 #[doc = "    },"]
 #[doc = "    {"]
-#[doc = "      \"$ref\": \"#/$defs/ComputedNullValue\""]
+#[doc = "      \"$ref\": \"#/$defs/ComputedMissingValue\""]
 #[doc = "    }"]
 #[doc = "  ]"]
 #[doc = "}"]
@@ -5422,7 +5413,7 @@ pub enum ConstantStringMapValueValueValue {
     ListToStringValue(ListToStringValue),
     MapToStringValue(MapToStringValue),
     ConstantStringValue(ConstantStringValue),
-    ComputedNullValue(ComputedNullValue),
+    ComputedMissingValue(ComputedMissingValue),
 }
 impl ::std::convert::From<&Self> for ConstantStringMapValueValueValue {
     fn from(value: &ConstantStringMapValueValueValue) -> Self {
@@ -5479,9 +5470,9 @@ impl ::std::convert::From<ConstantStringValue> for ConstantStringMapValueValueVa
         Self::ConstantStringValue(value)
     }
 }
-impl ::std::convert::From<ComputedNullValue> for ConstantStringMapValueValueValue {
-    fn from(value: ComputedNullValue) -> Self {
-        Self::ComputedNullValue(value)
+impl ::std::convert::From<ComputedMissingValue> for ConstantStringMapValueValueValue {
+    fn from(value: ComputedMissingValue) -> Self {
+        Self::ComputedMissingValue(value)
     }
 }
 #[doc = "A constant string value."]
@@ -6318,25 +6309,6 @@ impl FloorValue {
 #[doc = "      \"additionalProperties\": false"]
 #[doc = "    },"]
 #[doc = "    {"]
-#[doc = "      \"title\": \"Compile-Time Null\","]
-#[doc = "      \"description\": \"A constant null value.\","]
-#[doc = "      \"type\": \"object\","]
-#[doc = "      \"required\": ["]
-#[doc = "        \"kind\","]
-#[doc = "        \"source\""]
-#[doc = "      ],"]
-#[doc = "      \"properties\": {"]
-#[doc = "        \"kind\": {"]
-#[doc = "          \"type\": \"string\","]
-#[doc = "          \"const\": \"null\""]
-#[doc = "        },"]
-#[doc = "        \"source\": {"]
-#[doc = "          \"$ref\": \"#/$defs/Source\""]
-#[doc = "        }"]
-#[doc = "      },"]
-#[doc = "      \"additionalProperties\": false"]
-#[doc = "    },"]
-#[doc = "    {"]
 #[doc = "      \"title\": \"Compile-Time String List\","]
 #[doc = "      \"description\": \"A constant string list value.\","]
 #[doc = "      \"type\": \"object\","]
@@ -6603,9 +6575,6 @@ pub enum InitialParameterValue {
         #[doc = "The constant boolean value."]
         value: bool,
     },
-    #[doc = "Compile-Time Null\n\nA constant null value."]
-    #[serde(rename = "null")]
-    Null { source: Source },
     #[doc = "Compile-Time String List\n\nA constant string list value."]
     #[serde(rename = "string-list")]
     StringList {
@@ -6817,14 +6786,14 @@ impl<'de> ::serde::Deserialize<'de> for InitialParameterValueValueKey {
             })
     }
 }
-#[doc = "The compile-time parameters for the node.  These parameters are static and help initialize the module."]
+#[doc = "The compile-time parameters for the node.  These parameters are static and help initialize the module. Note that these do not include a 'null' like value.  That's very intentional.\n"]
 #[doc = r""]
 #[doc = r" <details><summary>JSON schema</summary>"]
 #[doc = r""]
 #[doc = r" ```json"]
 #[doc = "{"]
 #[doc = "  \"title\": \"Initial Parameters\","]
-#[doc = "  \"description\": \"The compile-time parameters for the node.  These parameters are static and help initialize the module.\","]
+#[doc = "  \"description\": \"The compile-time parameters for the node.  These parameters are static and help initialize the module. Note that these do not include a 'null' like value.  That's very intentional.\\n\","]
 #[doc = "  \"type\": \"object\","]
 #[doc = "  \"maxItems\": 1000,"]
 #[doc = "  \"minItems\": 0,"]
@@ -14605,11 +14574,11 @@ pub mod builder {
         }
     }
     #[derive(Clone, Debug)]
-    pub struct ComputedNullValue {
+    pub struct ComputedMissingValue {
         kind: ::std::result::Result<::std::string::String, ::std::string::String>,
         source: ::std::result::Result<super::Source, ::std::string::String>,
     }
-    impl ::std::default::Default for ComputedNullValue {
+    impl ::std::default::Default for ComputedMissingValue {
         fn default() -> Self {
             Self {
                 kind: Err("no value supplied for kind".to_string()),
@@ -14617,7 +14586,7 @@ pub mod builder {
             }
         }
     }
-    impl ComputedNullValue {
+    impl ComputedMissingValue {
         pub fn kind<T>(mut self, value: T) -> Self
         where
             T: ::std::convert::TryInto<::std::string::String>,
@@ -14639,10 +14608,10 @@ pub mod builder {
             self
         }
     }
-    impl ::std::convert::TryFrom<ComputedNullValue> for super::ComputedNullValue {
+    impl ::std::convert::TryFrom<ComputedMissingValue> for super::ComputedMissingValue {
         type Error = super::error::ConversionError;
         fn try_from(
-            value: ComputedNullValue,
+            value: ComputedMissingValue,
         ) -> ::std::result::Result<Self, super::error::ConversionError> {
             Ok(Self {
                 kind: value.kind?,
@@ -14650,8 +14619,8 @@ pub mod builder {
             })
         }
     }
-    impl ::std::convert::From<super::ComputedNullValue> for ComputedNullValue {
-        fn from(value: super::ComputedNullValue) -> Self {
+    impl ::std::convert::From<super::ComputedMissingValue> for ComputedMissingValue {
+        fn from(value: super::ComputedMissingValue) -> Self {
             Self {
                 kind: Ok(value.kind),
                 source: Ok(value.source),
